@@ -1,12 +1,27 @@
+# generic files to ignore
+*.log
+*.tmp
+*~
+*.lock
+*.DS_Store
+*.swp
+*.out
+[Tt]humbs.db
+
+#Eclipse files
+.project
+.classpath
+.settings
+
+#Intellij files
+*.iml
+.idea/
+
+#Java and Maven
 *.class
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
 *.jar
-*.war
-*.ear
+target
+lib
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+#NetBeans files
+nbproject
