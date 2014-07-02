@@ -12,7 +12,8 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
 
-@JsonPropertyOrder({ "name", "description", "timestamp", "duration", "parameters", "properties", "reportElements" })
+@JsonPropertyOrder({ "name", "description", "timestamp", "duration",
+		"parameters", "properties", "reportElements" })
 public class TestDetails {
 
 	/**
@@ -56,7 +57,7 @@ public class TestDetails {
 		if (null == reportElements) {
 			reportElements = new ArrayList<ReportElement>();
 		}
-		if (element.getStatus() == null){
+		if (element.getStatus() == null) {
 			element.setStatus(Status.success);
 		}
 		reportElements.add(element);
@@ -72,7 +73,13 @@ public class TestDetails {
 	 */
 	@JsonIgnore
 	private void updateLevelElementsStatuses(final ReportElement element) {
-		if (element == null || element.getType() == null){
+		if (null == levelElementsBuffer) {
+			// The levelElementsBuffer should have been initialized in the
+			// updateLevelElementsBuffer method. If this never happened, that
+			// means that we never started a level
+			return;
+		}
+		if (element == null || element.getType() == null) {
 			return;
 		}
 		if (element.getStatus() == Status.success) {
@@ -80,7 +87,8 @@ public class TestDetails {
 			return;
 		}
 		for (ReportElement startElement : levelElementsBuffer) {
-			if (element.getStatus().ordinal() > startElement.getStatus().ordinal()) {
+			if (element.getStatus().ordinal() > startElement.getStatus()
+					.ordinal()) {
 				startElement.setStatus(element.getStatus());
 			}
 		}
@@ -94,7 +102,7 @@ public class TestDetails {
 	 */
 	@JsonIgnore
 	private void updateLevelElementsBuffer(final ReportElement element) {
-		if (element == null || element.getType() == null){
+		if (element == null || element.getType() == null) {
 			return;
 		}
 		if (element.getType() == ElementType.startLevel) {

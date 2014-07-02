@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>il.co.topq.difido</groupId>
 	<artifactId>difido-reports</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.5-SNAPSHOT</version>
 	<name>Difido Reports</name>
 	<organization>
 		<name>Top-Q</name>
@@ -41,6 +41,11 @@
 			<artifactId>jackson-core-asl</artifactId>
 			<version>1.9.13</version>
 		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -68,7 +73,8 @@
 				</executions>
 			</plugin>
 		</plugins>
-		<repositories>
+	</build>
+	<repositories>
 			<repository>
 				<id>topq</id>
 				<url>${topq.repository.rootUrl}/content/groups/public</url>
@@ -85,6 +91,5 @@
 				<name>RepositoryProxy</name>
 				<url>${topq.repository.rootUrl}/content/repositories/snapshots</url>
 			</snapshotRepository>
-		</distributionManagement>
-	</build>
+	</distributionManagement>
 </project>
