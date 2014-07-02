@@ -1,7 +1,7 @@
 package il.co.topq.report;
 
 import static org.junit.Assert.assertEquals;
-import il.co.topq.report.model.execution.ReportedMachine;
+import il.co.topq.difido.model.execution.MachineNode;
 
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class MachineResourceTests extends ResourceTests {
     	machineId = addMachine(executionId, machine2Name);
     	assertEquals(1, machineId);
     	
-    	ReportedMachine machine = getMachine(executionId, machineId);
+    	MachineNode machine = getMachine(executionId, machineId);
     	assertEquals(machine2Name, machine.getName());
     }
 }

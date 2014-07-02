@@ -1,7 +1,7 @@
 package il.co.topq.report.resource;
 
+import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.report.model.Session;
-import il.co.topq.report.model.execution.ReportedExecution;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -21,14 +21,14 @@ public class ExecutionResource {
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public ReportedExecution get(){
+	public Execution get(){
 		return Session.INSTANCE.getExecution();
 	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{execution}")
-	public ReportedExecution get(@PathParam("execution") int execution){
+	public Execution get(@PathParam("execution") int execution){
 		return Session.INSTANCE.getExecution(execution);
 	}
 	

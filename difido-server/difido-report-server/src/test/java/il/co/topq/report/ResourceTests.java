@@ -1,6 +1,6 @@
 package il.co.topq.report;
 
-import il.co.topq.report.model.execution.ReportedMachine;
+import il.co.topq.difido.model.execution.MachineNode;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -57,7 +57,7 @@ public abstract class ResourceTests {
     	System.out.println("\nAdding new machine to execution <" + executionId + "> -" +
     			"\nPOST request to: " + machinesTarget.getUri());
     	
-    	Response postResponse = machinesTarget.request(MediaType.TEXT_PLAIN).post(Entity.entity(new ReportedMachine(machineName), MediaType.APPLICATION_JSON));
+    	Response postResponse = machinesTarget.request(MediaType.TEXT_PLAIN).post(Entity.entity(new MachineNode(machineName), MediaType.APPLICATION_JSON));
     	int machineId = Integer.parseInt(postResponse.readEntity(String.class));
     	
     	System.out.println(">> Received machine ID: " + machineId);
@@ -67,13 +67,13 @@ public abstract class ResourceTests {
 	/**
 	 * invoke: MachineResource.get()
 	 */
-	protected ReportedMachine getMachine(int executionId, int machineId) {
+	protected MachineNode getMachine(int executionId, int machineId) {
     	WebTarget machinesTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId);
     	
     	System.out.println("\nGetting machine <" + machineId + "> from execution <" + executionId + "> -" +
     			"\nGET request to: " + machinesTarget.getUri());
     	
-    	ReportedMachine machine = machinesTarget.request(MediaType.APPLICATION_JSON).get(ReportedMachine.class);
+    	MachineNode machine = machinesTarget.request(MediaType.APPLICATION_JSON).get(MachineNode.class);
     	
     	System.out.println(">> Received machine with name: \"" + machine.getName() + "\"");
     	return machine;
