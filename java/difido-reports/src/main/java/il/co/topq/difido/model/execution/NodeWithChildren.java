@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-public abstract class NodeWithChildren extends Node {
+public abstract class NodeWithChildren<T extends Node> extends Node {
 	
-	private List<Node> children;
+	private List<T> children;
 	
 	public NodeWithChildren(){
 		
@@ -18,28 +18,29 @@ public abstract class NodeWithChildren extends Node {
 	}
 	
 	@JsonIgnore
-	public void addChild(Node node){
+	public void addChild(T node){
 		if (null == children){
-			children = new ArrayList<Node>();
+			children = new ArrayList<T>();
 		}
 		node.setParent(this);
 		children.add(node);
 	}
 
-	public List<Node> getChildren() {
+	public List<T> getChildren() {
 		return children;
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@JsonIgnore
-	public List<Node> getChildren(boolean recursivly) {
+	public List<T> getChildren(boolean recursivly) {
 		if (!recursivly){
 			return children;
 		}
-		List<Node> allChildren = new ArrayList<>();
+		List<T> allChildren = new ArrayList<>();
 		if (null == children){
 			return allChildren;
 		}
-		for (Node child : children){
+		for (T child : children){
 			allChildren.add(child);
 			if (child instanceof NodeWithChildren){
 				allChildren.addAll(((NodeWithChildren)child).getChildren(true));
@@ -49,7 +50,7 @@ public abstract class NodeWithChildren extends Node {
 	}
 
 
-	public void setChildren(List<Node> children) {
+	public void setChildren(List<T> children) {
 		this.children = children;
 	}
 	

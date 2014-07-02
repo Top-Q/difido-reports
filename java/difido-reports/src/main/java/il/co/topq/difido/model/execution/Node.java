@@ -25,7 +25,7 @@ public abstract class Node {
 	private Status status = Status.success;
 
 	@JsonIgnore
-	private NodeWithChildren parent;
+	private NodeWithChildren<? extends Node> parent;
 
 	public Node() {
 
@@ -57,11 +57,11 @@ public abstract class Node {
 		}
 	}
 
-	public NodeWithChildren getParent() {
+	public NodeWithChildren<? extends Node> getParent() {
 		return parent;
 	}
 
-	public void setParent(NodeWithChildren parent) {
+	public void setParent(NodeWithChildren<? extends Node> parent) {
 		this.parent = parent;
 	}
 

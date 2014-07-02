@@ -1,7 +1,6 @@
 package il.co.topq.difido.model.execution;
 
-
-public class MachineNode extends NodeWithChildren{
+public class MachineNode extends NodeWithChildren<ScenarioNode> {
 
 	public MachineNode() {
 	}

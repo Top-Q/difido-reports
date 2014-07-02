@@ -6,7 +6,7 @@ package il.co.topq.difido.model.execution;
  * @author agmon
  * 
  */
-public class ScenarioNode extends NodeWithChildren {
+public class ScenarioNode extends NodeWithChildren<Node> {
 
 
 	public ScenarioNode() {
