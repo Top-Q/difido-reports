@@ -31,5 +31,9 @@ public enum Session {
 		}
 		return executions.get(index);
 	}
+	
+	public void flush(){
+		executions = null;
+	}
 
 }

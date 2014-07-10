@@ -1,6 +1,7 @@
 package il.co.topq.difido.model.execution;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -31,6 +32,11 @@ public class Execution {
 		}
 		return machines.get(machines.size() - 1);
 
+	}
+	
+	@Override
+	public String toString(){
+		return Arrays.toString(machines.toArray());
 	}
 
 }

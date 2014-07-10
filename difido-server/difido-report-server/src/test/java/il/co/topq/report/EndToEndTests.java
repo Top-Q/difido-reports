@@ -5,13 +5,12 @@ import il.co.topq.difido.model.execution.MachineNode;
 
 import org.junit.Test;
 
-public class MachineResourceTests extends AbstractResourceTestCase {
-
-    @Test
-    public void testMachineResource() {
-    	
-    	String machine1Name = "Machine #1";
-    	String machine2Name = "Machine #2";
+public class EndToEndTests extends AbstractResourceTestCase {
+	
+	@Test
+	public void createSimpleReport(){
+		String machine2Name = "Machine #2";
+		String machine1Name = "Machine #1";
     	
     	int executionId = addExecution();
     	assertEquals(0, executionId);
@@ -24,5 +23,6 @@ public class MachineResourceTests extends AbstractResourceTestCase {
     	
     	MachineNode machine = getMachine(executionId, machineId);
     	assertEquals(machine2Name, machine.getName());
-    }
+	}
+	
 }
