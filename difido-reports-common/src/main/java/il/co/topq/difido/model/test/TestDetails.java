@@ -51,6 +51,15 @@ public class TestDetails {
 	public TestDetails() {
 
 	}
+	
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		sb.append("Name: ").append(name).append("\n");
+		sb.append("Description: ").append(description).append("\n");
+		sb.append("Timestamp: ").append(timeStamp).append("\n");
+		sb.append("Duration: ").append(duration).append("\n");
+		return sb.toString();
+	}
 
 	@JsonIgnore
 	public void addReportElement(ReportElement element) {

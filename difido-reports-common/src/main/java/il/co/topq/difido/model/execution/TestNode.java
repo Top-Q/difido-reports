@@ -1,5 +1,7 @@
 package il.co.topq.difido.model.execution;
 
+import il.co.topq.difido.model.test.TestDetails;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 public class TestNode extends Node {
@@ -9,6 +11,13 @@ public class TestNode extends Node {
 	private long duration;
 
 	private String timestamp;
+
+	/**
+	 * We used the json ignore attribute because we usually serialize the
+	 * details to a separate file and not as part of the execution tree
+	 */
+	@JsonIgnore
+	private TestDetails details;
 
 	public TestNode() {
 
@@ -65,5 +74,17 @@ public class TestNode extends Node {
 	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
 	}
+
+	@JsonIgnore
+	public TestDetails getDetails() {
+		return details;
+	}
+
+	@JsonIgnore
+	public void setDetails(TestDetails details) {
+		this.details = details;
+	}
+	
+	
 
 }

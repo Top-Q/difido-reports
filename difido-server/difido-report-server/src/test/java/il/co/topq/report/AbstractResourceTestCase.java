@@ -1,12 +1,12 @@
 package il.co.topq.report;
 
 import java.util.Arrays;
-import java.util.Collection;
 
-import il.co.topq.difido.PersistenceUtils;
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
+import il.co.topq.difido.model.test.ReportElement;
+import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.model.Session;
 
 import javax.ws.rs.client.Client;
@@ -129,6 +129,51 @@ public abstract class AbstractResourceTestCase {
 
 		System.out.println(">> Received test with name: \"" + test.getName() + "\"");
 		return test;
+	}
+
+	protected void addTestDetails(int executionId, int machineId, int scenarioId, int testId, TestDetails details) {
+		WebTarget testDetailsTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
+				+ "/scenarios/" + scenarioId + "/tests/" + testId + "/details");
+		System.out.println("\nAdding new test details in execution <" + executionId + "> and machine " + machineId
+				+ " and scenario <" + scenarioId + ">-" + "\nPOST request to: " + testDetailsTarget.getUri());
+		testDetailsTarget.request().post(Entity.entity(details, MediaType.APPLICATION_JSON));
+	}
+
+	protected TestDetails getTestDetails(int executionId, int machineId, int scenarioId, int testId) {
+		WebTarget testDetailsTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
+				+ "/scenarios/" + scenarioId + "/tests/" + testId + "/details");
+		System.out.println("\nGetting test details in execution <" + executionId + "> and machine " + machineId
+				+ " and scenario <" + scenarioId + ">-" + "\nGET request to: " + testDetailsTarget.getUri());
+		TestDetails details = testDetailsTarget.request(MediaType.APPLICATION_JSON).get(TestDetails.class);
+		System.out.println(">> Revcieved test details: " + details);
+		return details;
+	}
+
+	protected void addReportElement(int executionId, int machineId, int scenarioId, int testId, ReportElement element) {
+		WebTarget elementTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
+				+ "/scenarios/" + scenarioId + "/tests/" + testId + "/details/element");
+		System.out.println("\nAdding new report element in execution <" + executionId + "> and machine " + machineId
+				+ " and scenario <" + scenarioId + ">-" + "\nPOST request to: " + elementTarget.getUri());
+		elementTarget.request().post(Entity.entity(element, MediaType.APPLICATION_JSON));
+	}
+
+//	protected ReportElement[] getReportElements(int executionId, int machineId, int scenarioId, int testId) {
+//		WebTarget elementTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
+//				+ "/scenarios/" + scenarioId + "/tests/" + testId + "/details/element");
+//		ReportElement[] elements = elementTarget.request(MediaType.APPLICATION_JSON).get(ReportElement[].class);
+//		System.out.println(">> Recieved report elements "+ Arrays.toString(elements));
+//		return elements;
+//
+//	}
+
+	protected void updateTest(int executionId, int machineId, int scenarioId, int testId, TestNode test) {
+		WebTarget testTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId + "/scenarios/"
+				+ scenarioId + "/tests/" + testId);
+
+		System.out.println("\nUpdating test in execution <" + executionId + "> and machine " + machineId
+				+ " and scenario <" + scenarioId + ">-" + "\nPOST request to: " + testTarget.getUri());
+
+		testTarget.request().put(Entity.entity(test, MediaType.APPLICATION_JSON));
 	}
 
 	protected ScenarioNode getScenario(int executionId, int machineId, int scenarioId) {

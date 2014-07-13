@@ -65,7 +65,9 @@ public abstract class NodeWithChildren<T extends Node> extends Node {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Name: ").append(getName()).append("\n");
-		sb.append("Children").append(Arrays.toString(getChildren().toArray())).append("\n");
+		if (null != getChildren()){
+			sb.append("Children").append(Arrays.toString(getChildren().toArray())).append("\n");
+		}
 		return sb.toString();
 	}
 

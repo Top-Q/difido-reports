@@ -1,7 +1,5 @@
 package il.co.topq.difido.model.execution;
 
-import java.util.ArrayList;
-
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
