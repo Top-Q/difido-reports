@@ -14,8 +14,9 @@ public enum Session {
 		if (null == executions) {
 			executions = new ArrayList<Execution>();
 		}
-		executions.add(new Execution());
-		return executions.size() - 1;
+		Execution execution = new Execution();
+		executions.add(execution);
+		return executions.indexOf(execution);
 	}
 
 	public Execution getExecution() {

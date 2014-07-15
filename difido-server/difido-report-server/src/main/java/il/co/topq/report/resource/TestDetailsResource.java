@@ -7,6 +7,7 @@ import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
+import il.co.topq.report.listener.ListenersManager;
 import il.co.topq.report.model.Session;
 
 import javax.ws.rs.Consumes;
@@ -36,6 +37,7 @@ public class TestDetailsResource {
 		}
 		final TestNode test = (TestNode) node;
 		test.setDetails(details);
+		ListenersManager.INSTANCE.notifyTestDetailsAdded(details);
 	}
 
 	@GET
@@ -72,6 +74,7 @@ public class TestDetailsResource {
 		if (null == test.getDetails()) {
 			// TODO: return error
 		}
+		ListenersManager.INSTANCE.notifyReportElementAdded(element);
 		test.getDetails().addReportElement(element);
 	}
 

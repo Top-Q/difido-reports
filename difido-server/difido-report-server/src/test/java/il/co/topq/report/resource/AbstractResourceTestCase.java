@@ -1,12 +1,11 @@
-package il.co.topq.report;
-
-import java.util.Arrays;
+package il.co.topq.report.resource;
 
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
+import il.co.topq.report.Main;
 import il.co.topq.report.model.Session;
 
 import javax.ws.rs.client.Client;

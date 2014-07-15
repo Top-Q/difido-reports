@@ -5,6 +5,7 @@ import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.Node;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
+import il.co.topq.report.listener.ListenersManager;
 import il.co.topq.report.model.Session;
 
 import javax.ws.rs.Consumes;
@@ -27,11 +28,12 @@ public class TestResource {
 		ScenarioNode scenario = Session.INSTANCE.getExecution(executionId).getMachines().get(machineId)
 				.getAllScenarios().get(scenarioId);
 		scenario.addChild(test);
+		ListenersManager.INSTANCE.notifyTestAdded(test);
 		return scenario.getChildren().indexOf(test);
 	}
 
 	/**
-	 * Updates a test details
+	 * Updates a test. Will be used mostly for updating the test status.
 	 * 
 	 * @param executionId
 	 * @param machineId
@@ -81,10 +83,5 @@ public class TestResource {
 		// TODO: Throw exception
 		return null;
 	}
-
-
-
-
-
 
 }

@@ -1,6 +1,7 @@
 package il.co.topq.report.resource;
 
 import il.co.topq.difido.model.execution.ScenarioNode;
+import il.co.topq.report.listener.ListenersManager;
 import il.co.topq.report.model.Session;
 
 import javax.ws.rs.Consumes;
@@ -19,6 +20,7 @@ public class ScenarioResource {
 	@Produces(MediaType.TEXT_PLAIN)
 	public int post(@PathParam("execution") int executionId, @PathParam("machine") int machineId, ScenarioNode scenario) {
 		Session.INSTANCE.getExecution(executionId).getMachines().get(machineId).addChild(scenario);
+		ListenersManager.INSTANCE.notifyScenarioAdded(scenario);
 		return Session.INSTANCE.getExecution(executionId).getMachines().get(machineId).getChildren().indexOf(scenario);
 	}
 
@@ -31,6 +33,7 @@ public class ScenarioResource {
 		final ScenarioNode parentScenario = Session.INSTANCE.getExecution(executionId).getMachines().get(machineId)
 				.getAllScenarios().get(parentScenarioId);
 		parentScenario.addChild(scenario);
+		ListenersManager.INSTANCE.notifyScenarioAdded(scenario);
 		return Session.INSTANCE.getExecution(executionId).getMachines().get(machineId).getAllScenarios()
 				.indexOf(scenario);
 	}

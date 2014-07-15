@@ -1,6 +1,7 @@
 package il.co.topq.report.resource;
 
 import il.co.topq.difido.model.execution.MachineNode;
+import il.co.topq.report.listener.ListenersManager;
 import il.co.topq.report.model.Session;
 
 import javax.ws.rs.Consumes;
@@ -19,6 +20,7 @@ public class MachineResource {
 	@Produces(MediaType.TEXT_PLAIN)
 	public int post(@PathParam("execution") int execution, MachineNode machine) {
 		Session.INSTANCE.getExecution(execution).addMachine(machine);
+		ListenersManager.INSTANCE.notifyMachineAdded(machine);
 		return Session.INSTANCE.getExecution(execution).getMachines().indexOf(machine);
 	}
 

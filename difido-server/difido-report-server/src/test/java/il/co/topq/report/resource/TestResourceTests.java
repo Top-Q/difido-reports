@@ -1,4 +1,4 @@
-package il.co.topq.report;
+package il.co.topq.report.resource;
 
 import static org.junit.Assert.assertEquals;
 import il.co.topq.difido.model.execution.TestNode;
