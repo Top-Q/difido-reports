@@ -1,4 +1,4 @@
-package il.co.topq.report.resource;
+package il.co.topq.report.controller.resource;
 
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
@@ -7,7 +7,7 @@ import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
-import il.co.topq.report.listener.ListenersManager;
+import il.co.topq.report.controller.listener.ListenersManager;
 import il.co.topq.report.model.Session;
 
 import javax.ws.rs.Consumes;
@@ -36,8 +36,8 @@ public class TestDetailsResource {
 			// TODO: return error
 		}
 		final TestNode test = (TestNode) node;
-		test.setDetails(details);
-		ListenersManager.INSTANCE.notifyTestDetailsAdded(details);
+		Session.INSTANCE.addTestDetails(test, details);
+		ListenersManager.INSTANCE.notifyTestDetailsAdded(test, details);
 	}
 
 	@GET
@@ -52,7 +52,7 @@ public class TestDetailsResource {
 			// TODO: return error
 		}
 		final TestNode test = (TestNode) node;
-		return test.getDetails();
+		return Session.INSTANCE.getTestDetails(test);
 	}
 
 	@POST
@@ -71,32 +71,35 @@ public class TestDetailsResource {
 			// TODO: return error
 		}
 		final TestNode test = (TestNode) node;
-		if (null == test.getDetails()) {
+		final TestDetails details = Session.INSTANCE.getTestDetails(test);
+		if (null == details) {
 			// TODO: return error
 		}
-		ListenersManager.INSTANCE.notifyReportElementAdded(element);
-		test.getDetails().addReportElement(element);
+		details.addReportElement(element);
+		ListenersManager.INSTANCE.notifyReportElementAdded(test, element);
 	}
 
-	@GET
-	@Path("/element")
-	@Produces(MediaType.APPLICATION_JSON)
-	public ReportElement[] getElement(@PathParam("execution") int executionId, @PathParam("machine") int machineId,
-			@PathParam("scenario") int scenarioId, @PathParam("test") int testId) {
-		final Execution execution = Session.INSTANCE.getExecution(executionId);
-		final MachineNode machine = execution.getMachines().get(machineId);
-		final ScenarioNode scenario = machine.getAllScenarios().get(scenarioId);
-		final Node node = scenario.getChildren().get(testId);
-		if (!(node instanceof TestNode)) {
-			// TODO: return error
-		}
-		final TestNode test = (TestNode) node;
-		if (null == test.getDetails()) {
-			// TODO: return error
-		}
-		final ReportElement[] elements = test.getDetails().getReportElements()
-				.toArray(new ReportElement[test.getDetails().getReportElements().size()]);
-		return elements;
-	}
+	// @GET
+	// @Path("/element")
+	// @Produces(MediaType.APPLICATION_JSON)
+	// public ReportElement[] getElement(@PathParam("execution") int
+	// executionId, @PathParam("machine") int machineId,
+	// @PathParam("scenario") int scenarioId, @PathParam("test") int testId) {
+	// final Execution execution = Session.INSTANCE.getExecution(executionId);
+	// final MachineNode machine = execution.getMachines().get(machineId);
+	// final ScenarioNode scenario = machine.getAllScenarios().get(scenarioId);
+	// final Node node = scenario.getChildren().get(testId);
+	// if (!(node instanceof TestNode)) {
+	// // TODO: return error
+	// }
+	// final TestNode test = (TestNode) node;
+	// if (null == test.getDetails()) {
+	// // TODO: return error
+	// }
+	// final ReportElement[] elements = test.getDetails().getReportElements()
+	// .toArray(new
+	// ReportElement[test.getDetails().getReportElements().size()]);
+	// return elements;
+	// }
 
 }

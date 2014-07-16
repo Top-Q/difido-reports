@@ -1,6 +1,6 @@
 package il.co.topq.difido.model.execution;
 
-import il.co.topq.difido.model.test.TestDetails;
+import il.co.topq.difido.model.Enums.Status;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -12,19 +12,13 @@ public class TestNode extends Node {
 
 	private String timestamp;
 
-	/**
-	 * We used the json ignore attribute because we usually serialize the
-	 * details to a separate file and not as part of the execution tree
-	 */
-	@JsonIgnore
-	private TestDetails details;
-
 	public TestNode() {
-
+		setStatus(Status.in_progress);
 	}
 
 	public TestNode(String name) {
 		super(name);
+		setStatus(Status.in_progress);
 	}
 
 	public TestNode(int index, String name) {
@@ -50,6 +44,19 @@ public class TestNode extends Node {
 		testNodeCopy.setTimestamp(aTestNode.getTimestamp());
 		return testNodeCopy;
 	}
+	
+	@JsonIgnore
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + index;
+		result = 31 * result + new Long(duration).intValue();
+		if (timestamp != null){
+			result = 31 * result + timestamp.hashCode();
+		}
+		return result;
+	}
+
 
 	public int getIndex() {
 		return index;
@@ -75,16 +82,5 @@ public class TestNode extends Node {
 		this.timestamp = timestamp;
 	}
 
-	@JsonIgnore
-	public TestDetails getDetails() {
-		return details;
-	}
-
-	@JsonIgnore
-	public void setDetails(TestDetails details) {
-		this.details = details;
-	}
-	
-	
 
 }

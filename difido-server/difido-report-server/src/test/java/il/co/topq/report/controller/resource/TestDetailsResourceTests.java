@@ -1,4 +1,4 @@
-package il.co.topq.report.resource;
+package il.co.topq.report.controller.resource;
 
 import static org.junit.Assert.assertEquals;
 import il.co.topq.difido.model.Enums.ElementType;
@@ -88,7 +88,7 @@ public class TestDetailsResourceTests extends AbstractResourceTestCase {
 		element.setMessage("My message");
 		element.setStatus(Status.success);
 		element.setType(ElementType.regular);
-		addReportElement(executionId, machineId, scenarioId, testId,element);
+		addReportElement(executionId, machineId, scenarioId, testId, element);
 		ReportElement[] elements = getReportElements(executionId, machineId, scenarioId, testId);
 		System.out.println(elements[0]);
 		assertEquals(element.getTitle(), elements[0].getTitle());
@@ -108,16 +108,10 @@ public class TestDetailsResourceTests extends AbstractResourceTestCase {
 			// TODO: return error
 		}
 		final TestNode test = (TestNode) node;
-		if (null == test.getDetails()) {
-			// TODO: return error
-		}
-		final ReportElement[] elements = test.getDetails().getReportElements()
-				.toArray(new ReportElement[test.getDetails().getReportElements().size()]);
+		TestDetails details = Session.INSTANCE.getTestDetails(test);
+		final ReportElement[] elements = details.getReportElements().toArray(
+				new ReportElement[details.getReportElements().size()]);
 		return elements;
 	}
-	
-	
-
-
 
 }

@@ -1,4 +1,4 @@
-package il.co.topq.report.resource;
+package il.co.topq.report.controller.resource;
 
 import static org.junit.Assert.assertEquals;
 import il.co.topq.difido.model.execution.MachineNode;

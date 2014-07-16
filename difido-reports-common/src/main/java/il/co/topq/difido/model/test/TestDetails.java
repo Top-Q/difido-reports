@@ -2,6 +2,7 @@ package il.co.topq.difido.model.test;
 
 import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.Enums.Status;
+import il.co.topq.difido.model.execution.TestNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,8 +13,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
 
-@JsonPropertyOrder({ "name", "description", "timestamp", "duration",
-		"parameters", "properties", "reportElements" })
+@JsonPropertyOrder({ "name", "description", "timestamp", "duration", "parameters", "properties", "reportElements" })
 public class TestDetails {
 
 	/**
@@ -27,7 +27,7 @@ public class TestDetails {
 	private String name;
 
 	@JsonProperty("description")
-	private String description;
+	private String description = "";
 
 	@JsonProperty("timestamp")
 	private String timeStamp;
@@ -51,8 +51,8 @@ public class TestDetails {
 	public TestDetails() {
 
 	}
-	
-	public String toString(){
+
+	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Name: ").append(name).append("\n");
 		sb.append("Description: ").append(description).append("\n");
@@ -69,6 +69,7 @@ public class TestDetails {
 		if (element.getStatus() == null) {
 			element.setStatus(Status.success);
 		}
+		element.setParent(this);
 		reportElements.add(element);
 		updateLevelElementsBuffer(element);
 		updateLevelElementsStatuses(element);
@@ -96,8 +97,7 @@ public class TestDetails {
 			return;
 		}
 		for (ReportElement startElement : levelElementsBuffer) {
-			if (element.getStatus().ordinal() > startElement.getStatus()
-					.ordinal()) {
+			if (element.getStatus().ordinal() > startElement.getStatus().ordinal()) {
 				startElement.setStatus(element.getStatus());
 			}
 		}
@@ -215,5 +215,6 @@ public class TestDetails {
 	public void setReportElements(List<ReportElement> reportElements) {
 		this.reportElements = reportElements;
 	}
+
 
 }

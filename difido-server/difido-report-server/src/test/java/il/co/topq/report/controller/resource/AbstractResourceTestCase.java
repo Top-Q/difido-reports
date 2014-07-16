@@ -1,4 +1,4 @@
-package il.co.topq.report.resource;
+package il.co.topq.report.controller.resource;
 
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.ScenarioNode;
@@ -53,6 +53,15 @@ public abstract class AbstractResourceTestCase {
 
 		System.out.println(">> Received execution ID: " + executionId);
 		return executionId;
+	}
+
+	protected void endExecution(int executionId) {
+		WebTarget executionsTarget = baseTarget.path("/executions/" + executionId);
+
+		System.out.println("\nSignaling end of execution -" + "\nPUT request to: " + executionsTarget.getUri());
+
+		executionsTarget.request(MediaType.TEXT_PLAIN).delete();
+
 	}
 
 	/**
@@ -156,14 +165,18 @@ public abstract class AbstractResourceTestCase {
 		elementTarget.request().post(Entity.entity(element, MediaType.APPLICATION_JSON));
 	}
 
-//	protected ReportElement[] getReportElements(int executionId, int machineId, int scenarioId, int testId) {
-//		WebTarget elementTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
-//				+ "/scenarios/" + scenarioId + "/tests/" + testId + "/details/element");
-//		ReportElement[] elements = elementTarget.request(MediaType.APPLICATION_JSON).get(ReportElement[].class);
-//		System.out.println(">> Recieved report elements "+ Arrays.toString(elements));
-//		return elements;
-//
-//	}
+	// protected ReportElement[] getReportElements(int executionId, int
+	// machineId, int scenarioId, int testId) {
+	// WebTarget elementTarget = baseTarget.path("/executions/" + executionId +
+	// "/machines/" + machineId
+	// + "/scenarios/" + scenarioId + "/tests/" + testId + "/details/element");
+	// ReportElement[] elements =
+	// elementTarget.request(MediaType.APPLICATION_JSON).get(ReportElement[].class);
+	// System.out.println(">> Recieved report elements "+
+	// Arrays.toString(elements));
+	// return elements;
+	//
+	// }
 
 	protected void updateTest(int executionId, int machineId, int scenarioId, int testId, TestNode test) {
 		WebTarget testTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId + "/scenarios/"

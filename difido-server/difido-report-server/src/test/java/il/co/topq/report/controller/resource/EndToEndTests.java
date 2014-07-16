@@ -1,4 +1,4 @@
-package il.co.topq.report.resource;
+package il.co.topq.report.controller.resource;
 
 import il.co.topq.difido.model.Enums.Status;
 import il.co.topq.difido.model.test.ReportElement;
@@ -11,8 +11,8 @@ import org.junit.Test;
 public class EndToEndTests extends AbstractResourceTestCase {
 
 	private static final int NUM_OF_MACHINES = 2;
-	private static final int NUM_OF_SCENARIOS_IN_MACHINE = 3;
-	private static final int NUM_OF_TESTS_IN_SCENARIO = 6;
+	private static final int NUM_OF_SCENARIOS_IN_MACHINE = 2;
+	private static final int NUM_OF_TESTS_IN_SCENARIO = 2;
 	private static final int NUM_OF_REPORT_ELEMENTS_IN_TEST = 4;
 
 	@Test
@@ -31,7 +31,10 @@ public class EndToEndTests extends AbstractResourceTestCase {
 				for (int testIndex = 0; testIndex < NUM_OF_TESTS_IN_SCENARIO; testIndex++) {
 					int testId = addTest(executionId, machineId, scenarioId, "test" + testIndex);
 					TestDetails details = new TestDetails();
+					details.setName("test" + testIndex);
+					details.setDuration((int) (Math.random() * 1000));
 					details.setTimeStamp(new Date().toString());
+					details.setDescription("Some random number as description: " + System.currentTimeMillis());
 					addTestDetails(executionId, machineId, scenarioId, testId, details);
 					for (int elementIndex = 0; elementIndex < NUM_OF_REPORT_ELEMENTS_IN_TEST; elementIndex++) {
 						ReportElement element = new ReportElement();
@@ -46,6 +49,7 @@ public class EndToEndTests extends AbstractResourceTestCase {
 			}
 
 		}
+
 		System.out.println("Test finished in " + (System.currentTimeMillis() - start) + " mills");
 	}
 }

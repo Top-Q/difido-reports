@@ -1,7 +1,7 @@
-package il.co.topq.report.resource;
+package il.co.topq.report.controller.resource;
 
 import il.co.topq.difido.model.execution.MachineNode;
-import il.co.topq.report.listener.ListenersManager;
+import il.co.topq.report.controller.listener.ListenersManager;
 import il.co.topq.report.model.Session;
 
 import javax.ws.rs.Consumes;

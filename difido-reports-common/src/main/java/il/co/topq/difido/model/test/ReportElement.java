@@ -1,14 +1,17 @@
 package il.co.topq.difido.model.test;
 
-
 import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.Enums.Status;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
 
 @JsonPropertyOrder({ "title", "message", "status", "type", "time", })
 public class ReportElement {
+
+	@JsonIgnore
+	private TestDetails parent;
 
 	@JsonProperty("title")
 	private String title = null;
@@ -24,6 +27,14 @@ public class ReportElement {
 
 	@JsonProperty("time")
 	private String time;
+
+	public ReportElement() {
+		this.parent = null;
+	}
+
+	public ReportElement(TestDetails parent) {
+		this.parent = parent;
+	}
 
 	@JsonProperty("title")
 	public String getTitle() {
@@ -74,5 +85,16 @@ public class ReportElement {
 	public void setTime(String time) {
 		this.time = time;
 	}
+
+	@JsonIgnore
+	public TestDetails getParent() {
+		return parent;
+	}
+
+	@JsonIgnore
+	public void setParent(TestDetails parent) {
+		this.parent = parent;
+	}
+	
 
 }

@@ -1,4 +1,4 @@
-package il.co.topq.report.listener;
+package il.co.topq.report.controller.listener;
 
 import static org.junit.Assert.assertEquals;
 
@@ -15,9 +15,11 @@ import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
-import il.co.topq.report.resource.AbstractResourceTestCase;
+import il.co.topq.report.controller.listener.ListenersManager;
+import il.co.topq.report.controller.listener.ResourceChangedListener;
+import il.co.topq.report.controller.resource.AbstractResourceTestCase;
 
-public class ResourceAddedListenerTests extends AbstractResourceTestCase implements ResourceAddedListener {
+public class ResourceAddedListenerTests extends AbstractResourceTestCase implements ResourceChangedListener {
 
 	private Execution notifiedExecution;
 	private MachineNode notifiedMachine;
@@ -71,6 +73,11 @@ public class ResourceAddedListenerTests extends AbstractResourceTestCase impleme
 		element.setType(ElementType.regular);
 		addReportElement(executionId, machineId, scenarioId, testId, element);
 		assertEquals(element.getTitle(), notifiedElement.getTitle());
+
+		TestNode test = getTest(executionId, machineId, scenarioId, testId);
+		test.setStatus(Status.success);
+		updateTest(executionId, machineId, scenarioId, testId, test);
+		Assert.assertNull(notifiedTest);
 	}
 
 	@Override
@@ -96,13 +103,22 @@ public class ResourceAddedListenerTests extends AbstractResourceTestCase impleme
 	}
 
 	@Override
-	public void reportElementAdded(ReportElement element) {
+	public void reportElementAdded(TestNode test, ReportElement element) {
 		notifiedElement = element;
 	}
 
 	@Override
-	public void testDetailsAdded(TestDetails details) {
+	public void testDetailsAdded(TestNode test, TestDetails details) {
 		notifiedDetails = details;
 
+	}
+
+	@Override
+	public void executionEnded(Execution execution) {
+	}
+
+	@Override
+	public void testEnded(TestNode test) {
+		notifiedTest = null;
 	}
 }

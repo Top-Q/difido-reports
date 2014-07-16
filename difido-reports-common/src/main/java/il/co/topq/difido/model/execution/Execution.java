@@ -36,7 +36,13 @@ public class Execution {
 	
 	@Override
 	public String toString(){
-		return Arrays.toString(machines.toArray());
+		StringBuilder sb = new StringBuilder();
+		sb.append("Execution").append("\n");
+		
+		if  (null != machines){
+			sb.append("Machines: ").append(Arrays.toString(machines.toArray())).append("\n");
+		}
+		return sb.toString();
 	}
 
 }

@@ -1,7 +1,5 @@
 package il.co.topq.difido.model.execution;
 
-
-
 import il.co.topq.difido.model.Enums.Status;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -9,15 +7,9 @@ import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonSubTypes.Type;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
-@JsonTypeInfo(
-	    use = JsonTypeInfo.Id.NAME,
-	    include = JsonTypeInfo.As.PROPERTY,
-	    property = "type")
-	@JsonSubTypes({
-	    @Type(value = ScenarioNode.class, name = "scenario"),
-	    @Type(value = TestNode.class, name = "test"),
-	    @Type(value = MachineNode.class, name = "machine") })
-
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({ @Type(value = ScenarioNode.class, name = "scenario"), @Type(value = TestNode.class, name = "test"),
+		@Type(value = MachineNode.class, name = "machine") })
 public abstract class Node {
 
 	private String name;
@@ -29,6 +21,19 @@ public abstract class Node {
 
 	public Node() {
 
+	}
+
+	@JsonIgnore
+	@Override
+	public int hashCode() {
+		int result = 17;
+		if (name != null) {
+			result = 31 * result + name.hashCode();
+		}
+		if (status != null) {
+			result = 31 * result + status.ordinal();
+		}
+		return result;
 	}
 
 	public Node(String name) {
@@ -52,15 +57,17 @@ public abstract class Node {
 			this.status = status;
 
 		}
-		if (getParent() != null){
+		if (getParent() != null) {
 			getParent().setStatus(status);
 		}
 	}
 
+	@JsonIgnore
 	public NodeWithChildren<? extends Node> getParent() {
 		return parent;
 	}
 
+	@JsonIgnore
 	public void setParent(NodeWithChildren<? extends Node> parent) {
 		this.parent = parent;
 	}

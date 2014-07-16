@@ -1,11 +1,12 @@
-package il.co.topq.report.resource;
+package il.co.topq.report.controller.resource;
 
+import il.co.topq.difido.model.Enums.Status;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.Node;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
-import il.co.topq.report.listener.ListenersManager;
+import il.co.topq.report.controller.listener.ListenersManager;
 import il.co.topq.report.model.Session;
 
 import javax.ws.rs.Consumes;
@@ -20,6 +21,15 @@ import javax.ws.rs.core.MediaType;
 @Path("/executions/{execution}/machines/{machine}/scenarios/{scenario}/tests")
 public class TestResource {
 
+	/**
+	 * Add new test
+	 * 
+	 * @param executionId
+	 * @param machineId
+	 * @param scenarioId
+	 * @param test
+	 * @return
+	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
@@ -27,6 +37,7 @@ public class TestResource {
 			@PathParam("scenario") int scenarioId, TestNode test) {
 		ScenarioNode scenario = Session.INSTANCE.getExecution(executionId).getMachines().get(machineId)
 				.getAllScenarios().get(scenarioId);
+		test.setIndex(Session.INSTANCE.incrementAndGetTestIndex());
 		scenario.addChild(test);
 		ListenersManager.INSTANCE.notifyTestAdded(test);
 		return scenario.getChildren().indexOf(test);
@@ -34,6 +45,9 @@ public class TestResource {
 
 	/**
 	 * Updates a test. Will be used mostly for updating the test status.
+	 * Updating test status, meaning, changing it from <i>in progress</i> to any
+	 * other status also means that the test is finished and a test ended event
+	 * will be notified
 	 * 
 	 * @param executionId
 	 * @param machineId
@@ -65,6 +79,9 @@ public class TestResource {
 		}
 		if (aTest.getStatus() != null) {
 			test.setStatus(aTest.getStatus());
+			if (aTest.getStatus() != Status.in_progress){
+				ListenersManager.INSTANCE.notifyTestEnded(test);
+			}
 		}
 	}
 
