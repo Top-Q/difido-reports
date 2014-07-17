@@ -1,6 +1,7 @@
 package il.co.topq.report.controller.resource;
 
 import static org.junit.Assert.assertEquals;
+import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.ScenarioNode;
 
 import org.junit.Test;
@@ -12,16 +13,16 @@ public class ScenarioResourceTests extends AbstractResourceTestCase {
 		String machineName = "Machine #1";
 		String scenarioName = "Scenario #1";
 
-		int executionId = addExecution();
+		int executionId = client.addExecution();
 		assertEquals(0, executionId);
 
-		int machineId = addMachine(executionId, machineName);
+		int machineId = client.addMachine(executionId, new MachineNode(machineName));
 		assertEquals(0, machineId);
 
-		int scenarioId = addRootScenario(executionId, machineId, scenarioName);
+		int scenarioId = client.addRootScenario(executionId, machineId, new ScenarioNode(scenarioName));
 		assertEquals(0, scenarioId);
 
-		ScenarioNode scenario = getScenario(executionId, machineId, scenarioId);
+		ScenarioNode scenario = client.getScenario(executionId, machineId, scenarioId);
 		assertEquals(scenarioName, scenario.getName());
 
 	}
@@ -32,22 +33,22 @@ public class ScenarioResourceTests extends AbstractResourceTestCase {
 		String rootScenarioName = "Root scenrio";
 		String subScenarioName = "Sub scenario";
 
-		int executionId = addExecution();
+		int executionId = client.addExecution();
 		assertEquals(0, executionId);
 
-		int machineId = addMachine(executionId, machineName);
+		int machineId = client.addMachine(executionId, new MachineNode(machineName));
 		assertEquals(0, machineId);
 
-		int rootScenarioId = addRootScenario(executionId, machineId, rootScenarioName);
+		int rootScenarioId = client.addRootScenario(executionId, machineId, new ScenarioNode(rootScenarioName));
 		assertEquals(0, rootScenarioId);
 
-		int subScenarioId = addSubScenario(executionId, machineId, rootScenarioId, subScenarioName);
+		int subScenarioId = client.addSubScenario(executionId, machineId, rootScenarioId, new ScenarioNode(subScenarioName));
 		assertEquals(1, subScenarioId);
 
-		ScenarioNode scenario = getScenario(executionId, machineId, rootScenarioId);
+		ScenarioNode scenario = client.getScenario(executionId, machineId, rootScenarioId);
 		assertEquals(rootScenarioName, scenario.getName());
 
-		scenario = getScenario(executionId, machineId, subScenarioId);
+		scenario = client.getScenario(executionId, machineId, subScenarioId);
 		assertEquals(subScenarioName, scenario.getName());
 
 		

@@ -24,9 +24,9 @@ public class ExecutionStatusListenerTests extends AbstractResourceTestCase imple
 
 	@Test
 	public void testExecutionStartedAndEndedEvents() {
-		int executionId = addExecution();
+		int executionId = client.addExecution();
 		Assert.assertNotNull(notifiedStartedExecution);
-		endExecution(executionId);
+		client.endExecution(executionId);
 		Assert.assertNotNull(notifiedEndedExecution);
 
 	}

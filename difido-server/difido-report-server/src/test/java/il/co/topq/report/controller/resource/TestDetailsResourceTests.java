@@ -22,16 +22,16 @@ public class TestDetailsResourceTests extends AbstractResourceTestCase {
 		String scenarioName = "Scenario #1";
 		String testName = "Test #1";
 
-		int executionId = addExecution();
+		int executionId = client.addExecution();
 		assertEquals(0, executionId);
 
-		int machineId = addMachine(executionId, machineName);
+		int machineId = client.addMachine(executionId, new MachineNode(machineName));
 		assertEquals(0, machineId);
 
-		int scenarioId = addRootScenario(executionId, machineId, scenarioName);
+		int scenarioId = client.addRootScenario(executionId, machineId, new ScenarioNode(scenarioName));
 		assertEquals(0, scenarioId);
 
-		int testId = addTest(executionId, machineId, scenarioId, testName);
+		int testId = client.addTest(executionId, machineId, scenarioId, new TestNode(testName));
 		assertEquals(0, testId);
 
 		String description = "Test description";
@@ -45,8 +45,8 @@ public class TestDetailsResourceTests extends AbstractResourceTestCase {
 		details.setDuration(duration);
 		details.setName(name);
 		details.setTimeStamp(timestamp);
-		addTestDetails(executionId, machineId, scenarioId, testId, details);
-		TestDetails actualDetails = getTestDetails(executionId, machineId, scenarioId, testId);
+		client.addTestDetails(executionId, machineId, scenarioId, testId, details);
+		TestDetails actualDetails = client.getTestDetails(executionId, machineId, scenarioId, testId);
 		assertEquals(name, actualDetails.getName());
 		assertEquals(timestamp, actualDetails.getTimeStamp());
 		assertEquals(description, actualDetails.getDescription());
@@ -59,16 +59,16 @@ public class TestDetailsResourceTests extends AbstractResourceTestCase {
 		String scenarioName = "Scenario #1";
 		String testName = "Test #1";
 
-		int executionId = addExecution();
+		int executionId = client.addExecution();
 		assertEquals(0, executionId);
 
-		int machineId = addMachine(executionId, machineName);
+		int machineId = client.addMachine(executionId, new MachineNode(machineName));
 		assertEquals(0, machineId);
 
-		int scenarioId = addRootScenario(executionId, machineId, scenarioName);
+		int scenarioId = client.addRootScenario(executionId, machineId, new ScenarioNode(scenarioName));
 		assertEquals(0, scenarioId);
 
-		int testId = addTest(executionId, machineId, scenarioId, testName);
+		int testId = client.addTest(executionId, machineId, scenarioId, new TestNode(testName));
 		assertEquals(0, testId);
 
 		String description = "Test description";
@@ -82,13 +82,13 @@ public class TestDetailsResourceTests extends AbstractResourceTestCase {
 		details.setDuration(duration);
 		details.setName(name);
 		details.setTimeStamp(timestamp);
-		addTestDetails(executionId, machineId, scenarioId, testId, details);
+		client.addTestDetails(executionId, machineId, scenarioId, testId, details);
 		ReportElement element = new ReportElement();
 		element.setTitle("My title");
 		element.setMessage("My message");
 		element.setStatus(Status.success);
 		element.setType(ElementType.regular);
-		addReportElement(executionId, machineId, scenarioId, testId, element);
+		client.addReportElement(executionId, machineId, scenarioId, testId, element);
 		ReportElement[] elements = getReportElements(executionId, machineId, scenarioId, testId);
 		System.out.println(elements[0]);
 		assertEquals(element.getTitle(), elements[0].getTitle());

@@ -1,6 +1,8 @@
 package il.co.topq.report.controller.resource;
 
 import static org.junit.Assert.assertEquals;
+import il.co.topq.difido.model.execution.MachineNode;
+import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.Enums.Status;
 
@@ -14,19 +16,19 @@ public class TestResourceTests extends AbstractResourceTestCase {
 		String scenarioName = "Scenario #1";
 		String testName = "Test #1";
 
-		int executionId = addExecution();
+		int executionId = client.addExecution();
 		assertEquals(0, executionId);
 
-		int machineId = addMachine(executionId, machineName);
+		int machineId = client.addMachine(executionId, new MachineNode(machineName));
 		assertEquals(0, machineId);
 
-		int scenarioId = addRootScenario(executionId, machineId, scenarioName);
+		int scenarioId = client.addRootScenario(executionId, machineId, new ScenarioNode(scenarioName));
 		assertEquals(0, scenarioId);
 
-		int testId = addTest(executionId, machineId, scenarioId, testName);
+		int testId = client.addTest(executionId, machineId, scenarioId, new TestNode(testName));
 		assertEquals(0, testId);
 
-		TestNode test = getTest(executionId, machineId, scenarioId, testId);
+		TestNode test = client.getTest(executionId, machineId, scenarioId, testId);
 		assertEquals(testName, test.getName());
 
 	}
@@ -37,19 +39,19 @@ public class TestResourceTests extends AbstractResourceTestCase {
 		String scenarioName = "Scenario #1";
 		String testName = "Test #1";
 
-		int executionId = addExecution();
+		int executionId = client.addExecution();
 		assertEquals(0, executionId);
 
-		int machineId = addMachine(executionId, machineName);
+		int machineId = client.addMachine(executionId, new MachineNode(machineName));
 		assertEquals(0, machineId);
 
-		int scenarioId = addRootScenario(executionId, machineId, scenarioName);
+		int scenarioId = client.addRootScenario(executionId, machineId, new ScenarioNode(scenarioName));
 		assertEquals(0, scenarioId);
 
-		int testId = addTest(executionId, machineId, scenarioId, testName);
+		int testId = client.addTest(executionId, machineId, scenarioId, new TestNode(testName));
 		assertEquals(0, testId);
 
-		TestNode test = getTest(executionId, machineId, scenarioId, testId);
+		TestNode test = client.getTest(executionId, machineId, scenarioId, testId);
 		assertEquals(testName, test.getName());
 		assertEquals(0, test.getDuration());
 		assertEquals(null, test.getTimestamp());
@@ -60,9 +62,9 @@ public class TestResourceTests extends AbstractResourceTestCase {
 		test.setDuration(duration);
 		test.setTimestamp(timestamp);
 		test.setStatus(status);
-		updateTest(executionId, machineId, scenarioId, testId, test);
+		client.updateTest(executionId, machineId, scenarioId, testId, test);
 		test = null;
-		test = getTest(executionId, machineId, scenarioId, testId);
+		test = client.getTest(executionId, machineId, scenarioId, testId);
 		assertEquals(testName, test.getName());
 		assertEquals(duration, test.getDuration());
 		assertEquals(timestamp, test.getTimestamp());

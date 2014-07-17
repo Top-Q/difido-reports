@@ -9,7 +9,7 @@ public class ExecutionResourceTests extends AbstractResourceTestCase {
 	
 	@Test
 	public void testAddExecution(){
-		int executionId = addExecution();
+		int executionId = client.addExecution();
 		assertEquals(0, executionId);
 	}
 }

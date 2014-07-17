@@ -46,24 +46,24 @@ public class ResourceAddedListenerTests extends AbstractResourceTestCase impleme
 		String subScenarioName = "Sub Scenario #1";
 		String testName = "Test #1";
 
-		int executionId = addExecution();
+		int executionId = client.addExecution();
 		Assert.assertNotNull(notifiedExecution);
 
-		int machineId = addMachine(executionId, machineName);
+		int machineId = client.addMachine(executionId, new MachineNode(machineName));
 		assertEquals(machineName, notifiedMachine.getName());
 
-		int scenarioId = addRootScenario(executionId, machineId, rootScenarioName);
+		int scenarioId = client.addRootScenario(executionId, machineId, new ScenarioNode(rootScenarioName));
 		assertEquals(rootScenarioName, notifiedScenario.getName());
 
-		scenarioId = addSubScenario(executionId, machineId, scenarioId, subScenarioName);
+		scenarioId = client.addSubScenario(executionId, machineId, scenarioId, new ScenarioNode(subScenarioName));
 		assertEquals(subScenarioName, notifiedScenario.getName());
 
-		int testId = addTest(executionId, machineId, scenarioId, testName);
+		int testId = client.addTest(executionId, machineId, scenarioId, new TestNode(testName));
 		assertEquals(testName, notifiedTest.getName());
 
 		TestDetails details = new TestDetails();
 		details.setName(testName);
-		addTestDetails(executionId, machineId, scenarioId, testId, details);
+		client.addTestDetails(executionId, machineId, scenarioId, testId, details);
 		assertEquals(details.getName(), notifiedDetails.getName());
 
 		ReportElement element = new ReportElement();
@@ -71,12 +71,12 @@ public class ResourceAddedListenerTests extends AbstractResourceTestCase impleme
 		element.setMessage("My message");
 		element.setStatus(Status.success);
 		element.setType(ElementType.regular);
-		addReportElement(executionId, machineId, scenarioId, testId, element);
+		client.addReportElement(executionId, machineId, scenarioId, testId, element);
 		assertEquals(element.getTitle(), notifiedElement.getTitle());
 
-		TestNode test = getTest(executionId, machineId, scenarioId, testId);
+		TestNode test = client.getTest(executionId, machineId, scenarioId, testId);
 		test.setStatus(Status.success);
-		updateTest(executionId, machineId, scenarioId, testId, test);
+		client.updateTest(executionId, machineId, scenarioId, testId, test);
 		Assert.assertNull(notifiedTest);
 	}
 

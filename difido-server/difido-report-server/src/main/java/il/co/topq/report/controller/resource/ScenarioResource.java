@@ -1,5 +1,6 @@
 package il.co.topq.report.controller.resource;
 
+import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.report.controller.listener.ListenersManager;
 import il.co.topq.report.model.Session;
@@ -10,6 +11,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
 @Path("/executions/{execution}/machines/{machine}/scenarios")
@@ -19,7 +21,11 @@ public class ScenarioResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
 	public int post(@PathParam("execution") int executionId, @PathParam("machine") int machineId, ScenarioNode scenario) {
-		Session.INSTANCE.getExecution(executionId).getMachines().get(machineId).addChild(scenario);
+		final MachineNode machine = Session.INSTANCE.getExecution(executionId).getMachines().get(machineId);
+		if (null == machine){
+			throw new WebApplicationException("Machine with id " + machineId + " is not exist");
+		}
+		machine.addChild(scenario);
 		ListenersManager.INSTANCE.notifyScenarioAdded(scenario);
 		return Session.INSTANCE.getExecution(executionId).getMachines().get(machineId).getChildren().indexOf(scenario);
 	}
