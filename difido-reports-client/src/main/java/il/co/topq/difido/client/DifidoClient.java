@@ -6,12 +6,18 @@ import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 
+import java.io.File;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
+import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
 
 public class DifidoClient {
 
@@ -20,6 +26,7 @@ public class DifidoClient {
 	private DifidoClient(String baseUri) {
 		Client client = ClientBuilder.newClient();
 		client.register(JacksonObjectMapper.class);
+		client.register(MultiPartWriter.class);
 		this.baseTarget = client.target(baseUri);
 	}
 
@@ -127,5 +134,16 @@ public class DifidoClient {
 		ScenarioNode scenario = scenariosTarget.request(MediaType.APPLICATION_JSON).get(ScenarioNode.class);
 		return scenario;
 	}
+	
+	public String uploadFile(File uploadedFile, String destinationDirRelativePath) {
+		
+		FormDataMultiPart multiPart = new FormDataMultiPart();
+	    multiPart.bodyPart(new FileDataBodyPart("file", uploadedFile, MediaType.APPLICATION_OCTET_STREAM_TYPE));
+	    multiPart.field("destinationDirRelativePath", destinationDirRelativePath);
+		
+		WebTarget uploadTarget = baseTarget.path("/upload/file");
+		Response response = uploadTarget.request(MediaType.TEXT_PLAIN).post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA));
 
+		return response.readEntity(String.class);
+	}
 }
