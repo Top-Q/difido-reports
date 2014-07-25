@@ -66,6 +66,12 @@
 			<artifactId>jersey-json</artifactId>
 			<version>1.8</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-multipart</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
