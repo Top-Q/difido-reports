@@ -1,0 +1,1 @@
+var execution = {"machines":[{"type":"machine","name":"Machine #1","status":"success","children":null},{"type":"machine","name":"Machine #2","status":"success","children":null}]};

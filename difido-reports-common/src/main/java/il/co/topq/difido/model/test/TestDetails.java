@@ -2,7 +2,6 @@ package il.co.topq.difido.model.test;
 
 import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.Enums.Status;
-import il.co.topq.difido.model.execution.TestNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;

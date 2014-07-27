@@ -4,6 +4,30 @@
 	<groupId>il.co.topq.difido</groupId>
 	<artifactId>difido-reports-client</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<organization>
+		<name>Top-Q</name>
+	</organization>
+	<developers>
+		<developer>
+			<name>Itai Agmon</name>
+			<email>itai.agmon@top-q.co.il</email>
+		</developer>
+		<developer>
+			<name>Rony Byalsky</name>
+		</developer>
+	</developers>
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>A business-friendly OSS license</comments>
+		</license>
+	</licenses>
+	<properties>
+		<topq.repository.rootUrl>http://maven.top-q.co.il</topq.repository.rootUrl>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>il.co.topq.difido</groupId>
@@ -24,7 +48,7 @@
 		<dependency>
 			<groupId>org.glassfish.jersey.media</groupId>
 			<artifactId>jersey-media-json-jackson</artifactId>
-			<version>2.10.1</version>
+			<version>2.11</version>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.jersey.media</groupId>
@@ -43,7 +67,6 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
-
 				</configuration>
 				<executions>
 					<execution>
@@ -55,8 +78,48 @@
 					</execution>
 				</executions>
 			</plugin>
-
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.5.1</version>
+				<configuration>
+					<target>1.7</target>
+					<source>1.7</source>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 
 	</build>
+	<repositories>
+		<repository>
+			<id>topq</id>
+			<url>${topq.repository.rootUrl}/content/groups/public</url>
+		</repository>
+	</repositories>
+	<distributionManagement>
+		<repository>
+			<id>topq</id>
+			<name>RepositoryProxy</name>
+			<url>${topq.repository.rootUrl}/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>topq</id>
+			<name>RepositoryProxy</name>
+			<url>${topq.repository.rootUrl}/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>

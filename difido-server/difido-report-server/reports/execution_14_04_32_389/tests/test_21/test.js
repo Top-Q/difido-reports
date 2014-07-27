@@ -1,0 +1,1 @@
+var test = {"name":"Test name","description":"Test description","timestamp":"timestamp","duration":6000,"parameters":{"param1":"val1"},"properties":{"prop1":"val1"},"reportElements":[{"title":"My title","message":"My message","status":"success","type":"regular","time":null}]};

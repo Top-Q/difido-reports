@@ -3,7 +3,6 @@ package il.co.topq.report;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,8 +12,8 @@ public enum Configuration {
 	INSTANCE;
 
 	public enum ConfigProps {
-		REPORT_DESTINATION_FOLDER("report_destination_folder");
-
+		REPORT_DESTINATION_FOLDER("report_destination_folder"),
+		BASE_URI("base_uri");
 		private String value;
 
 		private ConfigProps(String value) {
@@ -59,6 +58,7 @@ public enum Configuration {
 	private void useDefaultProperties() {
 		log.info("Using default properties");
 		configProperties.put(ConfigProps.REPORT_DESTINATION_FOLDER.getValue(), "reports");
+		configProperties.put(ConfigProps.BASE_URI.getValue(), "http://localhost:8080/report/");
 		try (FileOutputStream out = new FileOutputStream(new File(CONFIG_PROP_NAME))) {
 			configProperties.store(out, "Default difido server proerties");
 		} catch (Exception e) {
