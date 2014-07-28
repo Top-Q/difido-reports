@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 public class HtmlViewGenerator implements ResourceChangedListener {
 
 	private static final Logger log = Logger.getLogger(HtmlViewGenerator.class.getSimpleName());
-	private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("HH_mm_ss_SS");
+	private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyyMMdd_HHmmss_SS");
 
 	private File executionDestinationFolder;
 
@@ -65,7 +65,7 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 	}
 
 	private void writeExecution() {
-		PersistenceUtils.writeExecution(Session.INSTANCE.getExecution(), executionDestinationFolder);
+		PersistenceUtils.writeExecution(Session.INSTANCE.getLastExecutionAndCreateIfNoneExist(), executionDestinationFolder);
 
 	}
 
