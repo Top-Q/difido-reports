@@ -13,7 +13,7 @@ function appendTestsToTable(tests,table){
        tr.append($('<td>').text(this.suiteName));
        tr.append($('<td>').text(this.machineName));
        tr.append($('<td>').text(this.status).addClass(this.status));
-       tr.append($('<td>').text(this.duration));
+       tr.append($('<td>').text(Math.round(this.duration / 1000) + "s"));
        $(table).append(tr);
     });
 }
