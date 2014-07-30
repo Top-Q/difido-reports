@@ -1,6 +1,10 @@
 package il.co.topq.report.controller.resource;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+
 import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.Enums.Status;
 import il.co.topq.difido.model.execution.Execution;
@@ -99,6 +103,61 @@ public class TestDetailsResourceTests extends AbstractResourceTestCase {
 
 	}
 
+	@Test
+	public void testAddFile() {
+		String machineName = "Machine #1";
+		String scenarioName = "Scenario #1";
+		String testName = "Test #1";
+		String uploadedFilePath = "C:\\largeDocument.pdf";
+		String uploadedFilesDirOnServer = "C:\\difido_uploads";
+
+		int executionId = client.addExecution();
+		assertEquals(0, executionId);
+
+		int machineId = client.addMachine(executionId, new MachineNode(machineName));
+		assertEquals(0, machineId);
+
+		int scenarioId = client.addRootScenario(executionId, machineId, new ScenarioNode(scenarioName));
+		assertEquals(0, scenarioId);
+
+		int testId = client.addTest(executionId, machineId, scenarioId, new TestNode(testName));
+		assertEquals(0, testId);
+
+		String description = "Test description";
+		long duration = 6000;
+		String name = "Test name";
+		String timestamp = "timestamp";
+		TestDetails details = new TestDetails();
+		details.addParameter("param1", "val1");
+		details.addProperty("prop1", "val1");
+		details.setDescription(description);
+		details.setDuration(duration);
+		details.setName(name);
+		details.setTimeStamp(timestamp);
+		client.addTestDetails(executionId, machineId, scenarioId, testId, details);
+		
+		File uploadedFile = new File(uploadedFilePath);
+		client.addFile(executionId, machineId, scenarioId, testId, uploadedFile);
+		
+		ReportElement element = new ReportElement();
+		element.setType(ElementType.lnk);
+		element.setTitle(uploadedFile.getName());
+		
+		ReportElement[] elements = getReportElements(executionId, machineId, scenarioId, testId);
+		System.out.println(elements[0]);
+		assertEquals(element.getTitle(), elements[0].getTitle());
+		assertEquals(element.getType(), elements[0].getType());
+		
+		String fileOnServerPath = uploadedFilesDirOnServer + File.separator +
+				"execution_" + executionId + File.separator +
+				"machine_" + machineId + File.separator + 
+				"scenario_" + scenarioId + File.separator +
+				"test_" + testId + File.separator + 
+				uploadedFile.getName();
+		
+		assertTrue(new File(fileOnServerPath).exists());
+	}
+	
 	private ReportElement[] getReportElements(int executionId, int machineId, int scenarioId, int testId) {
 		final Execution execution = Session.INSTANCE.getExecution(executionId);
 		final MachineNode machine = execution.getMachines().get(machineId);

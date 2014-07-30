@@ -127,6 +127,16 @@ public class DifidoClient {
 				+ "/scenarios/" + scenarioId + "/tests/" + testId + "/details/element");
 		elementTarget.request().post(Entity.entity(element, MediaType.APPLICATION_JSON));
 	}
+	
+	public void addFile(int executionId, int machineId, int scenarioId, int testId, File uploadedFile) {
+		WebTarget fileTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
+				+ "/scenarios/" + scenarioId + "/tests/" + testId + "/details/file");
+		
+		FormDataMultiPart multiPart = new FormDataMultiPart();
+	    multiPart.bodyPart(new FileDataBodyPart("file", uploadedFile, MediaType.APPLICATION_OCTET_STREAM_TYPE));
+		
+		fileTarget.request(MediaType.TEXT_PLAIN).post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA));
+	}
 
 	public ScenarioNode getScenario(int executionId, int machineId, int scenarioId) {
 		WebTarget scenariosTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
