@@ -104,14 +104,14 @@
                     <h2 class="sub-header">Charts</h2>
 
                     <div class="row placeholders">
-                        <div class="col-md-4 col-md-offset-1 placeholder">
-                            <canvas id="pie" height="300" width="350"></canvas>
+                        <div class="col-md-4 placeholder">
+                            <canvas id="pie" height="350" width="350"></canvas>
                             <!--<img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Generic placeholder thumbnail">-->
                             <h4>Test Status Pie</h4>
-                            <span class="text-muted">Success=Green,Error=Blue,<br>Failure=Red,Warning=Yellow</span>
+                            <span class="text-muted">Success=Green,Failure=Blue,<br>Error=Red,Warning=Yellow</span>
                         </div>
-                        <div class="col-md-4 placeholder">
-                            <canvas id="bar" height="300" width="550"></canvas>
+                        <div class="col-md-5 placeholder">
+                            <canvas id="bar" height="350" width="750"></canvas>
                             <h4>Execution Trend</h4>
                             <span class="text-muted">Test Status per Execution</span>
                         </div>
@@ -140,38 +140,24 @@
         <script src="controllers/sumBarChartController.js"></script>
         <script type="text/javascript" src="js/Chart.js"></script>
         <script>
-            pieController(document.getElementById("pie"));
-            sumTableController(document.getElementById("sumTable"));
-            sumBarChartController(document.getElementById("bar"));            
-        </script>
-        <script>
-
-            var doughnutData = [
-                {
-                    value: 30,
-                    color: "#F7464A"
-                },
-                {
-                    value: 50,
-                    color: "#46BFBD"
-                },
-                {
-                    value: 100,
-                    color: "#FDB45C"
-                },
-                {
-                    value: 40,
-                    color: "#949FB1"
-                },
-                {
-                    value: 120,
-                    color: "#4D5360"
-                }
-
-            ];
-
-            var myDoughnut = new Chart(document.getElementById("doughnut").getContext("2d")).Doughnut(doughnutData);
-
+			try {
+				pieController(document.getElementById("pie"));
+			} catch(err) {
+				console.log("Failed to create pie due to " + err.message);
+			}
+            
+			try {
+				sumTableController(document.getElementById("sumTable"));
+			} catch(err) {
+				console.log("Failed to create summary table due to " + err.message);
+			}
+            
+			try {
+				sumBarChartController(document.getElementById("bar"));            
+			} catch (err) {
+				console.log("Failed to create bar chart due to " + err.message);
+			}
+            
         </script>
     </body>
 </html>

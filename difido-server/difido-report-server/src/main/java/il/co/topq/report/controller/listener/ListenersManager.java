@@ -12,8 +12,6 @@ import il.co.topq.report.view.HtmlViewGenerator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.w3c.dom.ls.LSInput;
-
 public enum ListenersManager {
 
 	INSTANCE;

@@ -7,7 +7,8 @@ import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
-import il.co.topq.report.Main;
+import il.co.topq.report.Configuration;
+import il.co.topq.report.Configuration.ConfigProps;
 
 import java.util.Date;
 
@@ -20,13 +21,13 @@ public class EndToEndTests extends AbstractResourceTestCase {
 	private static final int NUM_OF_SCENARIOS_IN_MACHINE = 2;
 	private static final int NUM_OF_TESTS_IN_SCENARIO = 2;
 	private static final int NUM_OF_REPORT_ELEMENTS_IN_TEST = 4;
-	private static final int NUM_OF_ITERATIONS = 10;
+	private static final int NUM_OF_ITERATIONS = 2;
 
 	private DifidoClient client;
 
 	@Before
 	public void before() {
-		client = DifidoClient.build(Main.BASE_URI);
+		client = DifidoClient.build(Configuration.INSTANCE.read(ConfigProps.BASE_URI));
 	}
 
 	@Test

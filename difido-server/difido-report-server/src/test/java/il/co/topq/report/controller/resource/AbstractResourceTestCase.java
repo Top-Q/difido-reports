@@ -1,6 +1,8 @@
 package il.co.topq.report.controller.resource;
 
 import il.co.topq.difido.client.DifidoClient;
+import il.co.topq.report.Configuration;
+import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.Main;
 import il.co.topq.report.model.Session;
 
@@ -16,8 +18,9 @@ public abstract class AbstractResourceTestCase {
 	@Before
 	public void setUp() {
 		server = Main.startServer();
-		System.out.println("@Before - Grizzly server started on: " + Main.BASE_URI);
-		client = DifidoClient.build(Main.BASE_URI);
+		final String baseUri = Configuration.INSTANCE.read(ConfigProps.BASE_URI);
+		System.out.println("@Before - Grizzly server started on: " + baseUri);
+		client = DifidoClient.build(baseUri);
 	}
 
 	@After
@@ -25,7 +28,7 @@ public abstract class AbstractResourceTestCase {
 		Session.INSTANCE.flush();
 		server.shutdownNow();
 		System.out.println("\n@After - Grizzly server shut down");
-		System.out.println(Session.INSTANCE.getExecution());
+
 	}
 
 }

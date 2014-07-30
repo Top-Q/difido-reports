@@ -15,6 +15,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
@@ -25,7 +26,7 @@ public class DifidoClient {
 
 	private DifidoClient(String baseUri) {
 		Client client = ClientBuilder.newClient();
-		client.register(JacksonObjectMapper.class);
+		client.register(JacksonFeature.class);
 		client.register(MultiPartWriter.class);
 		this.baseTarget = client.target(baseUri);
 	}
@@ -41,6 +42,13 @@ public class DifidoClient {
 		WebTarget executionsTarget = baseTarget.path("/executions");
 		Response response = executionsTarget.request(MediaType.TEXT_PLAIN).post(null);
 		int executionId = Integer.parseInt(response.readEntity(String.class));
+		return executionId;
+	}
+	
+	public int getLastExecutionId(){
+		WebTarget executionsTarget = baseTarget.path("/executions/lastId");
+		String response = executionsTarget.request(MediaType.TEXT_PLAIN).get(String.class);
+		int executionId = Integer.parseInt(response);
 		return executionId;
 	}
 
@@ -155,5 +163,9 @@ public class DifidoClient {
 		Response response = uploadTarget.request(MediaType.TEXT_PLAIN).post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA));
 
 		return response.readEntity(String.class);
+	}
+
+	public void close() {
+		
 	}
 }
