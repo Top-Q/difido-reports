@@ -28,7 +28,7 @@ public abstract class AbstractResourceTestCase {
 		Session.INSTANCE.flush();
 		server.shutdownNow();
 		System.out.println("\n@After - Grizzly server shut down");
-		System.out.println(Session.INSTANCE.getExecution());
+
 	}
 
 }

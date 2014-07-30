@@ -44,6 +44,13 @@ public class DifidoClient {
 		int executionId = Integer.parseInt(response.readEntity(String.class));
 		return executionId;
 	}
+	
+	public int getLastExecutionId(){
+		WebTarget executionsTarget = baseTarget.path("/executions/lastId");
+		String response = executionsTarget.request(MediaType.TEXT_PLAIN).get(String.class);
+		int executionId = Integer.parseInt(response);
+		return executionId;
+	}
 
 	public void endExecution(int executionId) {
 		WebTarget executionsTarget = baseTarget.path("/executions/" + executionId);

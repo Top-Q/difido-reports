@@ -34,15 +34,27 @@ public class ExecutionResource {
 		ListenersManager.INSTANCE.notifyExecutionEnded(Session.INSTANCE.getExecution(executionIndex));
 	}
 
+	/**
+	 * In case the client doesn't know the execution id, since it was opened
+	 * from a different client, it can call to this service and receive the last
+	 * execution index
+	 * 
+	 * @return
+	 */
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Execution get() {
-		return Session.INSTANCE.getExecution();
+	@Path("/lastId")
+	@Produces(MediaType.TEXT_PLAIN)
+	public int getLastExecutionId() {
+		final Execution execution = Session.INSTANCE.getLastExecutionAndCreateIfNoneExist();
+		if (null == execution) {
+			// TODO: Return error
+		}
+		return Session.INSTANCE.getExecutions().indexOf(execution);
 	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{execution}")
+	@Path("/{execution: [0-9]+}")
 	public Execution get(@PathParam("execution") int execution) {
 		return Session.INSTANCE.getExecution(execution);
 	}
