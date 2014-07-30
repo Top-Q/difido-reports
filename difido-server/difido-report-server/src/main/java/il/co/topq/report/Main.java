@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -33,7 +34,9 @@ public class Main {
         // create and start a new instance of grizzly http server
         // exposing the Jersey application at BASE_URI
         baseUri = Configuration.INSTANCE.read(ConfigProps.BASE_URI);
-        return GrizzlyHttpServerFactory.createHttpServer(URI.create(baseUri), rc);
+        final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(baseUri), rc);
+        server.getServerConfiguration().addHttpHandler(new StaticHttpHandler("docRoot/"));
+        return server;
     }
 
     /**
