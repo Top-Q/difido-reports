@@ -11,11 +11,13 @@ function appendTestsToBar(tests, element) {
     var failure = 0;
     var warning = 0;
     var suiteName = null;
-    var suites = new Array();
+	//Since there is a bug in the bar chart that labels over 80 characters are causing the browser to stuck, we are slicing the suite names.
+	var maxLengthOfSuiteName = 40;    
+	var suites = new Array();
     $(tests).each(function() {
         if (suiteName !== null && suiteName !== this.suiteName) {
-            //TODO : Handle same scenario name in different machines
-            suites.push({"name": suiteName, "success": success, "error": error, "failure": failure, "warning": warning});
+            //TODO : Handle same scenario name in different machines            
+			suites.push({"name": suiteName.slice(0,maxLengthOfSuiteName), "success": success, "error": error, "failure": failure, "warning": warning});
             success = error = failure = warning = 0;
         }
         suiteName = this.suiteName;
@@ -36,7 +38,7 @@ function appendTestsToBar(tests, element) {
 
     });
     //The last scenario
-    suites.push({"name": suiteName, "success": success, "error": error, "failure": failure, "warning": warning});
+    suites.push({"name": suiteName.slice(0,maxLengthOfSuiteName), "success": success, "error": error, "failure": failure, "warning": warning});
     
     var successPerSuite = new Array();
     var errorPerSuite = new Array();
