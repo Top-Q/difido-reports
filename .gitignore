@@ -27,4 +27,5 @@ lib
 nbproject
 
 #Project files
-difido-server/difido-report-server/reports
+difido-server/difido-report-server/docRoot/reports
+

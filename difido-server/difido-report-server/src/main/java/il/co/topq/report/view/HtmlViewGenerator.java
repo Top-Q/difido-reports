@@ -7,20 +7,19 @@ import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
+import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.controller.listener.ResourceChangedListener;
 import il.co.topq.report.model.Session;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Logger;
 
 public class HtmlViewGenerator implements ResourceChangedListener {
 
 	private static final Logger log = Logger.getLogger(HtmlViewGenerator.class.getSimpleName());
-	private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyyMMdd_HHmmss_SS");
 
 	private File executionDestinationFolder;
 
@@ -40,9 +39,10 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 	}
 
 	private void prepareExecutionFolder() {
-		final String executionFolderName = "execution_" + DATE_FORMATTER.format(new Date());
-		executionDestinationFolder = new File(Configuration.INSTANCE.read(ConfigProps.REPORT_DESTINATION_FOLDER),
-				executionFolderName);
+		final String executionFolderName = Common.EXECUTION_REPORT_FOLDER_PREFIX + "_"
+				+ Common.EXECUTION_REPROT_TIMESTAMP_FORMATTER.format(new Date());
+		executionDestinationFolder = new File(Configuration.INSTANCE.read(ConfigProps.DOC_ROOT_FOLDER) + File.separator
+				+ Common.REPORTS_FOLDER_NAME, executionFolderName);
 		if (!executionDestinationFolder.exists()) {
 			if (!executionDestinationFolder.mkdirs()) {
 				String errorMessage = "Failed creating report destination folder in "
@@ -65,7 +65,8 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 	}
 
 	private void writeExecution() {
-		PersistenceUtils.writeExecution(Session.INSTANCE.getLastExecutionAndCreateIfNoneExist(), executionDestinationFolder);
+		PersistenceUtils.writeExecution(Session.INSTANCE.getLastExecutionAndCreateIfNoneExist(),
+				executionDestinationFolder);
 
 	}
 
