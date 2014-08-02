@@ -120,4 +120,7 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 
 	}
 
+	public File getExecutionDestinationFolder() {
+		return executionDestinationFolder;
+	}
 }
