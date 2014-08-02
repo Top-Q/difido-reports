@@ -105,11 +105,14 @@ public class TestDetailsResourceTests extends AbstractResourceTestCase {
 
 	@Test
 	public void testAddFile() {
+		
+		String currentDir = System.getProperty("user.dir");
+		String uploadedFilePath = currentDir + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "top-q.pdf";
+		String uploadedFilesDirOnServer = "C:\\difido_uploads";
+		
 		String machineName = "Machine #1";
 		String scenarioName = "Scenario #1";
 		String testName = "Test #1";
-		String uploadedFilePath = "C:\\largeDocument.pdf";
-		String uploadedFilesDirOnServer = "C:\\difido_uploads";
 
 		int executionId = client.addExecution();
 		assertEquals(0, executionId);
