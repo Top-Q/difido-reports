@@ -95,6 +95,4 @@ public class ReportElement {
 	public void setParent(TestDetails parent) {
 		this.parent = parent;
 	}
-	
-
 }

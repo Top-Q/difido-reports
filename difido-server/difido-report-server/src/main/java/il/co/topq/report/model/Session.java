@@ -117,5 +117,9 @@ public enum Session implements ResourceChangedListener {
 	@Override
 	public void reportElementAdded(TestNode test, ReportElement element) {
 	}
+	
+	public int getTestIndex() {
+		return testIndex.intValue();
+	}
 
 }

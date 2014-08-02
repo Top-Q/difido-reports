@@ -15,6 +15,7 @@ import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.model.Session;
+import il.co.topq.report.view.HtmlViewGenerator;
 
 import org.junit.Test;
 
@@ -107,12 +108,14 @@ public class TestDetailsResourceTests extends AbstractResourceTestCase {
 	public void testAddFile() {
 		
 		String currentDir = System.getProperty("user.dir");
-		String uploadedFilePath = currentDir + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "top-q.pdf";
-		String uploadedFilesDirOnServer = "C:\\difido_uploads";
+		String uploadedFilePath = currentDir + File.separator +
+				"src" + File.separator +
+				"test" + File.separator +
+				"resources" + File.separator + "top-q.pdf";
 		
 		String machineName = "Machine #1";
-		String scenarioName = "Scenario #1";
-		String testName = "Test #1";
+		String scenarioName = "Scenario with attached file";
+		String testName = "Test with attached file";
 
 		int executionId = client.addExecution();
 		assertEquals(0, executionId);
@@ -144,19 +147,17 @@ public class TestDetailsResourceTests extends AbstractResourceTestCase {
 		
 		ReportElement element = new ReportElement();
 		element.setType(ElementType.lnk);
-		element.setTitle(uploadedFile.getName());
+		element.setTitle("Attached file: " + uploadedFile.getName());
 		
 		ReportElement[] elements = getReportElements(executionId, machineId, scenarioId, testId);
-		System.out.println(elements[0]);
 		assertEquals(element.getTitle(), elements[0].getTitle());
 		assertEquals(element.getType(), elements[0].getType());
 		
-		String fileOnServerPath = uploadedFilesDirOnServer + File.separator +
-				"execution_" + executionId + File.separator +
-				"machine_" + machineId + File.separator + 
-				"scenario_" + scenarioId + File.separator +
-				"test_" + testId + File.separator + 
-				uploadedFile.getName();
+		File executionDestinationFolder = HtmlViewGenerator.getInstance().getExecutionDestinationFolder();
+		
+		String fileOnServerPath = executionDestinationFolder + File.separator +
+				"tests" + File.separator +
+				"test_" + Session.INSTANCE.getTestIndex() + File.separator + uploadedFile.getName();
 		
 		assertTrue(new File(fileOnServerPath).exists());
 	}

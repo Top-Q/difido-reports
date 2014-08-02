@@ -20,7 +20,7 @@ public enum ListenersManager {
 
 	private ListenersManager() {
 		// TODO: This should be done by another way. Maybe injection
-		listenersList.add(new HtmlViewGenerator());
+		listenersList.add(HtmlViewGenerator.getInstance());
 		listenersList.add(Session.INSTANCE);
 	}
 
@@ -118,5 +118,4 @@ public enum ListenersManager {
 			}
 		}
 	}
-
 }

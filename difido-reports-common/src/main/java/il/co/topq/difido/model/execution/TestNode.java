@@ -81,6 +81,4 @@ public class TestNode extends Node {
 	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
 	}
-
-
 }

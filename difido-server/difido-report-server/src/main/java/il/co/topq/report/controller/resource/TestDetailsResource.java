@@ -1,6 +1,5 @@
 package il.co.topq.report.controller.resource;
 
-import il.co.topq.difido.PersistenceUtils;
 import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
@@ -11,11 +10,14 @@ import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.controller.listener.ListenersManager;
 import il.co.topq.report.model.Session;
+import il.co.topq.report.view.HtmlViewGenerator;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -33,8 +35,6 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 @Path("/executions/{execution}/machines/{machine}/scenarios/{scenario}/tests/{test}/details")
 public class TestDetailsResource {
 
-	private static final String uploadedFilesDirPath = "C:\\difido_uploads";
-	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void post(@PathParam("execution") int executionId, @PathParam("machine") int machineId,
@@ -118,17 +118,11 @@ public class TestDetailsResource {
 		FormDataContentDisposition fileDisposition = fileBodyPart.getFormDataContentDisposition();
 		String fileName = fileDisposition.getFileName();
 		
-		//TODO!
-//		PersistenceUtils.writeTest(details, executionDestinationFolder, new File(executionDestinationFolder, "tests"
-//				+ File.separator + "test_" + test.getIndex()));
+		File executionDestinationFolder = HtmlViewGenerator.getInstance().getExecutionDestinationFolder();
 		
+		String destinationDirPath = executionDestinationFolder + File.separator +
+				"tests" + File.separator + "test_" + test.getIndex();
 		
-		String destinationDirPath = uploadedFilesDirPath + File.separator +
-				"execution_" + executionId + File.separator +
-				"machine_" + machineId + File.separator + 
-				"scenario_" + scenarioId + File.separator +
-				"test_" + testId;
-
 		File destinationDir = new File(destinationDirPath);
 		if (!destinationDir.exists()) {
 			destinationDir.mkdirs();
@@ -139,8 +133,9 @@ public class TestDetailsResource {
 		
 		ReportElement element = new ReportElement();
 		element.setType(ElementType.lnk);
-		element.setTitle(fileName);
-		element.setMessage(fileSavePath);
+		element.setTitle("Attached file: " + fileName);
+		element.setMessage(fileName);
+		element.setTime(currentTime());
 		
 		details.addReportElement(element);
 		ListenersManager.INSTANCE.notifyReportElementAdded(test, element);
@@ -157,6 +152,13 @@ public class TestDetailsResource {
 			e.printStackTrace();
 		}
 	}
+	
+	private String currentTime() {
+    	Calendar cal = Calendar.getInstance();
+    	cal.getTime();
+    	SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+    	return sdf.format(cal.getTime());
+    }
 	
 	// @GET
 	// @Path("/element")
