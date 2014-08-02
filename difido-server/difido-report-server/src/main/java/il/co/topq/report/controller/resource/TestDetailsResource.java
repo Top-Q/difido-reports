@@ -1,5 +1,6 @@
 package il.co.topq.report.controller.resource;
 
+import il.co.topq.difido.PersistenceUtils;
 import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
@@ -116,6 +117,11 @@ public class TestDetailsResource {
 		InputStream fileStream = fileBodyPart.getValueAs(InputStream.class);
 		FormDataContentDisposition fileDisposition = fileBodyPart.getFormDataContentDisposition();
 		String fileName = fileDisposition.getFileName();
+		
+		//TODO!
+//		PersistenceUtils.writeTest(details, executionDestinationFolder, new File(executionDestinationFolder, "tests"
+//				+ File.separator + "test_" + test.getIndex()));
+		
 		
 		String destinationDirPath = uploadedFilesDirPath + File.separator +
 				"execution_" + executionId + File.separator +
