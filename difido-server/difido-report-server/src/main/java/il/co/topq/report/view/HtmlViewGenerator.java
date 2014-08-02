@@ -19,6 +19,17 @@ import java.util.logging.Logger;
 
 public class HtmlViewGenerator implements ResourceChangedListener {
 
+	private static HtmlViewGenerator INSTANCE = null;
+	
+	private HtmlViewGenerator() {}
+	
+	public static HtmlViewGenerator getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new HtmlViewGenerator();
+		}
+		return INSTANCE;
+	}
+	
 	private static final Logger log = Logger.getLogger(HtmlViewGenerator.class.getSimpleName());
 
 	private File executionDestinationFolder;
