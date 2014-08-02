@@ -153,18 +153,6 @@ public class DifidoClient {
 		return scenario;
 	}
 	
-	public String uploadFile(File uploadedFile, String destinationDirRelativePath) {
-		
-		FormDataMultiPart multiPart = new FormDataMultiPart();
-	    multiPart.bodyPart(new FileDataBodyPart("file", uploadedFile, MediaType.APPLICATION_OCTET_STREAM_TYPE));
-	    multiPart.field("destinationDirRelativePath", destinationDirRelativePath);
-		
-		WebTarget uploadTarget = baseTarget.path("/upload/file");
-		Response response = uploadTarget.request(MediaType.TEXT_PLAIN).post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA));
-
-		return response.readEntity(String.class);
-	}
-
 	public void close() {
 		
 	}
