@@ -12,8 +12,9 @@ public enum Configuration {
 	INSTANCE;
 
 	public enum ConfigProps {
-		REPORT_DESTINATION_FOLDER("report_destination_folder"),
-		BASE_URI("base_uri");
+		
+		BASE_URI("base_uri"),
+		DOC_ROOT_FOLDER("doc_root_folder");
 		private String value;
 
 		private ConfigProps(String value) {
@@ -56,9 +57,9 @@ public enum Configuration {
 	}
 
 	private void useDefaultProperties() {
-		log.info("Using default properties");
-		configProperties.put(ConfigProps.REPORT_DESTINATION_FOLDER.getValue(), "reports");
-		configProperties.put(ConfigProps.BASE_URI.getValue(), "http://localhost:8080/report/");
+		log.info("Using default properties");		
+		configProperties.put(ConfigProps.BASE_URI.getValue(), "http://localhost:8080/api/");
+		configProperties.put(ConfigProps.DOC_ROOT_FOLDER.getValue(), "docRoot");
 		try (FileOutputStream out = new FileOutputStream(new File(CONFIG_PROP_NAME))) {
 			configProperties.store(out, "Default difido server proerties");
 		} catch (Exception e) {

@@ -8,7 +8,7 @@ public class AbstractTestCase {
 	
 	protected DifidoClient client;
 	
-	private String baseUri = "http://localhost:8090/report";
+	private String baseUri = "http://localhost:8090/api";
 
 	@Before
 	public void setUp() {

@@ -1,19 +1,24 @@
 package il.co.topq.difido.client;
 
 import static org.junit.Assert.assertEquals;
+
+import java.util.Date;
+
+import il.co.topq.difido.model.Enums.Status;
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
+import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
 public class DifidoClientTests extends AbstractTestCase {
-	
+
 	@Test
 	@Ignore
-	public void testAddExecution(){
+	public void testAddExecution() {
 		int executionId = client.addExecution();
 		assertEquals(0, executionId);
 		client.endExecution(executionId);
@@ -22,9 +27,9 @@ public class DifidoClientTests extends AbstractTestCase {
 		client.endExecution(executionId);
 
 	}
-	
+
 	@Test
-//	@Ignore
+	@Ignore
 	public void testAddDetails() {
 		String machineName = "Machine #1";
 		String scenarioName = "Scenario #1";
@@ -52,4 +57,30 @@ public class DifidoClientTests extends AbstractTestCase {
 		assertEquals(description, actualDetails.getDescription());
 
 	}
+
+	@Test
+	@Ignore
+	public void testReportElementAddingTime() {
+		int numOfReportElements = 100;
+		int executionId = client.addExecution();
+		int machineId = client.addMachine(executionId, new MachineNode("machine"));
+		int scenarioId = client.addRootScenario(executionId, machineId, new ScenarioNode("root_scenario"));
+		int testId = client.addTest(executionId, machineId, scenarioId, new TestNode("test"));
+		TestDetails details = new TestDetails();
+		details.setName("test");
+		details.setDuration((int) (Math.random() * 1000));
+		details.setTimeStamp(new Date().toString());
+		details.setDescription("Some random number as description: " + System.currentTimeMillis());
+		client.addTestDetails(executionId, machineId, scenarioId, testId, details);
+		for (int elementIndex = 0; elementIndex < numOfReportElements; elementIndex++) {
+			ReportElement element = new ReportElement();
+			element.setTitle("My report element");
+			element.setTime(elementIndex + "");
+			element.setStatus(elementIndex % 2 == 0 ? Status.success : Status.failure);
+			long start = System.currentTimeMillis();
+			client.addReportElement(executionId, machineId, scenarioId, testId, element);
+			System.out.println("Element added in " + (System.currentTimeMillis() - start) + " mills");
+		}
+	}
+
 }
