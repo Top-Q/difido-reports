@@ -19,18 +19,23 @@ import java.util.logging.Logger;
 
 public class HtmlViewGenerator implements ResourceChangedListener {
 
+	private static final Logger log = Logger.getLogger(HtmlViewGenerator.class.getSimpleName());
+
 	private static HtmlViewGenerator INSTANCE = null;
+
+	private Object executionFileLockObject = new Object();
 	
-	private HtmlViewGenerator() {}
-	
+	private Object testFileLockObject = new Object();
+
+	private HtmlViewGenerator() {
+	}
+
 	public static HtmlViewGenerator getInstance() {
 		if (INSTANCE == null) {
 			INSTANCE = new HtmlViewGenerator();
 		}
 		return INSTANCE;
 	}
-	
-	private static final Logger log = Logger.getLogger(HtmlViewGenerator.class.getSimpleName());
 
 	private File executionDestinationFolder;
 
@@ -38,6 +43,9 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 		EXECUTION, MACHINE, SCENARIO, TEST, TEST_DETAILS, ELEMENT
 	}
 
+	/**
+	 * TODO: Read from the configuration file
+	 */
 	private HtmlGenerationLevel creationLevel = HtmlGenerationLevel.ELEMENT;
 
 	@Override
@@ -50,20 +58,22 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 	}
 
 	private void prepareExecutionFolder() {
-		final String executionFolderName = Common.EXECUTION_REPORT_FOLDER_PREFIX + "_"
-				+ Common.EXECUTION_REPROT_TIMESTAMP_FORMATTER.format(new Date());
-		executionDestinationFolder = new File(Configuration.INSTANCE.read(ConfigProps.DOC_ROOT_FOLDER) + File.separator
-				+ Common.REPORTS_FOLDER_NAME, executionFolderName);
-		if (!executionDestinationFolder.exists()) {
-			if (!executionDestinationFolder.mkdirs()) {
-				String errorMessage = "Failed creating report destination folder in "
-						+ executionDestinationFolder.getAbsolutePath();
-				log.severe(errorMessage);
-				// TODO: Handle errors
-				return;
+		synchronized (executionFileLockObject) {
+			final String executionFolderName = Common.EXECUTION_REPORT_FOLDER_PREFIX + "_"
+					+ Common.EXECUTION_REPROT_TIMESTAMP_FORMATTER.format(new Date());
+			executionDestinationFolder = new File(Configuration.INSTANCE.read(ConfigProps.DOC_ROOT_FOLDER)
+					+ File.separator + Common.REPORTS_FOLDER_NAME, executionFolderName);
+			if (!executionDestinationFolder.exists()) {
+				if (!executionDestinationFolder.mkdirs()) {
+					String errorMessage = "Failed creating report destination folder in "
+							+ executionDestinationFolder.getAbsolutePath();
+					log.severe(errorMessage);
+					// TODO: Handle errors
+					return;
+				}
 			}
+			PersistenceUtils.copyResources(executionDestinationFolder);
 		}
-		PersistenceUtils.copyResources(executionDestinationFolder);
 
 	}
 
@@ -76,14 +86,18 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 	}
 
 	private void writeExecution() {
-		PersistenceUtils.writeExecution(Session.INSTANCE.getLastExecutionAndCreateIfNoneExist(),
-				executionDestinationFolder);
+		synchronized (executionFileLockObject) {
+			PersistenceUtils.writeExecution(Session.INSTANCE.getLastActiveExecution(), executionDestinationFolder);
+
+		}
 
 	}
 
 	private void writeTestDetails(TestNode test, TestDetails details) {
-		PersistenceUtils.writeTest(details, executionDestinationFolder, new File(executionDestinationFolder, "tests"
-				+ File.separator + "test_" + test.getIndex()));
+		synchronized (testFileLockObject) {
+			PersistenceUtils.writeTest(details, executionDestinationFolder, new File(executionDestinationFolder,
+					"tests" + File.separator + "test_" + test.getIndex()));
+		}
 	}
 
 	@Override

@@ -40,6 +40,7 @@
                 </table>
             </div>
             <button type="button" onclick="restartExecution()" >Restart Execution</button>
+			<button type="button" onclick="deleteExecutions()" >Delete Executions</button>
             <div class="col-sm-2 hidden-sm hidden-xs">
             </div>
 
@@ -53,6 +54,17 @@
         <script src="js/bootstrap.min.js"></script>
         <script type="text/javascript" src="js/jquery.dataTables.js"></script> 
         <script>
+			function deleteExecutions(){
+				$.ajax({
+					url: 'api/executions',
+					type: 'DELETE',
+					success: function() {
+						alert("All reports have been deleted");
+						location.reload();
+					}
+				});
+			}
+		
         	function restartExecution(){
         		$.post('api/executions', function(index){
         			alert("Execution has been restarted. Execution index is now: "+index)

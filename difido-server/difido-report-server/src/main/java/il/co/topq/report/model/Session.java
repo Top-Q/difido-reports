@@ -23,34 +23,39 @@ public enum Session implements ResourceChangedListener {
 
 	private List<Execution> executions;
 
-	private AbstractMap<TestNode, TestDetails> detailsForTests = new ConcurrentHashMap<TestNode, TestDetails>(
-			new HashMap<TestNode, TestDetails>());
+	private boolean activeExecution = false;
 
-	public synchronized void addTestDetails(TestNode test, TestDetails details) {
-		detailsForTests.put(test, details);
+	private AbstractMap<Integer, TestDetails> testDetails = new ConcurrentHashMap<Integer, TestDetails>(
+			new HashMap<Integer, TestDetails>());
+
+	public void addTestDetails(TestNode test, TestDetails details) {
+		testDetails.put(test.getIndex(), details);
 	}
 
 	public synchronized TestDetails getTestDetails(TestNode test) {
-		return detailsForTests.get(test);
+		return testDetails.get(test.getIndex());
 	}
 
 	public synchronized int addExecution() {
 		Execution execution = new Execution();
 		createExecutionListIfNull();
 		executions.add(execution);
+		activeExecution = true;
 		return executions.indexOf(execution);
 	}
 
 	/**
-	 * Get the last execution. If there is not execution, an execution will be
-	 * created
+	 * Get the last active execution.
 	 * 
-	 * @return last execution
+	 * @return last execution or null if none exists
 	 */
-	public synchronized Execution getLastExecutionAndCreateIfNoneExist() {
+	public synchronized Execution getLastActiveExecution() {
 		createExecutionListIfNull();
+		if (!activeExecution) {
+			return null;
+		}
 		if (executions.isEmpty()) {
-			addExecution();
+			return null;
 		}
 		return getExecution(executions.size() - 1);
 	}
@@ -64,14 +69,15 @@ public enum Session implements ResourceChangedListener {
 		}
 		return executions.get(index);
 	}
-	
+
 	private void createExecutionListIfNull() {
-		if (null == executions){
+		if (null == executions) {
 			executions = Collections.synchronizedList(new ArrayList<Execution>());
 		}
 	}
 
 	public List<Execution> getExecutions() {
+		createExecutionListIfNull();
 		return executions;
 	}
 
@@ -90,6 +96,7 @@ public enum Session implements ResourceChangedListener {
 
 	@Override
 	public void executionEnded(Execution execution) {
+		activeExecution = false;
 	}
 
 	@Override
@@ -106,7 +113,7 @@ public enum Session implements ResourceChangedListener {
 
 	@Override
 	public void testEnded(TestNode test) {
-		detailsForTests.remove(test);
+		testDetails.remove(test.getIndex());
 
 	}
 
@@ -117,7 +124,7 @@ public enum Session implements ResourceChangedListener {
 	@Override
 	public void reportElementAdded(TestNode test, ReportElement element) {
 	}
-	
+
 	public int getTestIndex() {
 		return testIndex.intValue();
 	}

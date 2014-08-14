@@ -40,7 +40,7 @@ public class ResourceAddedListenerTests extends AbstractResourceTestCase impleme
 	}
 
 	@Test
-	public void testAllEventsAreBroadcasted() {
+	public void testAllEventsAreBroadcasted() throws Exception {
 		String machineName = "Machine #1";
 		String rootScenarioName = "Scenario #1";
 		String subScenarioName = "Sub Scenario #1";

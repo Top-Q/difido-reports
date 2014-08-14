@@ -10,6 +10,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 import il.co.topq.report.controller.resource.AbstractResourceTestCase;
+
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
 import org.junit.After;
@@ -23,7 +24,7 @@ public class ReportResourceTests extends AbstractResourceTestCase {
 	private WebTarget baseTarget;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
 		super.setUp();
 		String baseUri = Configuration.INSTANCE.read(ConfigProps.BASE_URI);
 		client = ClientBuilder.newClient();

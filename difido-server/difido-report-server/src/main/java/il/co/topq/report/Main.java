@@ -38,8 +38,10 @@ public class Main {
 		// exposing the Jersey application at BASE_URI
 		baseUri = Configuration.INSTANCE.read(ConfigProps.BASE_URI);
 		final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(baseUri), rc);
-		server.getServerConfiguration().addHttpHandler(
-				new StaticHttpHandler(Configuration.INSTANCE.read(ConfigProps.DOC_ROOT_FOLDER)));
+		StaticHttpHandler staticHttpHandler = new StaticHttpHandler(
+				Configuration.INSTANCE.read(ConfigProps.DOC_ROOT_FOLDER));
+		staticHttpHandler.setFileCacheEnabled(false);
+		server.getServerConfiguration().addHttpHandler(staticHttpHandler);
 		return server;
 	}
 

@@ -12,11 +12,11 @@ import org.junit.Before;
 
 public abstract class AbstractResourceTestCase {
 
-	private  HttpServer server;
+	private HttpServer server;
 	protected DifidoClient client;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
 		server = Main.startServer();
 		final String baseUri = Configuration.INSTANCE.read(ConfigProps.BASE_URI);
 		System.out.println("@Before - Grizzly server started on: " + baseUri);

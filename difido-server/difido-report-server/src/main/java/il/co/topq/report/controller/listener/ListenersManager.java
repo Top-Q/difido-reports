@@ -6,6 +6,7 @@ import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
+import il.co.topq.report.controller.ExecutionEnderScheduler;
 import il.co.topq.report.model.Session;
 import il.co.topq.report.view.HtmlViewGenerator;
 
@@ -21,6 +22,7 @@ public enum ListenersManager {
 	private ListenersManager() {
 		// TODO: This should be done by another way. Maybe injection
 		listenersList.add(HtmlViewGenerator.getInstance());
+		listenersList.add(new ExecutionEnderScheduler());
 		listenersList.add(Session.INSTANCE);
 	}
 

@@ -31,7 +31,7 @@ public class EndToEndTests extends AbstractResourceTestCase {
 	}
 
 	@Test
-	public void createSimpleReport() {
+	public void createSimpleReport() throws Exception {
 		for (int i = 0; i < NUM_OF_ITERATIONS; i++) {
 			createReport();
 
@@ -39,7 +39,7 @@ public class EndToEndTests extends AbstractResourceTestCase {
 	}
 
 	@Test
-	public void testReportElementAddingTime() {
+	public void testReportElementAddingTime() throws Exception {
 		int numOfReportElements = 100;
 		int executionId = client.addExecution();
 		int machineId = client.addMachine(executionId, new MachineNode("machine"));
@@ -60,10 +60,11 @@ public class EndToEndTests extends AbstractResourceTestCase {
 			client.addReportElement(executionId, machineId, scenarioId, testId, element);
 			System.out.println("Element added in " + (System.currentTimeMillis() - start) + " mills");
 		}
+		client.endTest(executionId, machineId, scenarioId, testId);
 
 	}
 
-	private void createReport() {
+	private void createReport() throws Exception {
 		long start = System.currentTimeMillis();
 		int executionId = client.addExecution();
 		for (int machineIndex = 0; machineIndex < NUM_OF_MACHINES; machineIndex++) {
@@ -90,6 +91,7 @@ public class EndToEndTests extends AbstractResourceTestCase {
 						element.setStatus(elementIndex % 2 == 0 ? Status.success : Status.failure);
 						client.addReportElement(executionId, machineId, scenarioId, testId, element);
 					}
+					client.endTest(executionId, machineId, scenarioId, testId);
 
 				}
 

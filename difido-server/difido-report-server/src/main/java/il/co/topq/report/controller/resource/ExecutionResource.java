@@ -17,10 +17,14 @@ public class ExecutionResource {
 
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
-	public String post() {
+	public int post() {
+		return addExecution();
+	}
+
+	private int addExecution() {
 		int executionIndex = Session.INSTANCE.addExecution();
 		ListenersManager.INSTANCE.notifyExecutionAdded(Session.INSTANCE.getExecution(executionIndex));
-		return Integer.toString(executionIndex);
+		return executionIndex;
 	}
 
 	/**
@@ -37,17 +41,18 @@ public class ExecutionResource {
 	/**
 	 * In case the client doesn't know the execution id, since it was opened
 	 * from a different client, it can call to this service and receive the last
-	 * execution index
+	 * execution index. If no execution is currently active. A new execution
+	 * would be created
 	 * 
-	 * @return
+	 * @return The id of the last active execution.
 	 */
 	@GET
 	@Path("/lastId")
 	@Produces(MediaType.TEXT_PLAIN)
 	public int getLastExecutionId() {
-		final Execution execution = Session.INSTANCE.getLastExecutionAndCreateIfNoneExist();
+		final Execution execution = Session.INSTANCE.getLastActiveExecution();
 		if (null == execution) {
-			// TODO: Return error
+			return addExecution();
 		}
 		return Session.INSTANCE.getExecutions().indexOf(execution);
 	}

@@ -1,6 +1,5 @@
 package il.co.topq.report.controller.resource;
 
-import il.co.topq.difido.model.Enums.Status;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.Node;
@@ -10,6 +9,7 @@ import il.co.topq.report.controller.listener.ListenersManager;
 import il.co.topq.report.model.Session;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -22,7 +22,7 @@ import javax.ws.rs.core.MediaType;
 public class TestResource {
 
 	/**
-	 * Add new test
+	 * Add a new test
 	 * 
 	 * @param executionId
 	 * @param machineId
@@ -45,9 +45,6 @@ public class TestResource {
 
 	/**
 	 * Updates a test. Will be used mostly for updating the test status.
-	 * Updating test status, meaning, changing it from <i>in progress</i> to any
-	 * other status also means that the test is finished and a test ended event
-	 * will be notified
 	 * 
 	 * @param executionId
 	 * @param machineId
@@ -79,10 +76,30 @@ public class TestResource {
 		}
 		if (aTest.getStatus() != null) {
 			test.setStatus(aTest.getStatus());
-			if (aTest.getStatus() != Status.in_progress){
-				ListenersManager.INSTANCE.notifyTestEnded(test);
-			}
 		}
+	}
+
+	/**
+	 * Signals that this specific test was ended.
+	 * 
+	 * @param executionId
+	 * @param machineId
+	 * @param scenarioId
+	 * @param testId
+	 * @param aTest
+	 */
+	@DELETE
+	@Path("/{test}")
+	public void delete(@PathParam("execution") int executionId, @PathParam("machine") int machineId,
+			@PathParam("scenario") int scenarioId, @PathParam("test") int testId) {
+		final Execution execution = Session.INSTANCE.getExecution(executionId);
+		final MachineNode machine = execution.getMachines().get(machineId);
+		final ScenarioNode scenario = machine.getAllScenarios().get(scenarioId);
+		final Node node = scenario.getChildren().get(testId);
+		if (!(node instanceof TestNode)) {
+			// TODO: return error
+		}
+		ListenersManager.INSTANCE.notifyTestEnded((TestNode) node);
 	}
 
 	@GET
@@ -90,15 +107,17 @@ public class TestResource {
 	@Path("/{test}")
 	public TestNode get(@PathParam("execution") int executionId, @PathParam("machine") int machineId,
 			@PathParam("scenario") int scenarioId, @PathParam("test") int testId) {
-		Node test = Session.INSTANCE.getExecution(executionId).getMachines().get(machineId).getAllScenarios()
-				.get(scenarioId).getChildren().get(testId);
-		if (test instanceof TestNode) {
-			TestNode testCopy = TestNode.newInstance((TestNode) test);
-			testCopy.setParent(null);
-			return testCopy;
+		final Execution execution = Session.INSTANCE.getExecution(executionId);
+		final MachineNode machine = execution.getMachines().get(machineId);
+		final ScenarioNode scenario = machine.getAllScenarios().get(scenarioId);
+		final Node node = scenario.getChildren().get(testId);
+		if (!(node instanceof TestNode)) {
+			// TODO: return error
 		}
-		// TODO: Throw exception
-		return null;
+		final TestNode test = (TestNode) node;
+		TestNode testCopy = TestNode.newInstance((TestNode) test);
+		testCopy.setParent(null);
+		return testCopy;
 	}
 
 }

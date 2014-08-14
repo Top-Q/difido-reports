@@ -44,8 +44,8 @@ public class DifidoClient {
 		int executionId = Integer.parseInt(response.readEntity(String.class));
 		return executionId;
 	}
-	
-	public int getLastExecutionId(){
+
+	public int getLastExecutionId() {
 		WebTarget executionsTarget = baseTarget.path("/executions/lastId");
 		String response = executionsTarget.request(MediaType.TEXT_PLAIN).get(String.class);
 		int executionId = Integer.parseInt(response);
@@ -117,10 +117,18 @@ public class DifidoClient {
 		testTarget.request().put(Entity.entity(test, MediaType.APPLICATION_JSON));
 	}
 
-	public void addTestDetails(int executionId, int machineId, int scenarioId, int testId, TestDetails details) {
+	public void endTest(int executionId, int machineId, int scenarioId, int testId) {
+		WebTarget testTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId + "/scenarios/"
+				+ scenarioId + "/tests/" + testId);
+		testTarget.request().delete();
+	}
+
+	public void addTestDetails(int executionId, int machineId, int scenarioId, int testId, TestDetails details)
+			throws Exception {
 		WebTarget testDetailsTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
 				+ "/scenarios/" + scenarioId + "/tests/" + testId + "/details");
-		testDetailsTarget.request().post(Entity.entity(details, MediaType.APPLICATION_JSON));
+		Response response = testDetailsTarget.request().post(Entity.entity(details, MediaType.APPLICATION_JSON));
+		handleSimpleRespose(response);
 	}
 
 	public TestDetails getTestDetails(int executionId, int machineId, int scenarioId, int testId) {
@@ -130,19 +138,21 @@ public class DifidoClient {
 		return details;
 	}
 
-	public void addReportElement(int executionId, int machineId, int scenarioId, int testId, ReportElement element) {
+	public void addReportElement(int executionId, int machineId, int scenarioId, int testId, ReportElement element)
+			throws Exception {
 		WebTarget elementTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
 				+ "/scenarios/" + scenarioId + "/tests/" + testId + "/details/element");
-		elementTarget.request().post(Entity.entity(element, MediaType.APPLICATION_JSON));
+		final Response response = elementTarget.request().post(Entity.entity(element, MediaType.APPLICATION_JSON));
+		handleSimpleRespose(response);
 	}
-	
+
 	public void addFile(int executionId, int machineId, int scenarioId, int testId, File uploadedFile) {
-		WebTarget fileTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
-				+ "/scenarios/" + scenarioId + "/tests/" + testId + "/details/file");
-		
+		WebTarget fileTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId + "/scenarios/"
+				+ scenarioId + "/tests/" + testId + "/details/file");
+
 		FormDataMultiPart multiPart = new FormDataMultiPart();
-	    multiPart.bodyPart(new FileDataBodyPart("file", uploadedFile, MediaType.APPLICATION_OCTET_STREAM_TYPE));
-		
+		multiPart.bodyPart(new FileDataBodyPart("file", uploadedFile, MediaType.APPLICATION_OCTET_STREAM_TYPE));
+
 		fileTarget.request(MediaType.TEXT_PLAIN).post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA));
 	}
 
@@ -152,8 +162,14 @@ public class DifidoClient {
 		ScenarioNode scenario = scenariosTarget.request(MediaType.APPLICATION_JSON).get(ScenarioNode.class);
 		return scenario;
 	}
-	
+
+	private void handleSimpleRespose(final Response response) throws Exception {
+		if (response.getStatus() != 202 && response.getStatus() != 204) {
+			throw new Exception("Request failed - status " + response.getStatus());
+		}
+	}
+
 	public void close() {
-		
+
 	}
 }

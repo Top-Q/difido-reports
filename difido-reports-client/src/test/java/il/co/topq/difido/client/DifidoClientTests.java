@@ -30,7 +30,7 @@ public class DifidoClientTests extends AbstractTestCase {
 
 	@Test
 	@Ignore
-	public void testAddDetails() {
+	public void testAddDetails() throws Exception {
 		String machineName = "Machine #1";
 		String scenarioName = "Scenario #1";
 		String testName = "Test #1";
@@ -60,7 +60,7 @@ public class DifidoClientTests extends AbstractTestCase {
 
 	@Test
 	@Ignore
-	public void testReportElementAddingTime() {
+	public void testReportElementAddingTime() throws Exception {
 		int numOfReportElements = 100;
 		int executionId = client.addExecution();
 		int machineId = client.addMachine(executionId, new MachineNode("machine"));

@@ -11,7 +11,7 @@ public class TestNode extends Node {
 	private long duration;
 
 	private String timestamp;
-
+	
 	public TestNode() {
 		setStatus(Status.in_progress);
 	}
@@ -56,8 +56,7 @@ public class TestNode extends Node {
 		}
 		return result;
 	}
-
-
+	
 	public int getIndex() {
 		return index;
 	}

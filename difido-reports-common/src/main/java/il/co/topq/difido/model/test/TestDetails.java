@@ -143,21 +143,21 @@ public class TestDetails {
 		parameters.put(key, value);
 	}
 
-	@Override
-	@JsonIgnore
-	public int hashCode() {
-		int hash = 1;
-		if (parameters != null) {
-			hash = hash * 17 + parameters.hashCode();
-		}
-		if (properties != null) {
-			hash = hash * 13 + properties.hashCode();
-		}
-		if (name != null) {
-			hash = hash * 31 + name.hashCode();
-		}
-		return hash;
-	}
+//	@Override
+//	@JsonIgnore
+//	public int hashCode() {
+//		int hash = 1;
+//		if (parameters != null) {
+//			hash = hash * 17 + parameters.hashCode();
+//		}
+//		if (properties != null) {
+//			hash = hash * 13 + properties.hashCode();
+//		}
+//		if (name != null) {
+//			hash = hash * 31 + name.hashCode();
+//		}
+//		return hash;
+//	}
 
 	public String getName() {
 		return name;
@@ -214,6 +214,5 @@ public class TestDetails {
 	public void setReportElements(List<ReportElement> reportElements) {
 		this.reportElements = reportElements;
 	}
-
 
 }
