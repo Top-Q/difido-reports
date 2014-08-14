@@ -130,6 +130,15 @@ public class DifidoClient {
 		Response response = testDetailsTarget.request().post(Entity.entity(details, MediaType.APPLICATION_JSON));
 		handleSimpleRespose(response);
 	}
+	
+	public void updateTestDetails(int executionId, int machineId, int scenarioId, int testId, TestDetails details)
+			throws Exception {
+		WebTarget testDetailsTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
+				+ "/scenarios/" + scenarioId + "/tests/" + testId + "/details");
+		Response response = testDetailsTarget.request().put(Entity.entity(details, MediaType.APPLICATION_JSON));
+		handleSimpleRespose(response);
+	}
+
 
 	public TestDetails getTestDetails(int executionId, int machineId, int scenarioId, int testId) {
 		WebTarget testDetailsTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId

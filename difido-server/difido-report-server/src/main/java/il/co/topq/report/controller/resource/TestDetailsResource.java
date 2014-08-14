@@ -19,6 +19,7 @@ import java.io.OutputStream;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -47,13 +48,38 @@ public class TestDetailsResource {
 			// TODO: return error
 		}
 		final TestNode test = (TestNode) node;
-		// TODO: Add random to create better uuid
-		// long uid = System.currentTimeMillis();
-		// test.setUid(uid);
 
 		// TODO: Use the notify test details added instead of this call
 		Session.INSTANCE.addTestDetails(test, details);
 		ListenersManager.INSTANCE.notifyTestDetailsAdded(test, details);
+	}
+
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void put(@PathParam("execution") int executionId, @PathParam("machine") int machineId,
+			@PathParam("scenario") int scenarioId, @PathParam("test") int testId, TestDetails updatedDetails) {
+		if (null == updatedDetails) {
+			// TODO: return error;
+		}
+		final Execution execution = Session.INSTANCE.getExecution(executionId);
+		final MachineNode machine = execution.getMachines().get(machineId);
+		final ScenarioNode scenario = machine.getAllScenarios().get(scenarioId);
+		final Node node = scenario.getChildren().get(testId);
+		if (!(node instanceof TestNode)) {
+			// TODO: return error
+		}
+		final TestNode test = (TestNode) node;
+
+		// TODO: Use the notify test details added instead of this call
+		TestDetails currentDetails = Session.INSTANCE.getTestDetails(test);
+		currentDetails.setDescription(updatedDetails.getDescription());
+		currentDetails.setDuration(updatedDetails.getDuration());
+		currentDetails.setName(updatedDetails.getName());
+		currentDetails.setTimeStamp(updatedDetails.getTimeStamp());
+		currentDetails.setParameters(updatedDetails.getParameters());
+		currentDetails.setProperties(updatedDetails.getProperties());
+		currentDetails.setTimeStamp(updatedDetails.getTimeStamp());
+		ListenersManager.INSTANCE.notifyTestDetailsAdded(test, currentDetails);
 	}
 
 	@GET
