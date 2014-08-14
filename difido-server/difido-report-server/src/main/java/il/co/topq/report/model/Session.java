@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public enum Session implements ResourceChangedListener {
 	INSTANCE;
 
-	private static AtomicInteger testIndex = new AtomicInteger(0);
+	private static AtomicInteger testIndex = new AtomicInteger(-1);
 
 	private List<Execution> executions;
 
