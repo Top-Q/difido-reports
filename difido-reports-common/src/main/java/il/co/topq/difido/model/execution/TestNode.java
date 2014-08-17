@@ -8,10 +8,12 @@ public class TestNode extends Node {
 
 	private int index;
 
+	private String uid;
+
 	private long duration;
 
 	private String timestamp;
-	
+
 	public TestNode() {
 		setStatus(Status.in_progress);
 	}
@@ -44,19 +46,19 @@ public class TestNode extends Node {
 		testNodeCopy.setTimestamp(aTestNode.getTimestamp());
 		return testNodeCopy;
 	}
-	
+
 	@JsonIgnore
 	@Override
 	public int hashCode() {
 		int result = super.hashCode();
 		result = 31 * result + index;
 		result = 31 * result + new Long(duration).intValue();
-		if (timestamp != null){
+		if (timestamp != null) {
 			result = 31 * result + timestamp.hashCode();
 		}
 		return result;
 	}
-	
+
 	public int getIndex() {
 		return index;
 	}
@@ -80,4 +82,13 @@ public class TestNode extends Node {
 	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
 	}
+
+	public String getUid() {
+		return uid;
+	}
+
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
+
 }

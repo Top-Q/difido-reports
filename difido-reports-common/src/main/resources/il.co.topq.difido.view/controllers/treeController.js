@@ -13,7 +13,7 @@ function populateChildren(source, destination) {
                 populateChildren(this.children, children);
                 break;
             case "test":
-                destination.push({'text': this.index + ". " + this.name, 'icon': testIcon(this.status), 'rel': this.status, 'type': this.status, 'a_attr': {'href': "tests/test_" + this.index+"/test.html",'class':this.status}});
+                destination.push({'text': this.index + ". " + this.name, 'icon': testIcon(this.status), 'rel': this.status, 'type': this.status, 'a_attr': {'href': "tests/test_" + this.uid+"/test.html",'class':this.status}});
                 break;
         }
     });
