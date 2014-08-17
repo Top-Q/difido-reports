@@ -5,7 +5,6 @@ import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.Node;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
-import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.controller.listener.ListenersManager;
 import il.co.topq.report.model.Session;
@@ -17,12 +16,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
@@ -30,144 +26,60 @@ import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
-@Path("/executions/{execution}/machines/{machine}/scenarios/{scenario}/tests/{test}/details")
+@Path("/executions/{execution}/details")
 public class TestDetailsResource {
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void post(@PathParam("execution") int executionId, @PathParam("machine") int machineId,
-			@PathParam("scenario") int scenarioId, @PathParam("test") int testId, TestDetails details) {
+	public void post(@PathParam("execution") int executionId, TestDetails details) {
 		if (null == details) {
 			// TODO: return error;
 		}
-		final Execution execution = Session.INSTANCE.getExecution(executionId);
-		final MachineNode machine = execution.getMachines().get(machineId);
-		final ScenarioNode scenario = machine.getAllScenarios().get(scenarioId);
-		final Node node = scenario.getChildren().get(testId);
-		if (!(node instanceof TestNode)) {
-			// TODO: return error
-		}
-		final TestNode test = (TestNode) node;
 
-		// TODO: Use the notify test details added instead of this call
-		Session.INSTANCE.addTestDetails(test, details);
-		ListenersManager.INSTANCE.notifyTestDetailsAdded(test, details);
+		ListenersManager.INSTANCE.notifyTestDetailsAdded(details);
 	}
 
-	@PUT
-	@Consumes(MediaType.APPLICATION_JSON)
-	public void put(@PathParam("execution") int executionId, @PathParam("machine") int machineId,
-			@PathParam("scenario") int scenarioId, @PathParam("test") int testId, TestDetails updatedDetails) {
-		if (null == updatedDetails) {
-			// TODO: return error;
-		}
-		final Execution execution = Session.INSTANCE.getExecution(executionId);
-		final MachineNode machine = execution.getMachines().get(machineId);
-		final ScenarioNode scenario = machine.getAllScenarios().get(scenarioId);
-		final Node node = scenario.getChildren().get(testId);
-		if (!(node instanceof TestNode)) {
-			// TODO: return error
-		}
-		final TestNode test = (TestNode) node;
 
-		// TODO: Use the notify test details added instead of this call
-		TestDetails currentDetails = Session.INSTANCE.getTestDetails(test);
-		currentDetails.setDescription(updatedDetails.getDescription());
-		currentDetails.setDuration(updatedDetails.getDuration());
-		currentDetails.setName(updatedDetails.getName());
-		currentDetails.setTimeStamp(updatedDetails.getTimeStamp());
-		currentDetails.setParameters(updatedDetails.getParameters());
-		currentDetails.setProperties(updatedDetails.getProperties());
-		currentDetails.setTimeStamp(updatedDetails.getTimeStamp());
-		ListenersManager.INSTANCE.notifyTestDetailsAdded(test, currentDetails);
-	}
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public TestDetails get(@PathParam("execution") int executionId, @PathParam("machine") int machineId,
-			@PathParam("scenario") int scenarioId, @PathParam("test") int testId) {
-		final Execution execution = Session.INSTANCE.getExecution(executionId);
-		final MachineNode machine = execution.getMachines().get(machineId);
-		final ScenarioNode scenario = machine.getAllScenarios().get(scenarioId);
-		final Node node = scenario.getChildren().get(testId);
-		if (!(node instanceof TestNode)) {
-			// TODO: return error
-		}
-		final TestNode test = (TestNode) node;
-		return Session.INSTANCE.getTestDetails(test);
-	}
-
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("/element")
-	public void postElement(@PathParam("execution") int executionId, @PathParam("machine") int machineId,
-			@PathParam("scenario") int scenarioId, @PathParam("test") int testId, ReportElement element) {
-		if (null == element) {
-			// TODO: return error;
-		}
-		final Execution execution = Session.INSTANCE.getExecution(executionId);
-		final MachineNode machine = execution.getMachines().get(machineId);
-		final ScenarioNode scenario = machine.getAllScenarios().get(scenarioId);
-		final Node node = scenario.getChildren().get(testId);
-		if (!(node instanceof TestNode)) {
-			// TODO: return error
-		}
-		final TestNode test = (TestNode) node;
-		final TestDetails details = Session.INSTANCE.getTestDetails(test);
-		if (null == details) {
-			// TODO: return error
-		}
-		details.addReportElement(element);
-		ListenersManager.INSTANCE.notifyReportElementAdded(test, element);
-	}
-
-	@POST
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@Path("/file")
-	public void postFile(@PathParam("execution") int executionId, @PathParam("machine") int machineId,
-			@PathParam("scenario") int scenarioId, @PathParam("test") int testId, FormDataMultiPart multiPart) {
-
-		final Execution execution = Session.INSTANCE.getExecution(executionId);
-		final MachineNode machine = execution.getMachines().get(machineId);
-		final ScenarioNode scenario = machine.getAllScenarios().get(scenarioId);
-		final Node node = scenario.getChildren().get(testId);
-		if (!(node instanceof TestNode)) {
-			// TODO: return error
-		}
-		final TestNode test = (TestNode) node;
-		final TestDetails details = Session.INSTANCE.getTestDetails(test);
-		if (null == details) {
-			// TODO: return error
-		}
-
-		FormDataBodyPart fileBodyPart = multiPart.getField("file");
-
-		InputStream fileStream = fileBodyPart.getValueAs(InputStream.class);
-		FormDataContentDisposition fileDisposition = fileBodyPart.getFormDataContentDisposition();
-		String fileName = fileDisposition.getFileName();
-
-		File executionDestinationFolder = HtmlViewGenerator.getInstance().getExecutionDestinationFolder();
-
-		String destinationDirPath = executionDestinationFolder + File.separator + "tests" + File.separator + "test_"
-				+ test.getIndex();
-
-		File destinationDir = new File(destinationDirPath);
-		if (!destinationDir.exists()) {
-			destinationDir.mkdirs();
-		}
-
-		String fileSavePath = destinationDirPath + File.separator + fileName;
-		saveFile(fileStream, fileSavePath);
-
-		// ReportElement element = new ReportElement();
-		// element.setType(ElementType.lnk);
-		// element.setTitle("Attached file: " + fileName);
-		// element.setMessage(fileName);
-		// element.setTime(currentTime());
-		//
-		// details.addReportElement(element);
-		// ListenersManager.INSTANCE.notifyReportElementAdded(test, element);
-	}
+//	@POST
+//	@Consumes(MediaType.MULTIPART_FORM_DATA)
+//	@Path("/file")
+//	public void postFile(@PathParam("execution") int executionId, @PathParam("machine") int machineId,
+//			@PathParam("scenario") int scenarioId, @PathParam("test") int testId, FormDataMultiPart multiPart) {
+//
+//		final Execution execution = Session.INSTANCE.getExecution(executionId);
+//		final MachineNode machine = execution.getMachines().get(machineId);
+//		final ScenarioNode scenario = machine.getAllScenarios().get(scenarioId);
+//		final Node node = scenario.getChildren().get(testId);
+//		if (!(node instanceof TestNode)) {
+//			// TODO: return error
+//		}
+//		final TestNode test = (TestNode) node;
+//		final TestDetails details = Session.INSTANCE.getTestDetails(test);
+//		if (null == details) {
+//			// TODO: return error
+//		}
+//
+//		FormDataBodyPart fileBodyPart = multiPart.getField("file");
+//
+//		InputStream fileStream = fileBodyPart.getValueAs(InputStream.class);
+//		FormDataContentDisposition fileDisposition = fileBodyPart.getFormDataContentDisposition();
+//		String fileName = fileDisposition.getFileName();
+//
+//		File executionDestinationFolder = HtmlViewGenerator.getInstance().getExecutionDestinationFolder();
+//
+//		String destinationDirPath = executionDestinationFolder + File.separator + "tests" + File.separator + "test_"
+//				+ test.getIndex();
+//
+//		File destinationDir = new File(destinationDirPath);
+//		if (!destinationDir.exists()) {
+//			destinationDir.mkdirs();
+//		}
+//
+//		String fileSavePath = destinationDirPath + File.separator + fileName;
+//		saveFile(fileStream, fileSavePath);
+//
+//	}
 
 	private void saveFile(InputStream inputStream, String filePath) {
 
@@ -180,34 +92,6 @@ public class TestDetailsResource {
 		}
 	}
 
-	// private String currentTime() {
-	// Calendar cal = Calendar.getInstance();
-	// cal.getTime();
-	// SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-	// return sdf.format(cal.getTime());
-	// }
 
-	// @GET
-	// @Path("/element")
-	// @Produces(MediaType.APPLICATION_JSON)
-	// public ReportElement[] getElement(@PathParam("execution") int
-	// executionId, @PathParam("machine") int machineId,
-	// @PathParam("scenario") int scenarioId, @PathParam("test") int testId) {
-	// final Execution execution = Session.INSTANCE.getExecution(executionId);
-	// final MachineNode machine = execution.getMachines().get(machineId);
-	// final ScenarioNode scenario = machine.getAllScenarios().get(scenarioId);
-	// final Node node = scenario.getChildren().get(testId);
-	// if (!(node instanceof TestNode)) {
-	// // TODO: return error
-	// }
-	// final TestNode test = (TestNode) node;
-	// if (null == test.getDetails()) {
-	// // TODO: return error
-	// }
-	// final ReportElement[] elements = test.getDetails().getReportElements()
-	// .toArray(new
-	// ReportElement[test.getDetails().getReportElements().size()]);
-	// return elements;
-	// }
 
 }

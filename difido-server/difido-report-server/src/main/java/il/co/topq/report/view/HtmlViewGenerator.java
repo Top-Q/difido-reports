@@ -3,9 +3,6 @@ package il.co.topq.report.view;
 import il.co.topq.difido.PersistenceUtils;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
-import il.co.topq.difido.model.execution.ScenarioNode;
-import il.co.topq.difido.model.execution.TestNode;
-import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
@@ -93,52 +90,23 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 
 	}
 
-	private void writeTestDetails(TestNode test, TestDetails details) {
+	private void writeTestDetails(TestDetails details) {
 		synchronized (testFileLockObject) {
 			PersistenceUtils.writeTest(details, executionDestinationFolder, new File(executionDestinationFolder,
-					"tests" + File.separator + "test_" + test.getIndex()));
+					"tests" + File.separator + "test_" + details.getUid()));
 		}
 	}
 
-	@Override
-	public void scenarioAdded(ScenarioNode scenario) {
-		if (creationLevel.ordinal() >= HtmlGenerationLevel.SCENARIO.ordinal()) {
-			writeExecution();
-		}
-
-	}
 
 	@Override
-	public void testAdded(TestNode test) {
-		if (creationLevel.ordinal() >= HtmlGenerationLevel.TEST.ordinal()) {
-			writeExecution();
-		}
-
-	}
-
-	@Override
-	public void testEnded(TestNode test) {
-		if (creationLevel.ordinal() >= HtmlGenerationLevel.TEST.ordinal()) {
-			writeExecution();
-		}
-
-	}
-
-	@Override
-	public void testDetailsAdded(TestNode test, TestDetails details) {
+	public void testDetailsAdded(TestDetails details) {
 		if (creationLevel.ordinal() >= HtmlGenerationLevel.TEST_DETAILS.ordinal()) {
-			writeTestDetails(test, details);
+			writeTestDetails(details);
 		}
 
 	}
 
-	@Override
-	public void reportElementAdded(TestNode test, ReportElement element) {
-		if (creationLevel.ordinal() >= HtmlGenerationLevel.ELEMENT.ordinal()) {
-			writeTestDetails(test, element.getParent());
-		}
 
-	}
 
 	@Override
 	public void executionEnded(Execution execution) {

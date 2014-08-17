@@ -2,9 +2,6 @@ package il.co.topq.report.controller.listener;
 
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
-import il.co.topq.difido.model.execution.ScenarioNode;
-import il.co.topq.difido.model.execution.TestNode;
-import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.controller.ExecutionEnderScheduler;
 import il.co.topq.report.model.Session;
@@ -60,55 +57,16 @@ public enum ListenersManager {
 		}
 	}
 
-	public void notifyScenarioAdded(ScenarioNode scenario) {
+
+	public void notifyTestDetailsAdded(TestDetails details) {
 		for (ReportServerListener listener : listenersList) {
 			if (listener instanceof ResourceChangedListener) {
-				((ResourceChangedListener) listener).scenarioAdded(scenario);
-
-			}
-		}
-
-	}
-
-	public void notifyTestAdded(TestNode test) {
-		for (ReportServerListener listener : listenersList) {
-			if (listener instanceof ResourceChangedListener) {
-				((ResourceChangedListener) listener).testAdded(test);
-
-			}
-		}
-
-	}
-
-	public void notifyTestEnded(TestNode test) {
-		for (ReportServerListener listener : listenersList) {
-			if (listener instanceof ResourceChangedListener) {
-				((ResourceChangedListener) listener).testEnded(test);
-
-			}
-		}
-
-	}
-
-	public void notifyTestDetailsAdded(TestNode test, TestDetails details) {
-		for (ReportServerListener listener : listenersList) {
-			if (listener instanceof ResourceChangedListener) {
-				((ResourceChangedListener) listener).testDetailsAdded(test, details);
+				((ResourceChangedListener) listener).testDetailsAdded(details);
 
 			}
 		}
 	}
 
-	public void notifyReportElementAdded(TestNode test, ReportElement element) {
-		synchronized (listenersList) {
-			for (ReportServerListener listener : listenersList) {
-				if (listener instanceof ResourceChangedListener) {
-					((ResourceChangedListener) listener).reportElementAdded(test, element);
-
-				}
-			}
-		}
-	}
 
 	public void notifyExecutionEnded(Execution execution) {
 		synchronized (listenersList) {

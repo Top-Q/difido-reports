@@ -22,6 +22,9 @@ public class TestDetails {
 	@JsonIgnore
 	private List<ReportElement> levelElementsBuffer;
 
+	@JsonProperty("uid")
+	private String uid;
+	
 	@JsonProperty("name")
 	private String name;
 
@@ -29,7 +32,7 @@ public class TestDetails {
 	private String description = "";
 
 	@JsonProperty("timestamp")
-	private String timeStamp;
+	private String timestamp;
 
 	@JsonProperty("duration")
 	private long duration;
@@ -55,7 +58,7 @@ public class TestDetails {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Name: ").append(name).append("\n");
 		sb.append("Description: ").append(description).append("\n");
-		sb.append("Timestamp: ").append(timeStamp).append("\n");
+		sb.append("Timestamp: ").append(timestamp).append("\n");
 		sb.append("Duration: ").append(duration).append("\n");
 		return sb.toString();
 	}
@@ -159,6 +162,14 @@ public class TestDetails {
 //		return hash;
 //	}
 
+	public String getUid() {
+		return uid;
+	}
+	
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -175,12 +186,12 @@ public class TestDetails {
 		this.description = description;
 	}
 
-	public String getTimeStamp() {
-		return timeStamp;
+	public String getTimestamp() {
+		return timestamp;
 	}
 
-	public void setTimeStamp(String timeStamp) {
-		this.timeStamp = timeStamp;
+	public void setTimestamp(String timeStamp) {
+		this.timestamp = timeStamp;
 	}
 
 	public long getDuration() {

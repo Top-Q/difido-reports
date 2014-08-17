@@ -24,7 +24,7 @@ public class TestTestDetails {
 		t.addParameter("param2", "val2");
 		t.addProperty("prop0", "val0");
 		t.addProperty("prop1", "val1");
-		t.setTimeStamp("23/12/2013");
+		t.setTimestamp("23/12/2013");
 		ReportElement e0 = new ReportElement();
 		e0.setTitle("this is the title");
 		e0.setMessage("This is the message");

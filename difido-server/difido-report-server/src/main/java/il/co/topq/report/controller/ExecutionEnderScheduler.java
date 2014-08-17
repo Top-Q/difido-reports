@@ -1,20 +1,17 @@
 package il.co.topq.report.controller;
 
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.logging.Logger;
-
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
-import il.co.topq.difido.model.execution.ScenarioNode;
-import il.co.topq.difido.model.execution.TestNode;
-import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.controller.listener.ListenersManager;
 import il.co.topq.report.controller.listener.ResourceChangedListener;
 import il.co.topq.report.model.Session;
+
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.Logger;
 
 /**
  * This class is responsible for closing the execution in case no events are
@@ -92,29 +89,9 @@ public class ExecutionEnderScheduler implements ResourceChangedListener {
 	}
 
 	@Override
-	public void scenarioAdded(ScenarioNode scenario) {
-		lastUpdateTime = System.currentTimeMillis();
-
-	}
-
-	@Override
-	public void testAdded(TestNode test) {
+	public void testDetailsAdded(TestDetails details) {
 		lastUpdateTime = System.currentTimeMillis();
 	}
 
-	@Override
-	public void testEnded(TestNode test) {
-		lastUpdateTime = System.currentTimeMillis();
-	}
-
-	@Override
-	public void testDetailsAdded(TestNode test, TestDetails details) {
-		lastUpdateTime = System.currentTimeMillis();
-	}
-
-	@Override
-	public void reportElementAdded(TestNode test, ReportElement element) {
-		lastUpdateTime = System.currentTimeMillis();
-	}
 
 }

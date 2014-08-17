@@ -1,9 +1,6 @@
 package il.co.topq.difido.client;
 
 import il.co.topq.difido.model.execution.MachineNode;
-import il.co.topq.difido.model.execution.ScenarioNode;
-import il.co.topq.difido.model.execution.TestNode;
-import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 
 import java.io.File;
@@ -68,90 +65,16 @@ public class DifidoClient {
 		return machineId;
 	}
 
-	/**
-	 * invoke: MachineResource.get()
-	 */
-	public MachineNode getMachine(int executionId, int machineId) {
+	public void updateMachine(int executionId, int machineId, MachineNode machine) throws Exception {
 		WebTarget machinesTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId);
-		MachineNode machine = machinesTarget.request(MediaType.APPLICATION_JSON).get(MachineNode.class);
-		return machine;
+		Response response = machinesTarget.request(MediaType.TEXT_PLAIN).put(
+				Entity.entity(machine, MediaType.APPLICATION_JSON));
+		handleSimpleRespose(response);
 	}
 
-	public int addRootScenario(int executionId, int machineId, ScenarioNode scenario) {
-		WebTarget scenarioTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
-				+ "/scenarios");
-		Response postResponse = scenarioTarget.request(MediaType.TEXT_PLAIN).post(
-				Entity.entity(scenario, MediaType.APPLICATION_JSON));
-		int scenarioId = Integer.parseInt(postResponse.readEntity(String.class));
-		return scenarioId;
-	}
-
-	public int addSubScenario(int executionId, int machineId, int parentScenarioId, ScenarioNode scenario) {
-		WebTarget scenarioTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
-				+ "/scenarios/" + parentScenarioId);
-		Response postResponse = scenarioTarget.request(MediaType.TEXT_PLAIN).post(
-				Entity.entity(scenario, MediaType.APPLICATION_JSON));
-		int scenarioId = Integer.parseInt(postResponse.readEntity(String.class));
-		return scenarioId;
-	}
-
-	public int addTest(int executionId, int machineId, int scenarioId, TestNode test) {
-		WebTarget testTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId + "/scenarios/"
-				+ scenarioId + "/tests");
-		Response postResponse = testTarget.request(MediaType.TEXT_PLAIN).post(
-				Entity.entity(test, MediaType.APPLICATION_JSON));
-		int testId = Integer.parseInt(postResponse.readEntity(String.class));
-		return testId;
-	}
-
-	public TestNode getTest(int executionId, int machineId, int scenarioId, int testId) {
-		WebTarget testTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId + "/scenarios/"
-				+ scenarioId + "/tests/" + testId);
-		TestNode test = testTarget.request(MediaType.APPLICATION_JSON).get(TestNode.class);
-		return test;
-	}
-
-	public void updateTest(int executionId, int machineId, int scenarioId, int testId, TestNode test) {
-		WebTarget testTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId + "/scenarios/"
-				+ scenarioId + "/tests/" + testId);
-		testTarget.request().put(Entity.entity(test, MediaType.APPLICATION_JSON));
-	}
-
-	public void endTest(int executionId, int machineId, int scenarioId, int testId) {
-		WebTarget testTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId + "/scenarios/"
-				+ scenarioId + "/tests/" + testId);
-		testTarget.request().delete();
-	}
-
-	public void addTestDetails(int executionId, int machineId, int scenarioId, int testId, TestDetails details)
-			throws Exception {
-		WebTarget testDetailsTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
-				+ "/scenarios/" + scenarioId + "/tests/" + testId + "/details");
+	public void addTestDetails(int executionId, TestDetails details) throws Exception {
+		WebTarget testDetailsTarget = baseTarget.path("/executions/" + executionId + "/details");
 		Response response = testDetailsTarget.request().post(Entity.entity(details, MediaType.APPLICATION_JSON));
-		handleSimpleRespose(response);
-	}
-	
-	public void updateTestDetails(int executionId, int machineId, int scenarioId, int testId, TestDetails details)
-			throws Exception {
-		WebTarget testDetailsTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
-				+ "/scenarios/" + scenarioId + "/tests/" + testId + "/details");
-		Response response = testDetailsTarget.request().put(Entity.entity(details, MediaType.APPLICATION_JSON));
-		handleSimpleRespose(response);
-	}
-
-
-	public TestDetails getTestDetails(int executionId, int machineId, int scenarioId, int testId) {
-		WebTarget testDetailsTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
-				+ "/scenarios/" + scenarioId + "/tests/" + testId + "/details");
-		TestDetails details = testDetailsTarget.request(MediaType.APPLICATION_JSON).get(TestDetails.class);
-		return details;
-	}
-
-	public void addReportElement(int executionId, int machineId, int scenarioId, int testId, ReportElement element)
-			throws Exception {
-		WebTarget elementTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
-				+ "/scenarios/" + scenarioId + "/tests/" + testId + "/details/element");
-		final Response response = elementTarget.request().post(Entity.entity(element, MediaType.APPLICATION_JSON));
 		handleSimpleRespose(response);
 	}
 
@@ -163,13 +86,6 @@ public class DifidoClient {
 		multiPart.bodyPart(new FileDataBodyPart("file", uploadedFile, MediaType.APPLICATION_OCTET_STREAM_TYPE));
 
 		fileTarget.request(MediaType.TEXT_PLAIN).post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA));
-	}
-
-	public ScenarioNode getScenario(int executionId, int machineId, int scenarioId) {
-		WebTarget scenariosTarget = baseTarget.path("/executions/" + executionId + "/machines/" + machineId
-				+ "/scenarios/" + scenarioId);
-		ScenarioNode scenario = scenariosTarget.request(MediaType.APPLICATION_JSON).get(ScenarioNode.class);
-		return scenario;
 	}
 
 	private void handleSimpleRespose(final Response response) throws Exception {

@@ -8,6 +8,7 @@ import il.co.topq.report.model.Session;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -20,7 +21,7 @@ public class MachineResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
-	public int post(@PathParam("execution") int executionId, MachineNode machine) {
+	public int addNewMachine(@PathParam("execution") int executionId, MachineNode machine) {
 		if (null == machine){
 			throw new WebApplicationException("Machine can't be null");
 		}
@@ -31,6 +32,21 @@ public class MachineResource {
 		execution.addMachine(machine);
 		ListenersManager.INSTANCE.notifyMachineAdded(machine);
 		return Session.INSTANCE.getExecution(executionId).getMachines().indexOf(machine);
+	}
+	
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("{machine}")
+	public void updateMachine(@PathParam("execution") int executionId,@PathParam("machine") int machineId, MachineNode machine) {
+		if (null == machine){
+			throw new WebApplicationException("Machine can't be null");
+		}
+		final Execution execution = Session.INSTANCE.getExecution(executionId);
+		if (null == execution) {
+			throw new WebApplicationException("Execution with id " + executionId + " is not exist");
+		}
+		execution.getMachines().set(machineId, machine);
+		ListenersManager.INSTANCE.notifyMachineAdded(machine);
 	}
 
 	@GET

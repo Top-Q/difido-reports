@@ -2,9 +2,7 @@ package il.co.topq.report.model;
 
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
-import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
-import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.controller.listener.ResourceChangedListener;
 
@@ -19,22 +17,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public enum Session implements ResourceChangedListener {
 	INSTANCE;
 
-	private static AtomicInteger testIndex = new AtomicInteger(-1);
-
 	private List<Execution> executions;
 
 	private boolean activeExecution = false;
 
-	private AbstractMap<Integer, TestDetails> testDetails = new ConcurrentHashMap<Integer, TestDetails>(
-			new HashMap<Integer, TestDetails>());
-
-	public void addTestDetails(TestNode test, TestDetails details) {
-		testDetails.put(test.getIndex(), details);
-	}
-
-	public synchronized TestDetails getTestDetails(TestNode test) {
-		return testDetails.get(test.getIndex());
-	}
 
 	public synchronized int addExecution() {
 		Execution execution = new Execution();
@@ -85,11 +71,6 @@ public enum Session implements ResourceChangedListener {
 		executions = null;
 	}
 
-	public int incrementAndGetTestIndex() {
-		return testIndex.incrementAndGet();
-
-	}
-
 	@Override
 	public void executionAdded(Execution execution) {
 	}
@@ -103,30 +84,12 @@ public enum Session implements ResourceChangedListener {
 	public void machineAdded(MachineNode machine) {
 	}
 
-	@Override
-	public void scenarioAdded(ScenarioNode scenario) {
-	}
+
 
 	@Override
-	public void testAdded(TestNode test) {
+	public void testDetailsAdded(TestDetails details) {
 	}
 
-	@Override
-	public void testEnded(TestNode test) {
-		testDetails.remove(test.getIndex());
 
-	}
-
-	@Override
-	public void testDetailsAdded(TestNode test, TestDetails details) {
-	}
-
-	@Override
-	public void reportElementAdded(TestNode test, ReportElement element) {
-	}
-
-	public int getTestIndex() {
-		return testIndex.intValue();
-	}
 
 }

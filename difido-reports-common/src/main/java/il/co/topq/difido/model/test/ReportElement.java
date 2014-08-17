@@ -11,7 +11,7 @@ import org.codehaus.jackson.annotate.JsonPropertyOrder;
 public class ReportElement {
 
 	@JsonIgnore
-	private TestDetails parent;
+	private transient TestDetails parent;
 
 	@JsonProperty("title")
 	private String title = null;

@@ -17,7 +17,7 @@ public abstract class Node {
 	private Status status = Status.success;
 
 	@JsonIgnore
-	private NodeWithChildren<? extends Node> parent;
+	private transient NodeWithChildren<? extends Node> parent;
 
 	public Node() {
 
