@@ -9,7 +9,7 @@ function appendTestsToTable(tests,table){
        var tr = $('<tr>');
        tr.append($('<td>').text(this.index));
        tr.append($('<td>').text(this.timestamp));
-       tr.append($('<td>').append($('<a>').text(this.name).attr("href","tests/test_"+this.index+"/test.html")));
+       tr.append($('<td>').append($('<a>').text(this.name).attr("href","tests/test_"+this.uid+"/test.html")));
        tr.append($('<td>').text(this.suiteName));
        tr.append($('<td>').text(this.machineName));
        tr.append($('<td>').text(this.status).addClass(this.status));

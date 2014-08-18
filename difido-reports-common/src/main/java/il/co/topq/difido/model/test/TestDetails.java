@@ -46,8 +46,9 @@ public class TestDetails {
 	@JsonProperty("uid")
 	private String uid;
 
-	public TestDetails(String name) {
+	public TestDetails(String name, String uid) {
 		this.name = name;
+		this.uid = uid;
 	}
 
 	public TestDetails() {

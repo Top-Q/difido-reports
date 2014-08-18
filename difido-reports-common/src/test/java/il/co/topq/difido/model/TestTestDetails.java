@@ -17,7 +17,7 @@ public class TestTestDetails {
 
 	@Test
 	public void testTestDetails() throws JsonGenerationException, JsonMappingException, IOException {
-		TestDetails t = new TestDetails("TestOne");
+		TestDetails t = new TestDetails("TestOne","0");
 		t.setDescription("This is the test description");
 		t.setDuration(34323l);
 		t.addParameter("param0", "val0");

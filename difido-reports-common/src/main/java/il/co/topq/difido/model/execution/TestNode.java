@@ -5,7 +5,6 @@ import il.co.topq.difido.model.Enums.Status;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
 public class TestNode extends Node {
 
 	@JsonProperty("index")
@@ -24,17 +23,19 @@ public class TestNode extends Node {
 		setStatus(Status.in_progress);
 	}
 
-	public TestNode(String name) {
-		super(name);
-		setStatus(Status.in_progress);
+	public TestNode(String name, String uid) {
+		this(0, name, uid);
+
 	}
 
-	public TestNode(int index, String name) {
+	public TestNode(int index, String name, String uid) {
 		super(name);
 		if (index < 0) {
 			throw new IllegalArgumentException("index can't be smaller then 0");
 		}
 		this.index = index;
+		setStatus(Status.in_progress);
+		this.uid = uid;
 	}
 
 	/**
@@ -45,7 +46,7 @@ public class TestNode extends Node {
 	 */
 	@JsonIgnore
 	public static TestNode newInstance(TestNode aTestNode) {
-		TestNode testNodeCopy = new TestNode(aTestNode.getIndex(), aTestNode.getName());
+		TestNode testNodeCopy = new TestNode(aTestNode.getIndex(), aTestNode.getName(), aTestNode.getUid());
 		testNodeCopy.setDuration(aTestNode.getDuration());
 		testNodeCopy.setParent(aTestNode.getParent());
 		testNodeCopy.setStatus(aTestNode.getStatus());
