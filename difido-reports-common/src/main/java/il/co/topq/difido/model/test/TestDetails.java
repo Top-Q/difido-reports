@@ -8,9 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonPropertyOrder({ "name", "description", "timestamp", "duration", "parameters", "properties", "reportElements" })
 public class TestDetails {
@@ -22,9 +22,6 @@ public class TestDetails {
 	@JsonIgnore
 	private List<ReportElement> levelElementsBuffer;
 
-	@JsonProperty("uid")
-	private String uid;
-	
 	@JsonProperty("name")
 	private String name;
 
@@ -32,7 +29,7 @@ public class TestDetails {
 	private String description = "";
 
 	@JsonProperty("timestamp")
-	private String timestamp;
+	private String timeStamp;
 
 	@JsonProperty("duration")
 	private long duration;
@@ -46,6 +43,9 @@ public class TestDetails {
 	@JsonProperty("reportElements")
 	private List<ReportElement> reportElements;
 
+	@JsonProperty("uid")
+	private String uid;
+
 	public TestDetails(String name) {
 		this.name = name;
 	}
@@ -58,7 +58,7 @@ public class TestDetails {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Name: ").append(name).append("\n");
 		sb.append("Description: ").append(description).append("\n");
-		sb.append("Timestamp: ").append(timestamp).append("\n");
+		sb.append("Timestamp: ").append(timeStamp).append("\n");
 		sb.append("Duration: ").append(duration).append("\n");
 		return sb.toString();
 	}
@@ -146,30 +146,22 @@ public class TestDetails {
 		parameters.put(key, value);
 	}
 
-//	@Override
-//	@JsonIgnore
-//	public int hashCode() {
-//		int hash = 1;
-//		if (parameters != null) {
-//			hash = hash * 17 + parameters.hashCode();
-//		}
-//		if (properties != null) {
-//			hash = hash * 13 + properties.hashCode();
-//		}
-//		if (name != null) {
-//			hash = hash * 31 + name.hashCode();
-//		}
-//		return hash;
-//	}
+	// @Override
+	// @JsonIgnore
+	// public int hashCode() {
+	// int hash = 1;
+	// if (parameters != null) {
+	// hash = hash * 17 + parameters.hashCode();
+	// }
+	// if (properties != null) {
+	// hash = hash * 13 + properties.hashCode();
+	// }
+	// if (name != null) {
+	// hash = hash * 31 + name.hashCode();
+	// }
+	// return hash;
+	// }
 
-	public String getUid() {
-		return uid;
-	}
-	
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
-	
 	public String getName() {
 		return name;
 	}
@@ -186,12 +178,12 @@ public class TestDetails {
 		this.description = description;
 	}
 
-	public String getTimestamp() {
-		return timestamp;
+	public String getTimeStamp() {
+		return timeStamp;
 	}
 
-	public void setTimestamp(String timeStamp) {
-		this.timestamp = timeStamp;
+	public void setTimeStamp(String timeStamp) {
+		this.timeStamp = timeStamp;
 	}
 
 	public long getDuration() {
@@ -224,6 +216,14 @@ public class TestDetails {
 
 	public void setReportElements(List<ReportElement> reportElements) {
 		this.reportElements = reportElements;
+	}
+
+	public String getUid() {
+		return uid;
+	}
+
+	public void setUid(String uid) {
+		this.uid = uid;
 	}
 
 }

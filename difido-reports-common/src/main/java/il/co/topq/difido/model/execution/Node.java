@@ -2,10 +2,11 @@ package il.co.topq.difido.model.execution;
 
 import il.co.topq.difido.model.Enums.Status;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonSubTypes.Type;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({ @Type(value = ScenarioNode.class, name = "scenario"), @Type(value = TestNode.class, name = "test"),
@@ -17,7 +18,7 @@ public abstract class Node {
 	private Status status = Status.success;
 
 	@JsonIgnore
-	private transient NodeWithChildren<? extends Node> parent;
+	private NodeWithChildren<? extends Node> parent;
 
 	public Node() {
 

@@ -2,16 +2,22 @@ package il.co.topq.difido.model.execution;
 
 import il.co.topq.difido.model.Enums.Status;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 public class TestNode extends Node {
 
+	@JsonProperty("index")
 	private int index;
 
+	@JsonProperty("uid")
 	private String uid;
 
+	@JsonProperty("duration")
 	private long duration;
 
+	@JsonProperty("timestamp")
 	private String timestamp;
 
 	public TestNode() {

@@ -7,10 +7,11 @@ import il.co.topq.difido.model.test.TestDetails;
 
 import java.io.IOException;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestTestDetails {
 
@@ -24,7 +25,7 @@ public class TestTestDetails {
 		t.addParameter("param2", "val2");
 		t.addProperty("prop0", "val0");
 		t.addProperty("prop1", "val1");
-		t.setTimestamp("23/12/2013");
+		t.setTimeStamp("23/12/2013");
 		ReportElement e0 = new ReportElement();
 		e0.setTitle("this is the title");
 		e0.setMessage("This is the message");

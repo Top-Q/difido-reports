@@ -1,6 +1,7 @@
 package il.co.topq.difido.model.execution;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 /**
  * @author agmon

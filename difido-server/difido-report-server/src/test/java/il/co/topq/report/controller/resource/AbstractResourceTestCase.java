@@ -1,6 +1,5 @@
 package il.co.topq.report.controller.resource;
 
-import il.co.topq.difido.client.DifidoClient;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.Main;
@@ -20,7 +19,6 @@ public abstract class AbstractResourceTestCase {
 		server = Main.startServer();
 		final String baseUri = Configuration.INSTANCE.read(ConfigProps.BASE_URI);
 		System.out.println("@Before - Grizzly server started on: " + baseUri);
-		client = DifidoClient.build(baseUri);
 	}
 
 	@After

@@ -9,7 +9,8 @@ import java.net.URL;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
-import org.codehaus.jackson.map.ObjectMapper;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class PersistenceUtils {
 

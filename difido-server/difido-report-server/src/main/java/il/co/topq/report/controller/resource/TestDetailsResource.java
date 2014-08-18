@@ -1,13 +1,7 @@
 package il.co.topq.report.controller.resource;
 
-import il.co.topq.difido.model.execution.Execution;
-import il.co.topq.difido.model.execution.MachineNode;
-import il.co.topq.difido.model.execution.Node;
-import il.co.topq.difido.model.execution.ScenarioNode;
-import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.controller.listener.ListenersManager;
-import il.co.topq.report.model.Session;
 import il.co.topq.report.view.HtmlViewGenerator;
 
 import java.io.File;
@@ -39,47 +33,31 @@ public class TestDetailsResource {
 		ListenersManager.INSTANCE.notifyTestDetailsAdded(details);
 	}
 
+	@POST
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Path("/{uid}/file")
+	public void postFile(@PathParam("execution") int executionId, @PathParam("uid") int uid, FormDataMultiPart multiPart) {
 
+		FormDataBodyPart fileBodyPart = multiPart.getFields().values().iterator().next().get(0);
 
-//	@POST
-//	@Consumes(MediaType.MULTIPART_FORM_DATA)
-//	@Path("/file")
-//	public void postFile(@PathParam("execution") int executionId, @PathParam("machine") int machineId,
-//			@PathParam("scenario") int scenarioId, @PathParam("test") int testId, FormDataMultiPart multiPart) {
-//
-//		final Execution execution = Session.INSTANCE.getExecution(executionId);
-//		final MachineNode machine = execution.getMachines().get(machineId);
-//		final ScenarioNode scenario = machine.getAllScenarios().get(scenarioId);
-//		final Node node = scenario.getChildren().get(testId);
-//		if (!(node instanceof TestNode)) {
-//			// TODO: return error
-//		}
-//		final TestNode test = (TestNode) node;
-//		final TestDetails details = Session.INSTANCE.getTestDetails(test);
-//		if (null == details) {
-//			// TODO: return error
-//		}
-//
-//		FormDataBodyPart fileBodyPart = multiPart.getField("file");
-//
-//		InputStream fileStream = fileBodyPart.getValueAs(InputStream.class);
-//		FormDataContentDisposition fileDisposition = fileBodyPart.getFormDataContentDisposition();
-//		String fileName = fileDisposition.getFileName();
-//
-//		File executionDestinationFolder = HtmlViewGenerator.getInstance().getExecutionDestinationFolder();
-//
-//		String destinationDirPath = executionDestinationFolder + File.separator + "tests" + File.separator + "test_"
-//				+ test.getIndex();
-//
-//		File destinationDir = new File(destinationDirPath);
-//		if (!destinationDir.exists()) {
-//			destinationDir.mkdirs();
-//		}
-//
-//		String fileSavePath = destinationDirPath + File.separator + fileName;
-//		saveFile(fileStream, fileSavePath);
-//
-//	}
+		InputStream fileStream = fileBodyPart.getValueAs(InputStream.class);
+		FormDataContentDisposition fileDisposition = fileBodyPart.getFormDataContentDisposition();
+		String fileName = fileDisposition.getFileName();
+
+		File executionDestinationFolder = HtmlViewGenerator.getInstance().getExecutionDestinationFolder();
+
+		String destinationDirPath = executionDestinationFolder + File.separator + "tests" + File.separator + "test_"
+				+ uid;
+
+		File destinationDir = new File(destinationDirPath);
+		if (!destinationDir.exists()) {
+			destinationDir.mkdirs();
+		}
+
+		String fileSavePath = destinationDirPath + File.separator + fileName;
+		saveFile(fileStream, fileSavePath);
+
+	}
 
 	private void saveFile(InputStream inputStream, String filePath) {
 
@@ -91,7 +69,5 @@ public class TestDetailsResource {
 			e.printStackTrace();
 		}
 	}
-
-
 
 }
