@@ -32,12 +32,12 @@ public class NewApiTests extends AbstractResourceTestCase {
 		final int machineId = client.addMachine(executionId, machine);
 		final ScenarioNode scenario = new ScenarioNode("My scenario 0");
 		machine.addChild(scenario);
-		final TestNode test = new TestNode(0, "My test");
+		final TestNode test = new TestNode(0, "My test","0");
 		uid = String.valueOf(Math.abs(new Random().nextInt()));
 		test.setUid(uid);
 		scenario.addChild(test);
 		client.updateMachine(executionId, machineId, machine);
-		details = new TestDetails("My Test Details");
+		details = new TestDetails("My Test Details","0");
 		details.setUid(uid);
 	}
 
