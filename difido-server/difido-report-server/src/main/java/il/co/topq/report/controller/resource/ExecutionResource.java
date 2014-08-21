@@ -22,9 +22,7 @@ public class ExecutionResource {
 	}
 
 	private int addExecution() {
-		int executionIndex = Session.INSTANCE.addExecution();
-		ListenersManager.INSTANCE.notifyExecutionAdded(Session.INSTANCE.getExecution(executionIndex));
-		return executionIndex;
+		return Session.INSTANCE.addExecution();
 	}
 
 	/**
@@ -50,11 +48,8 @@ public class ExecutionResource {
 	@Path("/lastId")
 	@Produces(MediaType.TEXT_PLAIN)
 	public int getLastExecutionId() {
-		final Execution execution = Session.INSTANCE.getLastActiveExecution();
-		if (null == execution) {
-			return addExecution();
-		}
-		return Session.INSTANCE.getExecutions().indexOf(execution);
+		final int index =  Session.INSTANCE.getLastExecutionIndexAndAddIfNoneExist();
+		return index;
 	}
 
 	@GET

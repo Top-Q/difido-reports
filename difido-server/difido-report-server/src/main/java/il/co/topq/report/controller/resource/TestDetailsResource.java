@@ -36,7 +36,7 @@ public class TestDetailsResource {
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Path("/{uid}/file")
-	public void postFile(@PathParam("execution") int executionId, @PathParam("uid") int uid, FormDataMultiPart multiPart) {
+	public void postFile(@PathParam("execution") int executionId, @PathParam("uid") String uid, FormDataMultiPart multiPart) {
 
 		FormDataBodyPart fileBodyPart = multiPart.getFields().values().iterator().next().get(0);
 

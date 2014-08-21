@@ -2,30 +2,28 @@ package il.co.topq.report.model;
 
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
-import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.TestDetails;
+import il.co.topq.report.controller.listener.ListenersManager;
 import il.co.topq.report.controller.listener.ResourceChangedListener;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public enum Session implements ResourceChangedListener {
 	INSTANCE;
 
-	private List<Execution> executions;
+	private volatile List<Execution> executions;
 
-	private boolean activeExecution = false;
+	private volatile boolean activeExecution = false;
 
+	private volatile Object lockObject = new Object();
 
 	public synchronized int addExecution() {
 		Execution execution = new Execution();
 		createExecutionListIfNull();
 		executions.add(execution);
+		ListenersManager.INSTANCE.notifyExecutionAdded(execution);
 		activeExecution = true;
 		return executions.indexOf(execution);
 	}
@@ -35,15 +33,32 @@ public enum Session implements ResourceChangedListener {
 	 * 
 	 * @return last execution or null if none exists
 	 */
-	public synchronized Execution getLastActiveExecution() {
-		createExecutionListIfNull();
-		if (!activeExecution) {
-			return null;
+	public Execution getLastActiveExecution() {
+		synchronized (lockObject) {
+			createExecutionListIfNull();
+			if (!activeExecution) {
+				return null;
+			}
+			if (executions.isEmpty()) {
+				return null;
+			}
+			return getExecution(executions.size() - 1);
 		}
-		if (executions.isEmpty()) {
-			return null;
+	}
+	
+
+	public int getLastExecutionIndexAndAddIfNoneExist() {
+		synchronized (lockObject) {
+			createExecutionListIfNull();
+			if (!activeExecution) {
+				addExecution();
+			}
+			if (executions.isEmpty()) {
+				addExecution();
+			}
+			return executions.size() - 1;
 		}
-		return getExecution(executions.size() - 1);
+
 	}
 
 	public synchronized Execution getExecution(int index) {
@@ -84,12 +99,8 @@ public enum Session implements ResourceChangedListener {
 	public void machineAdded(MachineNode machine) {
 	}
 
-
-
 	@Override
 	public void testDetailsAdded(TestDetails details) {
 	}
-
-
 
 }
