@@ -1,35 +1,60 @@
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Tests table table-layout:fixed;
- */
-
-/*.toggle {color:#191970;}*/
-/* Time stamp */
-.detailsTbl tbody tr td:first-child {text-align: left; color: gray ;}
-.detailsTbl tbody td {text-align: left; }
-/* Header */
-.detailsTbl > thead th {text-align: left}
-.detailsTbl {padding:10px ;  border-spacing: 0px;border:1px solid #E0E0E0;width:100%}
-.detailsTbl tr td:first-child,.testtbl tr th:first-child {width:100px;}
-
-.detailsTbl .toggle {
-    color: blue;
-    cursor: pointer;
+.timestamp{
+    padding-right: 10px;
+    color: gray;
 }
-.detailsTbl .step td:last-child {height:35px; font-size: medium ;color: #4E6CA3;}
-/******
-* Test Statuses
-*/
-.detailsTbl .failure { color: #ff0000; }
-.detailsTbl .warning { color: #FF9933; }
-.detailsTbl .error { color: #4682B4; }
+
+/* initially hide all non root divs */
+#detailsDiv div >div{
+    display: none;
+}
+
+#detailsDiv .step {color: #4E6CA3;}
+
+/* Test Statuses */
+#detailsDiv .failure > span {
+    color: #ff0000 !important;
+}
+#detailsDiv .warning > span {
+    color: #FF9933;
+}
+#detailsDiv .error > span {
+    color: #4682B4;
+}
+
+#detailsDiv div{
+    word-wrap: break-word;
+    margin: 5px 0 5px 0;
+}
 
 .smallTbl { padding: 0; border: 0; width: 70% ; font-size: small}
 h3 {color: gray ; font-size: small}
 img {width: 100px}
 
+.innerToggle {
+    color: blue;
+    cursor: pointer;
+}
+
 .startLevel {
     color: blue;
     cursor: pointer;
     font-weight: bold;
+}
+
+.emptyStartLevel{
+    color: blue;
+    font-weight: bold;
+}
+
+.startLevel.closed:before{
+    content: "+ ";
+}
+
+.emptyStartLevel,
+.startLevel:not(closed):before{
+    content: "- ";
+}
+
+.pointer{
+    cursor: pointer;
 }
