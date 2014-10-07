@@ -1,105 +1,14 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-var idIndex = 0;
-var levelsTracker;
-var toggleTime = 200;
+var depth = 0, depthStep = 20;
+var levelsStack = [];
 
-function LevelInfo(rowId, levelDepth) {
-    this.rowId = rowId;
-    this.levelDepth = levelDepth;
-}
-
-function ReportLevelsTracker() {
-
-    // Array for objects of type: {children: []}
-    // Used to map a level row ID (the outer array's index) to its direct
-    // children (stored in the "children" array
-    this.levelsChildrenMap = [];
-    
-    // Array to be populated by the row IDs of all the descendants (children
-    // and children's children...) of a given level (see the "getLevelDescendants" method)
-    this.levelDescendantIds = [];
-    
-    // Auto-incremented integer to be used as a unique ID assigned to every table row
-    // (every report element except for elements of type "stopLevel")
-    this.currentRowId = 0;
-    
-     // Integer specifying the "depth" of the current element -
-     // how deep it is nested in the report levels system
-    this.currentLevelDepth = 0;
-    
-     // A stack data structure to keep the "path" to the current level.
-     // Keeps the the row IDs on the path to the current "Start Level" 
-    this.levelsStack = [];
-}
-
-ReportLevelsTracker.prototype.addChildToLevel = function(childRowId) {
-    
-    if (this.levelsStack.length > 0) {
-        var currLevelId = this.levelsStack[this.levelsStack.length - 1];
-        this.levelsChildrenMap[currLevelId].children.push(childRowId);
-    }
+Array.prototype.top = function(){
+    return this.length > 0 ? this[this.length-1] : undefined;
 };
-
-ReportLevelsTracker.prototype.registerReportElement = function(reportElement) {
-
-    var elementType = reportElement.type;
-
-    // START LEVEL
-    if (elementType === "startLevel") {
-        this.currentRowId++;
-        this.currentLevelDepth++;
-        this.addChildToLevel(this.currentRowId);
-        this.levelsStack.push(this.currentRowId);
-        this.levelsChildrenMap[this.currentRowId] = {children: []};
-        return new LevelInfo(this.currentRowId, this.currentLevelDepth);
-    }
-
-    // STOP LEVEL
-    else if (elementType === "stopLevel") {
-        this.currentLevelDepth--;
-        this.levelsStack.pop();
-        return null;
-    }
-
-    // OTHER TYPES
-    else {
-        this.currentRowId++;
-        this.addChildToLevel(this.currentRowId);
-        return new LevelInfo(this.currentRowId, this.currentLevelDepth);
-    }
-};
-
-ReportLevelsTracker.prototype.findLevelDescendants = function(levelId) {
-    
-    if (this.levelsChildrenMap[levelId] !== undefined) {
-        var children = this.levelsChildrenMap[levelId].children;
-        
-        for (var i = 0; i < children.length; i++) {
-            this.levelDescendantIds.push(children[i]);
-            this.findLevelDescendants(children[i]);
-        }
-    }
-};
-
-ReportLevelsTracker.prototype.getLevelDescendants = function(levelId) {
-
-    this.levelDescendantIds = [];
-    this.findLevelDescendants(levelId);
-    return this.levelDescendantIds;
-};
-
-//=========================================================
-
 
 function setFixedProperties(element) {
     $(element).find("#name").text(test.name);
     $(element).find("#timestamp").text(test.timestamp);
     $(element).find("#description").text(test.description);
-
 }
 
 function addPropertiesToTbl(properties, table) {
@@ -117,30 +26,10 @@ function setCustomProperties(element) {
 
 function setParameters(element) {
     addPropertiesToTbl(test.parameters, $(element).find("#paramTbl > tbody"));
-
 }
 
 function createDetailsTable() {
-    var table = $("<table>");
-    $(table).addClass("detailsTbl").append("<tbody>");
-    return table;
 
-}
-
-function addToggleElement(table, toggle, toggled, startAsOpened) {
-    var id = "toggled_" + idIndex++;
-    $(toggle).click(function() {
-        doToggle(id);
-    });
-    $(toggle).addClass("toggle");
-    $(toggled).attr("id", id).find("td"); //removed by Rony: .attr("colspan", "2");
-    if (startAsOpened) {
-        toggled.show();
-    } else {
-        toggled.hide();
-    }
-    $(table).append(toggle);
-    $(table).append(toggled);
 }
 
 function isPropertyExist(element, property) {
@@ -153,223 +42,185 @@ function addStatusAsClass(elementToAppend, elementWithStatus) {
     }
 }
 
-function setRegularElement(table, element) {
-    
-    var levelInfo = levelsTracker.registerReportElement(element);
-    
-    var tr = $("<tr>");
-    tr.attr("rowId", levelInfo.rowId);
-    tr.attr("levelDepth", levelInfo.levelDepth);
-    
-    tr.append($('<td>').text(element.time));
-    
-    var indentation = indentationStrByLevelDepth(element, levelInfo.levelDepth);
-    
-    if (isPropertyExist(element, "message")) {
-        tr.append($('<td>').html(indentation + element.title));
-        addStatusAsClass(tr, element);
-        
-        // message row
-        var messageTr = $("<tr>");
-        messageTr.attr("rowId", levelInfo.rowId);
-        messageTr.attr("levelDepth", levelInfo.levelDepth);
-        
-        messageTr.append($('<td>')); // empty cell for where we usually have the time
-        messageTr.append($('<td>').html(indentation + "&nbsp;&nbsp;&nbsp;&nbsp;" + element.message));
-        addToggleElement(table, tr, messageTr, false);
+function setRegularElement($container, element) {
+    var $div = $("<div>");
+    var $timestamp = $("<span>").addClass('timestamp').text(element.time);
 
-    } else {
-        tr.append($('<td>').html(indentation + element.title));
-        addStatusAsClass(tr, element);
-        $(table).append(tr);
+    if (isPropertyExist(element, "message")) {
+        var $content = $("<span>").addClass('innerToggle').text(element.title);
+        indent($content);
+        $div.append($timestamp).append($content);
+
+        // add inner div with the message
+        var $innerDiv = $("<div>").html(nl2br(element.message));
+        $innerDiv.css("margin-left", (depth+depthStep) + "px");
+        $div.append($innerDiv);
     }
+    else{
+        var $content = $("<span>").text(element.title);
+        indent($content);
+        $div.append($timestamp).append($content);
+    }
+
+    addStatusAsClass($div, element);
+    appendElement($container, $div);
 }
 
-function setStartLevelElement(table, element) {
+function setStartLevelElement($container, element) {
+    var $timestamp = $("<span>").addClass('timestamp').text(element.time);
+    var $content = $("<span>").addClass('startLevel').addClass("closed").text(element.title);
+    var $div = $("<div>").append($timestamp).append($content);
+    indent($content);
 
-    var levelInfo = levelsTracker.registerReportElement(element);
+    addStatusAsClass($div, element);
+    appendElement($container, $div);
 
-    var tr = $("<tr>");
-    tr.attr("rowId", levelInfo.rowId);
-    tr.attr("levelDepth", levelInfo.levelDepth);
-    tr.addClass("startLevel");
+    // push the div into the level stack
+    levelsStack.push($div);
 
-    tr.append($('<td>').text(element.time));
-
-    var indentation = indentationStrByLevelDepth(element, levelInfo.levelDepth);
-    tr.append($('<td>').html(indentation + element.title));
-    addStatusAsClass(tr, element);
-    $(table).append(tr);
+    // increase depth (left margin)
+    depth += depthStep;
 }
 
 function setStopLevelElement(element) {
-    levelsTracker.registerReportElement(element);
-}
-
-function setStepElement(table, element) {
-    
-    var levelInfo = levelsTracker.registerReportElement(element);
-    
-    var tr = $("<tr>");
-    tr.attr("rowId", levelInfo.rowId);
-    tr.attr("levelDepth", levelInfo.levelDepth);
-    
-    tr.append($('<td>').text(element.time));
-    
-    var indentation = indentationStrByLevelDepth(element, levelInfo.levelDepth);
-    tr.append($('<td>').html(indentation + element.title));
-    tr.addClass("step");
-    addStatusAsClass(tr, element);
-    $(table).append(tr);
-}
-
-function setImageElement(table,element){
-    
-    var levelInfo = levelsTracker.registerReportElement(element);
-    
-    var tr = $("<tr>");
-    tr.attr("rowId", levelInfo.rowId);
-    tr.attr("levelDepth", levelInfo.levelDepth);
-    
-    tr.append($('<td>').text(element.time));
-    var img = $("<img>").attr("src",element.message).addClass("example-image").attr("alt",element.title);
-    var a = $("<a>").attr("href",element.message).attr("data-lightbox","image-1").attr("title",element.title);
-    a.append(img);
-    
-    var td = $("<td>");
-    var indentation = indentationStrByLevelDepth(element, levelInfo.levelDepth);
-    td.html(indentation).append(a);
-    tr.append(td);
-    $(table).append(tr);
-}
-
-function setLinkElement(table, element) {
-    
-    var levelInfo = levelsTracker.registerReportElement(element);
-    
-    var tr = $("<tr>");
-    tr.attr("rowId", levelInfo.rowId);
-    tr.attr("levelDepth", levelInfo.levelDepth);
-    
-    var indentation = indentationStrByLevelDepth(element, levelInfo.levelDepth);
-    
-    tr.append($('<td>').text(element.time));
-    if (isPropertyExist(element, "message")) {
-        tr.append($('<td>').append($('<a>').text(element.title).attr("href", element.message)));
-    } else {
-        tr.append($('<td>').text(indentation + element.title));
+    if(!$.isEmptyObject(levelsStack)){
+        levelsStack.pop();
     }
-    $(table).append(tr);
+
+    // decrease depth as level closed
+    depth -= depthStep;
 }
 
-function setReportElements(table, reportElements) {
-    
-    levelsTracker = new ReportLevelsTracker();
-    
+function setStepElement($container, element) {
+    var $timestamp = $("<span>").addClass('timestamp').text(element.time);
+    var $content = $("<span>").text(element.title);
+    var $div = $("<div>").append($timestamp).append($content);
+    indent($content);
+
+    $div.addClass("step");
+
+    addStatusAsClass($div, element);
+    appendElement($container, $div);
+}
+
+function setImageElement($container, element){
+    var $timestamp = $("<span>").addClass('timestamp').text(element.time);
+    var $div = $("<div>");
+
+    var $img = $("<img>").attr("src",element.message).addClass("example-image").attr("alt",element.title);
+    var $a = $("<a>").attr("href",element.message).attr("data-lightbox","image-1").attr("title",element.title);
+    $a.append($img);
+    indent($a);
+    $div.append($timestamp).append($a);
+
+    addStatusAsClass($div, element);
+    appendElement($container, $div);
+}
+
+function setLinkElement($container, element) {
+    var $timestamp = $("<span>").addClass('timestamp').text(element.time);
+    var $div = $("<div>").append($timestamp);
+    var $content;
+
+    if (isPropertyExist(element, "message")) {
+        $content = $('<a>').text(element.title).attr("href", element.message).attr("target", "_blank");
+    }
+    else{
+        $content = $("<div>").text(element.title);
+    }
+
+    indent($content);
+    $div.append($content);
+    addStatusAsClass($div, element);
+    appendElement($container, $div);
+}
+
+/**
+ * Should $element be appended to the div, or as a sub-item
+ * @param $table
+ * @param $element
+ */
+function appendElement($table, $element){
+    if(levelsStack.length == 0){
+        // stack is empty, append element directly to the main div
+        $table.append($element);
+    }
+    else{
+        // append the element to the "top" item in the stack
+        levelsStack.top().append($element);
+    }
+}
+
+function indent($element){
+    $element.css("margin-left", depth + "px");
+}
+
+function nl2br(str){
+    const breakTag = "<br/>";
+    return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+ breakTag +'$2');
+}
+
+function setReportElements($container, reportElements) {
+
     $(reportElements).each(function() {
         switch (this.type) {
             case "startLevel":
-                setStartLevelElement(table, this);
+                setStartLevelElement($container, this);
                 break;
             case "stopLevel":
                 setStopLevelElement(this);
                 break;
             case "lnk":
-                setLinkElement(table, this);
+                setLinkElement($container, this);
                 break;
             case "step":
-                setStepElement(table, this);
+                setStepElement($container, this);
                 break;
             case "img":
-                setImageElement(table,this);
+                setImageElement($container,this);
                 break;
             default:
-                setRegularElement(table, this);
+                setRegularElement($container, this);
                 break;
         }
+        if(parseInt($(this).attr("levelDepth")) > 1){
+            this.hide();
+        }
     });
-    
-    prepareLevels();
+
+    prepareLevels($container);
 }
 
 function testController(element) {
     setFixedProperties(element);
     setCustomProperties(element);
     setParameters(element);
-    setReportElements($(element).find(".detailsTbl:first"), test.reportElements);
+    setReportElements($(element).find("#detailsDiv"), test.reportElements);
 
 }
 
-function doToggle(id) {
-    $("#" + id).toggle(toggleTime);
-}
-
-function indentationStrByLevelDepth(element, levelDepth) {
-
-    var indentation = "";
-    if (element.type === "startLevel") {
-        levelDepth--;
-    }
-
-    for (var i = 0; i < levelDepth; i++) {
-        indentation += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-    }
-    return indentation;
-}
-
-// check if the specified element's "id" attribute contains "toggled_"
-function hasToggledId(element) {
-    var idAtrr = $(element).attr("id");
-    if (idAtrr === undefined) {
-        return false;
-    }
-    return (idAtrr.indexOf("toggled_") > -1);
-}
-
-function prepareLevels() {
-
-    // Hide all levels content
-    $('.startLevel').each(function() {
-
-        var currentLevelId = $(this).attr("rowId");
-        var levelDescendantIds = levelsTracker.getLevelDescendants(currentLevelId);
-
-        for (var i = 0; i < levelDescendantIds.length; i++) {
-            $("tr[rowId=" + levelDescendantIds[i] + "]").hide();
+function prepareLevels($container) {
+    // GUI enhancement- find spans with "startLevel" class that have no div siblings (i.e. have no content between 'startLevel' and 'stopLevel'),
+    // and replace class with "emptyStartLevel"
+    // This way we won't try to click the blue link, and they will always be "expanded"
+    $(".startLevel").each(function(i,e){
+        if($(e).siblings('div').length == 0){
+            $(e).removeClass('startLevel').addClass('emptyStartLevel');
         }
     });
 
-    // Toggle level content visibility on click
-    $(".startLevel").click(function() {
-
-        var clickedLevelDepth = parseInt($(this).attr("levelDepth"));
-        var clickedLevelId = $(this).attr("rowId");
-        var levelDescendantIds = levelsTracker.getLevelDescendants(clickedLevelId);
-
-        for (var i = 0; i < levelDescendantIds.length; i++) {
-
-            $("tr[rowId=" + levelDescendantIds[i] + "]").each(function() {
-
-                var descendantRowDepth = parseInt($(this).attr("levelDepth"));
-
-                if (!hasToggledId(this)) { // if this is a regular table row - not a message row
-
-                    if (descendantRowDepth === clickedLevelDepth) {
-                        $(this).toggle(toggleTime);
-                    }
-                    else if (descendantRowDepth === (clickedLevelDepth + 1) && $(this).hasClass("startLevel")) {
-                        $(this).toggle(toggleTime);
-                    }
-                    else if ((descendantRowDepth > clickedLevelDepth && $(this).is(":visible"))) {
-                        $(this).hide(toggleTime);
-                    }
-                }
-                else { // this is a row containing a message - hide it if it was visible
-                    if ($(this).is(":visible")) {
-                        $(this).hide(toggleTime);
-                    }
-                }
-            });
-        }
+    // register the 'click' on 'startLevel' and 'innerToggle' elements
+    $(".startLevel, .innerToggle").click(function(){
+        $(this).toggleClass("closed").parent().children('div').toggle('fast');
     });
+
+    // register the 'click' on ExpandAll and CollapseAll
+    $("#detailsDivExpandAll").click(function(){
+        $(".startLevel, .innerToggle").removeClass('closed').parent().children('div').show('fast');
+
+    });
+    $("#detailsDivCollapseAll").click(function(){
+        $(".startLevel, .innerToggle").addClass('closed').parent().children('div').hide('fast');
+    });
+
 }
