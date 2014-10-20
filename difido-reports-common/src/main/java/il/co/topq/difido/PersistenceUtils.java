@@ -18,11 +18,11 @@ public class PersistenceUtils {
 
 	private static final String resourcesPath = "il.co.topq.difido.view/";
 
-	private static final String EXECUTION_MODEL_FILE = "execution.js";
+	public static final String EXECUTION_MODEL_FILE = "execution.js";
 
-	private static final String TEST_DETAILS_MODEL_FILE = "test.js";
+	public static final String TEST_DETAILS_MODEL_FILE = "test.js";
 
-	private static final String TEST_DETAILS_HTML_FILE = "test.html";
+	public static final String TEST_DETAILS_HTML_FILE = "test.html";
 
 	private static final ObjectMapper mapper = new ObjectMapper();
 
