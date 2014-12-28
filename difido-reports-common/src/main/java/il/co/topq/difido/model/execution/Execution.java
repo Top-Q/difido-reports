@@ -1,8 +1,8 @@
 package il.co.topq.difido.model.execution;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -21,7 +21,8 @@ public class Execution {
 
 	public void addMachine(MachineNode machine) {
 		if (machines == null) {
-			machines = new ArrayList<MachineNode>();
+			//We use it to avoid ConcurrentModificationException
+			machines = new CopyOnWriteArrayList<MachineNode>();
 		}
 		machines.add(machine);
 	}
