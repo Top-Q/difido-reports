@@ -21,6 +21,8 @@ public interface Reporter {
 	void onStart(ITestContext context);
 
 	void onFinish(ITestContext context);
+	
+	void addFile(File file);
 
 	/**
 	 * This method will be called by the ListenerManager when new report is

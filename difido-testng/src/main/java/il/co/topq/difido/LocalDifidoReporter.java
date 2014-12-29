@@ -5,6 +5,8 @@ import il.co.topq.difido.model.test.TestDetails;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.ITestContext;
@@ -49,6 +51,18 @@ public class LocalDifidoReporter extends AbstractDifidoReporter {
 			}
 		}
 
+	}
+
+	@Override
+	public void addFile(File file) {
+		if (file == null || !file.exists() || !file.isFile()) {
+			return;
+		}
+		try {
+			Files.copy(Paths.get(file.getAbsolutePath()),Paths.get(currentTestFolder + File.separator + file.getName()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

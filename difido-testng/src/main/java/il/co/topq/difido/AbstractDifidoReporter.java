@@ -12,10 +12,10 @@ import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
@@ -130,6 +130,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 			testDetails.setDescription(result.getMethod().getDescription());
 		}
 		addPropertyIfExist("Class", result.getTestClass().getName());
+		addPropertyIfExist("Groups", Arrays.toString(result.getMethod().getGroups()));
 		if (result.getParameters() != null) {
 			for (Object parameter : result.getParameters()) {
 				if (parameter != null) {
@@ -148,7 +149,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	}
 
 	protected abstract void updateTestDirectory();
-	
+
 	protected abstract void filesWereAddedToReport(File[] files);
 
 	private int getAndUpdateTestHistory(final Object bb) {
@@ -170,17 +171,20 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		}
 	}
 
+	@Override
 	public void onTestSuccess(ITestResult result) {
 		currentTest.setStatus(Status.success);
 		onTestEnd(result);
 	}
 
+	@Override
 	public void onTestFailure(ITestResult result) {
 		currentTest.setStatus(Status.failure);
 		onTestEnd(result);
 
 	}
 
+	@Override
 	public void onTestSkipped(ITestResult result) {
 		currentTest.setStatus(Status.warning);
 		onTestEnd(result);
@@ -192,6 +196,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		writeTestDetails(testDetails);
 	}
 
+	@Override
 	public void onStart(ITestContext context) {
 		execution = null;
 		updateIndex();
@@ -201,28 +206,18 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		currentScenario = new ScenarioNode(context.getSuite().getName());
 		execution.getLastMachine().addChild(currentScenario);
 		currentTest = null;
-
-		writeExecution(execution);
-
 	}
 
+	@Override
 	public void log(String title, String message, Status status, ElementType type) {
 		ReportElement element = new ReportElement();
 		element = updateTimestampAndTitle(element, title);
 		element.setMessage(message);
 		element.setStatus(status);
-		if (null == type){
+		if (null == type) {
 			type = ElementType.regular;
 		}
 		element.setType(type);
-		
-		if (type == ElementType.lnk){
-			final File[] filesToUpload = getAddedFiles(message);
-			if (filesToUpload != null && filesToUpload.length > 0) {
-				filesWereAddedToReport(filesToUpload);
-			}
-			
-		}
 		testDetails.addReportElement(element);
 		writeTestDetails(testDetails);
 	}
@@ -232,35 +227,14 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		element.setTitle(title);
 		return element;
 	}
-	
-	private File[] getAddedFiles(final String message) {
-		// Getting the current test folder
-		if( getCurrentTestFolder() == null){
-			return null;
-		}
-		final File[] filesToUpload = getCurrentTestFolder().listFiles(new FilenameFilter() {
 
-			@Override
-			public boolean accept(File dir, String name) {
-				if (name.equals(message)) {
-					return true;
-				}
-				return false;
-			}
-		});
-		return filesToUpload;
-	}
-
-
+	@Override
 	public void onFinish(ITestContext context) {
 		writeExecution(execution);
 	}
 
-
-	public TestNode getCurrentTest() {
+	protected TestNode getCurrentTest() {
 		return currentTest;
 	}
-	
-	
 
 }
