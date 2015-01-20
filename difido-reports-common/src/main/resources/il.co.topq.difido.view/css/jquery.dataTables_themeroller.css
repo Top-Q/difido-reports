@@ -31,10 +31,10 @@ table.dataTable td.dataTables_empty {
 
 table.dataTable tr.odd { background-color: #E2E4FF; }
 table.dataTable tr.even { background-color: white; }
-table.dataTable td.failure { background-color: #ff8888; }
+table.dataTable td.failure { background-color: #4682B4; }
 table.dataTable td.success { background-color: #88ee88; }
 table.dataTable td.warning { background-color: #ffff77; }
-table.dataTable td.error { background-color: #4682B4; }
+table.dataTable td.error { background-color: #ff8888; }
 table.dataTable td.inProgress { background-color: #88ee88; }
 
 table.tr.odd td.sorting_1 { background-color: #D3D6FF; }
