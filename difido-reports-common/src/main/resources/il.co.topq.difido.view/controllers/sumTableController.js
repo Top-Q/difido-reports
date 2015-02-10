@@ -41,14 +41,17 @@ function appendTestsToSumTable(tests, table) {
     //The last scenario
     suites.push({"name": suiteName, "duration": duration, "success": success, "error": error, "failure": failure, "warning": warning});
     var total = {"tests": 0, "duration": 0, "success": 0, "error": 0, "failure": 0, "warning": 0};
+    var durInSec = Math.round(duration/1000);
+    var durationHour = Math.floor(((durInSec % 31536000) % 86400) / 3600);
+    var durationMin = Math.floor((((durInSec % 31536000) % 86400) % 3600) / 60);
+    var durationSec = (((durInSec % 31536000) % 86400) % 3600) % 60;
     $(suites).each(function() {
         var tr = $('<tr>');
         tr.append($('<td>').text(this.name));
         var tests = this.success + this.error + this.failure + this.warning * 1;
         tr.append($('<td>').text(tests));
         total.tests+=tests;
-        var duration = Math.round(this.duration / 1000);
-        tr.append($('<td>').text(duration + "s"));
+        tr.append($('<td>').text(durationHour + "h" + durationMin + "m" + durationSec + "s"));
         total.duration += this.duration;
         tr.append($('<td>').text(this.success).addClass(this.success > 0 ? "success" : ""));
         total.success += this.success;
@@ -64,7 +67,11 @@ function appendTestsToSumTable(tests, table) {
     var tr = $('<tr>');
     tr.append($('<td>').text("Total"));
     tr.append($('<td>').text(total.tests));
-    tr.append($('<td>').text(Math.round(total.duration / 1000)+"s"));
+    durInSec = Math.round(total.duration/1000);
+    durationHour = Math.floor(((durInSec % 31536000) % 86400) / 3600);
+    durationMin = Math.floor((((durInSec % 31536000) % 86400) % 3600) / 60);
+    durationSec = (((durInSec % 31536000) % 86400) % 3600) % 60;
+    tr.append($('<td>').text(durationHour + "h" + durationMin + "m" + durationSec + "s"));
     tr.append($('<td>').text(total.success).addClass(total.success > 0 ? "success" : ""));
     tr.append($('<td>').text(total.error).addClass(total.error > 0 ? "error" : ""));
     tr.append($('<td>').text(total.failure).addClass(total.failure > 0 ? "failure" : ""));

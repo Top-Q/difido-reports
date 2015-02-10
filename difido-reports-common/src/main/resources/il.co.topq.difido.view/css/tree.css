@@ -8,9 +8,21 @@ and open the template in the editor.
     Author     : Itai
 */
 
+
+.vertical-line {
+    width: 1px;
+    height: 300px;
+    background-color: #696969;
+    margin: 0 auto;
+}
+
 .jstree-classic li[rel="succeess"] > a { color:green; }
-.jstree-node.error , jstree-node.failure , .jstree-anchor.error , .jstree-anchor.failure{
+.jstree-node.failure, .jstree-anchor.failure {
     color: rgb(216, 14, 14) !important;
+    font-weight: bold;
+}
+.jstree-node.error , .jstree-anchor.error {
+    color: rgb(255, 153, 51) !important;
     font-weight: bold;
 }
 .jstree-node.success , .jstree-anchor.success{
