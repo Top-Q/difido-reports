@@ -13,7 +13,12 @@ function appendTestsToTable(tests,table){
        tr.append($('<td>').text(this.suiteName));
        tr.append($('<td>').text(this.machineName));
        tr.append($('<td>').text(this.status).addClass(this.status));
-       tr.append($('<td>').text(Math.round(this.duration / 1000) + "s"));
+        var durInSec = Math.round(this.duration/1000);
+        var durationHour = Math.floor(((durInSec % 31536000) % 86400) / 3600);
+        var durationMin = Math.floor((((durInSec % 31536000) % 86400) % 3600) / 60);
+        var durationSec = (((durInSec % 31536000) % 86400) % 3600) % 60;
+
+       tr.append($('<td>').text(durationHour + "h" + durationMin + "m" + durationSec + "s"));
        $(table).append(tr);
     });
 }
