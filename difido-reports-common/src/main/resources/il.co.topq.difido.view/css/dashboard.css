@@ -7,10 +7,10 @@ body {
   padding-top: 50px;
 }
 
-#sumTable td.error { background-color: #FF9933; }
+#sumTable td.error { background-color: #E00000; }
 #sumTable td.success { background-color: #88ee88; }
-#sumTable td.warning { background-color: #ffff77; }
-#sumTable td.failure { background-color: #FF0000; }
+#sumTable td.warning { background-color: #F5F500; }
+#sumTable td.failure { background-color: #FF9933; }
 
 /*
  * Global add-ons

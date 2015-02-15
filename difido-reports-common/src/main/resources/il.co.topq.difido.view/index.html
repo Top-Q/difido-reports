@@ -108,8 +108,21 @@
                         <div class="col-md-4 placeholder">
                             <canvas id="pie" height="250" width="250"></canvas>
                             <!--<img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Generic placeholder thumbnail">-->
+                            <div>
                             <h4>Test Status Pie</h4>
-                            <span class="text-muted">Success=Green,Failure=Red,<br>Error=Orange,Warning=Yellow</span>
+                            <table class="row placeholder" align="center">
+                                <tr>
+                                    <td style="background-color: #E00000 ">Error</td>
+                                    <td style="background-color: #FF9933 ">Failure</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #F5F500 ">Warning</td>
+                                    <td style="background-color: #88ee88 ">Success</td>
+                                </tr>
+                            </table>
+
+                            </div>
+                            <!--<span class="text-muted">Success=Green,Failure=Orange,<br>Error=Red,Warning=Yellow</span> -->
                         </div>
                         <div class="col-md-5 placeholder">
                             <canvas id="bar" height="250" width="500"></canvas>

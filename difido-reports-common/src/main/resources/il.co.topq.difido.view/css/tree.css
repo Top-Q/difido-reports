@@ -16,20 +16,20 @@ and open the template in the editor.
     margin: 0 auto;
 }
 
-.jstree-classic li[rel="succeess"] > a { color:green; }
+.jstree-classic li[rel="succeess"] > a { color: rgb(136,238,136); }
 .jstree-node.failure, .jstree-anchor.failure {
-    color: rgb(216, 14, 14) !important;
+    color: rgb(255,153,51) !important;
     font-weight: bold;
 }
 .jstree-node.error , .jstree-anchor.error {
-    color: rgb(255, 153, 51) !important;
+    color: rgb(224,0,0) !important;
     font-weight: bold;
 }
 .jstree-node.success , .jstree-anchor.success{
     /* in case we want different style for success status */
 }
 .jstree-node.warning , .jstree-anchor.warning{
-    /* in case we want different style for warning status */
+    color: rgb(245,245,0);
 }
 
 #tree {
