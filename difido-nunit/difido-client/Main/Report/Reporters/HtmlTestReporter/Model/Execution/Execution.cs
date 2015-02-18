@@ -18,5 +18,14 @@ namespace difido_client.Report.Html.Model
             }
             machines.Add(machine);
         }
+
+        public Machine GetLastMachine()
+        {
+            if (null == machines)
+            {
+                return null;
+            }
+            return machines.Last();
+        }
     }
 }

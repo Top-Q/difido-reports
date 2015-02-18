@@ -16,15 +16,15 @@ public abstract class AbstractResourceTestCase {
 
 	@Before
 	public void setUp() throws Exception {
-		server = Main.startServer();
-		final String baseUri = Configuration.INSTANCE.read(ConfigProps.BASE_URI);
-		System.out.println("@Before - Grizzly server started on: " + baseUri);
+//		server = Main.startServer();
+//		final String baseUri = Configuration.INSTANCE.read(ConfigProps.BASE_URI);
+//		System.out.println("@Before - Grizzly server started on: " + baseUri);
 	}
 
 	@After
 	public void tearDown() {
 		Session.INSTANCE.flush();
-		server.shutdownNow();
+//		server.shutdownNow();
 		System.out.println("\n@After - Grizzly server shut down");
 
 	}

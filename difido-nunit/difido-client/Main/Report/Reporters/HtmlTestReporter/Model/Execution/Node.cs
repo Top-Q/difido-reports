@@ -9,7 +9,7 @@ namespace difido_client.Report.Html.Model
 {
     public abstract class Node
     {
-        private string statusValue;
+        private string statusValue = "success";
         
         public string name { get; set; }
         

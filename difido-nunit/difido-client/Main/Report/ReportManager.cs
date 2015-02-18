@@ -1,4 +1,5 @@
-﻿using difido_client.Report.Excel;
+﻿using difido_client.Main.Report.Reporters.HtmlTestReporter;
+using difido_client.Report.Excel;
 using difido_client.Report.Html;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,8 @@ namespace difido_client
         private ReportManager() {
             reporters = new List<IReporter>();
             reporters.Add(new HtmlTestReporter());//TODO - This should be added dynamically from external file
-            reporters.Add(new ExcelReporter());
+            reporters.Add(new RemoteHtmlReporter());
+            reporters.Add(new ExcelReporter());            
             outputFolder = Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.Parent.FullName + @"/TestResults/Report";
             try
             {
