@@ -215,7 +215,8 @@ namespace difido_client.Report.Html
                     try
                     {
                         //Extracting the JAR file with the HTML reports to the temp folder
-                        ZipFile.ExtractToDirectory(htmlArchiveFile, tempFolder);
+                        File.WriteAllBytes(tempFolder + @"\difido-reports-common.jar" , difido_client.Properties.Resources.difido_reports_common);
+                        ZipFile.ExtractToDirectory(tempFolder + @"\difido-reports-common.jar", tempFolder);
 
                         //Copying only the HTML files to the reports output folder
                         FileUtils.DirectoryCopy(tempFolder + @"\il.co.topq.difido.view", templateFolder, true);

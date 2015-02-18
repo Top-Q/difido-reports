@@ -93,15 +93,24 @@
     <Compile Include="Main\Report\Reporters\HtmlTestReporter\Model\Test\TestDetails.cs" />
     <Compile Include="Main\Report\ReportManager.cs" />
     <Compile Include="Main\Utils\FileUtils.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Main\Report\Reporters\ExcelReport\Resources\test_results.xlsx" />
+    <None Include="Resources\test_results.xlsx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\difido-reports-common.jar">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Resources\difido-reports-common.jar" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

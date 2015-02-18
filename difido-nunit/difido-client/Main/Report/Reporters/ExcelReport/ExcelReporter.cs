@@ -12,62 +12,54 @@ namespace difido_client.Report.Excel
 {
     public class ExcelReporter : IReporter
     {
-        private string templateFile =  @"integ-framework-infra\Infra\Report\Reporters\ExcelReport\Resources\test_results.xlsx";
-        
         private string outputFile;
-        private string outputFolder;
         private int currRow = 1;
         private string failureReason;
-        private Boolean enable = true;
-
-        bool firstEntry = true;
-
+        private Boolean enabled = true;
         public void Init(string outputFolder)
         {
-            this.outputFolder = outputFolder;
-        }
-
-        public void StartTest(ReporterTestInfo testInfo)
-        {
-            if (firstEntry)
+            if (enabled)
             {
                 try
                 {
-                    
-                    //this.outputFile = outputFile + @"\ExcelReports\ExcelReport " + DateTime.Now.ToString(" MM-dd-yy.hh-mm-ss") + ".xlsx";
-                    if (!Directory.Exists(outputFolder + @"\ExcelReports"))
+
+                    if (!Directory.Exists(outputFolder + @"\excelReports"))
                     {
-                        System.IO.Directory.CreateDirectory(outputFolder + @"\ExcelReports");
+                        System.IO.Directory.CreateDirectory(outputFolder + @"\excelReports");
                     }
-                    outputFile = outputFolder + @"\ExcelReports\ExcelReport.xlsx";                    
+                    outputFile = outputFolder + @"\excelReports\ExcelReport.xlsx";
                     File.Delete(outputFile);
-                    File.Copy(GetRootFolder() + @"/" + templateFile, outputFile);
+                    File.WriteAllBytes(outputFile, difido_client.Properties.Resources.test_results);
                 }
                 catch
                 {
                     Console.WriteLine("Failed to create Excel report file");
-                    enable = false;
+                    enabled = false;
                 }
 
-                firstEntry = false;
             }
+        }
+
+        public void StartTest(ReporterTestInfo testInfo)
+        {
+
         }
 
         public void EndTest(ReporterTestInfo testInfo)
         {
-         
+
             //Add one row to the excel report with the test info.
             if (testInfo.Status != ReporterTestInfo.TestStatus.success)
             {
-                  AppendTestExcel(testInfo);    
-                 currRow++;
-            }     
+                AppendTestExcel(testInfo);
+                currRow++;
+            }
         }
 
 
         private void AppendTestExcel(ReporterTestInfo testInfo)
         {
-            if (!enable)
+            if (!enabled)
             {
                 return;
             }
@@ -80,7 +72,7 @@ namespace difido_client.Report.Excel
 
             // Load the sheet you are going to use as a template into NPOI
             ISheet sheet = templateWorkbook.GetSheet("Sheet1");
-           // XSSFRow row;
+            // XSSFRow row;
             // Insert data into template
             var row = sheet.CreateRow(currRow);
             var cellIn = row.CreateCell(0);
@@ -103,12 +95,12 @@ namespace difido_client.Report.Excel
 
         public void StartSuite(string suiteName)
         {
-            
+
         }
 
         public void EndSuite(string suiteName)
         {
-            
+
         }
 
         public void Report(string title, string message, ReporterTestInfo.TestStatus status, ReportElementType type)
@@ -116,11 +108,7 @@ namespace difido_client.Report.Excel
             failureReason = title;
         }
 
-        private string GetRootFolder()
-        {
-            return Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.Parent.FullName;
-        }
 
-      
+
     }
 }
