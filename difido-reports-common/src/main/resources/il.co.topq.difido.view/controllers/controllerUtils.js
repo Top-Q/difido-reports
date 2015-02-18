@@ -7,9 +7,9 @@
 function getTestColors(){
     var colors = new Object();
     colors.success = "#88ee88";
-    colors.error = "#ff8888";
-    colors.failure = "#4682B4";
-    colors.warning = "#ffff77";
+    colors.error = "#E00000";
+    colors.failure = "#FF9933";
+    colors.warning = "#F5F500";
     return colors;
 }
 

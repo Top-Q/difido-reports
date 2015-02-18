@@ -12,13 +12,13 @@
 
 /* Test Statuses */
 #detailsDiv .failure > span {
-    color: #4682B4 !important;
+    color: #FF9933 !important;
 }
 #detailsDiv .warning > span {
-    color: #FF9933;
+    color: #F5F500;
 }
 #detailsDiv .error > span {
-    color: #ff0000;
+    color: #E00000;
 }
 
 #detailsDiv div{
