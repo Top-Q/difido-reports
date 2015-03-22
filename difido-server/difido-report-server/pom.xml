@@ -80,10 +80,21 @@
 			<version>0.5-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
-			<version>3.0.1</version>
-			<scope>test</scope>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch</artifactId>
+			<version>1.4.4</version>
+		</dependency>
+		<!-- <dependency> <groupId>commons-httpclient</groupId> <artifactId>commons-httpclient</artifactId> 
+			<version>3.0.1</version> <scope>test</scope> </dependency> -->
+		<dependency>
+			<groupId>io.searchbox</groupId>
+			<artifactId>jest</artifactId>
+			<version>0.1.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.10</version>
 		</dependency>
 	</dependencies>
 
@@ -100,45 +111,50 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<mainClass>il.co.topq.report.Main</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
+				<version>2.3</version>
 				<executions>
 					<execution>
-						<id>assemble-all</id>
-						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
+						<id>create-report-server</id>
+						<phase>package</phase>
+						<configuration>
+							<finalName>report-server</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptors>
+								<descriptor>src/main/assembly/report.xml</descriptor>
+							</descriptors>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.2.1</version>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
 				<executions>
 					<execution>
+						<id>default-jar</id>
+						<phase>package</phase>
 						<goals>
-							<goal>java</goal>
+							<goal>jar</goal>
 						</goals>
 					</execution>
 				</executions>
 				<configuration>
-					<mainClass>com.example.Main</mainClass>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>il.co.topq.report.MainClass</mainClass>
+						</manifest>
+					</archive>
 				</configuration>
 			</plugin>
+			<!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>exec-maven-plugin</artifactId> 
+				<version>1.2.1</version> <executions> <execution> <goals> <goal>java</goal> 
+				</goals> </execution> </executions> <configuration> <mainClass>com.example.Main</mainClass> 
+				</configuration> </plugin> -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>

@@ -12,12 +12,18 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Path("/executions")
 public class ExecutionResource {
+
+	private final Logger log = LoggerFactory.getLogger(ExecutionResource.class);
 
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
 	public int post() {
+		log.debug("POST - Add execution");
 		return addExecution();
 	}
 
@@ -33,7 +39,8 @@ public class ExecutionResource {
 	@DELETE
 	@Path("/{execution}")
 	public void delete(@PathParam("execution") int executionIndex) {
-		ListenersManager.INSTANCE.notifyExecutionEnded(Session.INSTANCE.getExecution(executionIndex));
+		log.debug("DELETE - Delete execution with id " + executionIndex);
+		ListenersManager.INSTANCE.notifyExecutionEnded(executionIndex, Session.INSTANCE.getExecution(executionIndex));
 	}
 
 	/**
@@ -48,7 +55,8 @@ public class ExecutionResource {
 	@Path("/lastId")
 	@Produces(MediaType.TEXT_PLAIN)
 	public int getLastExecutionId() {
-		final int index =  Session.INSTANCE.getLastExecutionIndexAndAddIfNoneExist();
+		final int index = Session.INSTANCE.getLastExecutionIndexAndAddIfNoneExist();
+		log.debug("GET - Last execution id. Id is " + index);
 		return index;
 	}
 
@@ -56,6 +64,7 @@ public class ExecutionResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{execution: [0-9]+}")
 	public Execution get(@PathParam("execution") int execution) {
+		log.debug("GET - Get execution with id " + execution);
 		return Session.INSTANCE.getExecution(execution);
 	}
 

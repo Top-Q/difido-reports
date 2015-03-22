@@ -1,7 +1,8 @@
 package il.co.topq.difido.model.execution;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author agmon
@@ -59,6 +60,33 @@ public class ScenarioNode extends NodeWithChildren<Node> {
 			}
 		}
 		return (MachineNode) node.getParent();
+	}
+
+	/**
+	 * Finds a test node with the specified UID
+	 * 
+	 * @param uid
+	 *            UID if the requested test
+	 * @return test node with the specified UID or null if none was found
+	 */
+	public TestNode findTestByUid(String uid) {
+		if (uid == null || uid.isEmpty()) {
+			throw new IllegalArgumentException("UID can't be null or empty");
+		}
+		List<Node> children = getChildren();
+		if (children == null) {
+			return null;
+		}
+		for (Node node : children) {
+			if (!(node instanceof TestNode)) {
+				continue;
+			}
+			final TestNode testNode = (TestNode) node;
+			if (testNode.getUid() != null && testNode.getUid().equals(uid.trim())) {
+				return testNode;
+			}
+		}
+		return null;
 	}
 
 }

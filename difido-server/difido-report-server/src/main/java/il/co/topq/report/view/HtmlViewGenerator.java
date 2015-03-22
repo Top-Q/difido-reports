@@ -12,11 +12,13 @@ import il.co.topq.report.model.Session;
 
 import java.io.File;
 import java.util.Date;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HtmlViewGenerator implements ResourceChangedListener {
 
-	private static final Logger log = Logger.getLogger(HtmlViewGenerator.class.getSimpleName());
+	private final Logger log = LoggerFactory.getLogger(HtmlViewGenerator.class);
 
 	private static HtmlViewGenerator INSTANCE = null;
 
@@ -46,10 +48,10 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 	private HtmlGenerationLevel creationLevel = HtmlGenerationLevel.ELEMENT;
 
 	@Override
-	public void executionAdded(Execution execution) {
+	public void executionAdded(int executionId, Execution execution) {
 		prepareExecutionFolder();
 		if (creationLevel.ordinal() >= HtmlGenerationLevel.EXECUTION.ordinal()) {
-			writeExecution();
+			writeExecution(executionId);
 		}
 
 	}
@@ -64,8 +66,7 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 				if (!executionDestinationFolder.mkdirs()) {
 					String errorMessage = "Failed creating report destination folder in "
 							+ executionDestinationFolder.getAbsolutePath();
-					log.severe(errorMessage);
-					// TODO: Handle errors
+					log.error(errorMessage);
 					return;
 				}
 			}
@@ -75,16 +76,16 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 	}
 
 	@Override
-	public void machineAdded(MachineNode machine) {
+	public void machineAdded(int executionId, MachineNode machine) {
 		if (creationLevel.ordinal() >= HtmlGenerationLevel.MACHINE.ordinal()) {
-			writeExecution();
+			writeExecution(executionId);
 		}
 
 	}
 
-	private void writeExecution() {
+	private void writeExecution(int executionId) {
 		synchronized (executionFileLockObject) {
-			PersistenceUtils.writeExecution(Session.INSTANCE.getLastActiveExecution(), executionDestinationFolder);
+			PersistenceUtils.writeExecution(Session.INSTANCE.getExecution(executionId), executionDestinationFolder);
 
 		}
 
@@ -99,7 +100,7 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 
 
 	@Override
-	public void testDetailsAdded(TestDetails details) {
+	public void testDetailsAdded(int executionId, TestDetails details) {
 		if (creationLevel.ordinal() >= HtmlGenerationLevel.TEST_DETAILS.ordinal()) {
 			writeTestDetails(details);
 		}
@@ -109,8 +110,8 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 
 
 	@Override
-	public void executionEnded(Execution execution) {
-		writeExecution();
+	public void executionEnded(int executionId, Execution execution) {
+		writeExecution(executionId);
 
 	}
 

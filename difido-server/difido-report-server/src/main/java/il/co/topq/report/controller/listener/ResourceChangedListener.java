@@ -6,12 +6,12 @@ import il.co.topq.difido.model.test.TestDetails;
 
 public interface ResourceChangedListener extends ReportServerListener {
 
-	void executionAdded(Execution execution);
+	void executionAdded(int executionId, Execution execution);
 	
-	void executionEnded(Execution execution);
+	void executionEnded(int executionId, Execution execution);
 
-	void machineAdded(MachineNode machine);
+	void machineAdded(int executionId, MachineNode machine);
 
-	void testDetailsAdded(TestDetails details);
+	void testDetailsAdded(int executionId, TestDetails details);
 
 }

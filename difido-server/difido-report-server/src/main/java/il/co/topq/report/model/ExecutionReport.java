@@ -7,9 +7,12 @@ public class ExecutionReport {
 	private String uri;
 	private String time;
 	private String date;
+	private boolean active;
+	private long lastAccessedTime;
 
 	public ExecutionReport() {
-
+		active = true;
+		lastAccessedTime = System.currentTimeMillis();
 	}
 
 	public int getId() {
@@ -51,5 +54,23 @@ public class ExecutionReport {
 	public void setDate(String date) {
 		this.date = date;
 	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	public long getLastAccessedTime() {
+		return lastAccessedTime;
+	}
+
+	public void setLastAccessedTime(long lastAccessedTime) {
+		this.lastAccessedTime = lastAccessedTime;
+	}
+	
+	
 
 }

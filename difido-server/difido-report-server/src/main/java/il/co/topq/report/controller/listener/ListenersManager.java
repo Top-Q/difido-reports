@@ -3,28 +3,40 @@ package il.co.topq.report.controller.listener;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.test.TestDetails;
-import il.co.topq.report.controller.ExecutionEnderScheduler;
+import il.co.topq.report.Configuration;
+import il.co.topq.report.Configuration.ConfigProps;
+import il.co.topq.report.controller.elasticsearch.ESController;
 import il.co.topq.report.model.Session;
 import il.co.topq.report.view.HtmlViewGenerator;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public enum ListenersManager {
 
 	INSTANCE;
+
+	private final Logger log = LoggerFactory.getLogger(ListenersManager.class);
 
 	private List<ReportServerListener> listenersList = new CopyOnWriteArrayList<ReportServerListener>();
 
 	private ListenersManager() {
 		// TODO: This should be done by another way. Maybe injection
-		listenersList.add(HtmlViewGenerator.getInstance());
-		listenersList.add(new ExecutionEnderScheduler());
-		listenersList.add(Session.INSTANCE);
+		if (Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_HTML_REPORTS)) {
+			addListener(HtmlViewGenerator.getInstance());
+		}
+		if (Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_ELASTIC_SEARCH)) {
+			addListener(new ESController());
+		}
+		addListener(Session.INSTANCE);
 	}
 
 	public void addListener(ReportServerListener listener) {
 		if (listener != null) {
+			log.debug("Adding listener " + listener.getClass().getSimpleName());
 			listenersList.add(listener);
 		}
 	}
@@ -33,14 +45,20 @@ public enum ListenersManager {
 		if (!listenersList.contains(listener)) {
 			return;
 		}
+		log.debug("Removing listener " + listener.getClass().getSimpleName());
 		listenersList.remove(listener);
 	}
 
-	public void notifyExecutionAdded(Execution execution) {
+	public void notifyExecutionAdded(int executionId, Execution execution) {
+		log.debug("Execution with id " + executionId + " was added");
 		synchronized (listenersList) {
 			for (ReportServerListener listener : listenersList) {
 				if (listener instanceof ResourceChangedListener) {
-					((ResourceChangedListener) listener).executionAdded(execution);
+					try {
+						((ResourceChangedListener) listener).executionAdded(executionId, execution);
+					} catch (Throwable t) {
+						log.error("Execption while notifying listner " + listener.getClass().getSimpleName(), t);
+					}
 
 				}
 			}
@@ -48,32 +66,46 @@ public enum ListenersManager {
 
 	}
 
-	public void notifyMachineAdded(MachineNode machine) {
+	public void notifyMachineAdded(int executionId, MachineNode machine) {
+		log.debug("Machine was added to execution with id " + executionId);
 		for (ReportServerListener listener : listenersList) {
 			if (listener instanceof ResourceChangedListener) {
-				((ResourceChangedListener) listener).machineAdded(machine);
+				try {
+					((ResourceChangedListener) listener).machineAdded(executionId, machine);
+
+				} catch (Throwable t) {
+					log.error("Execption while notifying listner " + listener.getClass().getSimpleName(), t);
+				}
 
 			}
 		}
 	}
 
-
-	public void notifyTestDetailsAdded(TestDetails details) {
+	public void notifyTestDetailsAdded(int executionId, TestDetails details) {
+		log.debug("Test details was added to execution with id " + executionId);
 		for (ReportServerListener listener : listenersList) {
 			if (listener instanceof ResourceChangedListener) {
-				((ResourceChangedListener) listener).testDetailsAdded(details);
+				try {
+					((ResourceChangedListener) listener).testDetailsAdded(executionId, details);
+
+				} catch (Throwable t) {
+					log.error("Execption while notifying listner " + listener.getClass().getSimpleName(), t);
+				}
 
 			}
 		}
 	}
 
-
-	public void notifyExecutionEnded(Execution execution) {
+	public void notifyExecutionEnded(int executionId, Execution execution) {
+		log.debug("Execution with id " + executionId + " was ended");
 		synchronized (listenersList) {
 			for (ReportServerListener listener : listenersList) {
 				if (listener instanceof ResourceChangedListener) {
-					((ResourceChangedListener) listener).executionEnded(execution);
-
+					try {
+						((ResourceChangedListener) listener).executionEnded(executionId, execution);
+					} catch (Throwable t) {
+						log.error("Execption while notifying listner " + listener.getClass().getSimpleName(), t);
+					}
 				}
 			}
 		}

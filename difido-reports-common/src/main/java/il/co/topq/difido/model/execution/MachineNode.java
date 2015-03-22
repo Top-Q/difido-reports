@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
 public class MachineNode extends NodeWithChildren<ScenarioNode> {
 
 	@JsonIgnore
@@ -37,6 +36,30 @@ public class MachineNode extends NodeWithChildren<ScenarioNode> {
 	public List<ScenarioNode> getAllScenarios() {
 		return allScenarios;
 	}
-	
+
+	/**
+	 * Find test node recursively in all the children of the machine
+	 * 
+	 * @param uid
+	 *            Unique id of the test node
+	 * @return Test node with the requested uid or null if non was found.
+	 */
+	@JsonIgnore
+	public TestNode findTestNodeById(String uid) {
+		final List<ScenarioNode> allScenarios = getChildren(true);
+		if (allScenarios == null) {
+			return null;
+		}
+		for (Node scenario : allScenarios) {
+			if (scenario == null || !(scenario instanceof ScenarioNode)) {
+				continue;
+			}
+			final TestNode testNode = ((ScenarioNode) scenario).findTestByUid(uid);
+			if (testNode != null) {
+				return testNode;
+			}
+		}
+		return null;
+	}
 
 }
