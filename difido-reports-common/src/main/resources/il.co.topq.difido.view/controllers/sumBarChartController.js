@@ -37,6 +37,8 @@ function appendTestsToBar(tests, element) {
         }
 
     });
+
+    suites = suites.slice(-5);
     //The last scenario
     suites.push({"name": suiteName.slice(0,maxLengthOfSuiteName), "success": success, "error": error, "failure": failure, "warning": warning});
     
