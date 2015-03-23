@@ -151,7 +151,7 @@
             <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
           </HTTPSamplerProxy>
           <hashTree/>
-          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid" enabled="true">
+          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid 0" enabled="true">
             <stringProp name="maximumValue">9999999999</stringProp>
             <stringProp name="minimumValue">1</stringProp>
             <stringProp name="outputFormat"></stringProp>
@@ -166,7 +166,7 @@
               <collectionProp name="Arguments.arguments">
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{&quot;type&quot;:&quot;machine&quot;,&quot;name&quot;:&quot;itai-laptop&quot;,&quot;status&quot;:&quot;success&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;scenario&quot;,&quot;name&quot;:&quot;default&quot;,&quot;status&quot;:&quot;success&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Failure&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:0,&quot;uid&quot;:&quot;${uid}&quot;,&quot;duration&quot;:0,&quot;timestamp&quot;:&quot;13:46:42:&quot;}]}]}</stringProp>
+                  <stringProp name="Argument.value">{&quot;type&quot;:&quot;machine&quot;,&quot;name&quot;:&quot;itai-laptop&quot;,&quot;status&quot;:&quot;success&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;scenario&quot;,&quot;name&quot;:&quot;default&quot;,&quot;status&quot;:&quot;success&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Failure&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:0,&quot;uid&quot;:&quot;${uid0}&quot;,&quot;duration&quot;:0,&quot;timestamp&quot;:&quot;13:46:42:&quot;}]}]}</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
@@ -220,7 +220,7 @@
             </HTTPSamplerProxy>
             <hashTree/>
           </hashTree>
-          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid" enabled="true">
+          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid 1" enabled="true">
             <stringProp name="maximumValue">9999999999</stringProp>
             <stringProp name="minimumValue">1</stringProp>
             <stringProp name="outputFormat"></stringProp>
@@ -289,7 +289,7 @@
             </HTTPSamplerProxy>
             <hashTree/>
           </hashTree>
-          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid" enabled="true">
+          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid 2" enabled="true">
             <stringProp name="maximumValue">99999999</stringProp>
             <stringProp name="minimumValue">1</stringProp>
             <stringProp name="outputFormat"></stringProp>
@@ -336,7 +336,7 @@
                 <collectionProp name="Arguments.arguments">
                   <elementProp name="" elementType="HTTPArgument">
                     <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                    <stringProp name="Argument.value">{&quot;name&quot;:&quot;Test with file &apos;.&apos; string &apos;Some string&apos; integer 5 date Wed Oct 29 16:29:52 IST 2014&quot;,&quot;description&quot;:&quot;Test with different parameters&quot;,&quot;timestamp&quot;:&quot;2014/10/29 at 16:36:50&quot;,&quot;duration&quot;:0,&quot;parameters&quot;:{&quot;Date&quot;:&quot;Wed Oct 29 16\\:29\\:52 IST 2014&quot;,&quot;File&quot;:&quot;.&quot;,&quot;Str&quot;:&quot;Some string&quot;,&quot;I&quot;:&quot;5&quot;},&quot;properties&quot;:{&quot;Test Documentation&quot;:&quot;Test with different parameters&quot;,&quot;Class&quot;:&quot;org.jsystemtest.jsystem_services_tests.TestsExamples&quot;,&quot;Breadcrumb&quot;:&quot;default--&gt;Test with file &apos;.&apos; string &apos;Some string&apos; integer 5 date Wed Oct 29 16:29:52 IST 2014&quot;},&quot;reportElements&quot;:[{&quot;title&quot;:&quot; File: target&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;16:36:50:&quot;},{&quot;title&quot;:&quot; Date: Wed Oct 29 16:36:50 IST 2014&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;16:36:50:&quot;},{&quot;title&quot;:&quot; String: Some string&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;16:36:50:&quot;},{&quot;title&quot;:&quot; Integer: 5&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;16:36:50:&quot;},{&quot;title&quot;:&quot;Start time: Wed Oct 29 16:36:50 IST 2014&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;16:36:50:&quot;},{&quot;title&quot;:&quot;End time  : Wed Oct 29 16:36:50 IST 2014&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;16:36:50:&quot;},{&quot;title&quot;:&quot;Test running time: 0 sec.&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;16:36:50:&quot;}],&quot;uid&quot;:&quot;1111111&quot;}</stringProp>
+                    <stringProp name="Argument.value">{&quot;name&quot;:&quot;Test with file &apos;.&apos; string &apos;Some string&apos; integer 5 date Wed Oct 29 16:29:52 IST 2014&quot;,&quot;description&quot;:&quot;Test with different parameters&quot;,&quot;timestamp&quot;:&quot;2014/10/29 at 16:36:50&quot;,&quot;duration&quot;:0,&quot;parameters&quot;:{&quot;Date&quot;:&quot;Wed Oct 29 16\\:29\\:52 IST 2014&quot;,&quot;File&quot;:&quot;.&quot;,&quot;Str&quot;:&quot;Some string&quot;,&quot;I&quot;:&quot;5&quot;},&quot;properties&quot;:{&quot;Test Documentation&quot;:&quot;Test with different parameters&quot;,&quot;Class&quot;:&quot;org.jsystemtest.jsystem_services_tests.TestsExamples&quot;,&quot;Breadcrumb&quot;:&quot;default--&gt;Test with file &apos;.&apos; string &apos;Some string&apos; integer 5 date Wed Oct 29 16:29:52 IST 2014&quot;},&quot;reportElements&quot;:[{&quot;title&quot;:&quot; File: target&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;16:36:50:&quot;},{&quot;title&quot;:&quot; Date: Wed Oct 29 16:36:50 IST 2014&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;16:36:50:&quot;},{&quot;title&quot;:&quot; String: Some string&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;16:36:50:&quot;},{&quot;title&quot;:&quot; Integer: 5&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;16:36:50:&quot;},{&quot;title&quot;:&quot;Start time: Wed Oct 29 16:36:50 IST 2014&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;16:36:50:&quot;},{&quot;title&quot;:&quot;End time  : Wed Oct 29 16:36:50 IST 2014&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;16:36:50:&quot;},{&quot;title&quot;:&quot;Test running time: 0 sec.&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;16:36:50:&quot;}],&quot;uid&quot;:&quot;${uid2}&quot;}</stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>
                   </elementProp>
                 </collectionProp>
@@ -364,7 +364,7 @@
               <collectionProp name="Arguments.arguments">
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{&quot;type&quot;:&quot;machine&quot;,&quot;name&quot;:&quot;itai-laptop&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;scenario&quot;,&quot;name&quot;:&quot;default&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Failure&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;index&quot;:0,&quot;uid&quot;:&quot;8891414583163-1&quot;,&quot;duration&quot;:29146,&quot;timestamp&quot;:&quot;13:46:42:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Warning&quot;,&quot;status&quot;:&quot;warning&quot;,&quot;index&quot;:1,&quot;uid&quot;:&quot;8891414583163-2&quot;,&quot;duration&quot;:34367,&quot;timestamp&quot;:&quot;13:47:11:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Test with file &apos;.&apos; string &apos;Some string&apos; integer 5 date Wed Oct 29 13:46:04 IST 2014&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:2,&quot;uid&quot;:&quot;8891414583163-3&quot;,&quot;duration&quot;:27173,&quot;timestamp&quot;:&quot;13:47:46:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report With Levels&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:3,&quot;uid&quot;:&quot;8891414583163-4&quot;,&quot;duration&quot;:0,&quot;timestamp&quot;:&quot;13:48:13:&quot;}]}]}</stringProp>
+                  <stringProp name="Argument.value">{&quot;type&quot;:&quot;machine&quot;,&quot;name&quot;:&quot;itai-laptop&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;scenario&quot;,&quot;name&quot;:&quot;default&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Failure&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;index&quot;:0,&quot;uid&quot;:&quot;${uid0}&quot;,&quot;duration&quot;:29146,&quot;timestamp&quot;:&quot;13:46:42:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Warning&quot;,&quot;status&quot;:&quot;warning&quot;,&quot;index&quot;:1,&quot;uid&quot;:&quot;${uid1}&quot;,&quot;duration&quot;:34367,&quot;timestamp&quot;:&quot;13:47:11:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Test with file &apos;.&apos; string &apos;Some string&apos; integer 5 date Wed Oct 29 13:46:04 IST 2014&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:2,&quot;uid&quot;:&quot;${uid2}&quot;,&quot;duration&quot;:27173,&quot;timestamp&quot;:&quot;13:47:46:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report With Levels&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:3,&quot;uid&quot;:&quot;${uid3}&quot;,&quot;duration&quot;:0,&quot;timestamp&quot;:&quot;13:48:13:&quot;}]}]}</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
@@ -384,6 +384,15 @@
             <boolProp name="HTTPSampler.monitor">false</boolProp>
             <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
           </HTTPSamplerProxy>
+          <hashTree/>
+          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid 3" enabled="true">
+            <stringProp name="maximumValue">9999999999</stringProp>
+            <stringProp name="minimumValue">1</stringProp>
+            <stringProp name="outputFormat"></stringProp>
+            <boolProp name="perThread">false</boolProp>
+            <stringProp name="randomSeed">0</stringProp>
+            <stringProp name="variableName">uid3</stringProp>
+          </RandomVariableConfig>
           <hashTree/>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Add test 4" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
@@ -391,7 +400,7 @@
               <collectionProp name="Arguments.arguments">
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{&quot;type&quot;:&quot;machine&quot;,&quot;name&quot;:&quot;itai-laptop&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;scenario&quot;,&quot;name&quot;:&quot;default&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Failure&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;index&quot;:0,&quot;uid&quot;:&quot;8891414583163-1&quot;,&quot;duration&quot;:29146,&quot;timestamp&quot;:&quot;13:46:42:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Warning&quot;,&quot;status&quot;:&quot;warning&quot;,&quot;index&quot;:1,&quot;uid&quot;:&quot;8891414583163-2&quot;,&quot;duration&quot;:34367,&quot;timestamp&quot;:&quot;13:47:11:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Test with file &apos;.&apos; string &apos;Some string&apos; integer 5 date Wed Oct 29 13:46:04 IST 2014&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:2,&quot;uid&quot;:&quot;8891414583163-3&quot;,&quot;duration&quot;:27173,&quot;timestamp&quot;:&quot;13:47:46:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report With Levels&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:3,&quot;uid&quot;:&quot;8891414583163-4&quot;,&quot;duration&quot;:23203,&quot;timestamp&quot;:&quot;13:48:13:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Success&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:4,&quot;uid&quot;:&quot;8891414583163-5&quot;,&quot;duration&quot;:0,&quot;timestamp&quot;:&quot;13:48:36:&quot;}]}]}</stringProp>
+                  <stringProp name="Argument.value">{&quot;type&quot;:&quot;machine&quot;,&quot;name&quot;:&quot;itai-laptop&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;scenario&quot;,&quot;name&quot;:&quot;default&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Failure&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;index&quot;:0,&quot;uid&quot;:&quot;${uid0}&quot;,&quot;duration&quot;:29146,&quot;timestamp&quot;:&quot;13:46:42:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Warning&quot;,&quot;status&quot;:&quot;warning&quot;,&quot;index&quot;:1,&quot;uid&quot;:&quot;${uid1}&quot;,&quot;duration&quot;:34367,&quot;timestamp&quot;:&quot;13:47:11:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Test with file &apos;.&apos; string &apos;Some string&apos; integer 5 date Wed Oct 29 13:46:04 IST 2014&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:2,&quot;uid&quot;:&quot;${uid2}&quot;,&quot;duration&quot;:27173,&quot;timestamp&quot;:&quot;13:47:46:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report With Levels&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:3,&quot;uid&quot;:&quot;${uid3}&quot;,&quot;duration&quot;:23203,&quot;timestamp&quot;:&quot;13:48:13:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Success&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:4,&quot;uid&quot;:&quot;${uid4}&quot;,&quot;duration&quot;:0,&quot;timestamp&quot;:&quot;13:48:36:&quot;}]}]}</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
@@ -412,13 +421,22 @@
             <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
           </HTTPSamplerProxy>
           <hashTree/>
+          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid 4" enabled="true">
+            <stringProp name="maximumValue">9999999999</stringProp>
+            <stringProp name="minimumValue">1</stringProp>
+            <stringProp name="outputFormat"></stringProp>
+            <boolProp name="perThread">false</boolProp>
+            <stringProp name="randomSeed">0</stringProp>
+            <stringProp name="variableName">uid4</stringProp>
+          </RandomVariableConfig>
+          <hashTree/>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Add test 5" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{&quot;type&quot;:&quot;machine&quot;,&quot;name&quot;:&quot;itai-laptop&quot;,&quot;status&quot;:&quot;error&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;scenario&quot;,&quot;name&quot;:&quot;default&quot;,&quot;status&quot;:&quot;error&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Failure&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;index&quot;:0,&quot;uid&quot;:&quot;${uid0}&quot;,&quot;duration&quot;:29146,&quot;timestamp&quot;:&quot;13:46:42:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Warning&quot;,&quot;status&quot;:&quot;warning&quot;,&quot;index&quot;:1,&quot;uid&quot;:&quot;8891414583163-2&quot;,&quot;duration&quot;:34367,&quot;timestamp&quot;:&quot;13:47:11:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Test with file &apos;.&apos; string &apos;Some string&apos; integer 5 date Wed Oct 29 13:46:04 IST 2014&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:2,&quot;uid&quot;:&quot;8891414583163-3&quot;,&quot;duration&quot;:27173,&quot;timestamp&quot;:&quot;13:47:46:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report With Levels&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:3,&quot;uid&quot;:&quot;8891414583163-4&quot;,&quot;duration&quot;:23203,&quot;timestamp&quot;:&quot;13:48:13:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Success&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:4,&quot;uid&quot;:&quot;8891414583163-5&quot;,&quot;duration&quot;:14603,&quot;timestamp&quot;:&quot;13:48:36:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Error&quot;,&quot;status&quot;:&quot;error&quot;,&quot;index&quot;:5,&quot;uid&quot;:&quot;8891414583163-6&quot;,&quot;duration&quot;:31110,&quot;timestamp&quot;:&quot;13:48:51:&quot;}]}]}</stringProp>
+                  <stringProp name="Argument.value">{&quot;type&quot;:&quot;machine&quot;,&quot;name&quot;:&quot;itai-laptop&quot;,&quot;status&quot;:&quot;error&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;scenario&quot;,&quot;name&quot;:&quot;default&quot;,&quot;status&quot;:&quot;error&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Failure&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;index&quot;:0,&quot;uid&quot;:&quot;${uid0}&quot;,&quot;duration&quot;:29146,&quot;timestamp&quot;:&quot;13:46:42:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Warning&quot;,&quot;status&quot;:&quot;warning&quot;,&quot;index&quot;:1,&quot;uid&quot;:&quot;${uid1}&quot;,&quot;duration&quot;:34367,&quot;timestamp&quot;:&quot;13:47:11:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Test with file &apos;.&apos; string &apos;Some string&apos; integer 5 date Wed Oct 29 13:46:04 IST 2014&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:2,&quot;uid&quot;:&quot;${uid2}&quot;,&quot;duration&quot;:27173,&quot;timestamp&quot;:&quot;13:47:46:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report With Levels&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:3,&quot;uid&quot;:&quot;${uid3}&quot;,&quot;duration&quot;:23203,&quot;timestamp&quot;:&quot;13:48:13:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Success&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:4,&quot;uid&quot;:&quot;${uid4}&quot;,&quot;duration&quot;:14603,&quot;timestamp&quot;:&quot;13:48:36:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Error&quot;,&quot;status&quot;:&quot;error&quot;,&quot;index&quot;:5,&quot;uid&quot;:&quot;${uid5}&quot;,&quot;duration&quot;:31110,&quot;timestamp&quot;:&quot;13:48:51:&quot;}]}]}</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
@@ -438,6 +456,15 @@
             <boolProp name="HTTPSampler.monitor">false</boolProp>
             <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
           </HTTPSamplerProxy>
+          <hashTree/>
+          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid 5" enabled="true">
+            <stringProp name="maximumValue">9999999999</stringProp>
+            <stringProp name="minimumValue">1</stringProp>
+            <stringProp name="outputFormat"></stringProp>
+            <boolProp name="perThread">false</boolProp>
+            <stringProp name="randomSeed">0</stringProp>
+            <stringProp name="variableName">uid5</stringProp>
+          </RandomVariableConfig>
           <hashTree/>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Add test 6" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>

@@ -52,7 +52,7 @@ public enum Session implements ResourceChangedListener {
 
 	}
 
-	public synchronized Execution getExecution(int index) {
+	public Execution getExecution(int index) {
 		return executions.get(index);
 	}
 
