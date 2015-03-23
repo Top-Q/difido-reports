@@ -54,7 +54,7 @@ namespace difido_client_tests
         [Test]
         public void TestWithManyReportElements()
         {
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 100; i++)
             {
                 report.Report("Report element with index "+i);
             }

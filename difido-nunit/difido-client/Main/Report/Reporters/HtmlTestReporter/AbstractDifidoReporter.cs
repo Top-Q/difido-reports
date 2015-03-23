@@ -65,8 +65,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             currentTest.status = testInfo.Status.ToString();
             currentTest.duration = testInfo.DurationTime;
             testDetails.duration = testInfo.DurationTime;
-            ExecutionWasAddedOrUpdated(execution);
-            TestDetailsWereAdded(testDetails);
+            ExecutionWasAddedOrUpdated(execution);            
             index++;
         }
 
