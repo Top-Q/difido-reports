@@ -32,7 +32,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
                 host = "localhost";
                 port = 8080;
 
-                Boolean appendToExistingExecution = false;
+                Boolean appendToExistingExecution = true;
                 client = new DifidoClient(host, port);
                 if (appendToExistingExecution)
                 {

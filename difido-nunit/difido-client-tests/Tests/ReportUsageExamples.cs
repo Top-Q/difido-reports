@@ -52,6 +52,15 @@ namespace difido_client_tests
         }
 
         [Test]
+        public void TestWithManyReportElements()
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                report.Report("Report element with index "+i);
+            }
+        }
+
+        [Test]
         public void TestWithFailure()
         {
             report.Report("About to fail the test with assertion");

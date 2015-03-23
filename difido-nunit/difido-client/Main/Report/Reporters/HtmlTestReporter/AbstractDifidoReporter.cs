@@ -40,7 +40,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
         {
 
             currentTest = new Test(index, testInfo.TestName, executionUid + "-" + index);
-            currentTest.timestamp = DateTime.Now.ToString("HH:mm:ss");
+            currentTest.timestamp = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
             string scenarioName = testInfo.FullyQualifiedTestClassName.Split('.')[testInfo.FullyQualifiedTestClassName.Split('.').Length - 2];
             Scenario scenario;
             if (machine.IsChildWithNameExists(scenarioName))
@@ -56,7 +56,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             ExecutionWasAddedOrUpdated(execution);
             testDetails = new TestDetails(testInfo.TestName, currentTest.uid);
             testDetails.description = testInfo.FullyQualifiedTestClassName;
-            testDetails.timestamp = DateTime.Now.ToString();
+            testDetails.timestamp = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
         }
 
         public void EndTest(ReporterTestInfo testInfo)
