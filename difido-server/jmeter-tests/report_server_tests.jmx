@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.6" jmeter="2.11 r1554548">
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -32,7 +32,7 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">10</stringProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
         <stringProp name="ThreadGroup.ramp_time">2</stringProp>
         <longProp name="ThreadGroup.start_time">1414576033000</longProp>
         <longProp name="ThreadGroup.end_time">1414576033000</longProp>
@@ -52,7 +52,7 @@
         <hashTree/>
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">true</boolProp>
-          <stringProp name="LoopController.loops">10</stringProp>
+          <stringProp name="LoopController.loops">1</stringProp>
         </LoopController>
         <hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get last session id" enabled="true">
@@ -225,7 +225,7 @@
             <stringProp name="minimumValue">1</stringProp>
             <stringProp name="outputFormat"></stringProp>
             <boolProp name="perThread">false</boolProp>
-            <stringProp name="randomSeed">1</stringProp>
+            <stringProp name="randomSeed">10</stringProp>
             <stringProp name="variableName">uid1</stringProp>
           </RandomVariableConfig>
           <hashTree/>
@@ -290,11 +290,11 @@
             <hashTree/>
           </hashTree>
           <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid 2" enabled="true">
-            <stringProp name="maximumValue">99999999</stringProp>
+            <stringProp name="maximumValue">9999999999</stringProp>
             <stringProp name="minimumValue">1</stringProp>
             <stringProp name="outputFormat"></stringProp>
             <boolProp name="perThread">false</boolProp>
-            <stringProp name="randomSeed">2</stringProp>
+            <stringProp name="randomSeed">20</stringProp>
             <stringProp name="variableName">uid2</stringProp>
           </RandomVariableConfig>
           <hashTree/>
@@ -358,6 +358,15 @@
             </HTTPSamplerProxy>
             <hashTree/>
           </hashTree>
+          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid 3" enabled="true">
+            <stringProp name="maximumValue">9999999999</stringProp>
+            <stringProp name="minimumValue">1</stringProp>
+            <stringProp name="outputFormat"></stringProp>
+            <boolProp name="perThread">false</boolProp>
+            <stringProp name="randomSeed">30</stringProp>
+            <stringProp name="variableName">uid3</stringProp>
+          </RandomVariableConfig>
+          <hashTree/>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Add test 3" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
@@ -385,13 +394,46 @@
             <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
           </HTTPSamplerProxy>
           <hashTree/>
-          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid 3" enabled="true">
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+            <boolProp name="LoopController.continue_forever">true</boolProp>
+            <stringProp name="LoopController.loops">10</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Add test details" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">{&quot;name&quot;:&quot;Report Warning&quot;,&quot;description&quot;:&quot;Test with warning report&quot;,&quot;timestamp&quot;:&quot;2014/10/29 at 15:36:17&quot;,&quot;duration&quot;:0,&quot;parameters&quot;:null,&quot;properties&quot;:{&quot;Test Documentation&quot;:&quot;Test with warning report&quot;,&quot;Class&quot;:&quot;org.jsystemtest.jsystem_services_tests.TestsExamples&quot;,&quot;Breadcrumb&quot;:&quot;default--&gt;Report Warning&quot;},&quot;reportElements&quot;:[{&quot;title&quot;:&quot; Warning&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;warning&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;15:36:17:&quot;},{&quot;title&quot;:&quot;Start time: Wed Oct 29 15:36:17 IST 2014&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;15:36:17:&quot;},{&quot;title&quot;:&quot;End time  : Wed Oct 29 15:36:17 IST 2014&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;15:36:17:&quot;},{&quot;title&quot;:&quot;Test running time: 0 sec.&quot;,&quot;message&quot;:null,&quot;status&quot;:&quot;success&quot;,&quot;type&quot;:&quot;regular&quot;,&quot;time&quot;:&quot;15:36:17:&quot;}],&quot;uid&quot;:&quot;${uid3}&quot;}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain">${host}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">api/executions/${executionId}/details</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree/>
+          </hashTree>
+          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid 4" enabled="true">
             <stringProp name="maximumValue">9999999999</stringProp>
             <stringProp name="minimumValue">1</stringProp>
             <stringProp name="outputFormat"></stringProp>
             <boolProp name="perThread">false</boolProp>
-            <stringProp name="randomSeed">0</stringProp>
-            <stringProp name="variableName">uid3</stringProp>
+            <stringProp name="randomSeed">40</stringProp>
+            <stringProp name="variableName">uid4</stringProp>
           </RandomVariableConfig>
           <hashTree/>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Add test 4" enabled="true">
@@ -400,7 +442,13 @@
               <collectionProp name="Arguments.arguments">
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{&quot;type&quot;:&quot;machine&quot;,&quot;name&quot;:&quot;itai-laptop&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;scenario&quot;,&quot;name&quot;:&quot;default&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Failure&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;index&quot;:0,&quot;uid&quot;:&quot;${uid0}&quot;,&quot;duration&quot;:29146,&quot;timestamp&quot;:&quot;13:46:42:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Warning&quot;,&quot;status&quot;:&quot;warning&quot;,&quot;index&quot;:1,&quot;uid&quot;:&quot;${uid1}&quot;,&quot;duration&quot;:34367,&quot;timestamp&quot;:&quot;13:47:11:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Test with file &apos;.&apos; string &apos;Some string&apos; integer 5 date Wed Oct 29 13:46:04 IST 2014&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:2,&quot;uid&quot;:&quot;${uid2}&quot;,&quot;duration&quot;:27173,&quot;timestamp&quot;:&quot;13:47:46:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report With Levels&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:3,&quot;uid&quot;:&quot;${uid3}&quot;,&quot;duration&quot;:23203,&quot;timestamp&quot;:&quot;13:48:13:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Success&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:4,&quot;uid&quot;:&quot;${uid4}&quot;,&quot;duration&quot;:0,&quot;timestamp&quot;:&quot;13:48:36:&quot;}]}]}</stringProp>
+                  <stringProp name="Argument.value">{&quot;type&quot;:&quot;machine&quot;,&quot;name&quot;:&quot;itai-laptop&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;children&quot;:&#xd;
+[{&quot;type&quot;:&quot;scenario&quot;,&quot;name&quot;:&quot;default&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;children&quot;:&#xd;
+[{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Failure&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;index&quot;:0,&quot;uid&quot;:&quot;${uid0}&quot;,&quot;duration&quot;:29146,&quot;timestamp&quot;:&quot;13:46:42:&quot;},&#xd;
+{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Warning&quot;,&quot;status&quot;:&quot;warning&quot;,&quot;index&quot;:1,&quot;uid&quot;:&quot;${uid1}&quot;,&quot;duration&quot;:34367,&quot;timestamp&quot;:&quot;13:47:11:&quot;},&#xd;
+{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Test with file &apos;.&apos; string &apos;Some string&apos; integer 5 date Wed Oct 29 13:46:04 IST 2014&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:2,&quot;uid&quot;:&quot;${uid2}&quot;,&quot;duration&quot;:27173,&quot;timestamp&quot;:&quot;13:47:46:&quot;},&#xd;
+{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report With Levels&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:3,&quot;uid&quot;:&quot;${uid3}&quot;,&quot;duration&quot;:23203,&quot;timestamp&quot;:&quot;13:48:13:&quot;},&#xd;
+{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Success&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:4,&quot;uid&quot;:&quot;${uid4}&quot;,&quot;duration&quot;:0,&quot;timestamp&quot;:&quot;13:48:36:&quot;}]}]}</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
@@ -421,13 +469,13 @@
             <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
           </HTTPSamplerProxy>
           <hashTree/>
-          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid 4" enabled="true">
+          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid 5" enabled="true">
             <stringProp name="maximumValue">9999999999</stringProp>
             <stringProp name="minimumValue">1</stringProp>
             <stringProp name="outputFormat"></stringProp>
             <boolProp name="perThread">false</boolProp>
-            <stringProp name="randomSeed">0</stringProp>
-            <stringProp name="variableName">uid4</stringProp>
+            <stringProp name="randomSeed">50</stringProp>
+            <stringProp name="variableName">uid5</stringProp>
           </RandomVariableConfig>
           <hashTree/>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Add test 5" enabled="true">
@@ -457,46 +505,11 @@
             <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
           </HTTPSamplerProxy>
           <hashTree/>
-          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Generate test uid 5" enabled="true">
-            <stringProp name="maximumValue">9999999999</stringProp>
-            <stringProp name="minimumValue">1</stringProp>
-            <stringProp name="outputFormat"></stringProp>
-            <boolProp name="perThread">false</boolProp>
-            <stringProp name="randomSeed">0</stringProp>
-            <stringProp name="variableName">uid5</stringProp>
-          </RandomVariableConfig>
-          <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Add test 6" enabled="true">
-            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-              <collectionProp name="Arguments.arguments">
-                <elementProp name="" elementType="HTTPArgument">
-                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{&quot;type&quot;:&quot;machine&quot;,&quot;name&quot;:&quot;itai-laptop&quot;,&quot;status&quot;:&quot;error&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;scenario&quot;,&quot;name&quot;:&quot;default&quot;,&quot;status&quot;:&quot;error&quot;,&quot;children&quot;:[{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Failure&quot;,&quot;status&quot;:&quot;failure&quot;,&quot;index&quot;:0,&quot;uid&quot;:&quot;${uid0}&quot;,&quot;duration&quot;:29146,&quot;timestamp&quot;:&quot;13:46:42:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Warning&quot;,&quot;status&quot;:&quot;warning&quot;,&quot;index&quot;:1,&quot;uid&quot;:&quot;${uid1}&quot;,&quot;duration&quot;:34367,&quot;timestamp&quot;:&quot;13:47:11:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Test with file &apos;.&apos; string &apos;Some string&apos; integer 5 date Wed Oct 29 13:46:04 IST 2014&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:2,&quot;uid&quot;:&quot;${uid2}&quot;,&quot;duration&quot;:27173,&quot;timestamp&quot;:&quot;13:47:46:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report With Levels&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:3,&quot;uid&quot;:&quot;8891414583163-4&quot;,&quot;duration&quot;:23203,&quot;timestamp&quot;:&quot;13:48:13:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Success&quot;,&quot;status&quot;:&quot;success&quot;,&quot;index&quot;:4,&quot;uid&quot;:&quot;8891414583163-5&quot;,&quot;duration&quot;:14603,&quot;timestamp&quot;:&quot;13:48:36:&quot;},{&quot;type&quot;:&quot;test&quot;,&quot;name&quot;:&quot;Report Error&quot;,&quot;status&quot;:&quot;error&quot;,&quot;index&quot;:5,&quot;uid&quot;:&quot;8891414583163-6&quot;,&quot;duration&quot;:31110,&quot;timestamp&quot;:&quot;13:48:51:&quot;}]}]}</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-              </collectionProp>
-            </elementProp>
-            <stringProp name="HTTPSampler.domain">${host}</stringProp>
-            <stringProp name="HTTPSampler.port">${port}</stringProp>
-            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-            <stringProp name="HTTPSampler.response_timeout"></stringProp>
-            <stringProp name="HTTPSampler.protocol"></stringProp>
-            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">api/executions/${executionId}/machines/${machineId}</stringProp>
-            <stringProp name="HTTPSampler.method">PUT</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-            <boolProp name="HTTPSampler.monitor">false</boolProp>
-            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-          </HTTPSamplerProxy>
-          <hashTree/>
         </hashTree>
         <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
           <objProp>
+            <name>saveConfig</name>
             <value class="SampleSaveConfiguration">
               <time>true</time>
               <latency>true</latency>
@@ -520,9 +533,11 @@
               <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
               <assertionsResultsToSave>0</assertionsResultsToSave>
               <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
             </value>
           </objProp>
           <objProp>
+            <name></name>
             <value class="SampleSaveConfiguration">
               <time>true</time>
               <latency>true</latency>
@@ -546,6 +561,7 @@
               <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
               <assertionsResultsToSave>0</assertionsResultsToSave>
               <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
             </value>
           </objProp>
           <stringProp name="filename"></stringProp>
@@ -554,6 +570,7 @@
         <ResultCollector guiclass="GraphVisualizer" testclass="ResultCollector" testname="Graph Results" enabled="true">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
           <objProp>
+            <name>saveConfig</name>
             <value class="SampleSaveConfiguration">
               <time>true</time>
               <latency>true</latency>
@@ -577,9 +594,11 @@
               <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
               <assertionsResultsToSave>0</assertionsResultsToSave>
               <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
             </value>
           </objProp>
           <objProp>
+            <name></name>
             <value class="SampleSaveConfiguration">
               <time>true</time>
               <latency>true</latency>
@@ -603,6 +622,7 @@
               <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
               <assertionsResultsToSave>0</assertionsResultsToSave>
               <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
             </value>
           </objProp>
           <stringProp name="filename"></stringProp>
@@ -611,6 +631,7 @@
         <ResultCollector guiclass="RespTimeGraphVisualizer" testclass="ResultCollector" testname="Response Time Graph" enabled="true">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
           <objProp>
+            <name>saveConfig</name>
             <value class="SampleSaveConfiguration">
               <time>true</time>
               <latency>true</latency>
@@ -634,9 +655,11 @@
               <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
               <assertionsResultsToSave>0</assertionsResultsToSave>
               <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
             </value>
           </objProp>
           <objProp>
+            <name></name>
             <value class="SampleSaveConfiguration">
               <time>true</time>
               <latency>true</latency>
@@ -660,6 +683,7 @@
               <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
               <assertionsResultsToSave>0</assertionsResultsToSave>
               <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
             </value>
           </objProp>
           <stringProp name="filename"></stringProp>
@@ -668,6 +692,7 @@
         <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="View Results in Table" enabled="true">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
           <objProp>
+            <name>saveConfig</name>
             <value class="SampleSaveConfiguration">
               <time>true</time>
               <latency>true</latency>
@@ -691,9 +716,11 @@
               <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
               <assertionsResultsToSave>0</assertionsResultsToSave>
               <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
             </value>
           </objProp>
           <objProp>
+            <name></name>
             <value class="SampleSaveConfiguration">
               <time>true</time>
               <latency>true</latency>
@@ -717,6 +744,7 @@
               <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
               <assertionsResultsToSave>0</assertionsResultsToSave>
               <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
             </value>
           </objProp>
           <stringProp name="filename"></stringProp>

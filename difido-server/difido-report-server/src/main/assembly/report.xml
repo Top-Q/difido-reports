@@ -3,7 +3,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
 	<formats>
-		<format>tar.gz</format>
 		<format>zip</format>
 		<format>dir</format>
 	</formats>
@@ -37,11 +36,18 @@
 			<directory>src/main/kibana</directory>
 		</fileSet>
 		<fileSet>
-			<outputDirectory></outputDirectory>
+			<outputDirectory>bin</outputDirectory>
 			<directory>src/main/etc</directory>
 			<fileMode>775</fileMode>
 			<includes>
 				<include>run.bat</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<outputDirectory></outputDirectory>
+			<directory>src/main/etc</directory>
+			<fileMode>775</fileMode>
+			<includes>
 				<include>log4j.properties</include>
 			</includes>
 		</fileSet>

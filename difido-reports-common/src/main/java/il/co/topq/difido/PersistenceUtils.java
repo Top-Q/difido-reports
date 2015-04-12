@@ -85,7 +85,7 @@ public class PersistenceUtils {
 			final String json = FileUtils.readFileToString(executionJson);
 			execution = mapper.readValue(json.replaceFirst("var execution = ", ""), Execution.class);
 		} catch (IOException e) {
-			log.warning("Found execution json file but failed to reading it");
+			log.warning("Found execution json file but failed reading it");
 		}
 		return execution;
 	}
@@ -114,6 +114,19 @@ public class PersistenceUtils {
 			log.warning("Failed to write html report due to " + e.getMessage());
 		}
 
+	}
+
+	public static TestDetails readTest(final File testSourceFolder) {
+		final File testHtml = new File(testSourceFolder, TEST_DETAILS_MODEL_FILE);
+		ObjectMapper mapper = new ObjectMapper();
+		TestDetails test = null;
+		try {
+			final String json = FileUtils.readFileToString(testHtml);
+			test = mapper.readValue(json.replaceFirst("var test = ", ""), TestDetails.class);
+		} catch (IOException e) {
+			log.warning("Found test details json file but failed reading it");
+		}
+		return test;
 	}
 
 	/**

@@ -19,7 +19,8 @@ public class Execution {
 		this.machines = machines;
 	}
 
-	public void addMachine(MachineNode machine) {
+	public synchronized void addMachine(MachineNode machine) {
+		//NOTE: Do not remove the the 'synchronized' key word!
 		if (machines == null) {
 			//We use it to avoid ConcurrentModificationException
 			machines = new CopyOnWriteArrayList<MachineNode>();

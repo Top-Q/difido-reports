@@ -100,7 +100,7 @@ public class ESController implements ResourceChangedListener {
 			}
 		}
 
-		if (ESUtils.isExist(Common.ELASTIC_INDEX, "tesdt", details.getUid())) {
+		if (ESUtils.isExist(Common.ELASTIC_INDEX, "test", details.getUid())) {
 			log.warn("Test with uid " + details.getUid() + " already exists in the Elasticsearch");
 			return;
 		}
@@ -110,9 +110,10 @@ public class ESController implements ResourceChangedListener {
 		esTest.setDuration(0);
 		esTest.setStatus("In progress");
 		esTest.setProperties(details.getProperties());
-		esTest.setTimeStamp(details.getTimeStamp().replaceFirst(" at ", " ").replaceAll("AM", "").replaceAll("PM", ""));
-		esTest.setExecutionTimeStamp(details.getTimeStamp().replaceFirst(" at ", " ").replaceAll("AM", "")
-				.replaceAll("PM", ""));
+		if (details.getTimeStamp() != null){
+			esTest.setTimeStamp(details.getTimeStamp().replaceFirst(" at ", " "));
+			esTest.setExecutionTimeStamp(details.getTimeStamp().replaceFirst(" at ", " "));
+		}
 		esTest.setDescription(details.getDescription());
 		log.debug("Adding test with UID " + esTest.getUid() + " to the test list");
 		testList.add(esTest);

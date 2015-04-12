@@ -96,6 +96,12 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.10</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpmime</artifactId>
+			<version>4.4</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
