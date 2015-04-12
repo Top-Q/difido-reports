@@ -127,7 +127,7 @@
 						<id>create-report-server</id>
 						<phase>package</phase>
 						<configuration>
-							<finalName>report-server</finalName>
+							<finalName>difido-server</finalName>
 							<appendAssemblyId>false</appendAssemblyId>
 							<descriptors>
 								<descriptor>src/main/assembly/report.xml</descriptor>
