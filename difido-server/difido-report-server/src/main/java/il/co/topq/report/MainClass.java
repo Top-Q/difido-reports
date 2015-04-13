@@ -74,7 +74,7 @@ public class MainClass {
 	}
 
 	private static void configureLogger() {
-		PropertyConfigurator.configure("log4j.properties");
+		PropertyConfigurator.configure("config/log4j.properties");
 	}
 
 	private static void configureElastic() throws IOException {

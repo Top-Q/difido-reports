@@ -39,7 +39,7 @@ public enum Configuration {
 
 	private final Logger log = LoggerFactory.getLogger(Configuration.class);
 
-	private final static String CONFIG_PROP_NAME = "difido_config.properties";
+	private final static String CONFIG_PROP_NAME = "config/difido_config.properties";
 
 	private Properties configProperties = new Properties();
 
@@ -66,7 +66,8 @@ public enum Configuration {
 	}
 
 	private void useDefaultProperties() {
-		log.info("Using default properties");
+		log.info("No configuration file found - Creating one with default parameters in "
+				+ new File(CONFIG_PROP_NAME).getAbsolutePath());
 		configProperties.put(ConfigProps.BASE_URI.getPropName(), ConfigProps.BASE_URI.getDefaultValue());
 		configProperties.put(ConfigProps.DOC_ROOT_FOLDER.getPropName(), ConfigProps.DOC_ROOT_FOLDER.getDefaultValue());
 		configProperties.put(ConfigProps.PATH_DATA.getPropName(), ConfigProps.PATH_DATA.getDefaultValue());

@@ -44,12 +44,20 @@
 			</includes>
 		</fileSet>
 		<fileSet>
+			<outputDirectory>config</outputDirectory>
+			<directory>src/main/etc</directory>
+			<fileMode>775</fileMode>
+			<includes>
+				<include>log4j.properties</include>
+			</includes>
+		</fileSet>
+
+		<fileSet>
 			<outputDirectory></outputDirectory>
 			<directory>src/main/etc</directory>
 			<fileMode>775</fileMode>
 			<includes>
-				<include>LICENSE.txt</include>
-				<include>log4j.properties</include>
+				<include>LICENSE.txt</include>				
 			</includes>
 		</fileSet>
 	</fileSets>
