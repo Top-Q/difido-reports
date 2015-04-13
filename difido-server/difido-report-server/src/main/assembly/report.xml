@@ -48,6 +48,7 @@
 			<directory>src/main/etc</directory>
 			<fileMode>775</fileMode>
 			<includes>
+				<include>LICENSE.txt</include>
 				<include>log4j.properties</include>
 			</includes>
 		</fileSet>
