@@ -11,8 +11,10 @@ import il.co.topq.report.controller.listener.ResourceChangedListener;
 import il.co.topq.report.model.Session;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,8 +24,10 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 
 	private static HtmlViewGenerator INSTANCE = null;
 
+	private static final File TEMPLATE_FOLDER = new File("htmlTemplate");
+
 	private Object executionFileLockObject = new Object();
-	
+
 	private Object testFileLockObject = new Object();
 
 	private HtmlViewGenerator() {
@@ -62,15 +66,23 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 					+ Common.EXECUTION_REPROT_TIMESTAMP_FORMATTER.format(new Date());
 			executionDestinationFolder = new File(Configuration.INSTANCE.read(ConfigProps.DOC_ROOT_FOLDER)
 					+ File.separator + Common.REPORTS_FOLDER_NAME, executionFolderName);
+			
+			if (!TEMPLATE_FOLDER.exists() || !(new File(TEMPLATE_FOLDER, "index.html").exists())) {
+				PersistenceUtils.copyResources(TEMPLATE_FOLDER);
+			}
+
 			if (!executionDestinationFolder.exists()) {
 				if (!executionDestinationFolder.mkdirs()) {
-					String errorMessage = "Failed creating report destination folder in "
-							+ executionDestinationFolder.getAbsolutePath();
-					log.error(errorMessage);
+					log.error("Failed creating report destination folder in "
+							+ executionDestinationFolder.getAbsolutePath());
 					return;
 				}
 			}
-			PersistenceUtils.copyResources(executionDestinationFolder);
+			try {
+				FileUtils.copyDirectory(TEMPLATE_FOLDER, executionDestinationFolder);
+			} catch (IOException e) {
+				log.error("Failed copying html files to execution folder", e);
+			}
 		}
 
 	}

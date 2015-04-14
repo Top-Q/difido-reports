@@ -35,3 +35,4 @@ difido-server/difido-report-server/docRoot/reports
 difido-server/difido-report-server/data
 difido-server/difido-report-server/config/difido_config.properties
 difido-server/difido-report-server/log
+difido-server/difido-report-server/htmlTemplate
