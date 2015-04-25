@@ -3,7 +3,7 @@ package il.co.topq.report.controller.resource;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.report.controller.listener.ListenersManager;
-import il.co.topq.report.model.Session;
+import il.co.topq.report.model.ExecutionManager;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -31,13 +31,13 @@ public class MachineResource {
 		if (null == machine) {
 			throw new WebApplicationException("Machine can't be null");
 		}
-		final Execution execution = Session.INSTANCE.getExecution(executionId);
+		final Execution execution = ExecutionManager.INSTANCE.getExecution(executionId);
 		if (null == execution) {
 			throw new WebApplicationException("Execution with id " + executionId + " is not exist");
 		}
 		execution.addMachine(machine);
 		ListenersManager.INSTANCE.notifyMachineAdded(executionId, machine);
-		return Session.INSTANCE.getExecution(executionId).getMachines().indexOf(machine);
+		return ExecutionManager.INSTANCE.getExecution(executionId).getMachines().indexOf(machine);
 	}
 
 	@PUT
@@ -49,7 +49,7 @@ public class MachineResource {
 		if (null == machine) {
 			throw new WebApplicationException("Machine can't be null");
 		}
-		final Execution execution = Session.INSTANCE.getExecution(executionId);
+		final Execution execution = ExecutionManager.INSTANCE.getExecution(executionId);
 		if (null == execution) {
 			throw new WebApplicationException("Execution with id " + executionId + " is not exist");
 		}
@@ -62,6 +62,6 @@ public class MachineResource {
 	@Path("/{machine}")
 	public MachineNode get(@PathParam("execution") int execution, @PathParam("machine") int machine) {
 		log.debug("GET - Get machine from execution with id " + execution + " and machine id " + machine);
-		return Session.INSTANCE.getExecution(execution).getMachines().get(machine);
+		return ExecutionManager.INSTANCE.getExecution(execution).getMachines().get(machine);
 	}
 }
