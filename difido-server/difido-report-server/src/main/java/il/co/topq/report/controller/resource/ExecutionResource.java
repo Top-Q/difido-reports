@@ -2,7 +2,7 @@ package il.co.topq.report.controller.resource;
 
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.report.controller.listener.ListenersManager;
-import il.co.topq.report.model.ExecutionManager;
+import il.co.topq.report.model.Session;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 @Path("/executions")
 public class ExecutionResource {
 
-	private static final Logger log = LoggerFactory.getLogger(ExecutionResource.class);
+	private final Logger log = LoggerFactory.getLogger(ExecutionResource.class);
 
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
@@ -28,7 +28,7 @@ public class ExecutionResource {
 	}
 
 	private int addExecution() {
-		return ExecutionManager.INSTANCE.addExecution();
+		return Session.INSTANCE.addExecution();
 	}
 
 	/**
@@ -40,7 +40,7 @@ public class ExecutionResource {
 	@Path("/{execution}")
 	public void delete(@PathParam("execution") int executionIndex) {
 		log.debug("DELETE - Delete execution with id " + executionIndex);
-		ListenersManager.INSTANCE.notifyExecutionEnded(executionIndex, ExecutionManager.INSTANCE.getExecution(executionIndex));
+		ListenersManager.INSTANCE.notifyExecutionEnded(executionIndex, Session.INSTANCE.getExecution(executionIndex));
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class ExecutionResource {
 	@Path("/lastId")
 	@Produces(MediaType.TEXT_PLAIN)
 	public int getLastExecutionId() {
-		final int index = ExecutionManager.INSTANCE.getLastExecutionIndexAndAddIfNoneExist();
+		final int index = Session.INSTANCE.getLastExecutionIndexAndAddIfNoneExist();
 		log.debug("GET - Last execution id. Id is " + index);
 		return index;
 	}
@@ -65,7 +65,7 @@ public class ExecutionResource {
 	@Path("/{execution: [0-9]+}")
 	public Execution get(@PathParam("execution") int execution) {
 		log.debug("GET - Get execution with id " + execution);
-		return ExecutionManager.INSTANCE.getExecution(execution);
+		return Session.INSTANCE.getExecution(execution);
 	}
 
 }

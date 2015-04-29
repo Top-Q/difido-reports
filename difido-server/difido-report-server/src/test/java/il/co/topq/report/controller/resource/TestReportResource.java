@@ -3,7 +3,7 @@ package il.co.topq.report.controller.resource;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.model.AbstractResourceTestCase;
-import il.co.topq.report.model.ExecutionManager.ExecutionMetaData;
+import il.co.topq.report.model.ExecutionReport;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -44,7 +44,7 @@ public class TestReportResource extends AbstractResourceTestCase {
 	@Test
 	public void testGetReports() {
 		WebTarget executionsTarget = baseTarget.path("/reports");
-		ExecutionMetaData[] reports = executionsTarget.request(MediaType.APPLICATION_JSON).get(ExecutionMetaData[].class);
+		ExecutionReport[] reports = executionsTarget.request(MediaType.APPLICATION_JSON).get(ExecutionReport[].class);
 		Assert.assertNotNull(reports);
 		
 
