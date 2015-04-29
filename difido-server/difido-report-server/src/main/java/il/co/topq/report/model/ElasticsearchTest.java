@@ -12,11 +12,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class ElasticsearchTest {
 	
+	
 	@JsonProperty("name")
 	private String name;
 	
 	@JsonProperty("uid")
 	private String uid;
+
+	@JsonProperty("executionId")
+	private int executionId;
 	
 	@JsonProperty("execution")
 	private String execution;
@@ -73,6 +77,14 @@ public class ElasticsearchTest {
 
 	public void setExecution(String execution) {
 		this.execution = execution;
+	}
+	
+	public int getExecutionId() {
+		return executionId;
+	}
+
+	public void setExecutionId(int executionId) {
+		this.executionId = executionId;
 	}
 
 	public String getParent() {
@@ -162,6 +174,7 @@ public class ElasticsearchTest {
 		sb.append(" UID: ").append(uid);
 		sb.append(" Machine: ").append(machine);
 		sb.append(" Status: ").append(status);
+		sb.append("Execution Id: ").append(executionId);
 		return sb.toString();
 	}
 

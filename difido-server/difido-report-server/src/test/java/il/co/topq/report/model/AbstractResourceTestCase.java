@@ -1,18 +1,18 @@
 package il.co.topq.report.model;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.util.ArrayList;
-
 import il.co.topq.difido.PersistenceUtils;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.controller.resource.DifidoClient;
-import il.co.topq.report.model.Session.ExecutionMetaData;
 import il.co.topq.report.MainClass;
+import il.co.topq.report.controller.resource.DifidoClient;
+import il.co.topq.report.model.ExecutionManager.ExecutionMetaData;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -24,10 +24,16 @@ public abstract class AbstractResourceTestCase {
 	private HttpServer server;
 	protected DifidoClient client;
 
+	private boolean sameVm = true;
+
 	@Before
 	public void setUp() throws Exception {
-		server = MainClass.startServer();
-		flushServer();
+		if (sameVm) {
+			server = MainClass.startServer();
+			MainClass.startElastic();
+			MainClass.configureElastic();
+			flushServer();
+		}
 		final String baseUri = Configuration.INSTANCE.read(ConfigProps.BASE_URI);
 		System.out.println("@Before - Grizzly server started on: " + baseUri);
 	}
@@ -35,15 +41,19 @@ public abstract class AbstractResourceTestCase {
 	private void flushServer() {
 		try {
 			FileUtils.deleteDirectory(new File("docRoot/reports"));
+			new File("docRoot","meta.json").delete();
 		} catch (IOException e) {
 		}
-		Session.INSTANCE.executions = new ArrayList<ExecutionMetaData>();
+		ExecutionManager.INSTANCE.executionsCache = new HashMap<Integer, ExecutionMetaData>();
 	}
 
 	@After
 	public void tearDown() {
-		flushServer();
-		server.shutdownNow();
+		if (sameVm) {
+			flushServer();
+			MainClass.stopElastic();
+			server.shutdownNow();
+		}
 		System.out.println("\n@After - Grizzly server shut down");
 	}
 
@@ -59,11 +69,11 @@ public abstract class AbstractResourceTestCase {
 	}
 
 	protected static File findExecutionFolder() {
-		final File[] executionFolders = new File("docRoot/reports").listFiles(new FilenameFilter() {
+		final File[] executionFolders = new File("docRoot/reports").listFiles(new FileFilter() {
 
 			@Override
-			public boolean accept(File dir, String name) {
-				if (name.startsWith("execution")) {
+			public boolean accept(File file) {
+				if (file.isDirectory() && file.getName().startsWith("execution")) {
 					return true;
 				}
 				return false;

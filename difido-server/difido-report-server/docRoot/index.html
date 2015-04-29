@@ -33,6 +33,7 @@
 	                		<th>Folder Name</th>
                         	<th>Date</th>
 	                		<th>Time</th>
+	                		<th>Active</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -87,6 +88,7 @@
 			    	tr.append($('<td>').append($('<a>').text(this.folderName).attr("href",this.uri).attr("target","_blank")));
 			    	tr.append($('<td>').text(this.date));
 			    	tr.append($('<td>').text(this.time));
+			    	tr.append($('<td>').text(this.active));
 			    	$(table).append(tr);
 			    });
 	        }

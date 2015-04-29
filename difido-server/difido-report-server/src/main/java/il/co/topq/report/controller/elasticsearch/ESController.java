@@ -5,10 +5,13 @@ import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Common;
+import il.co.topq.report.Configuration;
+import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.controller.listener.ResourceChangedListener;
 import il.co.topq.report.model.ElasticsearchTest;
+import il.co.topq.report.model.ExecutionManager;
+import il.co.topq.report.model.ExecutionManager.ExecutionMetaData;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -38,13 +41,13 @@ public class ESController implements ResourceChangedListener {
 
 	@Override
 	public void executionAdded(int executionId, Execution execution) {
-		testList = new ArrayList<ElasticsearchTest>();
+		testList = new CopyOnWriteArrayList<ElasticsearchTest>();
 		executionTimestamps.put(executionId, new Date());
 	}
 
 	@Override
 	public void executionEnded(int executionId, Execution execution) {
-		testList = new ArrayList<ElasticsearchTest>();
+		testList = new CopyOnWriteArrayList<ElasticsearchTest>();
 		executionTimestamps.remove(executionId);
 	}
 
@@ -109,8 +112,10 @@ public class ESController implements ResourceChangedListener {
 		esTest.setName(details.getName());
 		esTest.setDuration(0);
 		esTest.setStatus("In progress");
+		esTest.setExecutionId(executionId);
 		esTest.setProperties(details.getProperties());
-		if (details.getTimeStamp() != null){
+		esTest.setUrl(findTestUrl(executionId, details));
+		if (details.getTimeStamp() != null) {
 			esTest.setTimeStamp(details.getTimeStamp().replaceFirst(" at ", " "));
 			esTest.setExecutionTimeStamp(details.getTimeStamp().replaceFirst(" at ", " "));
 		}
@@ -130,4 +135,24 @@ public class ESController implements ResourceChangedListener {
 		}
 	}
 
+	private String findTestUrl(int executionId, TestDetails details) {
+		final ExecutionMetaData executionMetadata = ExecutionManager.INSTANCE.getExecutionMetaData(executionId);
+		if (executionMetadata == null) {
+			return "";
+		}
+		//@formatter:off
+		//http://localhost:8080/reports/execution_2015_04_15__21_14_29_767/tests/test_8691429121669-2/test.html
+		return Configuration.INSTANCE.read(ConfigProps.BASE_URI).replace("api/", "") +
+				Common.REPORTS_FOLDER_NAME +
+				"/"+
+				executionMetadata.getFolderName() +
+				"/"+
+				"tests" + 
+				"/"+
+				"test_" +
+				details.getUid() +
+				"/" +
+				"test.html";
+		//@formatter:on
+	}
 }

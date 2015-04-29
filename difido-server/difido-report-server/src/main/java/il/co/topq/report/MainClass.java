@@ -77,7 +77,52 @@ public class MainClass {
 		PropertyConfigurator.configure("config/log4j.properties");
 	}
 
-	private static void configureElastic() throws IOException {
+	public static void configureElastic() throws IOException {
+//		configureDifidoIndex();
+		configureReportsIndex();
+	}
+
+	private static void configureReportsIndex() {
+		HashMap<String, Object> not_analyzed_string = new HashMap<String, Object>();
+		not_analyzed_string.put("type", "string");
+		not_analyzed_string.put("index", "not_analyzed");
+
+		HashMap<String, Object> analyzed_date = new HashMap<String, Object>();
+		analyzed_date.put("type", "date");
+		analyzed_date.put("format", Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.toPattern());
+
+		HashMap<String, Object> not_analyzed_long = new HashMap<String, Object>();
+		not_analyzed_long.put("type", "long");
+		not_analyzed_long.put("index", "not_analyzed");
+
+		
+		HashMap<String, Object> properties = new HashMap<String, Object>();
+		properties.put("name", not_analyzed_string);
+		properties.put("uid", not_analyzed_string);
+		properties.put("parent", not_analyzed_string);
+		properties.put("status", not_analyzed_string);
+		properties.put("url", not_analyzed_string);
+		properties.put("description", not_analyzed_string);
+		properties.put("execution", not_analyzed_string);
+		properties.put("executionId", not_analyzed_long);
+		properties.put("machine", not_analyzed_string);
+		properties.put("timestamp", analyzed_date);
+		properties.put("executionTimestamp", analyzed_date);
+		properties.put("duration", not_analyzed_long);
+		HashMap<String, Object> options = new HashMap<String, Object>();
+		options.put("properties", properties);
+
+		// client.admin().indices().prepareDelete("_all").get();
+		IndicesExistsResponse res = Common.elasticsearchClient.admin().indices().prepareExists(Common.ELASTIC_INDEX)
+				.execute().actionGet();
+		if (!res.isExists()) {
+			CreateIndexRequest request = Requests.createIndexRequest(Common.ELASTIC_INDEX).mapping("test", options);
+			Common.elasticsearchClient.admin().indices().create(request).actionGet();
+
+		}
+	}
+
+	private static void configureDifidoIndex() {
 		HashMap<String, Object> not_analyzed_string = new HashMap<String, Object>();
 		not_analyzed_string.put("type", "string");
 		not_analyzed_string.put("index", "not_analyzed");
@@ -91,37 +136,31 @@ public class MainClass {
 		not_analyzed_long.put("index", "not_analyzed");
 
 		HashMap<String, Object> properties = new HashMap<String, Object>();
-		properties.put("name", not_analyzed_string);
-		properties.put("uid", not_analyzed_string);
-		properties.put("parent", not_analyzed_string);
-		properties.put("status", not_analyzed_string);
-		properties.put("url", not_analyzed_string);
-		properties.put("description", not_analyzed_string);
-		properties.put("execution", not_analyzed_string);
-		properties.put("machine", not_analyzed_string);
-		properties.put("timestamp", date);
-		properties.put("executionTimestamp", date);
-		properties.put("duration", not_analyzed_long);
+		properties.put("id", not_analyzed_long);
+		properties.put("folderName", not_analyzed_string);
+		properties.put("uri", not_analyzed_string);
+		properties.put("date", not_analyzed_string);
+		properties.put("time", not_analyzed_string);
+		properties.put("timestamp", not_analyzed_string);
+
 		HashMap<String, Object> options = new HashMap<String, Object>();
 		options.put("properties", properties);
 
-		// client.admin().indices().prepareDelete("_all").get();
-		IndicesExistsResponse res = Common.elasticsearchClient.admin().indices().prepareExists(Common.ELASTIC_INDEX)
+		IndicesExistsResponse res = Common.elasticsearchClient.admin().indices().prepareExists(Common.DIFIDO_INDEX)
 				.execute().actionGet();
 		if (!res.isExists()) {
-			CreateIndexRequest request = Requests.createIndexRequest(Common.ELASTIC_INDEX).mapping("test", options);
+			CreateIndexRequest request = Requests.createIndexRequest(Common.DIFIDO_INDEX).mapping("meta", options);
 			Common.elasticsearchClient.admin().indices().create(request).actionGet();
 
 		}
-
 	}
 
-	private static void stopElastic() {
+	public static void stopElastic() {
 		node.close();
 		Common.elasticsearchClient.close();
 	}
 
-	private static void startElastic() {
+	public static void startElastic() {
 		ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder();
 		settings.put("node.name", "reportserver");
 		settings.put("path.data", Configuration.INSTANCE.read(ConfigProps.PATH_DATA));

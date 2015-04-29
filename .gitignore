@@ -32,6 +32,7 @@ nbproject
 
 #Project files
 difido-server/difido-report-server/docRoot/reports
+difido-server/difido-report-server/docRoot/meta.json
 difido-server/difido-report-server/data
 difido-server/difido-report-server/config/difido_config.properties
 difido-server/difido-report-server/log
