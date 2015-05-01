@@ -12,10 +12,13 @@ import il.co.topq.report.model.ElasticsearchTest;
 import il.co.topq.report.model.ExecutionManager;
 import il.co.topq.report.model.ExecutionManager.ExecutionMetaData;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.elasticsearch.action.index.IndexResponse;
@@ -31,45 +34,62 @@ public class ESController implements ResourceChangedListener {
 
 	private final Logger log = LoggerFactory.getLogger(ESController.class);
 
-	private List<ElasticsearchTest> testList;
-	private Map<Integer, Date> executionTimestamps;
+	private Map<Integer, List<ElasticsearchTest>> openTestsPerExecution;
 
 	public ESController() {
-		testList = new CopyOnWriteArrayList<ElasticsearchTest>();
-		executionTimestamps = new HashMap<Integer, Date>();
+		openTestsPerExecution = new HashMap<Integer, List<ElasticsearchTest>>();
 	}
 
 	@Override
 	public void executionAdded(int executionId, Execution execution) {
-		testList = new CopyOnWriteArrayList<ElasticsearchTest>();
-		executionTimestamps.put(executionId, new Date());
+		openTestsPerExecution.put(executionId, new CopyOnWriteArrayList<ElasticsearchTest>());
 	}
 
 	@Override
 	public void executionEnded(int executionId, Execution execution) {
-		testList = new CopyOnWriteArrayList<ElasticsearchTest>();
-		executionTimestamps.remove(executionId);
+		openTestsPerExecution.remove(executionId);
+	}
+
+	private String convertToUtc(final String dateInLocalTime) {
+		try {
+			final Date originalDate = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.parse(dateInLocalTime);
+			final SimpleDateFormat sdf = (SimpleDateFormat) Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.clone();
+			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+			return sdf.format(originalDate);
+		} catch (ParseException e) {
+			log.warn("Failed to convert date " + dateInLocalTime + " to UTC time zone");
+			return dateInLocalTime;
+		}
+	}
+
+	public static void main(String[] args) {
+		String originalDateStr = "2015/05/01 11:36:02";
+		Date originalDate = null;
+		try {
+			originalDate = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.parse(originalDateStr);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		SimpleDateFormat sdf = (SimpleDateFormat) Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.clone();
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		System.out.println(sdf.format(originalDate));
 	}
 
 	@Override
 	public void machineAdded(int executionId, MachineNode machine) {
-		if (testList.isEmpty()) {
+		if (openTestsPerExecution.get(executionId).isEmpty()) {
 			return;
 		}
 		ElasticsearchTest testToRemove = null;
 		try {
-			for (ElasticsearchTest esTest : testList) {
+			for (ElasticsearchTest esTest : openTestsPerExecution.get(executionId)) {
 				final TestNode testNode = machine.findTestNodeById(esTest.getUid());
 				if (testNode != null) {
 					testToRemove = esTest;
 					esTest.setStatus(testNode.getStatus().name());
 					esTest.setDuration(testNode.getDuration());
 					esTest.setMachine(machine.getName());
-					final Date executionDate = executionTimestamps.get(executionId);
-					if (executionDate != null) {
-						esTest.setExecutionTimeStamp(Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER
-								.format(executionDate));
-					}
 					if (machine.getChildren() != null && !machine.getChildren().isEmpty()) {
 						esTest.setExecution(machine.getChildren().get(machine.getChildren().size() - 1).getName());
 					}
@@ -84,11 +104,11 @@ public class ESController implements ResourceChangedListener {
 		} finally {
 			if (null == testToRemove) {
 				log.warn("Trying to remove test from the list but it was null. Test list status: "
-						+ testList.toString());
+						+ openTestsPerExecution.get(executionId).toString());
 				return;
 			}
 			log.debug("Removing test with UID " + testToRemove.getUid() + " from the test list");
-			testList.remove(testToRemove);
+			openTestsPerExecution.get(executionId).remove(testToRemove);
 		}
 	}
 
@@ -97,7 +117,7 @@ public class ESController implements ResourceChangedListener {
 		if (details == null || details.getUid() == null) {
 			return;
 		}
-		for (ElasticsearchTest currentTest : testList) {
+		for (ElasticsearchTest currentTest : openTestsPerExecution.get(executionId)) {
 			if (currentTest.getUid().trim().equals(details.getUid().trim())) {
 				return;
 			}
@@ -107,21 +127,25 @@ public class ESController implements ResourceChangedListener {
 			log.warn("Test with uid " + details.getUid() + " already exists in the Elasticsearch");
 			return;
 		}
-		ElasticsearchTest esTest = new ElasticsearchTest();
-		esTest.setUid(details.getUid());
+		String timestamp = null;
+		if (details.getTimeStamp() != null) {
+			timestamp = details.getTimeStamp().replaceFirst(" at ", " ");
+		} else {
+			timestamp = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.format(new Date());
+		}
+		String executionTimestamp = convertToUtc(ExecutionManager.INSTANCE.getExecutionMetaData(executionId)
+				.getTimestamp());
+		final ElasticsearchTest esTest = new ElasticsearchTest(details.getUid(), executionTimestamp,
+				convertToUtc(timestamp));
 		esTest.setName(details.getName());
 		esTest.setDuration(0);
 		esTest.setStatus("In progress");
 		esTest.setExecutionId(executionId);
 		esTest.setProperties(details.getProperties());
 		esTest.setUrl(findTestUrl(executionId, details));
-		if (details.getTimeStamp() != null) {
-			esTest.setTimeStamp(details.getTimeStamp().replaceFirst(" at ", " "));
-			esTest.setExecutionTimeStamp(details.getTimeStamp().replaceFirst(" at ", " "));
-		}
 		esTest.setDescription(details.getDescription());
 		log.debug("Adding test with UID " + esTest.getUid() + " to the test list");
-		testList.add(esTest);
+		openTestsPerExecution.get(executionId).add(esTest);
 		IndexResponse indexResponse = null;
 		try {
 			indexResponse = ESUtils.add(Common.ELASTIC_INDEX, "test", esTest.getUid(), esTest);

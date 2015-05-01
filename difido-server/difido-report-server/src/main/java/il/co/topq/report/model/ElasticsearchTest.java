@@ -11,49 +11,57 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public class ElasticsearchTest {
-	
-	
+
 	@JsonProperty("name")
 	private String name;
-	
+
 	@JsonProperty("uid")
 	private String uid;
 
 	@JsonProperty("executionId")
 	private int executionId;
-	
+
 	@JsonProperty("execution")
 	private String execution;
-	
+
 	@JsonProperty("parent")
 	private String parent;
-	
+
 	@JsonProperty("status")
 	private String status;
-	
+
 	@JsonProperty("executionTimestamp")
 	private String executionTimeStamp;
-	
+
 	@JsonProperty("machine")
 	private String machine;
-	
+
 	@JsonProperty("description")
 	private String description;
-	
+
 	@JsonProperty("timestamp")
 	private String timeStamp;
-	
+
 	@JsonProperty("url")
 	private String url;
-	
+
 	@JsonProperty("duration")
 	private long duration;
-	
+
 	@JsonProperty("parameters")
 	private Map<String, String> parameters;
 
 	@JsonProperty("properties")
 	private Map<String, String> properties;
+
+	public ElasticsearchTest(final String uid, final String executionTimeStamp, final String timeStamp) {
+		this.uid = uid;
+		this.executionTimeStamp = executionTimeStamp;
+		this.timeStamp = timeStamp;
+	}
+
+	public ElasticsearchTest() {
+	}
 
 	public String getName() {
 		return name;
@@ -78,7 +86,7 @@ public class ElasticsearchTest {
 	public void setExecution(String execution) {
 		this.execution = execution;
 	}
-	
+
 	public int getExecutionId() {
 		return executionId;
 	}
@@ -166,9 +174,9 @@ public class ElasticsearchTest {
 	public void setProperties(Map<String, String> properties) {
 		this.properties = properties;
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Name: ").append(name);
 		sb.append(" UID: ").append(uid);
@@ -178,5 +186,4 @@ public class ElasticsearchTest {
 		return sb.toString();
 	}
 
-	
 }
