@@ -37,7 +37,7 @@ public enum ExecutionManager implements ResourceChangedListener {
 
 	private static Object fileAccessLockObject = new Object();
 
-	private static final String EXECUTION_FILE_NAME = "meta.json";
+	private static final String EXECUTION_FILE_NAME = "reports/meta.json";
 
 	public int addExecution() {
 		readExecutionMeta();

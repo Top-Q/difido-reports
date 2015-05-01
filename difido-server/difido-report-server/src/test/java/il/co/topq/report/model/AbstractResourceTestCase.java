@@ -41,7 +41,6 @@ public abstract class AbstractResourceTestCase {
 	private void flushServer() {
 		try {
 			FileUtils.deleteDirectory(new File("docRoot/reports"));
-			new File("docRoot","meta.json").delete();
 		} catch (IOException e) {
 		}
 		ExecutionManager.INSTANCE.executionsCache = new HashMap<Integer, ExecutionMetaData>();
