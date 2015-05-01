@@ -14,7 +14,7 @@ public enum Configuration {
 
 	public enum ConfigProps {
 
-		BASE_URI("base_uri", "http://localhost:8080/api/"), DOC_ROOT_FOLDER("doc_root_folder", "docRoot"), PATH_DATA(
+		BASE_URI("base_uri", "http://0.0.0.0:8080/api/"), DOC_ROOT_FOLDER("doc_root_folder", "docRoot"), PATH_DATA(
 				"path_data", "data/index"), MAX_EXECUTION_IDLE_TIME_IN_SEC("max_execution_idle_time_in_seconds", "600"), ENABLE_ELASTIC_SEARCH(
 				"enable_elastic_search", "true"), ENABLE_HTML_REPORTS("enable_html_reports", "true");
 
