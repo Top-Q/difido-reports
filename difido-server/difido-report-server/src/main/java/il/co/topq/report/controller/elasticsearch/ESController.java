@@ -21,9 +21,12 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.index.IndexResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * 
@@ -105,6 +108,20 @@ public class ESController implements ResourceChangedListener {
 		}
 		for (ElasticsearchTest currentTest : openTestsPerExecution.get(executionId)) {
 			if (currentTest.getUid().trim().equals(details.getUid().trim())) {
+				// We already updated the test, so most of the data is already
+				// in the ES. The only data that is interesting and maybe was
+				// updated is the test properties, so we are going to check it.
+				if (details.getProperties() != null) {
+					if (currentTest.getProperties() == null 
+							|| currentTest.getProperties().size() != details.getProperties().size()) {
+						currentTest.setProperties(details.getProperties());
+						try {
+							ESUtils.update(Common.ELASTIC_INDEX, "test", currentTest.getUid(), currentTest);
+						} catch (ElasticsearchException | JsonProcessingException e) {
+							log.error("Failed updating test details in the Elasticsearch", e);
+						}
+					}
+				}
 				return;
 			}
 		}
