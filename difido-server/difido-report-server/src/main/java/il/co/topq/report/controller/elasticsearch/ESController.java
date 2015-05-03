@@ -130,6 +130,7 @@ public class ESController implements ResourceChangedListener {
 		esTest.setProperties(details.getProperties());
 		esTest.setUrl(findTestUrl(executionId, details));
 		esTest.setDescription(details.getDescription());
+		esTest.setParameters(details.getParameters());
 		log.debug("Adding test with UID " + esTest.getUid() + " to the test list");
 		openTestsPerExecution.get(executionId).add(esTest);
 		IndexResponse indexResponse = null;
