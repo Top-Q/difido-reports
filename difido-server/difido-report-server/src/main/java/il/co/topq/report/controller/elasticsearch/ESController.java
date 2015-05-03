@@ -62,20 +62,6 @@ public class ESController implements ResourceChangedListener {
 		}
 	}
 
-	public static void main(String[] args) {
-		String originalDateStr = "2015/05/01 11:36:02";
-		Date originalDate = null;
-		try {
-			originalDate = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.parse(originalDateStr);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		SimpleDateFormat sdf = (SimpleDateFormat) Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.clone();
-		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-		System.out.println(sdf.format(originalDate));
-	}
-
 	@Override
 	public void machineAdded(int executionId, MachineNode machine) {
 		if (openTestsPerExecution.get(executionId).isEmpty()) {
