@@ -2,6 +2,9 @@ package il.co.topq.report.model;
 
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
+import il.co.topq.difido.model.execution.Node;
+import il.co.topq.difido.model.execution.ScenarioNode;
+import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
@@ -61,7 +64,7 @@ public enum ExecutionManager implements ResourceChangedListener {
 	}
 
 	private void writeExecutionMeta() {
-		if (null == executionsCache){
+		if (null == executionsCache) {
 			return;
 		}
 		synchronized (fileAccessLockObject) {
@@ -89,7 +92,7 @@ public enum ExecutionManager implements ResourceChangedListener {
 
 	private void readExecutionMeta() {
 		if (executionsCache != null) {
-			//We read it already
+			// We read it already
 			return;
 		}
 		synchronized (fileAccessLockObject) {
@@ -103,7 +106,7 @@ public enum ExecutionManager implements ResourceChangedListener {
 						new TypeReference<Map<Integer, ExecutionMetaData>>() {
 						});
 				executionsCache = Collections.synchronizedMap(executionsCache);
-				for (ExecutionMetaData meta : executionsCache.values()){
+				for (ExecutionMetaData meta : executionsCache.values()) {
 					meta.setActive(false);
 				}
 			} catch (IOException e) {
@@ -118,12 +121,69 @@ public enum ExecutionManager implements ResourceChangedListener {
 	public ExecutionMetaData getExecutionMetaData(int executionId) {
 		readExecutionMeta();
 		ExecutionMetaData executionMetaData = executionsCache.get(executionId);
+		if (executionMetaData.isActive()) {
+			updateSingleExecutionMeta(executionId);
+		}
 		return new ExecutionMetaData(executionMetaData);
+	}
+
+	private void updateSingleExecutionMeta(int executionId) {
+		ExecutionMetaData executionMetaData = executionsCache.get(executionId);
+		if (executionMetaData.getExecution() == null || executionMetaData.getExecution().getLastMachine() == null) {
+			return;
+		}
+		int numOfTests = 0;
+		int numOfSuccessfulTests = 0;
+		int numOfFailedTests = 0;
+		int numOfTestsWithWarnings = 0;
+		int numOfMachines = 0;
+
+		for (MachineNode machine : executionMetaData.getExecution().getMachines()) {
+			numOfMachines++;
+			final List<ScenarioNode> scenarios = machine.getChildren();
+			if (null == scenarios) {
+				continue;
+			}
+			for (ScenarioNode scenario : scenarios) {
+				for (Node node : scenario.getChildren(true)) {
+					if (node instanceof TestNode) {
+						numOfTests++;
+						switch (node.getStatus()) {
+						case success:
+							numOfSuccessfulTests++;
+							break;
+						case error:
+						case failure:
+							numOfFailedTests++;
+							break;
+						case warning:
+							numOfTestsWithWarnings++;
+						default:
+							break;
+						}
+					}
+				}
+			}
+		}
+		synchronized (executionMetaData) {
+			executionMetaData.setNumOfTests(numOfTests);
+			executionMetaData.setNumOfFailedTests(numOfFailedTests);
+			executionMetaData.setNumOfSuccessfulTests(numOfSuccessfulTests);
+			executionMetaData.setNumOfTestsWithWarnings(numOfTestsWithWarnings);
+			executionMetaData.setNumOfMachines(numOfMachines);
+		}
+
 	}
 
 	public ExecutionMetaData[] getAllMetaData() {
 		readExecutionMeta();
 		final List<ExecutionMetaData> result = new ArrayList<ExecutionMetaData>();
+		for (int executionId : executionsCache.keySet()) {
+			ExecutionMetaData meta = executionsCache.get(executionId);
+			if (meta.isActive()) {
+				updateSingleExecutionMeta(executionId);
+			}
+		}
 		result.addAll(executionsCache.values());
 		return result.toArray(new ExecutionMetaData[] {});
 	}
@@ -172,6 +232,8 @@ public enum ExecutionManager implements ResourceChangedListener {
 
 	@Override
 	public void executionAdded(int executionId, Execution execution) {
+		// This method is mostly triggered by this class, so there is not much
+		// sense usually to add logic in here.
 	}
 
 	@Override
@@ -180,6 +242,7 @@ public enum ExecutionManager implements ResourceChangedListener {
 		if (null == metadata) {
 			log.error("Trying to disable execution with id " + executionId + " which is not exist");
 		}
+		updateMetaData();
 		metadata.setActive(false);
 		writeExecutionMeta();
 	}
@@ -195,6 +258,22 @@ public enum ExecutionManager implements ResourceChangedListener {
 	@Override
 	public void machineAdded(int executionId, MachineNode machine) {
 		updateExecutionLastUpdateTime(executionId);
+		updateMetaData();
+		writeExecutionMeta();
+	}
+
+	/**
+	 * Updates the state of all the active executions.
+	 */
+	private void updateMetaData() {
+		for (int executionId : executionsCache.keySet()) {
+			final ExecutionMetaData meta = executionsCache.get(executionId);
+			if (!meta.active) {
+				continue;
+			}
+			updateSingleExecutionMeta(executionId);
+		}
+
 	}
 
 	@Override
@@ -233,7 +312,18 @@ public enum ExecutionManager implements ResourceChangedListener {
 		private String time;
 
 		private boolean active;
+
 		private long lastAccessedTime;
+
+		private int numOfTests;
+
+		private int numOfSuccessfulTests;
+
+		private int numOfFailedTests;
+
+		private int numOfTestsWithWarnings;
+		
+		private int numOfMachines;
 
 		@JsonIgnore
 		private Execution execution;
@@ -254,6 +344,11 @@ public enum ExecutionManager implements ResourceChangedListener {
 				this.time = metaData.time;
 				this.timestamp = metaData.timestamp;
 				this.uri = metaData.uri;
+				this.numOfTests = metaData.numOfTests;
+				this.numOfSuccessfulTests = metaData.numOfSuccessfulTests;
+				this.numOfFailedTests = metaData.numOfFailedTests;
+				this.numOfTestsWithWarnings = metaData.numOfTestsWithWarnings;
+				this.numOfMachines = metaData.numOfMachines;
 			}
 		}
 
@@ -336,6 +431,46 @@ public enum ExecutionManager implements ResourceChangedListener {
 
 		public void setTimestamp(String timestamp) {
 			this.timestamp = timestamp;
+		}
+
+		public int getNumOfTests() {
+			return numOfTests;
+		}
+
+		public void setNumOfTests(int numOfTests) {
+			this.numOfTests = numOfTests;
+		}
+
+		public int getNumOfSuccessfulTests() {
+			return numOfSuccessfulTests;
+		}
+
+		public void setNumOfSuccessfulTests(int numOfSuccessfulTests) {
+			this.numOfSuccessfulTests = numOfSuccessfulTests;
+		}
+
+		public int getNumOfFailedTests() {
+			return numOfFailedTests;
+		}
+
+		public void setNumOfFailedTests(int numOfFailedTests) {
+			this.numOfFailedTests = numOfFailedTests;
+		}
+
+		public int getNumOfTestsWithWarnings() {
+			return numOfTestsWithWarnings;
+		}
+
+		public void setNumOfTestsWithWarnings(int numOfTestsWithWarnings) {
+			this.numOfTestsWithWarnings = numOfTestsWithWarnings;
+		}
+
+		public int getNumOfMachines() {
+			return numOfMachines;
+		}
+
+		public void setNumOfMachines(int numOfMachines) {
+			this.numOfMachines = numOfMachines;
 		}
 
 	}

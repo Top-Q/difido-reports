@@ -33,6 +33,11 @@
 	                		<th>Folder Name</th>
                         	<th>Date</th>
 	                		<th>Time</th>
+	                		<th># Tests</th>
+	                		<th># Success</th>
+	                		<th># Warning</th>
+	                		<th># Fails</th> 		
+	                		<th># Machines</th>
 	                		<th>Active</th>
                         </tr>
                     </thead>
@@ -88,6 +93,11 @@
 			    	tr.append($('<td>').append($('<a>').text(this.folderName).attr("href",this.uri).attr("target","_blank")));
 			    	tr.append($('<td>').text(this.date));
 			    	tr.append($('<td>').text(this.time));
+			    	tr.append($('<td>').text(this.numOfTests));
+			    	tr.append($('<td>').text(this.numOfSuccessfulTests));
+			    	tr.append($('<td>').text(this.numOfTestsWithWarnings));
+			    	tr.append($('<td>').text(this.numOfFailedTests));
+			    	tr.append($('<td>').text(this.numOfMachines));
 			    	tr.append($('<td>').text(this.active));
 			    	$(table).append(tr);
 			    });
