@@ -37,11 +37,8 @@ public class MailController implements ResourceChangedListener {
 			// log message here.
 			return;
 		}
-		String subject = Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT);
-		if (StringUtils.isEmpty(subject)) {
-			subject = DEFAULT_SUBJECT;
-		}
-
+		final String subject = StringUtils.isEmpty(Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT)) ? DEFAULT_SUBJECT
+				: Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT);
 		final ExecutionMetaData metaData = ExecutionManager.INSTANCE.getExecutionMetaData(executionId);
 		if (null == metaData) {
 			log.error("Can't find meta data for ended execution with id " + executionId + ". Will not send mail");
@@ -53,14 +50,18 @@ public class MailController implements ResourceChangedListener {
 		Template t = ve.getTemplate("config/mail.vm");
 		/* create a context and add data */
 		VelocityContext context = new VelocityContext();
-		context.put("meta", metaData);		
-		StringWriter writer = new StringWriter();
+		context.put("meta", metaData);
+		final StringWriter writer = new StringWriter();
 		t.merge(context, writer);
-		try {
-			sender.sendMail(subject, writer.toString());
-		} catch (Exception e) {
-			log.error("Failed sending mail", e);
-		}
+		new Thread() {
+			public void run() {
+				try {
+					sender.sendMail(subject, writer.toString());
+				} catch (Exception e) {
+					log.error("Failed sending mail", e);
+				}
+			}
+		}.start();
 
 	}
 
