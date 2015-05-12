@@ -41,11 +41,12 @@ function appendTestsToSumTable(tests, table) {
     //The last scenario
     suites.push({"name": suiteName, "duration": duration, "success": success, "error": error, "failure": failure, "warning": warning});
     var total = {"tests": 0, "duration": 0, "success": 0, "error": 0, "failure": 0, "warning": 0};
-    var durInSec = Math.round(duration/1000);
-    var durationHour = Math.floor(((durInSec % 31536000) % 86400) / 3600);
-    var durationMin = Math.floor((((durInSec % 31536000) % 86400) % 3600) / 60);
-    var durationSec = (((durInSec % 31536000) % 86400) % 3600) % 60;
+
     $(suites).each(function() {
+        var durInSec = Math.round(this.duration/1000);
+        var durationHour = Math.floor(((durInSec % 31536000) % 86400) / 3600);
+        var durationMin = Math.floor((((durInSec % 31536000) % 86400) % 3600) / 60);
+        var durationSec = (((durInSec % 31536000) % 86400) % 3600) % 60;
         var tr = $('<tr>');
         tr.append($('<td>').text(this.name));
         var tests = this.success + this.error + this.failure + this.warning * 1;
