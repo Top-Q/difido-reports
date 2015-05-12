@@ -16,7 +16,7 @@ public class ExecutionEnder implements ResourceChangedListener {
 
 	private final Logger log = LoggerFactory.getLogger(ExecutionEnder.class);
 
-	protected static final long THREAD_SLEEP_TIME = 10000;
+	protected static final long THREAD_SLEEP_TIME = 30000;
 
 	private Thread executionChecker;
 
@@ -36,7 +36,7 @@ public class ExecutionEnder implements ResourceChangedListener {
 						} catch (InterruptedException e) {
 							// Not going to happen
 						}
-						log.debug("Waking up to search for executions that needs to be ended");
+						log.debug("Waking up in order to search for executions that need to end");
 						final ExecutionMetaData[] metaDataArr = ExecutionManager.INSTANCE.getAllMetaData();
 						for (ExecutionMetaData meta : metaDataArr) {
 							if (!meta.isActive()) {
