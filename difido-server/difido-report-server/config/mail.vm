@@ -1,0 +1,39 @@
+<p>
+#if ($meta.numOfFailedTests > 0)
+<font color="red">
+Execution that started in $meta.timestamp has finished with failures
+</font>
+#else
+<font color="green">
+Execution that started in $meta.timestamp has finished with no failures
+</font>
+#end
+</p>
+
+<table border="1" style="width:100%">
+	<tr>
+		<th>Title</th>
+		<th>Number</th>
+	</tr>
+	<tr>
+		<td>Number of machines</td>
+		<td>$meta.numOfMachines</td>
+	</tr>
+	<tr>
+		<td>Number of tests</td>
+		<td>$meta.numOfTests</td>
+	</tr>
+	<tr>
+		<td>Number of successful tests</td>
+		<td>$meta.numOfSuccessfulTests</td>
+	</tr>
+	<tr>
+		<td>Number of tests with warning</td>
+		<td>$meta.numOfTestsWithWarnings</td>
+	</tr>
+
+</table>
+
+<p>
+Full report can be found in this <a href="$meta.uri">link</a> 
+</p>

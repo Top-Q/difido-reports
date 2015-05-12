@@ -46,10 +46,10 @@ public class MainClass {
 
 		// create and start a new instance of grizzly http server
 		// exposing the Jersey application at BASE_URI
-		baseUri = Configuration.INSTANCE.read(ConfigProps.BASE_URI);
+		baseUri = Configuration.INSTANCE.readString(ConfigProps.BASE_URI);
 		final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(baseUri), rc);
 		StaticHttpHandler staticHttpHandler = new StaticHttpHandler(
-				Configuration.INSTANCE.read(ConfigProps.DOC_ROOT_FOLDER));
+				Configuration.INSTANCE.readString(ConfigProps.DOC_ROOT_FOLDER));
 		staticHttpHandler.setFileCacheEnabled(false);
 		server.getServerConfiguration().addHttpHandler(staticHttpHandler);
 		return server;
@@ -128,7 +128,7 @@ public class MainClass {
 	public static void startElastic() {
 		ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder();
 		settings.put("node.name", "reportserver");
-		settings.put("path.data", Configuration.INSTANCE.read(ConfigProps.PATH_DATA));
+		settings.put("path.data", Configuration.INSTANCE.readString(ConfigProps.PATH_DATA));
 		settings.put("http.enabled", true);
 		node = NodeBuilder.nodeBuilder().settings(settings).clusterName("reportserver").data(true).local(true).node();
 		Common.elasticsearchClient = node.client();

@@ -6,6 +6,8 @@ import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.controller.elasticsearch.ESController;
+import il.co.topq.report.controller.mail.MailController;
+import il.co.topq.report.model.ExecutionEnder;
 import il.co.topq.report.model.ExecutionManager;
 import il.co.topq.report.view.HtmlViewGenerator;
 
@@ -25,14 +27,18 @@ public enum ListenersManager {
 
 	private ListenersManager() {
 		// TODO: This should be done by another way. Maybe injection
-		
+
 		if (Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_HTML_REPORTS)) {
 			addListener(HtmlViewGenerator.getInstance());
 		}
 		if (Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_ELASTIC_SEARCH)) {
 			addListener(new ESController());
 		}
+		if (Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_MAIL)) {
+			addListener(new MailController());
+		}
 		addListener(ExecutionManager.INSTANCE);
+		addListener(new ExecutionEnder());
 	}
 
 	public void addListener(ReportServerListener listener) {

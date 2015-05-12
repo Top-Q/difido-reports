@@ -49,6 +49,7 @@
 			<fileMode>775</fileMode>
 			<includes>
 				<include>log4j.properties</include>
+				<include>mail.vm</include>
 			</includes>
 		</fileSet>
 

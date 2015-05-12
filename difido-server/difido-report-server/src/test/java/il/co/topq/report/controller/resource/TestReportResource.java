@@ -25,7 +25,7 @@ public class TestReportResource extends AbstractResourceTestCase {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		String baseUri = Configuration.INSTANCE.read(ConfigProps.BASE_URI);
+		String baseUri = Configuration.INSTANCE.readString(ConfigProps.BASE_URI);
 		client = ClientBuilder.newClient();
 		client.register(JacksonFeature.class);
 		client.register(MultiPartWriter.class);

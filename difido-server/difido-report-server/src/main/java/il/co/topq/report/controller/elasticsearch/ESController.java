@@ -67,7 +67,8 @@ public class ESController implements ResourceChangedListener {
 
 	@Override
 	public void machineAdded(int executionId, MachineNode machine) {
-		if (openTestsPerExecution.get(executionId).isEmpty()) {
+		if (openTestsPerExecution == null || openTestsPerExecution.get(executionId) == null
+				|| openTestsPerExecution.get(executionId).isEmpty()) {
 			return;
 		}
 		ElasticsearchTest testToRemove = null;
@@ -103,16 +104,19 @@ public class ESController implements ResourceChangedListener {
 
 	@Override
 	public void testDetailsAdded(int executionId, TestDetails details) {
-		if (details == null || details.getUid() == null) {
+		if (details == null || details.getUid() == null || openTestsPerExecution == null) {
 			return;
 		}
 		for (ElasticsearchTest currentTest : openTestsPerExecution.get(executionId)) {
+			if (null == currentTest) {
+				continue;
+			}
 			if (currentTest.getUid().trim().equals(details.getUid().trim())) {
 				// We already updated the test, so most of the data is already
 				// in the ES. The only data that is interesting and maybe was
 				// updated is the test properties, so we are going to check it.
 				if (details.getProperties() != null) {
-					if (currentTest.getProperties() == null 
+					if (currentTest.getProperties() == null
 							|| currentTest.getProperties().size() != details.getProperties().size()) {
 						currentTest.setProperties(details.getProperties());
 						try {
@@ -170,7 +174,7 @@ public class ESController implements ResourceChangedListener {
 		}
 		//@formatter:off
 		//http://localhost:8080/reports/execution_2015_04_15__21_14_29_767/tests/test_8691429121669-2/test.html
-		return Configuration.INSTANCE.read(ConfigProps.BASE_URI).replace("api/", "") +
+		return Configuration.INSTANCE.readString(ConfigProps.BASE_URI).replace("api/", "") +
 				Common.REPORTS_FOLDER_NAME +
 				"/"+
 				executionMetadata.getFolderName() +

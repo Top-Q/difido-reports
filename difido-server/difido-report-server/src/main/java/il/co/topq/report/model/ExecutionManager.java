@@ -77,7 +77,7 @@ public enum ExecutionManager implements ResourceChangedListener {
 	}
 
 	private File getExecutionMetaFile() {
-		return new File(Configuration.INSTANCE.read(ConfigProps.DOC_ROOT_FOLDER), EXECUTION_FILE_NAME);
+		return new File(Configuration.INSTANCE.readString(ConfigProps.DOC_ROOT_FOLDER), EXECUTION_FILE_NAME);
 	}
 
 	private int getMaxId() {
@@ -196,7 +196,9 @@ public enum ExecutionManager implements ResourceChangedListener {
 				return addExecution();
 			}
 			for (int executionIndex : executionsCache.keySet()) {
-				if (isExecutionActive(executionIndex)) {
+				final ExecutionMetaData metaData = executionsCache.get(executionIndex);
+				if (metaData.isActive()) {
+					metaData.setLastAccessedTime(System.currentTimeMillis());
 					return executionIndex;
 				}
 			}
@@ -207,27 +209,6 @@ public enum ExecutionManager implements ResourceChangedListener {
 
 	public Execution getExecution(int index) {
 		return executionsCache.get(index).getExecution();
-	}
-
-	private boolean isExecutionActive(int index) {
-		if (null == executionsCache) {
-			return false;
-		}
-		final ExecutionMetaData metadata = executionsCache.get(index);
-		if (metadata == null || !metadata.isActive()) {
-			return false;
-		}
-		final int maxIdleTime = Configuration.INSTANCE.readInt(ConfigProps.MAX_EXECUTION_IDLE_TIME_IN_SEC);
-		final int idleTime = (int) (System.currentTimeMillis() - metadata.getLastAccessedTime()) / 1000;
-		if (idleTime > maxIdleTime) {
-			log.debug("Execution with id " + index + " idle time is " + idleTime
-					+ " which exceeded the max idle time of " + maxIdleTime + ". Disabling execution");
-			ListenersManager.INSTANCE.notifyExecutionEnded(index, executionsCache.get(index).getExecution());
-			return false;
-		}
-		metadata.setLastAccessedTime(System.currentTimeMillis());
-		return true;
-
 	}
 
 	@Override
@@ -311,23 +292,50 @@ public enum ExecutionManager implements ResourceChangedListener {
 		 */
 		private String time;
 
+		/**
+		 * Is the execution is currently active or is it already finished
+		 */
 		private boolean active;
 
+		/**
+		 * The last time in absolute nanoseconds that this execution was
+		 * changed. This is used for calculating if the max idle time is over
+		 */
 		private long lastAccessedTime;
 
+		/**
+		 * Overall number of tests in the execution
+		 */
 		private int numOfTests;
 
+		/**
+		 * Number of successful tests in the execution
+		 */
 		private int numOfSuccessfulTests;
 
+		/**
+		 * Number of failed tests in the execution
+		 */
 		private int numOfFailedTests;
 
+		/**
+		 * Number of tests with warnings in the execution
+		 */
 		private int numOfTestsWithWarnings;
-		
+
+		/**
+		 * Number of machines that were reported to this execution
+		 */
 		private int numOfMachines;
+
+		/**
+		 * The date and time in which the execution has started in. e.g.
+		 * 2015/05/12 18:17:49
+		 */
+		private String timestamp;
 
 		@JsonIgnore
 		private Execution execution;
-		private String timestamp;
 
 		public ExecutionMetaData() {
 

@@ -34,7 +34,7 @@ public abstract class AbstractResourceTestCase {
 			MainClass.configureElastic();
 			flushServer();
 		}
-		final String baseUri = Configuration.INSTANCE.read(ConfigProps.BASE_URI);
+		final String baseUri = Configuration.INSTANCE.readString(ConfigProps.BASE_URI);
 		System.out.println("@Before - Grizzly server started on: " + baseUri);
 	}
 

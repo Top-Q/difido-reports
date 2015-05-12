@@ -91,7 +91,7 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 			log.error("Failed to find execution metadata for execution with id " + executionId);
 			return null;
 		}
-		final File executionDestinationFolder = new File(Configuration.INSTANCE.read(ConfigProps.DOC_ROOT_FOLDER)
+		final File executionDestinationFolder = new File(Configuration.INSTANCE.readString(ConfigProps.DOC_ROOT_FOLDER)
 				+ File.separator + Common.REPORTS_FOLDER_NAME + File.separator + executionMetaData.getFolderName());
 		return executionDestinationFolder;
 	}
