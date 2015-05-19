@@ -68,6 +68,24 @@ public enum ExecutionManager implements ResourceChangedListener {
 			return;
 		}
 		synchronized (fileAccessLockObject) {
+			final File executionMetaFile = getExecutionMetaFile();
+			if (!executionMetaFile.exists()){
+				if (!executionMetaFile.getParentFile().exists()){
+					if (!executionMetaFile.getParentFile().mkdirs()){
+						log.error("Failed creating folder for execution meta file ");
+						return;
+					}
+					try {
+						if (!executionMetaFile.createNewFile()){
+							log.error("Failed creating execution meta file");
+							return;
+						}
+					} catch (IOException e) {
+						log.error("Failed creating execution meta file",e);
+						return;
+					}
+				}
+			}
 			try {
 				new ObjectMapper().writeValue(getExecutionMetaFile(), executionsCache);
 			} catch (IOException e) {
