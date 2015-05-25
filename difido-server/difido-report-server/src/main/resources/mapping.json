@@ -31,7 +31,6 @@
 			},
 			"executionId": {
 				"type" : "long",
-				"index" : "not_analyzed"						
 			},
 			"machine": {
 				"type" : "string",
@@ -47,7 +46,6 @@
 			},
 			"duration": {
 				"type" : "long",
-				"index" : "not_analyzed"						
 			}
 		},
 		"dynamic_templates":[{
