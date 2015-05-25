@@ -4,8 +4,8 @@ import il.co.topq.report.Configuration.ConfigProps;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.PropertyConfigurator;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
@@ -19,12 +19,20 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Main class.
- *
+ * 
  */
 public class MainClass {
+
+	private static final Logger log = LoggerFactory.getLogger(MainClass.class);
+
+	private static final String MAPPING_FILE = "mapping.json";
+
+	private static final String LOG_PROPERTIES_FILE = "config/log4j.properties";
 
 	private static String baseUri;
 
@@ -74,7 +82,7 @@ public class MainClass {
 	}
 
 	private static void configureLogger() {
-		PropertyConfigurator.configure("config/log4j.properties");
+		PropertyConfigurator.configure(LOG_PROPERTIES_FILE);
 	}
 
 	public static void configureElastic() throws IOException {
@@ -82,42 +90,25 @@ public class MainClass {
 	}
 
 	private static void configureReportsIndex() {
-		HashMap<String, Object> not_analyzed_string = new HashMap<String, Object>();
-		not_analyzed_string.put("type", "string");
-		not_analyzed_string.put("index", "not_analyzed");
-
-		HashMap<String, Object> analyzed_date = new HashMap<String, Object>();
-		analyzed_date.put("type", "date");
-		analyzed_date.put("format", Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.toPattern());
-
-		HashMap<String, Object> not_analyzed_long = new HashMap<String, Object>();
-		not_analyzed_long.put("type", "long");
-		not_analyzed_long.put("index", "not_analyzed");
-
-		HashMap<String, Object> properties = new HashMap<String, Object>();
-		properties.put("name", not_analyzed_string);
-		properties.put("uid", not_analyzed_string);
-		properties.put("parent", not_analyzed_string);
-		properties.put("status", not_analyzed_string);
-		properties.put("url", not_analyzed_string);
-		properties.put("description", not_analyzed_string);
-		properties.put("execution", not_analyzed_string);
-		properties.put("executionId", not_analyzed_long);
-		properties.put("machine", not_analyzed_string);
-		properties.put("timestamp", analyzed_date);
-		properties.put("executionTimestamp", analyzed_date);
-		properties.put("duration", not_analyzed_long);
-		HashMap<String, Object> options = new HashMap<String, Object>();
-		options.put("properties", properties);
-
-		// client.admin().indices().prepareDelete("_all").get();
-		IndicesExistsResponse res = Common.elasticsearchClient.admin().indices().prepareExists(Common.ELASTIC_INDEX)
-				.execute().actionGet();
-		if (!res.isExists()) {
-			CreateIndexRequest request = Requests.createIndexRequest(Common.ELASTIC_INDEX).mapping("test", options);
-			Common.elasticsearchClient.admin().indices().create(request).actionGet();
-
+		final IndicesExistsResponse res = Common.elasticsearchClient.admin().indices()
+				.prepareExists(Common.ELASTIC_INDEX).execute().actionGet();
+		if (res.isExists()) {
+			return;
 		}
+		String mappingJson = null;
+		try {
+			// We are reading the mapping from external file and not using the
+			// Java API since it seems that it is not possible to do a dynamic
+			// mapping using the API
+			mappingJson = IOUtils.toString(MainClass.class.getClassLoader().getResourceAsStream(MAPPING_FILE));
+		} catch (IOException e) {
+			log.error("Failed to read mapping file. No index mapping will be set to the Elasticsearch", e);
+			return;
+		}
+		final CreateIndexRequest request = Requests.createIndexRequest(Common.ELASTIC_INDEX).mapping("test",
+				mappingJson);
+		Common.elasticsearchClient.admin().indices().create(request).actionGet();
+
 	}
 
 	public static void stopElastic() {

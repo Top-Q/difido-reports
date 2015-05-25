@@ -1,0 +1,64 @@
+{
+   "test":{
+		"properties": {
+			"name": {
+				"type" : "string",
+				"index" : "not_analyzed"
+			},
+			"uid": {
+				"type" : "string",
+				"index" : "not_analyzed"
+			},
+			"parent": {
+				"type" : "string",
+				"index" : "not_analyzed"
+			},
+			"status": {
+				"type" : "string",
+				"index" : "not_analyzed"
+			},
+			"url": {
+				"type" : "string",
+				"index" : "not_analyzed"
+			},
+			"description": {
+				"type" : "string",
+				"index" : "not_analyzed"			
+			},
+			"execution": {
+				"type" : "string",
+				"index" : "not_analyzed"			
+			},
+			"executionId": {
+				"type" : "long",
+				"index" : "not_analyzed"						
+			},
+			"machine": {
+				"type" : "string",
+				"index" : "not_analyzed"
+			},
+			"timestamp": {
+				"type" : "date",
+				"format" : "yyyy/MM/dd HH:mm:ss"
+			},
+			"executionTimestamp": {
+				"type" : "date",
+				"format" : "yyyy/MM/dd HH:mm:ss"
+			},
+			"duration": {
+				"type" : "long",
+				"index" : "not_analyzed"						
+			}
+		},
+		"dynamic_templates":[{
+				"notanalyzed":{
+				"match":"*",
+				"match_mapping_type":"string",
+				"mapping":{
+					"type":"string",
+					"index":"not_analyzed"
+                }
+            }
+        }]    
+    }
+}
