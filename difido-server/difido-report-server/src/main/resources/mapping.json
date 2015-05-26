@@ -30,7 +30,7 @@
 				"index" : "not_analyzed"			
 			},
 			"executionId": {
-				"type" : "long",
+				"type" : "long"
 			},
 			"machine": {
 				"type" : "string",
@@ -45,7 +45,7 @@
 				"format" : "yyyy/MM/dd HH:mm:ss"
 			},
 			"duration": {
-				"type" : "long",
+				"type" : "long"
 			}
 		},
 		"dynamic_templates":[{
