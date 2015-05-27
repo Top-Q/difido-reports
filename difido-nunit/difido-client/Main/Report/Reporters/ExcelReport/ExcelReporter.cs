@@ -108,6 +108,11 @@ namespace difido_client.Report.Excel
             failureReason = title;
         }
 
+        public void AddTestProperty(string propertyName, string propertyValue)
+        {
+            //Not used
+        }
+
 
 
     }

@@ -102,6 +102,18 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             TestDetailsWereAdded(testDetails);
         }
 
+        public void AddTestProperty(string propertyName, string propertyValue)
+        {
+            if (null == testDetails)
+            {
+                Console.WriteLine("HTML reporter was not initiliazed propertly. No reports would be created.");
+                return;
+            }
+            testDetails.AddProperty(propertyName, propertyValue);
+            TestDetailsWereAdded(testDetails);
+        }
+
+
         #region abstractMethod
 
         protected abstract void TestDetailsWereAdded(TestDetails testDetails);

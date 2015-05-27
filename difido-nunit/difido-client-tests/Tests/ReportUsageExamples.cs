@@ -76,6 +76,16 @@ namespace difido_client_tests
             report.ReportImage("My Image", "c:\\temp2.gif");
         }
 
+        [Test]
+        public void TestTestProperties()
+        {
+            report.Step("About to add test properties to the report");
+            for (int i = 0; i < 10; i++)
+            {
+                report.AddTestProperty("prop" + i, "some kind of value" + i);
+            }
+        }
+
 
     }
 }

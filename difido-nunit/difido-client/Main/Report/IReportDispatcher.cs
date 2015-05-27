@@ -35,5 +35,7 @@ namespace difido_client
         void EndLevel();
 
         void Step(string title);
+
+        void AddTestProperty(string propertyName, string propertyValue);
     }
 }

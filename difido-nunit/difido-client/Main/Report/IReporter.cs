@@ -22,6 +22,8 @@ namespace difido_client
 
         void Report(string title, string message, ReporterTestInfo.TestStatus status, ReportElementType type);
 
+        void AddTestProperty(string propertyName, string propertyValue);
+
     }
 
     public enum ReportElementType

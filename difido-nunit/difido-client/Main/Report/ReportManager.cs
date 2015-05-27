@@ -165,6 +165,19 @@ namespace difido_client
         {
             Report(null, null, ReporterTestInfo.TestStatus.success, ReportElementType.stopLevel);
         }
+
+        public void AddTestProperty(string propertyName, string propertyValue)
+        {
+            foreach (IReporter reporter in reporters)
+            {
+                lock (syncRoot)
+                {
+                    reporter.AddTestProperty(propertyName, propertyValue);
+                }
+
+            }
+
+        }
     }
 
 
