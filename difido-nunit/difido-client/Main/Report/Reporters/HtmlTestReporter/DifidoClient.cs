@@ -10,7 +10,7 @@ using System.Web.Script.Serialization;
 
 namespace difido_client.Main.Report.Reporters.HtmlTestReporter
 {
-    class DifidoClient
+    internal class DifidoClient
     {
         private readonly string BASE_URI_TEMPLATE = "http://{0}:{1}/api/";
         private readonly string baseUri;
@@ -49,13 +49,15 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
         {
 
             request.ContentType = "application/json";
-            string data = new JavaScriptSerializer().Serialize(obj);
-            Console.WriteLine(data);
+            string data = new JavaScriptSerializer().Serialize(obj);       
             byte[] byteArray = Encoding.UTF8.GetBytes(data);
             request.ContentLength = byteArray.Length;
-            Stream dataStream = request.GetRequestStream();
-            dataStream.Write(byteArray, 0, byteArray.Length);
-            dataStream.Close();
+            using (Stream dataStream = request.GetRequestStream())
+            {                
+                dataStream.Write(byteArray, 0, byteArray.Length);
+
+            }
+            
             return Send(request);
 
         }
