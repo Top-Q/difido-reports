@@ -2,6 +2,7 @@ package il.co.topq.report.controller.elasticsearch;
 
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
+import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Common;
@@ -67,6 +68,8 @@ public class ESController implements ResourceChangedListener {
 
 	@Override
 	public void machineAdded(int executionId, MachineNode machine) {
+		// This method is called at the start of each test and at the end of
+		// each test. Now we need to get the correct test from the machine
 		if (openTestsPerExecution == null || openTestsPerExecution.get(executionId) == null
 				|| openTestsPerExecution.get(executionId).isEmpty()) {
 			return;
@@ -80,9 +83,31 @@ public class ESController implements ResourceChangedListener {
 					esTest.setStatus(testNode.getStatus().name());
 					esTest.setDuration(testNode.getDuration());
 					esTest.setMachine(machine.getName());
+					final ScenarioNode rootScenario = machine.getChildren().get(machine.getChildren().size() - 1);
 					if (machine.getChildren() != null && !machine.getChildren().isEmpty()) {
-						esTest.setExecution(machine.getChildren().get(machine.getChildren().size() - 1).getName());
+						esTest.setExecution(rootScenario.getName());
 					}
+					if (rootScenario.getScenarioProperties() != null) {
+						esTest.setScenarioProperties(new HashMap<String, String>(rootScenario.getScenarioProperties()));
+					}
+
+					// We are losing in the way the testNode parent, so we can't
+					// fully support the container properties as intended in
+					// JSystem. We will support only container properties that
+					// were added to the root scenario.
+//					@formatter:off
+//					ScenarioNode scenario;
+//					while (testNode.getParent() != null && !(testNode.getParent() instanceof MachineNode)) {
+//						scenario = (ScenarioNode) testNode.getParent();
+//						if (scenario.getScenarioProperties() != null) {
+//							if (esTest.getExecutionProperties() == null) {
+//								esTest.setExecutionProperties(new HashMap<String, String>());
+//							}
+//							esTest.getExecutionProperties().putAll(scenario.getScenarioProperties());
+//						}
+//					}
+//					@formatter:off
+
 					if (testNode.getParent() != null) {
 						esTest.setParent(testNode.getParent().getName());
 					}

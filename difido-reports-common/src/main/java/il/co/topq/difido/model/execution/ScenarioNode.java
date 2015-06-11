@@ -1,14 +1,20 @@
 package il.co.topq.difido.model.execution;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author agmon
  * 
  */
 public class ScenarioNode extends NodeWithChildren<Node> {
+
+	@JsonProperty("scenarioProperties")
+	private Map<String, String> scenarioProperties;
 
 	public ScenarioNode() {
 	}
@@ -29,7 +35,16 @@ public class ScenarioNode extends NodeWithChildren<Node> {
 		scenarioNodeCopy.setChildren(aScenarioNode.getChildren());
 		scenarioNodeCopy.setParent(aScenarioNode.getParent());
 		scenarioNodeCopy.setStatus(aScenarioNode.getStatus());
+		scenarioNodeCopy.setScenarioProperties(new HashMap<String,String>(aScenarioNode.getScenarioProperties()));
 		return scenarioNodeCopy;
+	}
+
+	@JsonIgnore
+	public void addScenarioProperty(String key, String property) {
+		if (null == scenarioProperties) {
+			scenarioProperties = new HashMap<String, String>();
+		}
+		scenarioProperties.put(key, property);
 	}
 
 	@JsonIgnore
@@ -87,6 +102,14 @@ public class ScenarioNode extends NodeWithChildren<Node> {
 			}
 		}
 		return null;
+	}
+
+	public Map<String, String> getScenarioProperties() {
+		return scenarioProperties;
+	}
+
+	public void setScenarioProperties(Map<String, String> scenarioProperties) {
+		this.scenarioProperties = scenarioProperties;
 	}
 
 }

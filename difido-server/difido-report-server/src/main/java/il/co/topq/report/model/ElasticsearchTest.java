@@ -53,6 +53,9 @@ public class ElasticsearchTest {
 
 	@JsonProperty("properties")
 	private Map<String, String> properties;
+	
+	@JsonProperty("scenarioProperties")
+	private Map<String, String> scenarioProperties;
 
 	public ElasticsearchTest(final String uid, final String executionTimeStamp, final String timeStamp) {
 		this.uid = uid;
@@ -62,7 +65,7 @@ public class ElasticsearchTest {
 
 	public ElasticsearchTest() {
 	}
-
+	
 	public String getName() {
 		return name;
 	}
@@ -175,6 +178,14 @@ public class ElasticsearchTest {
 		this.properties = properties;
 	}
 
+	public Map<String, String> getScenarioProperties() {
+		return scenarioProperties;
+	}
+
+	public void setScenarioProperties(Map<String, String> scenarioProperties) {
+		this.scenarioProperties = scenarioProperties;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -182,7 +193,7 @@ public class ElasticsearchTest {
 		sb.append(" UID: ").append(uid);
 		sb.append(" Machine: ").append(machine);
 		sb.append(" Status: ").append(status);
-		sb.append("Execution Id: ").append(executionId);
+		sb.append(" Execution Id: ").append(executionId);
 		return sb.toString();
 	}
 
