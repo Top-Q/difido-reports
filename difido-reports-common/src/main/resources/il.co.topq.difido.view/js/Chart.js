@@ -682,10 +682,10 @@ window.Chart = function(context){
 			var minSteps = Math.floor((scaleHeight / labelHeight*0.5));
 			
 			return {
-				maxValue : upperValue,
-				minValue : lowerValue,
-				maxSteps : maxSteps,
-				minSteps : minSteps
+				maxValue : Math.abs(upperValue),
+				minValue : Math.abs(lowerValue),
+				maxSteps : Math.abs(maxSteps),
+				minSteps : Math.abs(minSteps)
 			};
 			
 
