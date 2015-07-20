@@ -1,6 +1,7 @@
 package il.co.topq.report.controller.resource;
 
 import il.co.topq.difido.model.execution.MachineNode;
+import il.co.topq.difido.model.remote.ExecutionDetails;
 import il.co.topq.difido.model.test.TestDetails;
 
 import java.io.BufferedReader;
@@ -14,7 +15,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
@@ -35,21 +35,23 @@ public class DifidoClient {
 		client = HttpClientBuilder.create().build();
 	}
 
-	public int addExecution() throws Exception {
+	public int addExecution(ExecutionDetails details) throws Exception {
 		final HttpPost request = new HttpPost(baseUri + "executions/");
-		request.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain");
+		request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+		if (details != null){
+			final String descriptionJson = new ObjectMapper().writeValueAsString(details);
+			request.setEntity(new StringEntity(descriptionJson));
+		}
 		final HttpResponse response = client.execute(request);
 		handleResponse(response);
 		return Integer.parseInt(getResponseAsString(response));
 
 	}
-
-	public int getLastExecutionId() throws Exception {
-		final HttpGet request = new HttpGet(baseUri + "executions/lastId");
+	
+	public void endExecution(int executionId) throws Exception{
+		final HttpPut request = new HttpPut(baseUri + "executions/" + executionId + "?active=false");
 		request.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain");
-		final HttpResponse response = client.execute(request);
-		handleResponse(response);
-		return Integer.parseInt(getResponseAsString(response));
+		handleResponse(client.execute(request));
 	}
 
 	public int addMachine(int executionId, MachineNode machine) throws Exception {

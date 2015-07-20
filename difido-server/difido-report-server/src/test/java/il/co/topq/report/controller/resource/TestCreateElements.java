@@ -5,6 +5,7 @@ import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
+import il.co.topq.difido.model.remote.ExecutionDetails;
 import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.model.AbstractResourceTestCase;
@@ -35,7 +36,8 @@ public class TestCreateElements extends AbstractResourceTestCase {
 	public void setUp() throws Exception {
 		super.setUp();
 		client = new DifidoClient(host, port);
-		executionId = client.getLastExecutionId();
+		final ExecutionDetails description = new ExecutionDetails("Testing", true);
+		executionId = client.addExecution(description);
 		final MachineNode machine = new MachineNode(MACHINE_NAME);
 		final int machineId = client.addMachine(executionId, machine);
 		final ScenarioNode scenario = new ScenarioNode(SCENARIO_NAME);

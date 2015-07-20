@@ -5,6 +5,7 @@ import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
+import il.co.topq.difido.model.remote.ExecutionDetails;
 import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.model.AbstractResourceTestCase;
@@ -38,7 +39,8 @@ public class TestConcurrencyExecution extends AbstractResourceTestCase {
 				final DifidoClient client = new DifidoClient(host, port);
 				final String executionUid = String.valueOf(System.currentTimeMillis() / 10000)
 						+ String.valueOf(new Random().nextInt(100));
-				final int executionId = client.getLastExecutionId();
+				final ExecutionDetails description = new ExecutionDetails("Testing",true);
+				final int executionId = client.addExecution(description);
 				System.out.println(tName + "- executionId " + executionId);
 				final MachineNode machine = new MachineNode(tName);
 				final int machineId = client.addMachine(executionId, machine);

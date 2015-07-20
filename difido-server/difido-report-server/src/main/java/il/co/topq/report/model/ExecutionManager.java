@@ -5,6 +5,7 @@ import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.Node;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
+import il.co.topq.difido.model.remote.ExecutionDetails;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
@@ -43,6 +44,18 @@ public enum ExecutionManager implements ResourceChangedListener {
 	private static final String EXECUTION_FILE_NAME = "reports/meta.json";
 
 	public int addExecution() {
+		return addExecution(null);
+	}
+
+	/**
+	 * Adding new execution. Execution can have multiple machines that can have
+	 * scenarios with tests.
+	 * 
+	 * @param executionDetails
+	 *            The description of the execution.
+	 * @return The unique id of the newly created execution
+	 */
+	public int addExecution(ExecutionDetails executionDetails) {
 		readExecutionMeta();
 		Execution execution = new Execution();
 		final Date executionDate = new Date();
@@ -57,6 +70,11 @@ public enum ExecutionManager implements ResourceChangedListener {
 				+ Common.EXECUTION_REPROT_TIMESTAMP_FORMATTER.format(new Date()));
 		metaData.setUri(Common.REPORTS_FOLDER_NAME + "/" + metaData.getFolderName() + "/index.html");
 		metaData.setActive(true);
+		if (executionDetails != null) {
+			metaData.setDescription(executionDetails.getDescription());
+			metaData.setShared(executionDetails.isShared());
+			metaData.setProperties(executionDetails.getExecutionProperties());
+		}
 		executionsCache.put(metaData.getId(), metaData);
 		writeExecutionMeta();
 		ListenersManager.INSTANCE.notifyExecutionAdded(metaData.getId(), execution);
@@ -69,19 +87,19 @@ public enum ExecutionManager implements ResourceChangedListener {
 		}
 		synchronized (fileAccessLockObject) {
 			final File executionMetaFile = getExecutionMetaFile();
-			if (!executionMetaFile.exists()){
-				if (!executionMetaFile.getParentFile().exists()){
-					if (!executionMetaFile.getParentFile().mkdirs()){
+			if (!executionMetaFile.exists()) {
+				if (!executionMetaFile.getParentFile().exists()) {
+					if (!executionMetaFile.getParentFile().mkdirs()) {
 						log.error("Failed creating folder for execution meta file ");
 						return;
 					}
 					try {
-						if (!executionMetaFile.createNewFile()){
+						if (!executionMetaFile.createNewFile()) {
 							log.error("Failed creating execution meta file");
 							return;
 						}
 					} catch (IOException e) {
-						log.error("Failed creating execution meta file",e);
+						log.error("Failed creating execution meta file", e);
 						return;
 					}
 				}
@@ -206,21 +224,28 @@ public enum ExecutionManager implements ResourceChangedListener {
 		return result.toArray(new ExecutionMetaData[] {});
 	}
 
-	public int getLastExecutionIndexAndAddIfNoneExist() {
+	public int getSharedExecutionIndexAndAddIfNoneExist(ExecutionDetails executionDescription) {
 		readExecutionMeta();
 		synchronized (lockObject) {
 			if (executionsCache.isEmpty()) {
 				log.debug("Execution map is empty, adding execution");
-				return addExecution();
+				return addExecution(executionDescription);
 			}
-			for (int executionIndex : executionsCache.keySet()) {
+
+			// It is easier to reverse the order of lists then sets, so we
+			// convert it.
+			// We need to reverse the order so will find the latest executions
+			// first.
+			List<Integer> indexes = new ArrayList<Integer>();
+			indexes.addAll(executionsCache.keySet());
+			for (int executionIndex : indexes) {
 				final ExecutionMetaData metaData = executionsCache.get(executionIndex);
-				if (metaData.isActive()) {
+				if (metaData.isActive() && metaData.isShared()) {
 					metaData.setLastAccessedTime(System.currentTimeMillis());
 					return executionIndex;
 				}
 			}
-			return addExecution();
+			return addExecution(executionDescription);
 		}
 
 	}
@@ -285,6 +310,22 @@ public enum ExecutionManager implements ResourceChangedListener {
 		 * The id of the execution
 		 */
 		private int id;
+
+		/**
+		 * The description of the execution as described by the user the
+		 * triggered it
+		 */
+		private String description;
+
+		/**
+		 * Free list of properties that can be specified by the user
+		 */
+		private Map<String, String> properties;
+
+		/**
+		 * Is this execution can be shared between different machines.
+		 */
+		private boolean shared;
 
 		/**
 		 * The name of the folder in the file system that holds the report file.<br>
@@ -359,6 +400,11 @@ public enum ExecutionManager implements ResourceChangedListener {
 
 		}
 
+		/**
+		 * Copy constructor
+		 * 
+		 * @param metaData
+		 */
 		public ExecutionMetaData(final ExecutionMetaData metaData) {
 			if (null != metaData) {
 				this.active = metaData.active;
@@ -366,6 +412,9 @@ public enum ExecutionManager implements ResourceChangedListener {
 				this.execution = metaData.execution;
 				this.folderName = metaData.folderName;
 				this.id = metaData.id;
+				this.description = metaData.description;
+				this.shared = metaData.shared;
+				this.properties = metaData.properties;
 				this.lastAccessedTime = metaData.lastAccessedTime;
 				this.time = metaData.time;
 				this.timestamp = metaData.timestamp;
@@ -416,6 +465,30 @@ public enum ExecutionManager implements ResourceChangedListener {
 
 		public void setId(int id) {
 			this.id = id;
+		}
+
+		public String getDescription() {
+			return description;
+		}
+
+		public void setDescription(String description) {
+			this.description = description;
+		}
+
+		public Map<String, String> getProperties() {
+			return properties;
+		}
+
+		public void setProperties(Map<String, String> properties) {
+			this.properties = properties;
+		}
+
+		public boolean isShared() {
+			return shared;
+		}
+
+		public void setShared(boolean shared) {
+			this.shared = shared;
 		}
 
 		public String getFolderName() {
