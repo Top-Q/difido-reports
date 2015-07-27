@@ -30,7 +30,7 @@
                     <thead>
                         <tr>
 	                		<th>Id</th>
-	                		<th>Folder Name</th>
+	                		<th>Execution</th>
                         	<th>Date</th>
 	                		<th>Time</th>
 	                		<th># Tests</th>
@@ -90,7 +90,11 @@
 			    $(reports).each(function(){
 			    	var tr = $('<tr>');
 			    	tr.append($('<td>').text(this.id));
-			    	tr.append($('<td>').append($('<a>').text(this.folderName).attr("href",this.uri).attr("target","_blank")));
+			    	var executionName = this.folderName;
+			    	if (this.description != ""){
+			    		executionName = this.description
+			    	}
+			    	tr.append($('<td>').append($('<a>').text(executionName).attr("href",this.uri).attr("target","_blank")));
 			    	tr.append($('<td>').text(this.date));
 			    	tr.append($('<td>').text(this.time));
 			    	tr.append($('<td>').text(this.numOfTests));
