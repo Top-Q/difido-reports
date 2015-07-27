@@ -66,8 +66,7 @@ public enum ExecutionManager implements ResourceChangedListener {
 
 		int maxId = getMaxId();
 		metaData.setId(++maxId);
-		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_"
-				+ Common.EXECUTION_REPROT_TIMESTAMP_FORMATTER.format(new Date()));
+		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + metaData.getId());
 		metaData.setUri(Common.REPORTS_FOLDER_NAME + "/" + metaData.getFolderName() + "/index.html");
 		metaData.setActive(true);
 		if (executionDetails != null) {
@@ -328,14 +327,15 @@ public enum ExecutionManager implements ResourceChangedListener {
 		private boolean shared;
 
 		/**
-		 * The name of the folder in the file system that holds the report file.<br>
-		 * e.g. execution_2015_04_14__22_15_38_84 <br>
+		 * The name of the folder in the file system that holds the report file.
+		 * <br>
+		 * e.g. exec_4 <br>
 		 */
 		private String folderName;
 
 		/**
 		 * The uri of the index file of the execution report. <br>
-		 * e.g. reports/execution_2015_04_14__22_15_38_84/index.html
+		 * e.g. reports/exec_4/index.html
 		 */
 		private String uri;
 

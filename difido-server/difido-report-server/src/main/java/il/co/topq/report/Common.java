@@ -6,7 +6,7 @@ import org.elasticsearch.client.Client;
 
 public class Common {
 
-	public static final String EXECUTION_REPORT_FOLDER_PREFIX = "execution";
+	public static final String EXECUTION_REPORT_FOLDER_PREFIX = "exec";
 
 	public static final SimpleDateFormat EXECUTION_REPROT_TIMESTAMP_FORMATTER = new SimpleDateFormat(
 			"yyyy_MM_dd__HH_mm_ss_SS");
