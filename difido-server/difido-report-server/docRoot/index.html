@@ -28,17 +28,17 @@
             <div class="col-sm-8 main" >
                 <table id="reports">
                     <thead>
-                        <tr>
-	                		<th>Id</th>
-	                		<th>Execution</th>
-                        	<th>Date</th>
-	                		<th>Time</th>
-	                		<th># Tests</th>
-	                		<th># Success</th>
-	                		<th># Warning</th>
-	                		<th># Fails</th> 		
-	                		<th># Machines</th>
-	                		<th>Active</th>
+                        <tr id="table_header">
+	                		<th id='id'>Id</th>
+	                		<th id='execution'>Execution</th>
+                        	<th id='date'>Date</th>
+	                		<th id='time'>Time</th>
+	                		<th id='tests'># Tests</th>
+	                		<th id='success'># Success</th>
+	                		<th id='warning'># Warning</th>
+	                		<th id='fails'># Fails</th> 		
+	                		<th id='machines'># Machines</th>
+	                		<th id='active'>Active</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -86,6 +86,28 @@
                 });
         		
         	}
+        	
+        	/**
+			 * Create appropriate headers for all the customized execution
+			 * properties
+			 */
+        	function addCustomedHeaders(reports,table){
+        		 $(reports).each(function(){
+ 			    	if (this.properties != null){
+			    		for(var key in this.properties) {
+			    		    var value = this.properties[key];
+			    		    if ( $(".custom_header[custom='"+ key+ "']").length == 0 ) {
+			    		    	// We will use the 'custom" attribute, later on
+								// for populating the table at the right
+								// location
+			    		    	$('#table_header').append($('<th>').text(key).attr('custom',key).addClass("custom_header"));
+			    		    }
+			    		}
+			    	}
+        			 
+        		 });
+        	}
+        	
 	        function appendReportsToTable(reports,table){
 			    $(reports).each(function(){
 			    	var tr = $('<tr>');
@@ -103,12 +125,40 @@
 			    	tr.append($('<td>').text(this.numOfFailedTests));
 			    	tr.append($('<td>').text(this.numOfMachines));
 			    	tr.append($('<td>').text(this.active));
+			    	
+			    	// Since we don't know which of the customized columns exist
+					// in this execution. We just add blank td. This is
+					// important since if we will fail to do this, the data
+					// table will fail to render.
+			    	for (i = 0 ; i < $(".custom_header").size() ; i++){
+			    		tr.append($('<td>').text(""));
+			    	}
+			    	
+			    	// We now populate the customized properties.
+			    	if (this.properties != null){
+			    		for(var key in this.properties) {
+			    		    var value = this.properties[key];
+			    		    
+			    		    // We get the exact index of the header
+			    		    var index = $(".custom_header[custom='"+key+"']").index();
+			    		    if (index < 0){
+			    		    	// Something went wrong. We don't have a header
+								// that matches this property
+			    		    	continue;
+			    		    }
+			    		    
+			    		    // We now add the text in the correct index
+			    		    tr.children()[index].innerHTML = value;
+			    		}
+			    	}
+			    	
 			    	$(table).append(tr);
 			    });
 	        }
         
             function createTable() {
                 $.get("/api/reports", function(reports){
+                	addCustomedHeaders(reports,$("#reports"));
                     appendReportsToTable(reports,$("#reports"));
                     convertToDataTable();
                 });
