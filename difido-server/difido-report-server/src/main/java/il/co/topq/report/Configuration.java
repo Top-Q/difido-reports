@@ -3,8 +3,12 @@ package il.co.topq.report;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +34,14 @@ public enum Configuration {
 		MAIL_SUBJECT("mail.subject",""),
 		MAIL_FROM_ADDRESS("mail.from.address",""),
 		MAIL_TO_ADDRESS("mail.to.address",""),
-		MAIL_CC_ADDRESS("mail.cc.address","");
+		MAIL_CC_ADDRESS("mail.cc.address",""),
+		/**
+		 * semicolon separated list of custom properties that can be added 
+		 * to each execution. If none was specified, 
+		 * no filter will be applied and clients could add any property 
+		 */
+		CUSTOM_EXECUTION_PROPERTIES("custom.execution.properties","");
+		
 		//@formatter:off
 		
 		private final String propName;
@@ -98,6 +109,7 @@ public enum Configuration {
 		addPropWithDefaultValue(ConfigProps.MAIL_FROM_ADDRESS);
 		addPropWithDefaultValue(ConfigProps.MAIL_TO_ADDRESS);
 		addPropWithDefaultValue(ConfigProps.MAIL_CC_ADDRESS);
+		addPropWithDefaultValue(ConfigProps.CUSTOM_EXECUTION_PROPERTIES);
 		try (FileOutputStream out = new FileOutputStream(new File(CONFIG_PROP_NAME))) {
 			configProperties.store(out, "Default difido server properties");
 		} catch (Exception e) {
@@ -120,9 +132,17 @@ public enum Configuration {
 		}
 		return 0;
 	}
+	
+	public List<String> readList(ConfigProps prop){
+		final String value = configProperties.getProperty(prop.getPropName());
+		if (StringUtils.isEmpty(value)){
+			return new ArrayList<String>();
+		}
+		return Arrays.asList(value.split(";"));
+	}
 
 	public String readString(ConfigProps prop) {
-		String value = configProperties.getProperty(prop.getPropName());
+		final String value = configProperties.getProperty(prop.getPropName());
 		if (null == value) {
 			return prop.getDefaultValue();
 		}

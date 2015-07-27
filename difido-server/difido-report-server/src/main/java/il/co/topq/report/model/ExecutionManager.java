@@ -72,12 +72,33 @@ public enum ExecutionManager implements ResourceChangedListener {
 		if (executionDetails != null) {
 			metaData.setDescription(executionDetails.getDescription());
 			metaData.setShared(executionDetails.isShared());
-			metaData.setProperties(executionDetails.getExecutionProperties());
+			setAllowedPropertiesToMetaData(metaData, executionDetails);
 		}
 		executionsCache.put(metaData.getId(), metaData);
 		writeExecutionMeta();
 		ListenersManager.INSTANCE.notifyExecutionAdded(metaData.getId(), execution);
 		return metaData.getId();
+	}
+
+	/**
+	 * Sets the execution properties in the execution meta data. Will allow
+	 * addition only of properties that are specified in the configuration file
+	 * 
+	 * @param metaData
+	 * @param executionDetails
+	 */
+	private void setAllowedPropertiesToMetaData(ExecutionMetaData metaData, ExecutionDetails executionDetails) {
+		final List<String> allowedProperties = Configuration.INSTANCE.readList(ConfigProps.CUSTOM_EXECUTION_PROPERTIES);
+		if (allowedProperties.isEmpty()) {
+			metaData.setProperties(executionDetails.getExecutionProperties());
+			return;
+		}
+		for (String executionProp : executionDetails.getExecutionProperties().keySet()) {
+			if (allowedProperties.contains(executionProp)) {
+				metaData.addProperty(executionProp, executionDetails.getExecutionProperties().get(executionProp));
+			}
+		}
+
 	}
 
 	private void writeExecutionMeta() {
@@ -398,6 +419,14 @@ public enum ExecutionManager implements ResourceChangedListener {
 
 		public ExecutionMetaData() {
 
+		}
+
+		@JsonIgnore
+		public void addProperty(String key, String value) {
+			if (null == properties) {
+				properties = new HashMap<String, String>();
+			}
+			properties.put(key, value);
 		}
 
 		/**
