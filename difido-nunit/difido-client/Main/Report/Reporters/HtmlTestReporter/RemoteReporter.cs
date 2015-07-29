@@ -1,4 +1,5 @@
-﻿using System;
+﻿using difido_client.Main.Report.Reporters.HtmlTestReporter.Model.Execution;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -32,19 +33,13 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
                 host = "localhost";
                 port = 8080;
 
-                Boolean appendToExistingExecution = false;
+                ExecutionDetails executionDetails = new ExecutionDetails();
+                //executionDetails.description = "Some description";
                 client = new DifidoClient(host, port);
-                if (appendToExistingExecution)
-                {
-                    executionId = client.GetLastExecutionId();
-                }
-                else
-                {
-                    executionId = client.AddExecution();
-                }
+                executionId = client.AddExecution(executionDetails);
                 machineId = client.AddMachine(executionId, CurrentExecution.GetLastMachine());
                 enabled = true;
-                //log.fine(RemoteHtmlReporter.class.getName() + " was initialized successfully");
+                
             }
             catch
             {
