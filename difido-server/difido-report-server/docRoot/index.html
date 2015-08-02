@@ -113,7 +113,7 @@
 			    	var tr = $('<tr>');
 			    	tr.append($('<td>').text(this.id));
 			    	var executionName = this.folderName;
-			    	if (this.description != ""){
+			    	if (this.description != null && this.description != ""){
 			    		executionName = this.description
 			    	}
 			    	tr.append($('<td>').append($('<a>').text(executionName).attr("href",this.uri).attr("target","_blank")));

@@ -1,4 +1,5 @@
-﻿using difido_client.Report.Html.Model;
+﻿using difido_client.Main.Report.Reporters.HtmlTestReporter.Model.Execution;
+using difido_client.Report.Html.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,22 +22,26 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             baseUri = String.Format(BASE_URI_TEMPLATE, host, port);
         }
 
-        public int AddExecution()
+        public int AddExecution(ExecutionDetails details)
         {
+            if (null == details)
+            {
+                throw new Exception("Execution details can't be null");
+            }
             WebRequest request = WebRequest.Create(baseUri + "executions/");
-            request.Method = "POST";
-            request.ContentType = "text/plain";
-            return Int32.Parse(Send(request));
+            request.Method = "POST";         
+            return Int32.Parse(SendContent(request, details));
         }
 
-
-        public int GetLastExecutionId()
+        public string endExecution(int executionId)
         {
-            WebRequest request = WebRequest.Create(baseUri + "executions/lastId");
-            request.Method = "GET";
+            WebRequest request = WebRequest.Create(baseUri + "executions/"+executionId+"?active=false");
+            request.Method = "PUT";
             request.ContentType = "text/plain";
-            return Int32.Parse(Send(request));
+            return Send(request);
+         
         }
+
 
         public int AddMachine(int executionId, Machine machine)
         {
