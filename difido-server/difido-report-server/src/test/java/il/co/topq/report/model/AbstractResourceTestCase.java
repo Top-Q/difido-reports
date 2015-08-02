@@ -72,7 +72,7 @@ public abstract class AbstractResourceTestCase {
 
 			@Override
 			public boolean accept(File file) {
-				if (file.isDirectory() && file.getName().startsWith("execution")) {
+				if (file.isDirectory() && file.getName().startsWith("exec")) {
 					return true;
 				}
 				return false;
