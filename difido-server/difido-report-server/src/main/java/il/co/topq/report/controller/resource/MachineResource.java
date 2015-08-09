@@ -2,6 +2,10 @@ package il.co.topq.report.controller.resource;
 
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
+import il.co.topq.difido.model.execution.Node;
+import il.co.topq.difido.model.execution.ScenarioNode;
+import il.co.topq.report.Configuration;
+import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.controller.listener.ListenersManager;
 import il.co.topq.report.model.ExecutionManager;
 
@@ -35,6 +39,20 @@ public class MachineResource {
 		if (null == execution) {
 			throw new WebApplicationException("Execution with id " + executionId + " is not exist");
 		}
+
+		if (Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_MERGE_MACHINES)
+				&& ExecutionManager.INSTANCE.getExecution(executionId).getMachines() != null
+				&& ExecutionManager.INSTANCE.getExecution(executionId).getMachines().contains(machine)) {
+			int machineId = ExecutionManager.INSTANCE.getExecution(executionId).getMachines().indexOf(machine);
+			MachineNode existMachine = ExecutionManager.INSTANCE.getExecution(executionId).getMachines().get(machineId);
+			if (machine.getChildren() != null) {
+				for (ScenarioNode scenario : machine.getChildren()) {
+					existMachine.addChild(scenario);
+				}
+			}
+			updateMachine(executionId, machineId, existMachine);
+			return machineId;
+		}
 		execution.addMachine(machine);
 		ListenersManager.INSTANCE.notifyMachineAdded(executionId, machine);
 		return ExecutionManager.INSTANCE.getExecution(executionId).getMachines().indexOf(machine);
@@ -53,6 +71,38 @@ public class MachineResource {
 		if (null == execution) {
 			throw new WebApplicationException("Execution with id " + executionId + " is not exist");
 		}
+
+		if (Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_MERGE_MACHINES)) {
+			if (ExecutionManager.INSTANCE.getExecution(executionId).getMachines() != null
+					&& ExecutionManager.INSTANCE.getExecution(executionId).getMachines().contains(machine)) {
+				MachineNode existMachine = ExecutionManager.INSTANCE.getExecution(executionId).getMachines()
+						.get(machineId);
+				if (machine.getChildren() != null) {
+					// Scenario
+					for (ScenarioNode newScenario : machine.getChildren()) {		
+						if (existMachine.getChildren() != null && existMachine.getChildren().contains(newScenario)) {
+							int scenarioId = existMachine.getChildren().indexOf(newScenario);
+							ScenarioNode oldScenario = existMachine.getChildren().get(scenarioId);
+							if (newScenario.getChildren() != null) {
+								// Tests
+								for (Node newTest : newScenario.getChildren()) {
+									if (oldScenario.getChildren() == null || !oldScenario.getChildren().contains(newTest))
+										oldScenario.addChild(newTest);
+									else
+										oldScenario.getChildren().set(oldScenario.getChildren().indexOf(newTest), newTest);
+								}
+							}
+						} else {
+							existMachine.addChild(newScenario);
+						}
+					}
+				}
+				execution.getMachines().set(machineId, existMachine);
+				ListenersManager.INSTANCE.notifyMachineAdded(executionId, existMachine);
+			}
+			return;
+		}
+
 		execution.getMachines().set(machineId, machine);
 		ListenersManager.INSTANCE.notifyMachineAdded(executionId, machine);
 	}

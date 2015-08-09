@@ -35,6 +35,7 @@ public enum Configuration {
 		MAIL_FROM_ADDRESS("mail.from.address",""),
 		MAIL_TO_ADDRESS("mail.to.address",""),
 		MAIL_CC_ADDRESS("mail.cc.address",""),
+		ENABLE_MERGE_MACHINES("enable.merge", "false"),
 		/**
 		 * semicolon separated list of custom properties that can be added 
 		 * to each execution. If none was specified, 
@@ -110,6 +111,7 @@ public enum Configuration {
 		addPropWithDefaultValue(ConfigProps.MAIL_TO_ADDRESS);
 		addPropWithDefaultValue(ConfigProps.MAIL_CC_ADDRESS);
 		addPropWithDefaultValue(ConfigProps.CUSTOM_EXECUTION_PROPERTIES);
+		addPropWithDefaultValue(ConfigProps.ENABLE_MERGE_MACHINES);
 		try (FileOutputStream out = new FileOutputStream(new File(CONFIG_PROP_NAME))) {
 			configProperties.store(out, "Default difido server properties");
 		} catch (Exception e) {
