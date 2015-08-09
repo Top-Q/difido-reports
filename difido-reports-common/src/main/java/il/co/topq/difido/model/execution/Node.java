@@ -72,5 +72,12 @@ public abstract class Node {
 	public void setParent(NodeWithChildren<? extends Node> parent) {
 		this.parent = parent;
 	}
+	
+	@Override
+	public boolean equals (Object otherNode) {
+		if (otherNode instanceof Node) {
+			return this.getName().equals(((Node) otherNode).getName());
+		} return false;
+	}
 
 }
