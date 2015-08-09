@@ -111,5 +111,12 @@ public class ScenarioNode extends NodeWithChildren<Node> {
 	public void setScenarioProperties(Map<String, String> scenarioProperties) {
 		this.scenarioProperties = scenarioProperties;
 	}
+	
+	@Override
+	public boolean equals(Object otherScenario) {
+		if (otherScenario instanceof ScenarioNode) {
+			return this.getName().equals(((ScenarioNode)otherScenario).getName());
+		} return false;
+	}
 
 }

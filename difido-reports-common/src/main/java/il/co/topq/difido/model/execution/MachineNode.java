@@ -61,5 +61,13 @@ public class MachineNode extends NodeWithChildren<ScenarioNode> {
 		}
 		return null;
 	}
+	
+	@Override
+	public boolean equals(Object otherMachine)
+	{
+		if (otherMachine instanceof MachineNode){
+			return this.getName().equals(((MachineNode)otherMachine).getName());
+		} return false;
+	}
 
 }

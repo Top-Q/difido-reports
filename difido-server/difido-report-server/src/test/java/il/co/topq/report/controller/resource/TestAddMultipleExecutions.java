@@ -33,6 +33,31 @@ public class TestAddMultipleExecutions extends AbstractResourceTestCase {
 	}
 	
 	@Test
+	public void testMergeMachine() throws Exception {
+		ExecutionDetails description = new ExecutionDetails();
+		description.setShared(false);
+		executionId = client.addExecution(description);
+		final MachineNode machine = new MachineNode(MACHINE_NAME);
+		final int machineId = client.addMachine(executionId, machine);
+		final ScenarioNode scenario = new ScenarioNode(SCENARIO_NAME);
+		machine.addChild(scenario);
+		final TestNode test = new TestNode(0, TEST_NAME, "0");
+		uid = String.valueOf(Math.abs(new Random().nextInt()));
+		test.setUid(uid);
+		scenario.addChild(test);
+		client.updateMachine(executionId, machineId, machine);
+		
+		final TestNode test2 = new TestNode(0, TEST_NAME + 2, "1");
+		uid = String.valueOf(Math.abs(new Random().nextInt()));
+		test.setUid(uid);
+		scenario.addChild(test2);
+		
+		client.updateMachine(executionId, machineId, machine);
+		
+		
+	}
+	
+	@Test
 	public void testAddConcurrentExecutions() throws Exception{
 		for (int i = 0 ; i < NUM_OF_EXECUTIONS ; i++){
 			ExecutionDetails description = new ExecutionDetails();
