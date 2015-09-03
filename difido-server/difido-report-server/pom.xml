@@ -6,7 +6,7 @@
 	<groupId>il.co.topq.difido</groupId>
 	<artifactId>difido-reports-server</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0</version>
+	<version>1.1-SNAPSHOT</version>
 	<name>Difido Report Server</name>
 	<organization>
 		<name>Top-Q</name>
