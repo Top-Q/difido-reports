@@ -15,6 +15,7 @@ import il.co.topq.report.controller.listener.ResourceChangedListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -241,6 +242,7 @@ public enum ExecutionManager implements ResourceChangedListener {
 			}
 		}
 		result.addAll(executionsCache.values());
+		Collections.sort(result);
 		return result.toArray(new ExecutionMetaData[] {});
 	}
 
@@ -325,7 +327,7 @@ public enum ExecutionManager implements ResourceChangedListener {
 		updateExecutionLastUpdateTime(executionId);
 	}
 
-	public static class ExecutionMetaData {
+	public static class ExecutionMetaData implements Comparable<ExecutionMetaData> {
 		/**
 		 * The id of the execution
 		 */
@@ -461,6 +463,43 @@ public enum ExecutionManager implements ResourceChangedListener {
 			this.execution = execution;
 			this.active = true;
 			lastAccessedTime = System.currentTimeMillis();
+		}
+		
+		/**
+		 * Enable to sort collection of this class by descending order of the
+		 * date and time
+		 */
+		@Override
+		public int compareTo(ExecutionMetaData o) {
+			if (null == o) {
+				return 1;
+			}
+			if (this == o) {
+				return 0;
+			}
+			if (null == getDate() || null == getTime() || null == o.getTime() || null == o.getDate()) {
+				throw new IllegalArgumentException("Can't compare when fields are null");
+			}
+			try {
+				final Date thisDate = Common.API_DATE_FORMATTER.parse(getDate());
+				final Date otherDate = Common.API_DATE_FORMATTER.parse(o.getDate());
+				if (thisDate.before(otherDate)) {
+					return 1;
+				} else if (thisDate.after(otherDate)) {
+					return -1;
+				} else {
+					final Date thisTime = Common.API_TIME_FORMATTER.parse(getTime());
+					final Date otherTime = Common.API_TIME_FORMATTER.parse(o.getTime());
+					if (thisTime.before(otherTime)) {
+						return 1;
+					} else {
+						return -1;
+					}
+				}
+			} catch (ParseException e) {
+				throw new IllegalArgumentException(
+						"Exception accured while trying to parse date or time when comparing");
+			}
 		}
 
 		public String getTimestamp() {
@@ -600,6 +639,7 @@ public enum ExecutionManager implements ResourceChangedListener {
 		public void setNumOfMachines(int numOfMachines) {
 			this.numOfMachines = numOfMachines;
 		}
+
 
 	}
 

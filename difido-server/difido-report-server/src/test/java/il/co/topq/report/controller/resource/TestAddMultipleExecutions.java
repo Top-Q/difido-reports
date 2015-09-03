@@ -18,9 +18,6 @@ public class TestAddMultipleExecutions extends AbstractResourceTestCase {
 	private static final int NUM_OF_EXECUTIONS = 10;
 
 	
-	private DifidoClient client;
-	private String host = "localhost";
-	private int port = 8080;
 	private int executionId;
 	private String uid;
 
@@ -29,7 +26,7 @@ public class TestAddMultipleExecutions extends AbstractResourceTestCase {
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		client = new DifidoClient(host, port);
+		
 	}
 	
 	@Test
@@ -37,16 +34,16 @@ public class TestAddMultipleExecutions extends AbstractResourceTestCase {
 		for (int i = 0 ; i < NUM_OF_EXECUTIONS ; i++){
 			ExecutionDetails description = new ExecutionDetails();
 			description.setShared(false);
-			executionId = client.addExecution(description);
+			executionId = difidoClient.addExecution(description);
 			final MachineNode machine = new MachineNode(MACHINE_NAME);
-			final int machineId = client.addMachine(executionId, machine);
+			final int machineId = difidoClient.addMachine(executionId, machine);
 			final ScenarioNode scenario = new ScenarioNode(SCENARIO_NAME);
 			machine.addChild(scenario);
 			final TestNode test = new TestNode(0, TEST_NAME, "0");
 			uid = String.valueOf(Math.abs(new Random().nextInt()));
 			test.setUid(uid);
 			scenario.addChild(test);
-			client.updateMachine(executionId, machineId, machine);
+			difidoClient.updateMachine(executionId, machineId, machine);
 		}
 		System.out.println("End");
 	}

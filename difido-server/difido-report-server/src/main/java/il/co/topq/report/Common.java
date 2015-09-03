@@ -11,7 +11,7 @@ public class Common {
 	public static final SimpleDateFormat EXECUTION_REPROT_TIMESTAMP_FORMATTER = new SimpleDateFormat(
 			"yyyy_MM_dd__HH_mm_ss_SS");
 
-	public static final SimpleDateFormat API_DATE_FORMATTER = new SimpleDateFormat("dd/MM/yyy");
+	public static final SimpleDateFormat API_DATE_FORMATTER = new SimpleDateFormat("dd/MM/yyyy");
 
 	public static final SimpleDateFormat API_TIME_FORMATTER = new SimpleDateFormat("HH:mm:ss:SS");
 	

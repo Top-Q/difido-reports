@@ -25,9 +25,6 @@ public class TestCreateElements extends AbstractResourceTestCase {
 	private static final String TEST_NAME = "My test";
 	private static final String TEST_DETAILS_NAME = "My test details";
 	private static final long SLEEP_TIME = 1000;
-	private DifidoClient client;
-	private String host = "localhost";
-	private int port = 8080;
 	private TestDetails details;
 	private int executionId;
 	private String uid;
@@ -35,18 +32,17 @@ public class TestCreateElements extends AbstractResourceTestCase {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		client = new DifidoClient(host, port);
 		final ExecutionDetails description = new ExecutionDetails("Testing", true);
-		executionId = client.addExecution(description);
+		executionId = difidoClient.addExecution(description);
 		final MachineNode machine = new MachineNode(MACHINE_NAME);
-		final int machineId = client.addMachine(executionId, machine);
+		final int machineId = difidoClient.addMachine(executionId, machine);
 		final ScenarioNode scenario = new ScenarioNode(SCENARIO_NAME);
 		machine.addChild(scenario);
 		final TestNode test = new TestNode(0, TEST_NAME, "0");
 		uid = String.valueOf(Math.abs(new Random().nextInt()));
 		test.setUid(uid);
 		scenario.addChild(test);
-		client.updateMachine(executionId, machineId, machine);
+		difidoClient.updateMachine(executionId, machineId, machine);
 		details = new TestDetails(TEST_DETAILS_NAME, "0");
 		details.setUid(uid);
 	}
@@ -61,7 +57,7 @@ public class TestCreateElements extends AbstractResourceTestCase {
 		final String message = "My report element message";
 		element.setMessage(message);
 		details.addReportElement(element);
-		client.addTestDetails(executionId, details);
+		difidoClient.addTestDetails(executionId, details);
 
 		sleep();
 		final TestDetails testDetails = assertExecution();
@@ -82,7 +78,7 @@ public class TestCreateElements extends AbstractResourceTestCase {
 			element.setTitle("My report element " + i);
 			details.addReportElement(element);
 			long start = System.currentTimeMillis();
-			client.addTestDetails(executionId, details);
+			difidoClient.addTestDetails(executionId, details);
 			System.out.println("Element was added in " + (System.currentTimeMillis() - start) + " millis");
 		}
 		sleep();
@@ -100,8 +96,8 @@ public class TestCreateElements extends AbstractResourceTestCase {
 		element.setTitle("My report element");
 		element.setMessage(file.getName());
 		details.addReportElement(element);
-		client.addTestDetails(executionId, details);
-		client.addFile(executionId, uid, file);
+		difidoClient.addTestDetails(executionId, details);
+		difidoClient.addFile(executionId, uid, file);
 		sleep();
 		assertExecution();
 

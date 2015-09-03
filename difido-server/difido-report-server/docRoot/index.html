@@ -80,6 +80,8 @@
         
         	function convertToDataTable(){
         	    $('#reports').dataTable({
+        	    	// The aa sorting is empty because we want to disable the initial sorting of the table
+        	    	"aaSorting": [],
                     "bJQueryUI": true,
                     "sPaginationType": "full_numbers",
 					"iDisplayLength": 25

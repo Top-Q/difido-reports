@@ -20,14 +20,11 @@ public class TestConcurrencyExecution extends AbstractResourceTestCase {
 
 	protected static final int NUM_OF_TESTS_IN_SCENARIO = 10;
 	private static final int NUM_OF_THREADS = 10;
-	private static final String host = "localhost";
-	private static final int port = 8080;
 
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		final DifidoClient client = new DifidoClient(host, port);
-		client.deleteReports();
+		difidoClient.deleteReports();
 	}
 
 	class ExecutionRunThread extends Thread {
@@ -36,7 +33,7 @@ public class TestConcurrencyExecution extends AbstractResourceTestCase {
 		public void run() {
 			try {
 				final String tName = Thread.currentThread().getName();
-				final DifidoClient client = new DifidoClient(host, port);
+				final DifidoClient client = new DifidoClient(HOST, PORT);
 				final String executionUid = String.valueOf(System.currentTimeMillis() / 10000)
 						+ String.valueOf(new Random().nextInt(100));
 				final ExecutionDetails description = new ExecutionDetails("Testing",true);

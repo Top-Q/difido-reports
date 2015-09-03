@@ -21,14 +21,17 @@ import org.junit.Before;
 
 public abstract class AbstractResourceTestCase {
 
+	protected static final String HOST = "localhost";
+	protected static final int PORT = 8080;
+
 	private HttpServer server;
-	protected DifidoClient client;
+	protected DifidoClient difidoClient;
 
 	private boolean sameVm = true;
 
 	@Before
 	public void setUp() throws Exception {
-		if (sameVm) {
+		if (sameVm) { 
 			server = MainClass.startServer();
 			MainClass.startElastic();
 			MainClass.configureElastic();
@@ -36,6 +39,7 @@ public abstract class AbstractResourceTestCase {
 		}
 		final String baseUri = Configuration.INSTANCE.readString(ConfigProps.BASE_URI);
 		System.out.println("@Before - Grizzly server started on: " + baseUri);
+		difidoClient = new DifidoClient(HOST, PORT);
 	}
 
 	private void flushServer() {

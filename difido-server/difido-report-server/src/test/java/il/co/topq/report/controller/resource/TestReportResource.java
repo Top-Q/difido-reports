@@ -1,10 +1,5 @@
 package il.co.topq.report.controller.resource;
 
-import il.co.topq.report.Configuration;
-import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.model.AbstractResourceTestCase;
-import il.co.topq.report.model.ExecutionManager.ExecutionMetaData;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -17,36 +12,58 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import il.co.topq.difido.model.remote.ExecutionDetails;
+import il.co.topq.report.Configuration;
+import il.co.topq.report.Configuration.ConfigProps;
+import il.co.topq.report.model.AbstractResourceTestCase;
+import il.co.topq.report.model.ExecutionManager.ExecutionMetaData;
+
 public class TestReportResource extends AbstractResourceTestCase {
 
-	private Client client;
+	private Client jerseyClient;
 	private WebTarget baseTarget;
 
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
 		String baseUri = Configuration.INSTANCE.readString(ConfigProps.BASE_URI);
-		client = ClientBuilder.newClient();
-		client.register(JacksonFeature.class);
-		client.register(MultiPartWriter.class);
-		this.baseTarget = client.target(baseUri);
-		client.target(baseUri);
+		jerseyClient = ClientBuilder.newClient();
+		jerseyClient.register(JacksonFeature.class);
+		jerseyClient.register(MultiPartWriter.class);
+		this.baseTarget = jerseyClient.target(baseUri);
+		jerseyClient.target(baseUri);
+		AddExecutions();
 
+	}
+
+	private void AddExecutions() throws Exception {
+		for (int i = 0; i < 10 ; i++){
+			Thread.sleep(1000);
+		}
 	}
 
 	@After
 	public void tearDown() {
-		if (client != null) {
-			client.close();
+		super.tearDown();
+		if (jerseyClient != null) {
+			jerseyClient.close();
 		}
 	}
 
-	@Test
-	public void testGetReports() {
+	private ExecutionMetaData[] getExecutionMetaData() {
 		WebTarget executionsTarget = baseTarget.path("/reports");
 		ExecutionMetaData[] reports = executionsTarget.request(MediaType.APPLICATION_JSON).get(ExecutionMetaData[].class);
-		Assert.assertNotNull(reports);
-		
-
+		return reports;
 	}
+
+	@Test
+	public void testGetReports() throws Exception {
+		ExecutionDetails execution = new ExecutionDetails();
+		execution.setShared(false);
+		difidoClient.addExecution(execution);	
+		ExecutionMetaData[] reports = getExecutionMetaData();
+		Assert.assertNotNull(reports);
+	}
+
+	
 }
