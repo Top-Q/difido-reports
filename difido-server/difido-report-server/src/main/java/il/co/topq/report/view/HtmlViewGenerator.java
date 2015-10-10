@@ -59,7 +59,24 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 		if (creationLevel.ordinal() >= HtmlGenerationLevel.EXECUTION.ordinal()) {
 			writeExecution(executionId);
 		}
+	}
 
+	/**
+	 * This will delete the reports folder from the file system
+	 */
+	@Override
+	public void executionDeleted(int executionId) {
+		log.debug("About to delete execution folder of execution with id " + executionId);
+		final File executionFolder = getExecutionDestinationFolder(executionId);
+		if (null == executionFolder) {
+			log.warn("Could not find folder for exeuction with id " + executionId);
+			return;
+		}
+		try {
+			FileUtils.deleteDirectory(executionFolder);
+		} catch (IOException e) {
+			log.error("Failed to delete folder " + executionFolder.getAbsolutePath() + " for execution " + executionId);
+		}
 	}
 
 	private void prepareExecutionFolder(int executionId) {
@@ -116,14 +133,15 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 	private void writeTestDetails(TestDetails details, int executionId) {
 		synchronized (testFileLockObject) {
 			final File executionDestinationFolder = getExecutionDestinationFolder(executionId);
-			PersistenceUtils.writeTest(details, executionDestinationFolder, new File(executionDestinationFolder,
-					"tests" + File.separator + "test_" + details.getUid()));
+			PersistenceUtils.writeTest(details, executionDestinationFolder,
+					new File(executionDestinationFolder, "tests" + File.separator + "test_" + details.getUid()));
 		}
 	}
 
 	public void fileAddedToTest(int executionId, String uid, InputStream inputStream, String fileName) {
-		final File file = new File(getExecutionDestinationFolder(executionId) + File.separator + "tests"
-				+ File.separator + "test_" + uid, fileName);
+		final File file = new File(
+				getExecutionDestinationFolder(executionId) + File.separator + "tests" + File.separator + "test_" + uid,
+				fileName);
 		saveFile(inputStream, file.getAbsolutePath());
 	}
 

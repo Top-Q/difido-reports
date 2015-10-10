@@ -72,6 +72,23 @@ public enum ListenersManager {
 		}
 
 	}
+	
+	public void notifyExecutionDeleted(int executionId){
+		log.debug("Execution with id " + executionId + " was deleted");
+		synchronized (listenersList) {
+			for (ReportServerListener listener : listenersList) {
+				if (listener instanceof ResourceChangedListener) {
+					try {
+						((ResourceChangedListener) listener).executionDeleted(executionId);
+					} catch (Throwable t) {
+						log.error("Execption while notifying listner " + listener.getClass().getSimpleName(), t);
+					}
+
+				}
+			}
+		}
+		
+	}
 
 	public void notifyMachineAdded(int executionId, MachineNode machine) {
 		log.debug("Machine was added to execution with id " + executionId);

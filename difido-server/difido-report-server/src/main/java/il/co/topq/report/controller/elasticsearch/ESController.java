@@ -1,5 +1,22 @@
 package il.co.topq.report.controller.elasticsearch;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.rest.RestStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.ScenarioNode;
@@ -12,22 +29,6 @@ import il.co.topq.report.controller.listener.ResourceChangedListener;
 import il.co.topq.report.model.ElasticsearchTest;
 import il.co.topq.report.model.ExecutionManager;
 import il.co.topq.report.model.ExecutionManager.ExecutionMetaData;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.index.IndexResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * 
@@ -47,6 +48,14 @@ public class ESController implements ResourceChangedListener {
 	@Override
 	public void executionAdded(int executionId, Execution execution) {
 		openTestsPerExecution.put(executionId, new CopyOnWriteArrayList<ElasticsearchTest>());
+	}
+
+	@Override
+	public void executionDeleted(int executionId) {
+		log.debug("About to delete all tests of execution " + executionId + " from the ElasticSearch");
+		if (ESUtils.delete(Common.ELASTIC_INDEX, "test", "executionId = " + executionId).status() != RestStatus.OK) {
+			log.error("Failed deleting all tests of execution with id " + executionId + " from the ElasticSearch");
+		}
 	}
 
 	@Override
@@ -212,4 +221,5 @@ public class ESController implements ResourceChangedListener {
 				"test.html";
 		//@formatter:on
 	}
+
 }

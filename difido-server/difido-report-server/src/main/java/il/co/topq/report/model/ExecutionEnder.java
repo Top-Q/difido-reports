@@ -80,4 +80,9 @@ public class ExecutionEnder implements ResourceChangedListener {
 
 	}
 
+	@Override
+	public void executionDeleted(int executionId) {
+		
+	}
+
 }

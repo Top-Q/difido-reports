@@ -81,6 +81,19 @@ public enum ExecutionManager implements ResourceChangedListener {
 		return metaData.getId();
 	}
 
+	@Override
+	public void executionDeleted(int executionId) {
+		log.debug("About to delete the metadata of execution with id " + executionId);
+		// Let's make sure we have the data
+		readExecutionMeta();
+
+		// We need to delete the execution
+		if (null == executionsCache.remove(executionId)) {
+			log.warn("Tried to delete execution with id " + executionId + " which is not exists");
+		}
+		writeExecutionMeta();
+	}
+
 	/**
 	 * Sets the execution properties in the execution meta data. Will allow
 	 * addition only of properties that are specified in the configuration file
@@ -464,7 +477,7 @@ public enum ExecutionManager implements ResourceChangedListener {
 			this.active = true;
 			lastAccessedTime = System.currentTimeMillis();
 		}
-		
+
 		/**
 		 * Enable to sort collection of this class by descending order of the
 		 * date and time
@@ -639,7 +652,6 @@ public enum ExecutionManager implements ResourceChangedListener {
 		public void setNumOfMachines(int numOfMachines) {
 			this.numOfMachines = numOfMachines;
 		}
-
 
 	}
 

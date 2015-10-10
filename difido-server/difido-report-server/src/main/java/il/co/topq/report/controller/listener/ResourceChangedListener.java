@@ -7,7 +7,9 @@ import il.co.topq.difido.model.test.TestDetails;
 public interface ResourceChangedListener extends ReportServerListener {
 
 	void executionAdded(int executionId, Execution execution);
-	
+
+	void executionDeleted(int executionId);
+
 	void executionEnded(int executionId, Execution execution);
 
 	void machineAdded(int executionId, MachineNode machine);

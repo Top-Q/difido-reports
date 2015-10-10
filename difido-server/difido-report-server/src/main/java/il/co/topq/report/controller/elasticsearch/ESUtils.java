@@ -1,11 +1,10 @@
 package il.co.topq.report.controller.elasticsearch;
 
-import il.co.topq.report.Common;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
@@ -17,6 +16,8 @@ import org.elasticsearch.search.aggregations.metrics.max.Max;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import il.co.topq.report.Common;
 
 public class ESUtils {
 
@@ -56,6 +57,16 @@ public class ESUtils {
 
 	public static IndexResponse add(String index, String type, Object object) throws JsonProcessingException {
 		return add(index, type, null, object);
+	}
+	
+	public static DeleteByQueryResponse delete(String index, String type, String query) {
+		DeleteByQueryResponse response = Common.elasticsearchClient.prepareDeleteByQuery(index)
+                .setQuery(QueryBuilders.queryString(query))
+                .execute()
+                .actionGet();
+		return response;
+		
+		
 	}
 
 	/**
@@ -97,7 +108,8 @@ public class ESUtils {
 	}
 
 	/**
-	 * Add document and wait for it to be indexed.
+	 * Add document and wait for it to be indexed. <br>
+	 * NOTE: This is not always works as expected.
 	 * 
 	 * @param index
 	 * @param type

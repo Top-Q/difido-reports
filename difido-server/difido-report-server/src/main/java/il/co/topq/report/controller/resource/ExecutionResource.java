@@ -4,6 +4,7 @@ import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.remote.ExecutionDetails;
 import il.co.topq.report.controller.listener.ListenersManager;
 import il.co.topq.report.model.ExecutionManager;
+import il.co.topq.report.model.ExecutionManager.ExecutionMetaData;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -60,10 +61,29 @@ public class ExecutionResource {
 		}
 	}
 
+	/**
+	 * Delete a single execution from the server. A notification will be sent to delete it from all the listeners.
+	 * @param executionIndex
+	 */
+	@DELETE
+	@Path("/{execution: [0-9]+}")
+	public void delete(@PathParam("execution") int executionIndex) {
+		log.debug("DELETE - Delete execution with id " + executionIndex);
+		final ExecutionMetaData executionMetaData = ExecutionManager.INSTANCE.getExecutionMetaData(executionIndex);
+		if (null == executionMetaData) {
+			log.warn("Trying to delete execution with index " + executionIndex + " which is not exist");
+			return;
+		}
+		if (executionMetaData.isActive()) {
+			log.warn("Trying to delete execution with index " + executionIndex + " which is still active");
+			return;
+		}
 
-	
-	//*********   Deprecated methods
-	
+		ListenersManager.INSTANCE.notifyExecutionDeleted(executionIndex);
+	}
+
+	// ********* Deprecated methods
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{execution: [0-9]+}")
@@ -71,22 +91,6 @@ public class ExecutionResource {
 	public Execution get(@PathParam("execution") int execution) {
 		log.debug("GET - Get execution with id " + execution);
 		return ExecutionManager.INSTANCE.getExecution(execution);
-	}
-	
-	/**
-	 * Use it to signal that the execution has ended. This is very important
-	 * since in some cases, the HTML reports will not be created or created only
-	 * partially if this method will not be called
-	 * 
-	 * @deprecated Use the PUT command instead
-	 */
-	@DELETE
-	@Path("/{execution}")
-	@Deprecated
-	public void delete(@PathParam("execution") int executionIndex) {
-		log.debug("DELETE - Delete execution with id " + executionIndex);
-		ListenersManager.INSTANCE.notifyExecutionEnded(executionIndex,
-				ExecutionManager.INSTANCE.getExecution(executionIndex));
 	}
 
 	/**
@@ -108,7 +112,7 @@ public class ExecutionResource {
 		log.debug("GET - Last execution id. Id is " + index);
 		return index;
 	}
-	
-	//*****************************
+
+	// *****************************
 
 }

@@ -143,6 +143,10 @@ public class MailController implements ResourceChangedListener {
 	public void testDetailsAdded(int executionId, TestDetails details) {
 	}
 
+	@Override
+	public void executionDeleted(int executionId) {
+	}
+
 	// ********************************
 
 }
