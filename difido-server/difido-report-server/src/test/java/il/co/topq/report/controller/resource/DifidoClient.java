@@ -90,12 +90,6 @@ public class DifidoClient {
 		handleResponse(response);
 	}
 
-	public void deleteReports() throws Exception {
-		final HttpDelete request = new HttpDelete(baseUri + "reports/");
-		final HttpResponse response = client.execute(request);
-		handleResponse(response);
-	}
-
 	private String getResponseAsString(HttpResponse response) throws IllegalStateException, IOException {
 		BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 		StringBuilder result = new StringBuilder();

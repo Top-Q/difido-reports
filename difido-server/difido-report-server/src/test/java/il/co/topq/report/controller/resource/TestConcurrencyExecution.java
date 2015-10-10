@@ -24,7 +24,6 @@ public class TestConcurrencyExecution extends AbstractResourceTestCase {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		difidoClient.deleteReports();
 	}
 
 	class ExecutionRunThread extends Thread {
