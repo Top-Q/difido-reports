@@ -19,14 +19,9 @@
           <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
         <style>
-            h1 {
-                color: orange;
+            h2 {
+                color: #CCCCCC;
                 text-align: center;
-            }
-
-            p {
-                font-family: "Times New Roman";
-                font-size: 20px;
             }
         </style>
     </head>
@@ -75,7 +70,8 @@
         <!-- Placed at the end of the document so the pages load faster -->
         <script src="js/jquery.js"></script>
         <script src="js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+        <script src="js/bootbox.js"></script>
+        <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
         <!-- script type="text/javascript" src="js/jquery.dataTables.js"></script--> 
         <script>
         	function convertToDataTable(){
@@ -98,7 +94,7 @@
                   // Check/uncheck all checkboxes in the table
           	      var rows = table.rows({ 'search': 'applied' }).nodes();
           	      $('input[type="checkbox"]', rows).prop('checked', this.checked);
-          	   });
+          	    });
         	    
         	    $('#reports tbody').on('change', 'input[type="checkbox"]', function(){
         	        // If checkbox is not checked
@@ -194,58 +190,55 @@
             }
 
             function deleteReports() {
-                var approved = confirm("Are you sure you want to delete selected execution reports?");
-                if (!approved) {
-                    return;
-                }
-                // The following is important for allowing selection of rows which are not currently
-                // viewed in the table
-                // Iterate over all checkboxes in the table
-                 $('#reports').DataTable().$('input[type="checkbox"]').each(function(){
-                    // If checkbox doesn't exist in DOM
-                    if(!$.contains(document, this)){
-                        // If checkbox is checked
-                        if(this.checked){
-                            // Create a hidden element 
-                            $("#reports").append(
-                                $('<input>')
-                                    .attr('type', 'checkbox')
-                                    .attr('name', this.name)
-                                    // We want it to be hidden
-                                    .attr('style', "opacity:0; position:absolute; left:9999px;")
-                                    // We later find it by class
-                                    .addClass("exec-checkbox")
-                                    // This is used for identifying the execution
-                                    .val(this.value)
-                                    // We also search only for the checked checkboxes
-                                    .prop('checked', true)
+                bootbox.confirm("Are you sure you want to delete selected execution reports?", function(result) {
+                    if (result) {
+                        // The following is important for allowing selection of rows which are not currently
+                        // viewed in the table
+                        // Iterate over all checkboxes in the table
+                         $('#reports').DataTable().$('input[type="checkbox"]').each(function(){
+                            // If checkbox doesn't exist in DOM
+                            if(!$.contains(document, this)){
+                                // If checkbox is checked
+                                if(this.checked){
+                                    // Create a hidden element 
+                                    $("#reports").append(
+                                        $('<input>')
+                                            .attr('type', 'checkbox')
+                                            .attr('name', this.name)
+                                            // We want it to be hidden
+                                            .attr('style', "opacity:0; position:absolute; left:9999px;")
+                                            // We later find it by class
+                                            .addClass("exec-checkbox")
+                                            // This is used for identifying the execution
+                                            .val(this.value)
+                                            // We also search only for the checked checkboxes
+                                            .prop('checked', true)
 
+                                    );
+                                }
+                            } 
+                        });
+
+
+                        // Go over all the checked checkboxes and send delete request for each one
+                        $(".exec-checkbox:checkbox:checked").each(function() {
+                            $.ajax({
+                                url: 'api/executions/' + this.value,
+                                type: 'DELETE',
+                                }
                             );
-                        }
-                    } 
-                });
-
-
-                // Go over all the checked checkboxes and send delete request for each one
-                $(".exec-checkbox:checkbox:checked").each(function() {
-                    $.ajax({
-                        url: 'api/executions/' + this.value,
-                        type: 'DELETE',
-                        }
-                    );
-                });
-                
-                // We want the page to refresh only when all the delete commands are executed.
-                $(document).ajaxStop(function () {
-                    location.reload();
+                        });
+                        
+                        // We want the page to refresh only when all the delete commands are executed.
+                        $(document).ajaxStop(function () {
+                            location.reload();
+                        });
+                    }
                 });
             }
-
             $(document).ready(function() {
-            	createTable();
-  
+                createTable();
             });
-            
         </script>
     </body>
 </html>
