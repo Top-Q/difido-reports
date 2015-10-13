@@ -26,23 +26,11 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 
 	private final Logger log = LoggerFactory.getLogger(HtmlViewGenerator.class);
 
-	private static HtmlViewGenerator INSTANCE = null;
-
 	private static final File TEMPLATE_FOLDER = new File("htmlTemplate");
 
 	private Object executionFileLockObject = new Object();
 
 	private Object testFileLockObject = new Object();
-
-	private HtmlViewGenerator() {
-	}
-
-	public static HtmlViewGenerator getInstance() {
-		if (INSTANCE == null) {
-			INSTANCE = new HtmlViewGenerator();
-		}
-		return INSTANCE;
-	}
 
 	enum HtmlGenerationLevel {
 		EXECUTION, MACHINE, SCENARIO, TEST, TEST_DETAILS, ELEMENT
@@ -138,6 +126,7 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 		}
 	}
 
+	@Override
 	public void fileAddedToTest(int executionId, String uid, InputStream inputStream, String fileName) {
 		final File file = new File(
 				getExecutionDestinationFolder(executionId) + File.separator + "tests" + File.separator + "test_" + uid,

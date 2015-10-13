@@ -1,5 +1,7 @@
 package il.co.topq.report.model;
 
+import java.io.InputStream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,25 +66,23 @@ public class ExecutionEnder implements ResourceChangedListener {
 
 	@Override
 	public void executionEnded(int executionId, Execution execution) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void machineAdded(int executionId, MachineNode machine) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void testDetailsAdded(int executionId, TestDetails details) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void executionDeleted(int executionId) {
 		
+	}
+
+	@Override
+	public void fileAddedToTest(int executionId, String testUid, InputStream fileInputStream, String fileName) {
 	}
 
 }

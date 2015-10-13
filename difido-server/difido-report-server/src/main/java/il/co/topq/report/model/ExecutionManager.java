@@ -15,6 +15,7 @@ import il.co.topq.report.controller.listener.ResourceChangedListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -652,6 +653,14 @@ public enum ExecutionManager implements ResourceChangedListener {
 		public void setNumOfMachines(int numOfMachines) {
 			this.numOfMachines = numOfMachines;
 		}
+
+	}
+
+	@Override
+	public void fileAddedToTest(int executionId, String testUid, InputStream fileInputStream, String fileName) {
+		// There is not much to do when this happens. Only to update the last
+		// access time of the execution
+		updateExecutionLastUpdateTime(executionId);
 
 	}
 

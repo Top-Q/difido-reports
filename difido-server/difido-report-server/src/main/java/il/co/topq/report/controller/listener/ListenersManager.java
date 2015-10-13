@@ -11,6 +11,7 @@ import il.co.topq.report.model.ExecutionEnder;
 import il.co.topq.report.model.ExecutionManager;
 import il.co.topq.report.view.HtmlViewGenerator;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -29,7 +30,7 @@ public enum ListenersManager {
 		// TODO: This should be done by another way. Maybe injection
 
 		if (Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_HTML_REPORTS)) {
-			addListener(HtmlViewGenerator.getInstance());
+			addListener(new HtmlViewGenerator());
 		}
 		if (Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_ELASTIC_SEARCH)) {
 			addListener(new ESController());
@@ -72,8 +73,8 @@ public enum ListenersManager {
 		}
 
 	}
-	
-	public void notifyExecutionDeleted(int executionId){
+
+	public void notifyExecutionDeleted(int executionId) {
 		log.debug("Execution with id " + executionId + " was deleted");
 		synchronized (listenersList) {
 			for (ReportServerListener listener : listenersList) {
@@ -87,7 +88,7 @@ public enum ListenersManager {
 				}
 			}
 		}
-		
+
 	}
 
 	public void notifyMachineAdded(int executionId, MachineNode machine) {
@@ -118,6 +119,23 @@ public enum ListenersManager {
 
 			}
 		}
+	}
+
+	public void notifyFileAddedToTest(int executionId, String testUid, InputStream fileInputStream, String fileName) {
+		log.debug("File was added to test with UID " + testUid + " and execution " + executionId);
+		synchronized (listenersList) {
+			for (ReportServerListener listener : listenersList) {
+				if (listener instanceof ResourceChangedListener) {
+					try {
+						((ResourceChangedListener) listener).fileAddedToTest(executionId, testUid, fileInputStream,
+								fileName);
+					} catch (Throwable t) {
+						log.error("Execption while notifying listner " + listener.getClass().getSimpleName(), t);
+					}
+				}
+			}
+		}
+
 	}
 
 	public void notifyExecutionEnded(int executionId, Execution execution) {

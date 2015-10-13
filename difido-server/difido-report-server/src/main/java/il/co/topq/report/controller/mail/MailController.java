@@ -9,6 +9,7 @@ import il.co.topq.report.controller.listener.ResourceChangedListener;
 import il.co.topq.report.model.ExecutionManager;
 import il.co.topq.report.model.ExecutionManager.ExecutionMetaData;
 
+import java.io.InputStream;
 import java.io.StringWriter;
 
 import org.apache.commons.lang3.StringUtils;
@@ -145,6 +146,10 @@ public class MailController implements ResourceChangedListener {
 
 	@Override
 	public void executionDeleted(int executionId) {
+	}
+
+	@Override
+	public void fileAddedToTest(int executionId, String testUid, InputStream fileInputStream, String fileName) {
 	}
 
 	// ********************************

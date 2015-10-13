@@ -1,9 +1,5 @@
 package il.co.topq.report.controller.resource;
 
-import il.co.topq.difido.model.test.TestDetails;
-import il.co.topq.report.controller.listener.ListenersManager;
-import il.co.topq.report.view.HtmlViewGenerator;
-
 import java.io.InputStream;
 
 import javax.ws.rs.Consumes;
@@ -18,6 +14,9 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import il.co.topq.difido.model.test.TestDetails;
+import il.co.topq.report.controller.listener.ListenersManager;
 
 @Path("/executions/{execution}/details")
 public class TestDetailsResource {
@@ -48,7 +47,7 @@ public class TestDetailsResource {
 		FormDataContentDisposition fileDisposition = fileBodyPart.getFormDataContentDisposition();
 		String fileName = fileDisposition.getFileName();
 
-		HtmlViewGenerator.getInstance().fileAddedToTest(executionId, uid, fileStream, fileName);
+		ListenersManager.INSTANCE.notifyFileAddedToTest(executionId, uid, fileStream, fileName);
 
 	}
 

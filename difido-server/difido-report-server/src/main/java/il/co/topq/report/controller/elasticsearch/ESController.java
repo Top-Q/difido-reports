@@ -1,5 +1,6 @@
 package il.co.topq.report.controller.elasticsearch;
 
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -220,6 +221,11 @@ public class ESController implements ResourceChangedListener {
 				"/" +
 				"test.html";
 		//@formatter:on
+	}
+
+	@Override
+	public void fileAddedToTest(int executionId, String testUid, InputStream fileInputStream, String fileName) {
+		// We don't store files in Elastic
 	}
 
 }
