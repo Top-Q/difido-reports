@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Execution Table</title>
+
+        <!-- Bootstrap core CSS -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/general_page.css" rel="stylesheet">
+        <link href="css/jquery-ui-1.8.4.custom.css" rel="stylesheet">
+        <link href="css/dashboard.css" rel="stylesheet">
+        <link href="css/jquery.dataTables_themeroller.css" rel="stylesheet">
+        <link href="css/jquery-ui-1.8.4.custom.css" rel="stylesheet">
+        <!-- Just for debugging purposes. Don't actually copy this line! -->
+        <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+          <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">Test Execution Report</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="index.html">Dashboard</a></li>
+                        <li><a href="tree.html">Execution Tree</a></li>
+                        <li><a href="#">Execution Table</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <!--<div class="row">-->
+
+                <table id="overview">
+                    <div class="col-sm-2 hidden-sm hidden-xs">
+                    </div>
+                    <div class="col-sm-8 main" >
+
+                    <thead>
+                        <tr>
+                            <th>Index</th>
+                            <th>Time Stamp</th>
+                            <th>Test Name</th>
+                            <th>Test Suite</th>
+                            <th>Machine Name</th>
+                            <th>Status</th>
+                            <th>Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                        <div class="col-sm-2 hidden-sm hidden-xs">
+                        </div>
+                    </div>
+
+                </table>
+
+
+
+        </div>
+
+        <!--</div>-->
+
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="js/jquery.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="js/jquery.dataTables.js"></script> 
+        <script type="text/javascript" src="controllers/controllerUtils.js"></script>
+        <script type="text/javascript" src="controllers/tableController.js"></script>
+        <script type="text/javascript" src="execution.js"></script>
+        <script type="text/javascript">
+            function createTable() {
+                tableController($('#overview'));
+                $('#overview').dataTable({
+                    "bJQueryUI": true,
+                    "sPaginationType": "full_numbers",
+					"iDisplayLength": 25
+                });
+
+            }
+
+            $(document).ready(function() {
+                createTable();
+            });
+        </script>
+    </body>
+</html>
