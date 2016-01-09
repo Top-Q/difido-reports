@@ -4,8 +4,10 @@ import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.test.TestDetails;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
@@ -31,6 +33,49 @@ public class PersistenceUtils {
 	}
 
 	/**
+	 * Search for the Jar files that holds all the HTML sources that needs to be
+	 * extracted.
+	 * 
+	 * @return The jar file or null if fails to find one
+	 */
+	private static File findJarFileWithHtmlSources() {
+		File jarFile = new File(Execution.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+		if (jarFile.isFile()) {
+			return jarFile;
+		}
+		File libFolder = new File("./lib");
+		if (libFolder.exists()) {
+			File[] files = libFolder.listFiles(new FilenameFilter() {
+
+				@Override
+				public boolean accept(File file, String name) {
+					if (name.contains("difido-server") && name.endsWith("jar")) {
+						return true;
+					}
+					return false;
+				}
+			});
+			if (files.length == 0) {
+				log.warning("There are no files in the lib folder that can contain the HTML sources");
+			}
+			try {
+				List<File> extractedFiles = ZipUtils.decopmerss(files[0].getAbsolutePath(),
+						System.getProperty("java.io.tmpdir"), "lib/difido-reports-common");
+				if (extractedFiles.isEmpty()) {
+					log.warning("Failed find jar that contains HTML files");
+				}
+				return extractedFiles.get(0);
+			} catch (Exception e) {
+				log.warning("Failed to decompress jar that contains HTML files");
+				return null;
+			}
+
+		}
+		return null;
+
+	}
+
+	/**
 	 * Copy all the HTML and other necessary files to the specified destination
 	 * folder
 	 * 
@@ -44,8 +89,8 @@ public class PersistenceUtils {
 			}
 		}
 
-		final File jarFile = new File(Execution.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-		if (jarFile.isFile()) {
+		final File jarFile = findJarFileWithHtmlSources();
+		if (jarFile != null) {
 			try {
 				ZipUtils.decopmerss(jarFile.getAbsolutePath(), destinationFolder.getAbsolutePath(), resourcesPath);
 			} catch (Exception e) {
@@ -59,8 +104,7 @@ public class PersistenceUtils {
 				File files = new File(resourceFiles.toURI());
 				FileUtils.copyDirectory(files, destinationFolder);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.warning("Failed to copy HTML resources");
 			}
 
 		}

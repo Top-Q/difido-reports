@@ -10,16 +10,9 @@
 	<dependencySets>
 		<dependencySet>
 			<outputDirectory>lib</outputDirectory>
-			<outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
-			<excludes>
-				<exclude>*:difido-reports-server:*</exclude>
-			</excludes>
-		</dependencySet>
-		<dependencySet>
-			<outputDirectory>lib</outputDirectory>
 			<outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
 			<includes>
-				<include>*:difido-reports-server:*</include>
+				<include>*:difido-server:*</include>
 			</includes>
 		</dependencySet>
 	</dependencySets>
