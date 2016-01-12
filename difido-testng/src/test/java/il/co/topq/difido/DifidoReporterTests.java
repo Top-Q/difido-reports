@@ -13,8 +13,10 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
+@Listeners(il.co.topq.difido.ReportManagerHook.class)
 public class DifidoReporterTests {
 
 	ReportDispatcher report = ReportManager.getInstance();
