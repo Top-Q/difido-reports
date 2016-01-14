@@ -109,9 +109,11 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             }
             Stream dataStream = response.GetResponseStream();
             // Open the stream using a StreamReader for easy access.
-            StreamReader reader = new StreamReader(dataStream);
-            // Read the content.
-            return reader.ReadToEnd();
+            using (StreamReader reader = new StreamReader(dataStream))
+            {
+                // Read the content.
+                return reader.ReadToEnd();
+            }
         }
 
 
