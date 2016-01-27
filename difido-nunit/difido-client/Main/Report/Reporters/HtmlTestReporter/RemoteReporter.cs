@@ -16,39 +16,50 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
         private int executionId;
         private int machineId;
         private int numOfFailures;
+        // A flag that allows us to execute the init only once.
+        private bool first = true;
+
 
 
         public override void Init(string outputFolder)
         {
             base.Init(outputFolder);
+        }
 
-            String host = null;
-            int port = 0;
+        private void Init()
+        {
+            if (!first)
+            {
+                return;
+            }
+            string host = "localhost";
+            int port = 8080;
+            
             try
             {
                 if (!enabled)
                 {
                     return;
                 }
-                host = "localhost";
-                port = 8080;
-
+                // host = Configuration.Instance.GetProperty("report", "reportServerHost");
+                // port = Configuration.Instance.GetProperty("report", "reportServerPort");
                 ExecutionDetails executionDetails = new ExecutionDetails();
                 //executionDetails.description = "Some description";
                 client = new DifidoClient(host, port);
                 executionId = client.AddExecution(executionDetails);
                 machineId = client.AddMachine(executionId, CurrentExecution.GetLastMachine());
                 enabled = true;
-                
+
             }
             catch
             {
                 enabled = false;
-                //log.warning("Failed to init " + RemoteHtmlReporter.class.getName() + "connection with host '" + host + ":"
-                //        + port + "' due to " + t.getMessage());
             }
+            first = false;
+
 
         }
+
 
         protected override void TestDetailsWereAdded(difido_client.Report.Html.Model.TestDetails testDetails)
         {
@@ -70,6 +81,9 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
 
         protected override void ExecutionWasAddedOrUpdated(difido_client.Report.Html.Model.Execution execution)
         {
+            // We have to call to the Init here and not in the Init method, 
+            // since this method is called too many times, and each time it is called, a new execution is created. 
+            Init();
             if (!enabled)
             {
                 return;
@@ -124,6 +138,12 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
                 enabled = false;
             }
         }
+
+        public override void EndSuite(string suiteName)
+        {
+            client.endExecution(executionId);
+        }
+
 
     }
 }

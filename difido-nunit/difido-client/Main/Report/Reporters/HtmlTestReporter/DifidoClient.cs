@@ -93,27 +93,32 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
         private string Send(WebRequest request)
         {
             HttpWebResponse response = null;
+            string content = null;
             try
             {
 
                 response = (HttpWebResponse)request.GetResponse();
+                if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Accepted && response.StatusCode != HttpStatusCode.NoContent)
+                {
+                    throw new Exception("Request was not successful. Response status is: " + response.StatusCode);
+                }
+                Stream dataStream = response.GetResponseStream();
+                // Open the stream using a StreamReader for easy access.
+                using (StreamReader reader = new StreamReader(dataStream))
+                {
+                    // Read the content.
+                    content = reader.ReadToEnd();
+                }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
-
-            if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Accepted && response.StatusCode != HttpStatusCode.NoContent)
+            finally
             {
-                throw new Exception("Request was not successful. Response status is: " + response.StatusCode);
+                response.Close();
             }
-            Stream dataStream = response.GetResponseStream();
-            // Open the stream using a StreamReader for easy access.
-            using (StreamReader reader = new StreamReader(dataStream))
-            {
-                // Read the content.
-                return reader.ReadToEnd();
-            }
+            return content;
         }
 
 

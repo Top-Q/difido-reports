@@ -129,11 +129,11 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
 
 
         #region unused
-        public void StartSuite(string suiteName)
+        public virtual void StartSuite(string suiteName)
         {
         }
 
-        public void EndSuite(string suiteName)
+        public virtual void EndSuite(string suiteName)
         {
         }
         #endregion

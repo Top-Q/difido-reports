@@ -65,11 +65,11 @@ namespace difido_client.Nunit
         }
         public void SuiteStarted(TestName testName)
         {
-
+            report.StartSuite(null);
         }
         public void SuiteFinished(TestResult result)
         {
-
+            report.EndSuite(null);
         }
         public void UnhandledException(Exception exception)
         {
