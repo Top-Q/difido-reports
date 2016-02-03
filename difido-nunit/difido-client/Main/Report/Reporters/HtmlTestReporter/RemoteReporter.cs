@@ -1,4 +1,5 @@
 ﻿using difido_client.Main.Report.Reporters.HtmlTestReporter.Model.Execution;
+using difido_client.Report.Html.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -45,6 +46,18 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
                 // port = Configuration.Instance.GetProperty("report", "reportServerPort");
                 ExecutionDetails executionDetails = new ExecutionDetails();
                 //executionDetails.description = "Some description";
+
+                //string executionPropertiesValue = "key0=val0;key1=val1";
+
+                //// Parsing the properties from the configuration file and adding them as execution properties
+                //executionDetails.executionProperties = executionPropertiesValue.Split(';')
+                //    .Select(value => value.Split('='))
+                //    .ToDictionary(pair => pair[0], pair => pair[1]);
+
+                //// We are also adding the execution properties as scenario properties so we could see it in the ElasticSearch
+                //Scenario scenario = (Scenario)CurrentExecution.GetLastMachine().children[0];
+                //scenario.scenarioProperties = executionDetails.executionProperties;
+
                 client = new DifidoClient(host, port);
                 executionId = client.AddExecution(executionDetails);
                 machineId = client.AddMachine(executionId, CurrentExecution.GetLastMachine());
