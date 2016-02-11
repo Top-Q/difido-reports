@@ -11,7 +11,7 @@
 #         sudo update-rc.d difido defaults
 #
 # 
-readonly DIFIDO_PATH=/home/itai/Desktop/difido-server
+readonly DIFIDO_PATH=/usr/local/bin/difido-server
 
 function start {
 	cd $DIFIDO_PATH
