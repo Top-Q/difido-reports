@@ -207,7 +207,8 @@ public class ESController implements ResourceChangedListener {
 		}
 		//@formatter:off
 		//http://localhost:8080/reports/execution_2015_04_15__21_14_29_767/tests/test_8691429121669-2/test.html
-		return Configuration.INSTANCE.readString(ConfigProps.BASE_URI).replace("api/", "") +
+		return "http://0.0.0.0:" + System.getProperty("server.port") +
+				"/"+
 				Common.REPORTS_FOLDER_NAME +
 				"/"+
 				executionMetadata.getFolderName() +

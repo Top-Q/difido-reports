@@ -19,7 +19,6 @@ public enum Configuration {
 	public enum ConfigProps {
 
 		//@formatter:off
-		BASE_URI("base.uri", "http://0.0.0.0:8080/api/"), 
 		DOC_ROOT_FOLDER("doc.root.folder", "docRoot"), 
 		PATH_DATA("path.data", "data/index"),
 		MAX_EXECUTION_IDLE_TIME_IN_SEC("max.execution.idle.time.in.seconds", "600"),
@@ -94,7 +93,6 @@ public enum Configuration {
 	private void useDefaultProperties() {
 		log.info("No configuration file found - Creating one with default parameters in "
 				+ new File(CONFIG_PROP_NAME).getAbsolutePath());
-		addPropWithDefaultValue(ConfigProps.BASE_URI);
 		addPropWithDefaultValue(ConfigProps.DOC_ROOT_FOLDER);
 		addPropWithDefaultValue(ConfigProps.PATH_DATA);
 		addPropWithDefaultValue(ConfigProps.MAX_EXECUTION_IDLE_TIME_IN_SEC);

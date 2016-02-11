@@ -7,14 +7,11 @@ import javax.ws.rs.core.MediaType;
 
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import il.co.topq.difido.model.remote.ExecutionDetails;
-import il.co.topq.report.Configuration;
-import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.listener.execution.AbstractResourceTest;
 import il.co.topq.report.listener.execution.ExecutionManager.ExecutionMetaData;
 
@@ -26,7 +23,7 @@ public class ReportResourceIT extends AbstractResourceTest {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		String baseUri = Configuration.INSTANCE.readString(ConfigProps.BASE_URI);
+		String baseUri = "http://0.0.0.0:8080/api/";
 		jerseyClient = ClientBuilder.newClient();
 		jerseyClient.register(JacksonFeature.class);
 		jerseyClient.register(MultiPartWriter.class);

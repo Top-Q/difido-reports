@@ -33,8 +33,10 @@
 			<directory>src/main/etc</directory>
 			<fileMode>775</fileMode>
 			<includes>
-				<include>run.bat</include>
-				<include>run.sh</include>
+				<include>start.bat</include>
+				<include>start.sh</include>
+				<include>stop.sh</include>
+				<include>difido</include>
 			</includes>
 		</fileSet>
 		<fileSet>

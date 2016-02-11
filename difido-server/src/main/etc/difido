@@ -1,0 +1,39 @@
+#!/bin/bash
+# Difido server
+#
+# description: Script that can be added to the /etc/init.d and will cause the server to run at the init stage. In additions, allows to use the start, stop and restart services. 
+# 
+# Instructions:
+# 1. Set the DIFIDO_PATH variable with the location of the difido-server. e.g. /usr/local/bin/difido-server 
+# 2. Copy this script to /etc/init.d (Using root user)
+# 3. Cd to /user/init.d
+# 4. Execute the following command:
+#         sudo update-rc.d difido defaults
+#
+# 
+readonly DIFIDO_PATH=/home/itai/Desktop/difido-server
+
+function start {
+	cd $DIFIDO_PATH
+        /bin/bash bin/start.sh
+}
+
+function stop {
+	cd $DIFIDO_PATH
+        /bin/bash bin/stop.sh
+
+}
+
+case $1 in
+    start)
+	    start
+    ;;
+    stop)
+	    stop
+    ;;
+    restart)
+	    stop
+        start 
+    ;;
+esac
+exit 0
