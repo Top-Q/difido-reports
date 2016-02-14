@@ -43,8 +43,7 @@
 			<outputDirectory>config</outputDirectory>
 			<directory>src/main/etc</directory>
 			<fileMode>775</fileMode>
-			<includes>
-				<include>log4j.properties</include>
+			<includes>				
 				<include>mail.vm</include>
 			</includes>
 		</fileSet>
