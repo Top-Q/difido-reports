@@ -50,6 +50,12 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             else
             {
                 scenario = new Scenario(scenarioName);
+                if (machine.children != null)
+                {
+                    // We need to copy all the properties from the first scenario. 
+                    // Failing to do so will cause that the tests in the ElsaticSearch, for example, will not have properties.
+                    scenario.scenarioProperties = ((Scenario)machine.children[0]).scenarioProperties;
+                }
                 machine.AddChild(scenario);
             }
             scenario.AddChild(currentTest);
