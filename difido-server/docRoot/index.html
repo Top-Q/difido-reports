@@ -1,244 +1,149 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="Main view of the Difido report server">
-        <meta name="author" content="Itai Agmon">
 
-        <title>List of Reports</title>
-
-        <!-- Bootstrap core CSS -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-        <link href="css/jquery-ui-1.8.4.custom.css" rel="stylesheet">
-        <link href="css/jquery.dataTables_themeroller.css" rel="stylesheet">
-        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!--[if lt IE 9]>
-          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-          <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-        <![endif]-->
-        <style>
-            h2 {
-                color: #CCCCCC;
-                text-align: center;
-            }
-        </style>
-    </head>
-
-    <body>
-        <div class="container-fluid">
-            <!--<div class="row">-->
-            <div class="col-sm-2 hidden-sm hidden-xs">
-            </div>
-            <div class="col-sm-8 main" >
-                <h2>Execution Reports</h2>
-                <hr>
-                <table id="reports">
-                    <thead>
-                        <tr id="table_header">
-                        	<th>
-                                <input type="checkbox" name="select_all" value="1" id="select-all">
-                            </th>
-	                		<th id='id'>Id</th>
-	                		<th id='execution'>Execution</th>
-                        	<th id='date'>Date</th>
-	                		<th id='time'>Time</th>
-	                		<th id='tests'># Tests</th>
-	                		<th id='success'># Success</th>
-	                		<th id='warning'># Warning</th>
-	                		<th id='fails'># Fails</th> 		
-	                		<th id='machines'># Machines</th>
-	                		<th id='active'>Active</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-                <hr>
-                <p>Click on the Delete button to delete all selected executions</p>
-                <p><button class="btn-danger" onclick="deleteReports()">Delete</button></p>
-            </div>
-            <div class="col-sm-2 hidden-sm hidden-xs">
-            </div>
-
-        </div>
-        <!--</div>-->
-
-        <!-- Bootstrap core JavaScript
-        ================================================== -->
-        <!-- Placed at the end of the document so the pages load faster -->
-        <script src="js/jquery.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-        <script src="js/bootbox.js"></script>
-        <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-        <!-- script type="text/javascript" src="js/jquery.dataTables.js"></script--> 
-        <script>
-        	function convertToDataTable(){
-        	    var table = $('#reports').DataTable({
-        	    	    // The aa sorting is empty because we want to disable the initial sorting of the table
-        	    	"aaSorting": [],
-                    "bJQueryUI": true,
-                    "sPaginationType": "full_numbers",
-					"iDisplayLength": 25,
-					//We don't want the checkboxes to be orderable and searchable
-					"columnDefs": [{
-				         "targets": 0,
-				         "searchable":false,
-				         "orderable":false,
-				         "className": "dt-body-center"
-				      }]
-                });
-
-                $('#select-all').on('click', function(){
-                  // Check/uncheck all checkboxes in the table
-          	      var rows = table.rows({ 'search': 'applied' }).nodes();
-          	      $('input[type="checkbox"]', rows).prop('checked', this.checked);
-          	    });
-        	    
-        	    $('#reports tbody').on('change', 'input[type="checkbox"]', function(){
-        	        // If checkbox is not checked
-        	        if(!this.checked){
-        	           var el = $('#select-all').get(0);
-        	           // If "Select all" control is checked and has 'indeterminate' property
-        	           if(el && el.checked && ('indeterminate' in el)){
-        	              // Set visual state of "Select all" control 
-        	              // as 'indeterminate'
-        	              el.indeterminate = true;
-        	           }
-        	        }
-        	     });
- 
-        	}
-        	
-        	/**
-			 * Create appropriate headers for all the customized execution
-			 * properties
-			 */
-        	function addCustomedHeaders(reports,table){
-        		 $(reports).each(function(){
- 			    	if (this.properties != null){
-			    		for(var key in this.properties) {
-			    		    var value = this.properties[key];
-			    		    if ( $(".custom_header[custom='"+ key+ "']").length == 0 ) {
-			    		    	// We will use the 'custom" attribute, later on
-								// for populating the table at the right
-								// location
-			    		    	$('#table_header').append($('<th>').text(key).attr('custom',key).addClass("custom_header"));
-			    		    }
-			    		}
-			    	}
-        			 
-        		 });
-        	}
-        	
-	        function appendReportsToTable(reports,table){
-			    $(reports).each(function(){
-                    var tr = $('<tr>');
-                    tr.append($('<td>').attr("align","center").append($("<input>").attr("type","checkbox").addClass("exec-checkbox").attr("name","exec").attr("value",this.id)));
-			    	tr.append($('<td>').text(this.id));
-			    	var executionName = this.folderName;
-			    	if (this.description != null && this.description != ""){
-			    		executionName = this.description
-			    	}
-			    	tr.append($('<td>').append($('<a>').text(executionName).attr("href",this.uri).attr("target","_blank")));
-			    	tr.append($('<td>').text(this.date));
-			    	tr.append($('<td>').text(this.time));
-			    	tr.append($('<td>').text(this.numOfTests));
-			    	tr.append($('<td>').text(this.numOfSuccessfulTests));
-			    	tr.append($('<td>').text(this.numOfTestsWithWarnings));
-			    	tr.append($('<td>').text(this.numOfFailedTests));
-			    	tr.append($('<td>').text(this.numOfMachines));
-			    	tr.append($('<td>').text(this.active));
-			    	
-			    	// Since we don't know which of the customized columns exist
-					// in this execution. We just add blank td. This is
-					// important since if we will fail to do this, the data
-					// table will fail to render.
-			    	for (i = 0 ; i < $(".custom_header").size() ; i++){
-			    		tr.append($('<td>').text(""));
-			    	}
-			    	
-			    	// We now populate the customized properties.
-			    	if (this.properties != null){
-			    		for(var key in this.properties) {
-			    		    var value = this.properties[key];
-			    		    
-			    		    // We get the exact index of the header
-			    		    var index = $(".custom_header[custom='"+key+"']").index();
-			    		    if (index < 0){
-			    		    	// Something went wrong. We don't have a header
-								// that matches this property
-			    		    	continue;
-			    		    }
-			    		    
-			    		    // We now add the text in the correct index
-			    		    tr.children()[index].innerHTML = value;
-			    		}
-			    	}
-			    	
-			    	$(table).append(tr);
-			    });
-	        }
-        
-            function createTable() {
-                $.get("/api/reports", function(reports){
-                	addCustomedHeaders(reports,$("#reports"));
-                    appendReportsToTable(reports,$("#reports"));
-                    convertToDataTable();
-                });
-            }
-
-            function deleteReports() {
-                bootbox.confirm("Are you sure you want to delete selected execution reports?", function(result) {
-                    if (result) {
-                        // The following is important for allowing selection of rows which are not currently
-                        // viewed in the table
-                        // Iterate over all checkboxes in the table
-                         $('#reports').DataTable().$('input[type="checkbox"]').each(function(){
-                            // If checkbox doesn't exist in DOM
-                            if(!$.contains(document, this)){
-                                // If checkbox is checked
-                                if(this.checked){
-                                    // Create a hidden element 
-                                    $("#reports").append(
-                                        $('<input>')
-                                            .attr('type', 'checkbox')
-                                            .attr('name', this.name)
-                                            // We want it to be hidden
-                                            .attr('style', "opacity:0; position:absolute; left:9999px;")
-                                            // We later find it by class
-                                            .addClass("exec-checkbox")
-                                            // This is used for identifying the execution
-                                            .val(this.value)
-                                            // We also search only for the checked checkboxes
-                                            .prop('checked', true)
-
-                                    );
-                                }
-                            } 
-                        });
+<html>
 
 
-                        // Go over all the checked checkboxes and send delete request for each one
-                        $(".exec-checkbox:checkbox:checked").each(function() {
-                            $.ajax({
-                                url: 'api/executions/' + this.value,
-                                type: 'DELETE',
-                                }
-                            );
-                        });
-                        
-                        // We want the page to refresh only when all the delete commands are executed.
-                        $(document).ajaxStop(function () {
-                            location.reload();
-                        });
-                    }
-                });
-            }
-            $(document).ready(function() {
-                createTable();
-            });
-        </script>
-    </body>
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="Main view of the Difido report server">
+<meta name="author" content="Itai Agmon">
+<title>List of Reports</title>
+
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/buttons.dataTables.min.css" rel="stylesheet">
+<link href="css/jquery.dataTables.min.css" rel="stylesheet">
+
+<style>
+h2 {
+	color: #CCCCCC;
+	text-align: center;
+}
+
+div.dt-buttons { #
+	float: none;
+	text-align: center;
+}
+</style>
+</head>
+<body>
+	<div class="container-fluid">
+		<!--<div class="row">-->
+		<div class="col-sm-2 hidden-sm hidden-xs"></div>
+		<div class="col-sm-8 main">
+			<h2>Execution Reports</h2>
+			<hr>
+			<table id="etable" class="display" cellspacing="0" width="100%">
+			</table>
+
+			<hr>
+		</div>
+		<div class="col-sm-2 hidden-sm hidden-xs"></div>
+
+	</div>
+
+	<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
+	<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" src="js/buttons.html5.min.js"></script>
+	<script type="text/javascript" src="js/pdfmake.min.js"></script>
+	<script type="text/javascript" src="js/vfs_fonts.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/bootbox.js"></script>
+
+	<script>
+		function deleteSelected(table) {
+			var numOfSelected = table.rows('.selected').data().length;
+			if (numOfSelected == 0) {
+				return;
+			}
+			bootbox
+					.confirm(
+							"Are you sure you want to delete all selected execution reports?",
+							function(result) {
+								if (!result) {
+									return;
+								}
+
+								var numOfDeleted = 0;
+								for (var i = 0; i < numOfSelected; i++) {
+									var id = table.rows('.selected').data()[i].Id;
+									$.ajax({
+										url : 'api/executions/' + id,
+										type : 'DELETE',
+									}).done(function() {
+										if (++numOfDeleted != numOfSelected) {
+											return;
+										}
+										// Everything was deleted, we can refresh the table.
+										location.reload();
+									});
+								}
+
+							});
+		}
+
+		$(document).ready(function() {
+			$.ajax('/api/reports').done(maketable);
+		});
+
+		function maketable(json) {
+			var data = json.data;
+			var column_names = json.headers;
+			var columns = []
+			for (var i = 0; i < column_names.length; i++) {
+				columns[i] = {
+					'title' : column_names[i],
+					'data' : column_names[i]
+				}
+			}
+
+			var table = $('#etable')
+					.DataTable(
+							{
+								dom : 'lBfrtip',
+								buttons : [ {
+									text : 'Delete',
+									action : function(e, dt, node, config) {
+										deleteSelected(table);
+									}
+								}, 'copyHtml5', 'csvHtml5', 'pdfHtml5' ],
+								columns : columns,
+								data : data,
+								aaSorting : [],
+								deferRender : true,
+								sPaginationType : "full_numbers",
+								iDisplayLength : 25,
+								columnDefs : [
+										{
+											// Alows missing values. Important for execution properties in which not all of the execution must have all the properties.
+											targets : "_all",
+											sDefaultContent : ""
+										},
+										{
+											// The description column will be rendered as link using the value in the link column
+											targets : 1,
+											// We don't want that a click on the link will make the row selectable
+											className : "unselectable",
+											data : null,
+											"render" : function(data, type, row) {
+												return '<a target="_blank" href="'+row.Link+'">'
+														+ data + '</a>';
+											}
+										}, {
+											// The link column is no longer needed since we are using the value in the description column
+											targets : 2,
+											visible : false
+										} ]
+							})
+			$('#etable tbody').on('click', 'td', function() {
+				if ($(this).hasClass("unselectable")) {
+					// This is probably the link column.
+					return;
+				}
+				$(this).parent().toggleClass('selected');
+			});
+
+		}
+	</script>
+</body>
 </html>

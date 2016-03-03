@@ -14,6 +14,7 @@ import org.junit.Test;
 import il.co.topq.difido.model.remote.ExecutionDetails;
 import il.co.topq.report.listener.execution.AbstractResourceTest;
 import il.co.topq.report.listener.execution.ExecutionManager.ExecutionMetaData;
+import il.co.topq.report.resource.ReportResource.DataTable;
 
 public class ReportResourceIT extends AbstractResourceTest {
 
@@ -39,11 +40,11 @@ public class ReportResourceIT extends AbstractResourceTest {
 		}
 	}
 
-	private ExecutionMetaData[] getExecutionMetaData() {
+	private DataTable getExecutionMetaData() {
 		WebTarget executionsTarget = baseTarget.path("/reports");
-		ExecutionMetaData[] reports = executionsTarget.request(MediaType.APPLICATION_JSON)
-				.get(ExecutionMetaData[].class);
-		return reports;
+		DataTable table = executionsTarget.request(MediaType.APPLICATION_JSON)
+				.get(DataTable.class);
+		return table;
 	}
 
 	@Test
@@ -51,8 +52,8 @@ public class ReportResourceIT extends AbstractResourceTest {
 		ExecutionDetails execution = new ExecutionDetails();
 		execution.setShared(false);
 		client.addExecution(execution);
-		ExecutionMetaData[] reports = getExecutionMetaData();
-		Assert.assertNotNull(reports);
+		DataTable table = getExecutionMetaData();
+		Assert.assertNotNull(table);
 	}
 
 }
