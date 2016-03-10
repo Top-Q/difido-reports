@@ -57,7 +57,7 @@ public enum ListenersManager {
 	}
 
 	public void notifyExecutionAdded(int executionId, Execution execution) {
-		log.debug("Execution with id " + executionId + " was added");
+		log.debug("Notifying that execution with id " + executionId + " was added");
 		synchronized (listenersList) {
 			for (ReportServerListener listener : listenersList) {
 				if (listener instanceof ResourceChangedListener) {
@@ -74,7 +74,7 @@ public enum ListenersManager {
 	}
 
 	public void notifyExecutionDeleted(int executionId) {
-		log.debug("Execution with id " + executionId + " was deleted");
+		log.debug("Notifying that execution " + executionId + " was deleted");
 		synchronized (listenersList) {
 			for (ReportServerListener listener : listenersList) {
 				if (listener instanceof ResourceChangedListener) {
@@ -91,7 +91,7 @@ public enum ListenersManager {
 	}
 
 	public void notifyMachineAdded(int executionId, MachineNode machine) {
-		log.debug("Machine was added to execution with id " + executionId);
+		log.debug("Notifying that machine was added to execution with id " + executionId);
 		for (ReportServerListener listener : listenersList) {
 			if (listener instanceof ResourceChangedListener) {
 				try {
@@ -106,7 +106,7 @@ public enum ListenersManager {
 	}
 
 	public void notifyTestDetailsAdded(int executionId, TestDetails details) {
-		log.debug("Test details was added to execution with id " + executionId);
+		log.debug("Notifying that test details was added to execution with id " + executionId);
 		for (ReportServerListener listener : listenersList) {
 			if (listener instanceof ResourceChangedListener) {
 				try {
@@ -121,7 +121,7 @@ public enum ListenersManager {
 	}
 
 	public void notifyFileAddedToTest(int executionId, String testUid, byte[] fileContent, String fileName) {
-		log.debug("File was added to test with UID " + testUid + " and execution " + executionId);
+		log.debug("Notifying that file was added to test with UID " + testUid + " and execution " + executionId);
 		synchronized (listenersList) {
 			for (ReportServerListener listener : listenersList) {
 				if (listener instanceof ResourceChangedListener) {
@@ -138,7 +138,7 @@ public enum ListenersManager {
 	}
 
 	public void notifyExecutionEnded(int executionId, Execution execution) {
-		log.debug("Execution with id " + executionId + " was ended");
+		log.debug("Notifying that execution with id " + executionId + " has ended");
 		synchronized (listenersList) {
 			for (ReportServerListener listener : listenersList) {
 				if (listener instanceof ResourceChangedListener) {

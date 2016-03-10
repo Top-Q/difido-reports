@@ -63,6 +63,7 @@ public class HtmlViewGenerator implements ResourceChangedListener {
 		} catch (IOException e) {
 			log.error("Failed to delete folder " + executionFolder.getAbsolutePath() + " for execution " + executionId);
 		}
+		log.debug("Finished deleting execution folder of execution with id " + executionId);
 	}
 
 	private void prepareExecutionFolder(int executionId) {

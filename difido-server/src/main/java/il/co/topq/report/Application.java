@@ -19,12 +19,10 @@ import org.springframework.boot.context.web.SpringBootServletInitializer;
 
 import il.co.topq.report.Configuration.ConfigProps;
 
-
-
 @SpringBootApplication
-public class Application extends SpringBootServletInitializer{
+public class Application extends SpringBootServletInitializer {
 
-	private static final Logger log = LoggerFactory.getLogger(Application.class);
+	private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
 	private static final String MAPPING_FILE = "mapping.json";
 
@@ -36,15 +34,15 @@ public class Application extends SpringBootServletInitializer{
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(Application.class);
 	}
-	
-    public static void main(String[] args) {
-    	PropertyConfigurator.configure(LOG_PROPERTIES_FILE);
-    	startElastic();
-    	configureReportsIndex();
-        SpringApplication.run(Application.class, args);
-//        stopElastic();
-    }
-    
+
+	public static void main(String[] args) {
+		PropertyConfigurator.configure(LOG_PROPERTIES_FILE);
+		startElastic();
+		configureReportsIndex();
+		SpringApplication.run(Application.class, args);
+		// stopElastic();
+	}
+
 	private static void configureReportsIndex() {
 		final IndicesExistsResponse res = Common.elasticsearchClient.admin().indices()
 				.prepareExists(Common.ELASTIC_INDEX).execute().actionGet();
@@ -58,7 +56,7 @@ public class Application extends SpringBootServletInitializer{
 			// mapping using the API
 			mappingJson = IOUtils.toString(Application.class.getClassLoader().getResourceAsStream(MAPPING_FILE));
 		} catch (IOException e) {
-			log.error("Failed to read mapping file. No index mapping will be set to the Elasticsearch", e);
+			logger.error("Failed to read mapping file. No index mapping will be set to the Elasticsearch", e);
 			return;
 		}
 		final CreateIndexRequest request = Requests.createIndexRequest(Common.ELASTIC_INDEX).mapping("test",
@@ -67,7 +65,6 @@ public class Application extends SpringBootServletInitializer{
 
 	}
 
-    
 	public static void stopElastic() {
 		node.close();
 		Common.elasticsearchClient.close();

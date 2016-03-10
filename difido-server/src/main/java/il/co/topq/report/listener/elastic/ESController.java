@@ -23,8 +23,6 @@ import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Common;
-import il.co.topq.report.Configuration;
-import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.listener.ResourceChangedListener;
 import il.co.topq.report.listener.execution.ExecutionManager;
 import il.co.topq.report.listener.execution.ExecutionManager.ExecutionMetaData;
@@ -55,6 +53,7 @@ public class ESController implements ResourceChangedListener {
 		if (ESUtils.delete(Common.ELASTIC_INDEX, "test", "executionId = " + executionId).status() != RestStatus.OK) {
 			log.error("Failed deleting all tests of execution with id " + executionId + " from the ElasticSearch");
 		}
+		log.debug("All tests of execution with id "+ executionId + " were deleted");
 	}
 
 	@Override

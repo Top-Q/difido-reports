@@ -92,6 +92,7 @@ public enum ExecutionManager implements ResourceChangedListener {
 			log.warn("Tried to delete execution with id " + executionId + " which is not exists");
 		}
 		writeExecutionMeta();
+		log.debug("Metadata of execution with id " + executionId + " was deleted");
 	}
 
 	/**

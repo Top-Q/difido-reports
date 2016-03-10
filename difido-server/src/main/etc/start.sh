@@ -32,4 +32,4 @@ DEBUG=""
 cd "$(dirname "$0")"/..
 
 # Launching the server
-java -jar $DEBUG -Xms256m -Xmx1024m -Dserver.address=$HOST -Dserver.port=$PORT -Dlogging.level.org.springframework.web=$LOGGING_LEVEL lib/difido-server.jar
+java -jar $DEBUG -Xms256m -Xmx1024m -Dserver.address=$HOST -Dserver.port=$PORT -Dlogging.level.org.springframework.web=ERROR -Dlogging.level.il.co.topq.report=$LOGGING_LEVEL lib/difido-server.jar

@@ -36,7 +36,7 @@ public class ExecutionEnder implements ResourceChangedListener {
 						} catch (InterruptedException e) {
 							// Not going to happen
 						}
-						log.debug("Waking up in order to search for executions that need to end");
+						log.trace("Waking up in order to search for executions that need to end");
 						final ExecutionMetaData[] metaDataArr = ExecutionManager.INSTANCE.getAllMetaData();
 						for (ExecutionMetaData meta : metaDataArr) {
 							if (!meta.isActive()) {
