@@ -12,10 +12,10 @@ import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.listener.elastic.ESController;
-import il.co.topq.report.listener.execution.ExecutionEnder;
 import il.co.topq.report.listener.execution.ExecutionManager;
 import il.co.topq.report.listener.html.HtmlViewGenerator;
 import il.co.topq.report.listener.mail.MailController;
+import il.co.topq.report.scheduled.ExecutionEnder;
 
 public enum ListenersManager {
 
@@ -38,7 +38,6 @@ public enum ListenersManager {
 			addListener(new MailController());
 		}
 		addListener(ExecutionManager.INSTANCE);
-		addListener(new ExecutionEnder());
 	}
 
 	public void addListener(ReportServerListener listener) {

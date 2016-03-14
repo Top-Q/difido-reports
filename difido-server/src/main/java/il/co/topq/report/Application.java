@@ -16,10 +16,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import il.co.topq.report.Configuration.ConfigProps;
 
 @SpringBootApplication
+@EnableScheduling
 public class Application extends SpringBootServletInitializer {
 
 	private static final Logger logger = LoggerFactory.getLogger(Application.class);
