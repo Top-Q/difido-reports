@@ -3,7 +3,6 @@ package il.co.topq.report;
 import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.PropertyConfigurator;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.client.Requests;
@@ -28,8 +27,6 @@ public class Application extends SpringBootServletInitializer {
 
 	private static final String MAPPING_FILE = "mapping.json";
 
-	private static final String LOG_PROPERTIES_FILE = "config/log4j.properties";
-
 	private static Node node;
 
 	@Override
@@ -38,7 +35,6 @@ public class Application extends SpringBootServletInitializer {
 	}
 
 	public static void main(String[] args) {
-		PropertyConfigurator.configure(LOG_PROPERTIES_FILE);
 		startElastic();
 		configureReportsIndex();
 		SpringApplication.run(Application.class, args);
