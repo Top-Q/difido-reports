@@ -2,7 +2,7 @@ package il.co.topq.report.front.events;
 
 import il.co.topq.report.business.execution.ExecutionManager.ExecutionMetadata;
 
-public class ExecutionDeletedEvent extends AbsMetadataEvent{
+public class ExecutionDeletedEvent extends AbsMetadataEvent {
 
 	private final int executionId;
 

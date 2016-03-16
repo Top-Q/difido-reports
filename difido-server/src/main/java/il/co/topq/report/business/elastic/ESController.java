@@ -67,12 +67,15 @@ public class ESController {
 
 		log.debug("About to delete all tests of execution " + executionDeletedEvent.getExecutionId()
 				+ " from the ElasticSearch");
-		if (ESUtils.delete(Common.ELASTIC_INDEX, "test", "executionId = " + executionDeletedEvent.getExecutionId())
-				.status() != RestStatus.OK) {
+		final RestStatus status = ESUtils
+				.delete(Common.ELASTIC_INDEX, "test", "executionId = " + executionDeletedEvent.getExecutionId())
+				.status();
+		if (status != RestStatus.OK) {
 			log.error("Failed deleting all tests of execution with id " + executionDeletedEvent.getExecutionId()
-					+ " from the ElasticSearch");
+					+ " from the ElasticSearch due to status " + status);
 		}
-		log.debug("All tests of execution with id " + executionDeletedEvent.getExecutionId() + " were deleted");
+		log.debug("All tests of execution with id " + executionDeletedEvent.getExecutionId()
+				+ " were deleted with status " + status);
 	}
 
 	@EventListener
