@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
@@ -29,8 +30,8 @@ public class ESUtils {
 		// Utils
 	}
 
-	public static void update(String index, String type, String id, Object object) throws ElasticsearchException,
-			JsonProcessingException {
+	public static void update(String index, String type, String id, Object object)
+			throws ElasticsearchException, JsonProcessingException {
 		//@formatter:off
 		Common.elasticsearchClient.
 			prepareUpdate().
@@ -45,7 +46,8 @@ public class ESUtils {
 		//@formatter:on
 	}
 
-	public static IndexResponse add(String index, String type, String id, Object object) throws JsonProcessingException {
+	public static IndexResponse add(String index, String type, String id, Object object)
+			throws JsonProcessingException {
 		//@formatter:off
 		return Common.elasticsearchClient.prepareIndex(index, type)
 		.setSource(mapper.writeValueAsBytes(object))
@@ -58,15 +60,14 @@ public class ESUtils {
 	public static IndexResponse add(String index, String type, Object object) throws JsonProcessingException {
 		return add(index, type, null, object);
 	}
-	
-	public static DeleteByQueryResponse delete(String index, String type, String query) {
-		DeleteByQueryResponse response = Common.elasticsearchClient.prepareDeleteByQuery(index)
-                .setQuery(QueryBuilders.queryString(query))
-                .execute()
-                .actionGet();
-		return response;
-		
-		
+
+	public static DeleteResponse delete(String index, String type, String id) {
+		//@formatter:off
+		return Common.elasticsearchClient
+				.prepareDelete(index, type, id)
+				.execute()
+				.actionGet();
+		//@formatter:on
 	}
 
 	/**
@@ -165,11 +166,27 @@ public class ESUtils {
 		return maxValue;
 	}
 	
-	public static <T> List<T> getAll(String index, String type, Class<T> clazz) throws Exception {
+	
+	/**
+	 * Get all the documents using the specified class that matches the specified filter
+	 * 
+	 * @param index
+	 * @param type
+	 * @param clazz
+	 * @param filterTermKey
+	 * @param filterTermValue
+	 * @return list of objects from the specified class
+	 * @throws Exception
+	 */
+	public static <T> List<T> getAll(String index, String type, Class<T> clazz, String filterTermKey, String filterTermValue) throws Exception {
 		//@formatter:off
 		final SearchResponse response = Common.elasticsearchClient.
 				prepareSearch(index).
 				setTypes(type).
+				setSearchType(SearchType.DFS_QUERY_THEN_FETCH).
+				setPostFilter(QueryBuilders.termQuery(filterTermKey, filterTermValue).buildAsBytes()).
+				//setPostFilter(filter).
+				setSize(Integer.MAX_VALUE).
 				setQuery(QueryBuilders.
 						matchAllQuery()).
 				execute().

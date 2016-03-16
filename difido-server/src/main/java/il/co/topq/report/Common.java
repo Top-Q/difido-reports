@@ -22,7 +22,5 @@ public class Common {
 	public static Client elasticsearchClient;
 	
 	public static final String ELASTIC_INDEX="report";
-	
-	public static final String DIFIDO_INDEX = "difido";
 
 }

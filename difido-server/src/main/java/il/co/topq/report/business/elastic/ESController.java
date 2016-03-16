@@ -10,8 +10,8 @@ import java.util.TimeZone;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.rest.RestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -37,6 +37,8 @@ import il.co.topq.report.front.events.TestDetailsCreatedEvent;
  */
 @Component
 public class ESController {
+
+	private static final String TEST_TYPE = "test";
 
 	private final Logger log = LoggerFactory.getLogger(ESController.class);
 
@@ -67,15 +69,28 @@ public class ESController {
 
 		log.debug("About to delete all tests of execution " + executionDeletedEvent.getExecutionId()
 				+ " from the ElasticSearch");
-		final RestStatus status = ESUtils
-				.delete(Common.ELASTIC_INDEX, "test", "executionId = " + executionDeletedEvent.getExecutionId())
-				.status();
-		if (status != RestStatus.OK) {
-			log.error("Failed deleting all tests of execution with id " + executionDeletedEvent.getExecutionId()
-					+ " from the ElasticSearch due to status " + status);
+		// Delete by filter is not possible anymore so we do the deletion in two
+		// parts. First we get all the tests and then we delete it one by one
+		// using the id of each one.
+		List<ElasticsearchTest> testsToDelete = null;
+		try {
+			testsToDelete = ESUtils.getAll(Common.ELASTIC_INDEX, TEST_TYPE, ElasticsearchTest.class, "executionId",
+					String.valueOf(executionDeletedEvent.getExecutionId()));
+
+		} catch (Exception e) {
+			log.error("Failed to get tests to delete for execution " + executionDeletedEvent.getExecutionId(), e);
+			return;
 		}
-		log.debug("All tests of execution with id " + executionDeletedEvent.getExecutionId()
-				+ " were deleted with status " + status);
+		log.debug("Found " + testsToDelete.size() + " tests to delete");
+		for (ElasticsearchTest test : testsToDelete) {
+			DeleteResponse response = ESUtils.delete(Common.ELASTIC_INDEX, TEST_TYPE, test.getUid());
+			if (!response.isFound()) {
+				log.warn("Test of execution " + executionDeletedEvent.getExecutionId() + " with id " + test.getUid()
+						+ " was not found for deletion");
+			}
+		}
+		log.debug("Finished deleting tests of execution " + executionDeletedEvent.getExecutionId()
+				+ " from the Elasticsearch");
 	}
 
 	@EventListener
@@ -152,7 +167,7 @@ public class ESController {
 					if (testNode.getParent() != null) {
 						esTest.setParent(testNode.getParent().getName());
 					}
-					ESUtils.update(Common.ELASTIC_INDEX, "test", esTest.getUid(), esTest);
+					ESUtils.update(Common.ELASTIC_INDEX, TEST_TYPE, esTest.getUid(), esTest);
 				}
 			}
 		} catch (Exception e) {
@@ -193,7 +208,7 @@ public class ESController {
 							|| currentTest.getProperties().size() != testDetails.getProperties().size()) {
 						currentTest.setProperties(testDetailsCreatedEvent.getTestDetails().getProperties());
 						try {
-							ESUtils.update(Common.ELASTIC_INDEX, "test", currentTest.getUid(), currentTest);
+							ESUtils.update(Common.ELASTIC_INDEX, TEST_TYPE, currentTest.getUid(), currentTest);
 						} catch (ElasticsearchException | JsonProcessingException e) {
 							log.error("Failed updating test details in the Elasticsearch", e);
 						}
