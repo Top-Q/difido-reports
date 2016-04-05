@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import il.co.topq.report.business.execution.ExecutionManager;
-import il.co.topq.report.business.execution.ExecutionManager.ExecutionMetadata;
-import il.co.topq.report.front.events.FileAddedToTestEvent;
+import il.co.topq.report.business.execution.MetadataController;
+import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.events.FileAddedToTestEvent;
 
 @RestController
 public class FileUploadResource {
@@ -25,10 +25,10 @@ public class FileUploadResource {
 	
 	private final ApplicationEventPublisher publisher;
 	
-	private final ExecutionManager executionManager;
+	private final MetadataController executionManager;
 	
 	@Autowired
-	public FileUploadResource(ApplicationEventPublisher publisher, ExecutionManager executionManager) {
+	public FileUploadResource(ApplicationEventPublisher publisher, MetadataController executionManager) {
 		super();
 		this.publisher = publisher;
 		this.executionManager = executionManager;

@@ -17,9 +17,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RestController;
 
 import il.co.topq.difido.model.execution.MachineNode;
-import il.co.topq.report.business.execution.ExecutionManager;
-import il.co.topq.report.business.execution.ExecutionManager.ExecutionMetadata;
-import il.co.topq.report.front.events.MachineCreatedEvent;
+import il.co.topq.report.business.execution.MetadataController;
+import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.events.MachineCreatedEvent;
 
 @RestController
 @Path("api/executions/{execution}/machines")
@@ -27,12 +27,12 @@ public class MachineResource {
 
 	private final Logger log = LoggerFactory.getLogger(MachineResource.class);
 	
-	private final ExecutionManager executionManager;
+	private final MetadataController executionManager;
 	
 	private final ApplicationEventPublisher publisher;
 	
 	@Autowired
-	public MachineResource(ExecutionManager executionManager, ApplicationEventPublisher publisher) {
+	public MachineResource(MetadataController executionManager, ApplicationEventPublisher publisher) {
 		this.executionManager = executionManager;
 		this.publisher = publisher;
 	}

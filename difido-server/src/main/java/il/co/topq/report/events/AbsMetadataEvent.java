@@ -1,6 +1,6 @@
-package il.co.topq.report.front.events;
+package il.co.topq.report.events;
 
-import il.co.topq.report.business.execution.ExecutionManager.ExecutionMetadata;
+import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
 
 public abstract class AbsMetadataEvent implements MetadataEvent {
 

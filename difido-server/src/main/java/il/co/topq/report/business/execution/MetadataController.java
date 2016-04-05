@@ -28,16 +28,17 @@ import il.co.topq.difido.model.remote.ExecutionDetails;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.front.events.ExecutionDeletedEvent;
-import il.co.topq.report.front.events.ExecutionEndedEvent;
-import il.co.topq.report.front.events.FileAddedToTestEvent;
-import il.co.topq.report.front.events.MachineCreatedEvent;
-import il.co.topq.report.front.events.TestDetailsCreatedEvent;
+import il.co.topq.report.events.ExecutionDeletedEvent;
+import il.co.topq.report.events.ExecutionEndedEvent;
+import il.co.topq.report.events.ExecutionUpdatedEvent;
+import il.co.topq.report.events.FileAddedToTestEvent;
+import il.co.topq.report.events.MachineCreatedEvent;
+import il.co.topq.report.events.TestDetailsCreatedEvent;
 
 @Component
-public class ExecutionManager {
+public class MetadataController {
 
-	private final Logger log = LoggerFactory.getLogger(ExecutionManager.class);
+	private final Logger log = LoggerFactory.getLogger(MetadataController.class);
 
 	// Package private for unit testing
 	Map<Integer, ExecutionMetadata> executionsCache;;
@@ -47,7 +48,6 @@ public class ExecutionManager {
 	private static Object fileAccessLockObject = new Object();
 
 	private static final String EXECUTION_FILE_NAME = "reports/meta.json";
-
 
 	public ExecutionMetadata addExecution() {
 		return addExecution(null);
@@ -87,17 +87,33 @@ public class ExecutionManager {
 
 	@EventListener
 	public void onExecutionDeletionEvent(ExecutionDeletedEvent executionDeletedEvent) {
-		log.debug("About to delete the metadata of execution with id " + executionDeletedEvent.getExecutionId());
 		// Let's make sure we have the data
 		readExecutionMeta();
+		deleteExecutionMetadata(executionDeletedEvent.getMetadata());
+		writeExecutionMeta();
+	}
+
+	@EventListener
+	public void onExecutionUpdatedEvent(ExecutionUpdatedEvent executionUpdatedEvent) {
+		// Let's make sure we have the data
+		readExecutionMeta();
+		executionsCache.put(executionUpdatedEvent.getMetadata().getId(), executionUpdatedEvent.getMetadata());
+		if (!executionUpdatedEvent.getMetadata().isHtmlExists() && !executionUpdatedEvent.getMetadata().isLocked()) {
+			deleteExecutionMetadata(executionUpdatedEvent.getMetadata());
+		}
+		// We still need to write the metadata, since maybe the model was
+		// changed and we need to update the file.
+		writeExecutionMeta();
+	}
+
+	private void deleteExecutionMetadata(ExecutionMetadata metadata) {
+		log.debug("About to delete the metadata of execution with id " + metadata.getId());
 
 		// We need to delete the execution
-		if (null == executionsCache.remove(executionDeletedEvent.getExecutionId())) {
-			log.warn("Tried to delete execution with id " + executionDeletedEvent.getExecutionId()
-					+ " which is not exists");
+		if (null == executionsCache.remove(metadata.getId())) {
+			log.warn("Tried to delete execution with id " + metadata.getId() + " which is not exists");
 		}
-		writeExecutionMeta();
-		log.debug("Metadata of execution with id " + executionDeletedEvent.getExecutionId() + " was deleted");
+		log.debug("Metadata of execution with id " + metadata.getId() + " was deleted");
 	}
 
 	/**
@@ -394,6 +410,18 @@ public class ExecutionManager {
 		private boolean active;
 
 		/**
+		 * If execution is locked it will not be deleted from disk no matter how
+		 * old it is
+		 */
+		private boolean locked;
+
+		/**
+		 * When the HTML is deleted, the flag is set to false. This can happen
+		 * if the execution age is larger then the maximum days allowed.
+		 */
+		private boolean htmlExists = true;
+
+		/**
 		 * The last time in absolute nanoseconds that this execution was
 		 * changed. This is used for calculating if the max idle time is over
 		 */
@@ -453,6 +481,8 @@ public class ExecutionManager {
 		public ExecutionMetadata(final ExecutionMetadata metaData) {
 			if (null != metaData) {
 				this.active = metaData.active;
+				this.locked = metaData.locked;
+				this.htmlExists = metaData.htmlExists;
 				this.date = metaData.date;
 				this.execution = metaData.execution;
 				this.folderName = metaData.folderName;
@@ -531,6 +561,22 @@ public class ExecutionManager {
 
 		public void setActive(boolean active) {
 			this.active = active;
+		}
+
+		public boolean isLocked() {
+			return locked;
+		}
+
+		public void setLocked(boolean locked) {
+			this.locked = locked;
+		}
+
+		public boolean isHtmlExists() {
+			return htmlExists;
+		}
+
+		public void setHtmlExists(boolean htmlExists) {
+			this.htmlExists = htmlExists;
 		}
 
 		public long getLastAccessedTime() {

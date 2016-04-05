@@ -13,8 +13,8 @@ import org.junit.Test;
 
 import il.co.topq.difido.model.remote.ExecutionDetails;
 import il.co.topq.report.business.execution.AbstractResourceTest;
-import il.co.topq.report.business.execution.ExecutionManager.ExecutionMetadata;
-import il.co.topq.report.front.rest.ReportResource.DataTable;
+import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.front.rest.ReportsResource.DataTable;
 
 public class ReportResourceIT extends AbstractResourceTest {
 

@@ -19,12 +19,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
-import il.co.topq.report.business.execution.ExecutionManager;
-import il.co.topq.report.business.execution.ExecutionManager.ExecutionMetadata;
+import il.co.topq.report.business.execution.MetadataController;
+import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
 
 @RestController
 @Path("api/reports")
-public class ReportResource {
+public class ReportsResource {
 
 	private static final String ID = "Id";
 	private static final String DESCRIPTION = "Description";
@@ -37,13 +37,14 @@ public class ReportResource {
 	private static final String NUM_OF_FAILS = "# Failed";
 	private static final String NUM_OF_MACHINES = "# Machines";
 	private static final String ACTIVE = "Active";
+	private static final String LOCKED = "Locked";
 
 	private static final Logger log = LoggerFactory.getLogger(ExecutionResource.class);
 
-	private final ExecutionManager executionManager;
+	private final MetadataController executionManager;
 	
 	@Autowired
-	public ReportResource(ExecutionManager executionManager) {
+	public ReportsResource(MetadataController executionManager) {
 		this.executionManager = executionManager;
 	}
 
@@ -71,6 +72,7 @@ public class ReportResource {
 		table.headers.add(NUM_OF_FAILS);
 		table.headers.add(NUM_OF_MACHINES);
 		table.headers.add(ACTIVE);
+		table.headers.add(LOCKED);
 
 		for (ExecutionMetadata meta : metaData) {
 			final Map<String, Object> row = new HashMap<String, Object>();
@@ -89,6 +91,7 @@ public class ReportResource {
 			row.put(NUM_OF_FAILS, meta.getNumOfFailedTests());
 			row.put(NUM_OF_MACHINES, meta.getNumOfMachines());
 			row.put(ACTIVE, meta.isActive());
+			row.put(LOCKED, meta.isLocked());
 			if (meta.getProperties() != null && meta.getProperties().size() > 0) {
 				for (String header : meta.getProperties().keySet()) {
 					table.headers.add(header);

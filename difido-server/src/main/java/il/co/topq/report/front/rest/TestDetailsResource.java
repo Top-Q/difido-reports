@@ -14,9 +14,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RestController;
 
 import il.co.topq.difido.model.test.TestDetails;
-import il.co.topq.report.business.execution.ExecutionManager;
-import il.co.topq.report.business.execution.ExecutionManager.ExecutionMetadata;
-import il.co.topq.report.front.events.TestDetailsCreatedEvent;
+import il.co.topq.report.business.execution.MetadataController;
+import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.events.TestDetailsCreatedEvent;
 
 @RestController
 @Path("api/executions/{execution}/details")
@@ -26,10 +26,10 @@ public class TestDetailsResource {
 	
 	private final ApplicationEventPublisher publisher;
 	
-	private final ExecutionManager executionManager;
+	private final MetadataController executionManager;
 
 	@Autowired
-	public TestDetailsResource(ApplicationEventPublisher publisher,ExecutionManager executionManager) {
+	public TestDetailsResource(ApplicationEventPublisher publisher,MetadataController executionManager) {
 		super();
 		this.publisher = publisher;
 		this.executionManager = executionManager;

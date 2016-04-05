@@ -51,6 +51,29 @@ div.dt-buttons { #
 	<script type="text/javascript" src="js/bootbox.js"></script>
 
 	<script>
+		function lockUnlockSelected(table,locked){
+			var numOfSelected = table.rows('.selected').data().length;
+			if (numOfSelected == 0) {
+				return;
+			}
+			var numOfChanged = 0;
+			for (var i = 0; i < numOfSelected; i++) {
+				var id = table.rows('.selected').data()[i].Id;
+				$.ajax({
+					url : 'api/executions/' + id + '?locked=' + locked,
+					type : 'PUT',
+				}).done(function() {
+					if (++numOfChanged != numOfSelected) {
+						return;
+					}
+					// Everything was locked, we can refresh the table.
+					location.reload();
+				});
+			}
+
+
+		}
+
 		function deleteSelected(table) {
 			var numOfSelected = table.rows('.selected').data().length;
 			if (numOfSelected == 0) {
@@ -106,7 +129,18 @@ div.dt-buttons { #
 									action : function(e, dt, node, config) {
 										deleteSelected(table);
 									}
-								}, 'copyHtml5', 'csvHtml5', 'pdfHtml5' ],
+								}, {
+									text : 'Lock',
+									action : function(e, dt, node, config) {
+										lockUnlockSelected(table,"true");
+									}
+								}, {
+									text : 'Unlock',
+									action : function(e, dt, node, config) {
+										lockUnlockSelected(table,"false");
+									}
+								},
+								'copyHtml5', 'csvHtml5', 'pdfHtml5' ],
 								columns : columns,
 								data : data,
 								aaSorting : [],

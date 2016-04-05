@@ -14,7 +14,7 @@ public class JerseyConfig extends ResourceConfig {
 	private void registerEndpoints() {
 		register(ExecutionResource.class);
 		register(MachineResource.class);
-		register(ReportResource.class);
+		register(ReportsResource.class);
 		register(TestDetailsResource.class);
 
 		// This is important if we want the server to serve also static content

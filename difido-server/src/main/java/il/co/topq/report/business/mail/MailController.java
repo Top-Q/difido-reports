@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.business.execution.ExecutionManager.ExecutionMetadata;
-import il.co.topq.report.front.events.ExecutionEndedEvent;
+import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.events.ExecutionEndedEvent;
 
 @Component
 public class MailController {

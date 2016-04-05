@@ -24,6 +24,7 @@ public enum Configuration {
 		MAX_EXECUTION_IDLE_TIME_IN_SEC("max.execution.idle.time.in.seconds", "600"),
 		ENABLE_ELASTIC_SEARCH("enable.elastic.search", "true"), 
 		ENABLE_HTML_REPORTS("enable.html.reports", "true"),
+		DAYS_TO_KEEP_HTML_REPORTS("days.to.keep.html.reports","0"),
 		ENABLE_MAIL("enable.mail","false"),				
 		MAIL_USER_NAME("mail.user.name",""),
 		MAIL_PASSWORD("mail.password",""),
@@ -98,6 +99,7 @@ public enum Configuration {
 		addPropWithDefaultValue(ConfigProps.MAX_EXECUTION_IDLE_TIME_IN_SEC);
 		addPropWithDefaultValue(ConfigProps.ENABLE_ELASTIC_SEARCH);
 		addPropWithDefaultValue(ConfigProps.ENABLE_HTML_REPORTS);
+		addPropWithDefaultValue(ConfigProps.DAYS_TO_KEEP_HTML_REPORTS);
 		addPropWithDefaultValue(ConfigProps.ENABLE_MAIL);
 		addPropWithDefaultValue(ConfigProps.MAIL_USER_NAME);
 		addPropWithDefaultValue(ConfigProps.MAIL_PASSWORD);

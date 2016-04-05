@@ -16,18 +16,19 @@ import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.business.execution.ExecutionManager.ExecutionMetadata;
-import il.co.topq.report.front.events.ExecutionCreatedEvent;
-import il.co.topq.report.front.events.ExecutionDeletedEvent;
-import il.co.topq.report.front.events.ExecutionEndedEvent;
-import il.co.topq.report.front.events.FileAddedToTestEvent;
-import il.co.topq.report.front.events.MachineCreatedEvent;
-import il.co.topq.report.front.events.TestDetailsCreatedEvent;
+import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.events.ExecutionCreatedEvent;
+import il.co.topq.report.events.ExecutionDeletedEvent;
+import il.co.topq.report.events.ExecutionEndedEvent;
+import il.co.topq.report.events.ExecutionUpdatedEvent;
+import il.co.topq.report.events.FileAddedToTestEvent;
+import il.co.topq.report.events.MachineCreatedEvent;
+import il.co.topq.report.events.TestDetailsCreatedEvent;
 
 @Component
-public class HtmlViewGenerator {
+public class HtmlReportsController {
 
-	private final Logger log = LoggerFactory.getLogger(HtmlViewGenerator.class);
+	private final Logger log = LoggerFactory.getLogger(HtmlReportsController.class);
 
 	private static final File TEMPLATE_FOLDER = new File("htmlTemplate");
 
@@ -39,8 +40,8 @@ public class HtmlViewGenerator {
 		EXECUTION, MACHINE, SCENARIO, TEST, TEST_DETAILS, ELEMENT
 	}
 
-	/**.
-	 * TODO: Read from the configuration file
+	/**
+	 * . TODO: Read from the configuration file
 	 */
 	private HtmlGenerationLevel creationLevel = HtmlGenerationLevel.ELEMENT;
 
@@ -57,19 +58,44 @@ public class HtmlViewGenerator {
 	 */
 	@EventListener
 	public void onExecutionDeletedEvent(ExecutionDeletedEvent executionDeletedEvent) {
-		log.debug("About to delete execution folder of execution with id " + executionDeletedEvent.getExecutionId());
-		final File executionFolder = getExecutionDestinationFolder(executionDeletedEvent.getMetadata());
+		deleteHtmlFolder(executionDeletedEvent.getMetadata());
+	}
+
+	/**
+	 * This will be triggered only when an update event is send and the HTML is
+	 * marked as false in the metadata. <br>
+	 * In this case, the HTML will be deleted.
+	 * 
+	 * 
+	 * @param executionUpdatedEvent
+	 */
+	@EventListener(condition = "!#executionUpdatedEvent.metadata.htmlExists and !#executionUpdatedEvent.metadata.locked")
+	public void onExecutionUpdatedEvent(ExecutionUpdatedEvent executionUpdatedEvent) {
+		final File executionFolder = getExecutionDestinationFolder(executionUpdatedEvent.getMetadata());
+		if (executionFolder != null && executionFolder.exists()) {
+			deleteHtmlFolder(executionUpdatedEvent.getMetadata());
+		}
+	}
+
+	/**
+	 * Delete the HTML folder of the given execution
+	 * 
+	 * @param executionMetadata
+	 */
+	private void deleteHtmlFolder(ExecutionMetadata executionMetadata) {
+		log.debug("About to delete execution folder of execution with id " + executionMetadata.getId());
+		final File executionFolder = getExecutionDestinationFolder(executionMetadata);
 		if (null == executionFolder) {
-			log.warn("Could not find folder for exeuction with id " + executionDeletedEvent.getExecutionId());
+			log.warn("Could not find folder for exeuction with id " + executionMetadata.getId());
 			return;
 		}
 		try {
 			FileUtils.deleteDirectory(executionFolder);
+			log.debug("Finished deleting execution folder of execution with id " + executionMetadata.getId());
 		} catch (IOException e) {
-			log.error("Failed to delete folder " + executionFolder.getAbsolutePath() + " for execution "
-					+ executionDeletedEvent.getExecutionId());
+			log.warn("Failed to delete folder " + executionFolder.getAbsolutePath() + " for execution "
+					+ executionMetadata.getId());
 		}
-		log.debug("Finished deleting execution folder of execution with id " + executionDeletedEvent.getExecutionId());
 	}
 
 	private void prepareExecutionFolder(ExecutionMetadata executionMetadata) {

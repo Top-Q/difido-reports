@@ -22,8 +22,8 @@ import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Application;
 import il.co.topq.report.business.elastic.ESController;
-import il.co.topq.report.business.execution.ExecutionManager;
-import il.co.topq.report.business.execution.ExecutionManager.ExecutionMetadata;
+import il.co.topq.report.business.execution.MetadataController;
+import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
 import il.co.topq.report.front.rest.DifidoClient;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -42,7 +42,7 @@ public abstract class AbstractResourceTest {
 	protected DifidoClient client;
 	
 	@Autowired
-	private ExecutionManager executionManager;
+	private MetadataController executionManager;
 	
 	@Before
 	public void setUp() throws Exception {

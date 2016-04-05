@@ -1,7 +1,7 @@
-package il.co.topq.report.front.events;
+package il.co.topq.report.events;
 
 import il.co.topq.difido.model.execution.MachineNode;
-import il.co.topq.report.business.execution.ExecutionManager.ExecutionMetadata;
+import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
 
 public class MachineCreatedEvent extends AbsMetadataEvent {
 

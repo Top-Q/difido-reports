@@ -23,12 +23,12 @@ import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Common;
-import il.co.topq.report.business.execution.ExecutionManager.ExecutionMetadata;
-import il.co.topq.report.front.events.ExecutionCreatedEvent;
-import il.co.topq.report.front.events.ExecutionDeletedEvent;
-import il.co.topq.report.front.events.ExecutionEndedEvent;
-import il.co.topq.report.front.events.MachineCreatedEvent;
-import il.co.topq.report.front.events.TestDetailsCreatedEvent;
+import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.events.ExecutionCreatedEvent;
+import il.co.topq.report.events.ExecutionDeletedEvent;
+import il.co.topq.report.events.ExecutionEndedEvent;
+import il.co.topq.report.events.MachineCreatedEvent;
+import il.co.topq.report.events.TestDetailsCreatedEvent;
 
 /**
  * 

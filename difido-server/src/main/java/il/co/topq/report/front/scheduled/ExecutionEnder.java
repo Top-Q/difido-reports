@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.business.execution.ExecutionManager;
-import il.co.topq.report.business.execution.ExecutionManager.ExecutionMetadata;
-import il.co.topq.report.front.events.ExecutionEndedEvent;
+import il.co.topq.report.business.execution.MetadataController;
+import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.events.ExecutionEndedEvent;
 
 @Component
 public class ExecutionEnder {
@@ -22,12 +22,12 @@ public class ExecutionEnder {
 
 	private static boolean enabled;
 	
-	private final ExecutionManager executionManager;
+	private final MetadataController executionManager;
 	
 	private final ApplicationEventPublisher publisher;
 
 	@Autowired
-	public ExecutionEnder(ExecutionManager executionManager, ApplicationEventPublisher publisher) {
+	public ExecutionEnder(MetadataController executionManager, ApplicationEventPublisher publisher) {
 		this.executionManager = executionManager;
 		this.publisher = publisher;
 	}

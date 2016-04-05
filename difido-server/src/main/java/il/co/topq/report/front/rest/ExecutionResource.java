@@ -17,11 +17,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RestController;
 
 import il.co.topq.difido.model.remote.ExecutionDetails;
-import il.co.topq.report.business.execution.ExecutionManager;
-import il.co.topq.report.business.execution.ExecutionManager.ExecutionMetadata;
-import il.co.topq.report.front.events.ExecutionCreatedEvent;
-import il.co.topq.report.front.events.ExecutionDeletedEvent;
-import il.co.topq.report.front.events.ExecutionEndedEvent;
+import il.co.topq.report.business.execution.MetadataController;
+import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.events.ExecutionCreatedEvent;
+import il.co.topq.report.events.ExecutionDeletedEvent;
+import il.co.topq.report.events.ExecutionEndedEvent;
+import il.co.topq.report.events.ExecutionUpdatedEvent;
 
 @RestController
 @Path("api/executions")
@@ -31,10 +32,10 @@ public class ExecutionResource {
 
 	private final ApplicationEventPublisher publisher;
 
-	private final ExecutionManager executionManager;
+	private final MetadataController executionManager;
 
 	@Autowired
-	public ExecutionResource(ApplicationEventPublisher publisher, ExecutionManager executionManager) {
+	public ExecutionResource(ApplicationEventPublisher publisher, MetadataController executionManager) {
 		this.publisher = publisher;
 		this.executionManager = executionManager;
 	}
@@ -68,15 +69,27 @@ public class ExecutionResource {
 	 * @param executionIndex
 	 *            the id of the execution
 	 * @param active
-	 *            - Should the execution set to not active
+	 *            - Set to not active
+	 * @param locked
+	 *            - Set the execution to locked. Will no be deleted
+	 * 
 	 */
 	@PUT
 	@Path("/{execution: [0-9]+}")
-	public void put(@PathParam("execution") int executionIndex, @QueryParam("active") boolean active) {
-		log.debug("PUT - Upating execution with id " + executionIndex + ". to active: " + active);
-		if (!active) {
-			publisher.publishEvent(
-					new ExecutionEndedEvent(executionIndex, executionManager.getExecutionMetadata(executionIndex)));
+	public void put(@PathParam("execution") int executionIndex, @QueryParam("active") Boolean active,
+			@QueryParam("locked") Boolean locked) {
+		log.debug("PUT - Upating execution with id " + executionIndex + ". to active: " + active + " and locked: "
+				+ locked);
+		final ExecutionMetadata metadata = executionManager.getExecutionMetadata(executionIndex);
+
+		if (active != null && !active) {
+			// TODO: This should be changed to use the executionUpdatedEvent for
+			// consistency
+			publisher.publishEvent(new ExecutionEndedEvent(executionIndex, metadata));
+		}
+		if (locked != null) {
+			metadata.setLocked(locked);
+			publisher.publishEvent(new ExecutionUpdatedEvent(metadata));
 		}
 	}
 
@@ -97,6 +110,10 @@ public class ExecutionResource {
 		}
 		if (executionMetaData.isActive()) {
 			log.warn("Trying to delete execution with index " + executionIndex + " which is still active");
+			return;
+		}
+		if (executionMetaData.isLocked()) {
+			log.warn("Trying to delete execution with index " + executionIndex + " which is locked");
 			return;
 		}
 		publisher.publishEvent(new ExecutionDeletedEvent(executionIndex, executionMetaData));
