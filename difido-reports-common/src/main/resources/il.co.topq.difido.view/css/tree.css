@@ -18,18 +18,17 @@ and open the template in the editor.
 
 .jstree-classic li[rel="succeess"] > a { color: rgb(136,238,136); }
 .jstree-node.failure, .jstree-anchor.failure {
-    color: rgb(255,153,51) !important;
-    font-weight: bold;
+    color: #EE0000; font-weight: bold; !important;
 }
 .jstree-node.error , .jstree-anchor.error {
-    color: rgb(224,0,0) !important;
-    font-weight: bold;
+    color: #EE0000; font-weight: bold; !important;
 }
 .jstree-node.success , .jstree-anchor.success{
-    /* in case we want different style for success status */
+    color: #000000 !important;
+	/* in case we want different style for success status */
 }
 .jstree-node.warning , .jstree-anchor.warning{
-    color: rgb(245,245,0);
+    color: #000000;
 }
 
 #tree {
