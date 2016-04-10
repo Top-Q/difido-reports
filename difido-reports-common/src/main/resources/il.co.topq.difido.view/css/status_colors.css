@@ -1,0 +1,11 @@
+/*Used in the 'summary table', 'execution table', ''*/
+.s_success_back { background-color: #81C784 !important; }
+.s_error_back { background-color: #FF8A65 !important; }
+.s_failure_back { background-color: #E57373 !important; }
+.s_warning_back { background-color: #FFCA28 !important; }
+
+/*Used in the 'execution tree' ,'test details'*/
+.s_success_text { }
+.s_error_text { color: #FF8A65 !important; font-weight: bold;}
+.s_failure_text { color: #E57373 !important;  font-weight: bold;}
+.s_warning_text { color: #FFD54F !important; font-weight: bold;}

@@ -38,7 +38,7 @@ function isPropertyExist(element, property) {
 
 function addStatusAsClass(elementToAppend, elementWithStatus) {
     if (isPropertyExist(elementWithStatus, "status")) {
-        elementToAppend.addClass(elementWithStatus.status);
+        elementToAppend.addClass("s_" + elementWithStatus.status +"_text");
     }
 }
 

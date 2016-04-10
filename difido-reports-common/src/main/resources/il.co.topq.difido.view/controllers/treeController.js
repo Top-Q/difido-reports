@@ -9,11 +9,11 @@ function populateChildren(source, destination) {
         switch (this.type) {
             case "scenario" :
                 var children = new Array();
-                destination.push({'text': this.name, 'icon': suiteIcon(this.status), 'children': children, 'type': this.status , 'a_attr':{'class' : this.status}});
+                destination.push({'text': this.name, 'icon': suiteIcon(this.status), 'children': children, 'type': this.status , 'a_attr':{'class' : 's_' + this.status +"_text"}});
                 populateChildren(this.children, children);
                 break;
             case "test":
-                destination.push({'text': this.index + ". " + this.name, 'icon': testIcon(this.status), 'rel': this.status, 'type': this.status, 'a_attr': {'href': "tests/test_" + this.uid+"/test.html",'class':this.status}});
+                destination.push({'text': this.index + ". " + this.name, 'icon': testIcon(this.status), 'rel': this.status, 'type': this.status, 'a_attr': {'href': "tests/test_" + this.uid+"/test.html",'class':'s_' + this.status + "_text"}});
                 break;
         }
     });

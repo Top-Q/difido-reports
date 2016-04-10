@@ -11,10 +11,12 @@
         <title>Dashboard</title>
 
         <!-- Bootstrap core CSS -->
+        <link href="css/status_colors.css" rel="stylesheet">
         <link href="css/bootstrap.min.css" rel="stylesheet">
 
         <!-- Custom styles for this template -->
         <link href="css/dashboard.css" rel="stylesheet">
+        
         <style>
             canvas{
             }
@@ -113,12 +115,12 @@
 							<br/>
                             <table style="margin-left:auto; margin-right:auto;">
 								<tr>
-									<td align="left"><div style="width:15px; height:15px; background-color:#85E085; float:left;"></div>&nbsp;= Success&nbsp;&nbsp;&nbsp;&nbsp;</td>
-									<td align="left"><div style="width:15px; height:15px; background-color:#FFE066; float:left;"></div>&nbsp;= Warning</td>
+									<td align="left"><div style="width:15px; height:15px; float:left;" class="s_success_back"></div>&nbsp;= Success&nbsp;&nbsp;&nbsp;&nbsp;</td>
+									<td align="left"><div style="width:15px; height:15px; float:left;" class="s_warning_back"></div>&nbsp;= Warning</td>
 								</tr>
 								<tr>
-									<td align="left"><div style="width:15px; height:15px; background-color:#FF8080; float:left;"></div>&nbsp;= Failure</td>
-									<td align="left"><div style="width:15px; height:15px; background-color:#999999; float:left;"></div>&nbsp;= Error</td>
+									<td align="left"><div style="width:15px; height:15px; float:left;" class="s_failure_back"></div>&nbsp;= Failure</td>
+									<td align="left"><div style="width:15px; height:15px; float:left;" class="s_error_back"></div>&nbsp;= Error</td>
 								</tr>
 							</table>
                             </div>

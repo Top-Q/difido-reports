@@ -54,13 +54,13 @@ function appendTestsToSumTable(tests, table) {
         total.tests+=tests;
         tr.append($('<td>').text(durationHour + "h" + durationMin + "m" + durationSec + "s"));
         total.duration += this.duration;
-        tr.append($('<td>').text(this.success).addClass(this.success > 0 ? "success" : ""));
+        tr.append($('<td>').text(this.success).addClass(this.success > 0 ? "s_success_back" : ""));
         total.success += this.success;
-        tr.append($('<td>').text(this.error).addClass(this.error > 0 ? "error" : ""));
+        tr.append($('<td>').text(this.error).addClass(this.error > 0 ? "s_error_back" : ""));
         total.error += this.error;
-        tr.append($('<td>').text(this.failure).addClass(this.failure > 0 ? "failure" : ""));
+        tr.append($('<td>').text(this.failure).addClass(this.failure > 0 ? "s_failure_back" : ""));
         total.failure += this.failure;
-        tr.append($('<td>').text(this.warning).addClass(this.warning > 0 ? "warning" : ""));
+        tr.append($('<td>').text(this.warning).addClass(this.warning > 0 ? "s_warning_back" : ""));
         total.warning += this.warning;
         tr.append($('<td>').text(calculateSuccessRate(this)+"%"));
         $(table).append(tr);
@@ -73,10 +73,10 @@ function appendTestsToSumTable(tests, table) {
     durationMin = Math.floor((((durInSec % 31536000) % 86400) % 3600) / 60);
     durationSec = (((durInSec % 31536000) % 86400) % 3600) % 60;
     tr.append($('<td>').text(durationHour + "h" + durationMin + "m" + durationSec + "s"));
-    tr.append($('<td>').text(total.success).addClass(total.success > 0 ? "success" : ""));
-    tr.append($('<td>').text(total.error).addClass(total.error > 0 ? "error" : ""));
-    tr.append($('<td>').text(total.failure).addClass(total.failure > 0 ? "failure" : ""));
-    tr.append($('<td>').text(total.warning).addClass(total.warning > 0 ? "warning" : ""));
+    tr.append($('<td>').text(total.success).addClass(total.success > 0 ? "s_success_back" : ""));
+    tr.append($('<td>').text(total.error).addClass(total.error > 0 ? "s_error_back" : ""));
+    tr.append($('<td>').text(total.failure).addClass(total.failure > 0 ? "s_failure_back" : ""));
+    tr.append($('<td>').text(total.warning).addClass(total.warning > 0 ? "s_warning_back" : ""));
     tr.append($('<td>').text(calculateSuccessRate(total)+"%"));
     $(table).append(tr);
 }

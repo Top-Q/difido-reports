@@ -54,10 +54,11 @@ function appendTestsToBar(tests, element) {
        failurePerSuite.push(this.failure);
        warningPerSuite.push(this.warning);
     });
-    barData.datasets.push({"fillColor" : "rgba(136,238,136,0.5)","strokeColor" : "rgba(136,238,136,1)" , "data":successPerSuite});
-    barData.datasets.push({"fillColor" : "rgba(224,0,0,0.5)","strokeColor" : "rgba(224,0,0,1)" , "data":errorPerSuite});
-    barData.datasets.push({"fillColor" : "rgba(255,153,51,0.5)","strokeColor" : "rgba(255,153,51,1)" , "data":failurePerSuite});
-    barData.datasets.push({"fillColor" : "rgba(245,245,0,0.5)","strokeColor" : "rgba(245,245,0,1)" , "data":warningPerSuite});
+    var colors = getTestColors();
+    barData.datasets.push({"fillColor" : colors.success,"strokeColor" : colors.success , "data":successPerSuite});
+    barData.datasets.push({"fillColor" : colors.error,"strokeColor" : colors.error , "data":errorPerSuite});
+    barData.datasets.push({"fillColor" : colors.failure,"strokeColor" : colors.failure , "data":failurePerSuite});
+    barData.datasets.push({"fillColor" : colors.warning,"strokeColor" : colors.warning , "data":warningPerSuite});
     new Chart(element.getContext("2d")).Bar(barData);
     
 }
