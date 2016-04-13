@@ -43,7 +43,7 @@ public class HtmlReportsEraser {
 		}
 	}
 
-	@Scheduled(fixedRate = 10000)
+	@Scheduled(fixedRate = 36000000)
 	public void eraseOldHtmlReports() {
 		if (!enabled) {
 			return;
