@@ -6,7 +6,7 @@ import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.client.Requests;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.Logger;
@@ -69,10 +69,11 @@ public class Application extends SpringBootServletInitializer {
 	}
 
 	public static void startElastic() {
-		ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder();
+		Settings.Builder settings = Settings.settingsBuilder();
 		settings.put("node.name", "reportserver");
 		settings.put("path.data", Configuration.INSTANCE.readString(ConfigProps.PATH_DATA));
 		settings.put("http.enabled", true);
+		settings.put("path.home", ".");
 		node = NodeBuilder.nodeBuilder().settings(settings).clusterName("reportserver").data(true).local(true).node();
 		Common.elasticsearchClient = node.client();
 

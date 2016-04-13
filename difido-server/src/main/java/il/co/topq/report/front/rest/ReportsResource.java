@@ -13,7 +13,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.elasticsearch.common.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +76,7 @@ public class ReportsResource {
 		for (ExecutionMetadata meta : metaData) {
 			final Map<String, Object> row = new HashMap<String, Object>();
 			row.put(ID, meta.getId());
-			if (!StringUtils.isEmpty(meta.getDescription())){
+			if (meta.getDescription() != null && !meta.getDescription().isEmpty()){
 				row.put(DESCRIPTION, meta.getDescription());
 			} else {
 				row.put(DESCRIPTION, meta.getFolderName());
