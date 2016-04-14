@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.business.execution.MetadataController;
-import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.business.execution.ExecutionMetadata;
+import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.ExecutionUpdatedEvent;
 
 @Component
@@ -27,13 +27,13 @@ public class HtmlReportsEraser {
 
 	private boolean enabled;
 
-	private final MetadataController executionManager;
+	private final MetadataProvider metadataProvider;
 
 	private final ApplicationEventPublisher publisher;
 
 	@Autowired
-	public HtmlReportsEraser(MetadataController executionManager, ApplicationEventPublisher publisher) {
-		this.executionManager = executionManager;
+	public HtmlReportsEraser(MetadataProvider metadataProvider, ApplicationEventPublisher publisher) {
+		this.metadataProvider = metadataProvider;
 		this.publisher = publisher;
 		daysToKeep = Configuration.INSTANCE.readInt(ConfigProps.DAYS_TO_KEEP_HTML_REPORTS);
 		if (daysToKeep > 0) {
@@ -50,7 +50,7 @@ public class HtmlReportsEraser {
 		}
 		log.trace("Waking up in order to search for HTML reports that need to be erased");
 		final LocalDate today = LocalDate.now();
-		final ExecutionMetadata[] metaDataArr = executionManager.getAllMetaData();
+		final ExecutionMetadata[] metaDataArr = metadataProvider.getAllMetaData();
 		for (ExecutionMetadata meta : metaDataArr) {
 			if (meta.isActive() || meta.isLocked() || !meta.isHtmlExists()) {
 				continue;

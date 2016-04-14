@@ -14,36 +14,36 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import il.co.topq.report.business.execution.MetadataController;
-import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.business.execution.ExecutionMetadata;
+import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.FileAddedToTestEvent;
 
 @RestController
 public class FileUploadResource {
 
 	private final Logger log = LoggerFactory.getLogger(FileUploadResource.class);
-	
+
 	private final ApplicationEventPublisher publisher;
-	
-	private final MetadataController executionManager;
-	
+
+	private final MetadataProvider metadataProvider;
+
 	@Autowired
-	public FileUploadResource(ApplicationEventPublisher publisher, MetadataController executionManager) {
+	public FileUploadResource(ApplicationEventPublisher publisher, MetadataProvider metadataProvider) {
 		super();
 		this.publisher = publisher;
-		this.executionManager = executionManager;
+		this.metadataProvider = metadataProvider;
 	}
 
-
-
 	@RequestMapping(value = "/api/executions/{execution}/details/{uid}/file", method = RequestMethod.POST)
-	public @ResponseBody void handleFileUpload(@PathVariable int execution,@PathVariable String uid, @RequestParam("file") MultipartFile file) {
+	public @ResponseBody void handleFileUpload(@PathVariable int execution, @PathVariable String uid,
+			@RequestParam("file") MultipartFile file) {
 		if (!file.isEmpty()) {
 			try {
-				final ExecutionMetadata metadata = executionManager.getExecutionMetadata(execution);
-				publisher.publishEvent(new FileAddedToTestEvent(execution, metadata, uid, file.getBytes(), file.getOriginalFilename()));
+				final ExecutionMetadata metadata = metadataProvider.getMetadata(execution);
+				publisher.publishEvent(
+						new FileAddedToTestEvent(metadata, uid, file.getBytes(), file.getOriginalFilename()));
 			} catch (IOException e1) {
-				log.warn("Failed get content of file with name "+ file.getOriginalFilename());
+				log.warn("Failed get content of file with name " + file.getOriginalFilename());
 			}
 		}
 	}

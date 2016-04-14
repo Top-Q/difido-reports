@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionEndedEvent;
 
 @Component

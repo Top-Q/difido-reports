@@ -17,8 +17,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RestController;
 
 import il.co.topq.difido.model.remote.ExecutionDetails;
-import il.co.topq.report.business.execution.MetadataController;
-import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.business.execution.ExecutionMetadata;
+import il.co.topq.report.business.execution.MetadataCreator;
+import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.ExecutionCreatedEvent;
 import il.co.topq.report.events.ExecutionDeletedEvent;
 import il.co.topq.report.events.ExecutionEndedEvent;
@@ -32,12 +33,16 @@ public class ExecutionResource {
 
 	private final ApplicationEventPublisher publisher;
 
-	private final MetadataController executionManager;
+	private final MetadataProvider metadataProvider;
+
+	private final MetadataCreator metadataCreator;
 
 	@Autowired
-	public ExecutionResource(ApplicationEventPublisher publisher, MetadataController executionManager) {
+	public ExecutionResource(ApplicationEventPublisher publisher, MetadataProvider metadataProvider,
+			MetadataCreator metadataCreator) {
 		this.publisher = publisher;
-		this.executionManager = executionManager;
+		this.metadataCreator = metadataCreator;
+		this.metadataProvider = metadataProvider;
 	}
 
 	@POST
@@ -45,19 +50,17 @@ public class ExecutionResource {
 	@Produces(MediaType.TEXT_PLAIN)
 	public int post(ExecutionDetails executionDetails) {
 		ExecutionMetadata metadata = null;
-		if (null == executionDetails) {
-			log.debug("POST - Adding new execution - No description was specified");
-			metadata = executionManager.addExecution();
-
-		} else {
-			log.debug("POST - Adding new execution " + executionDetails);
-			if (executionDetails.isShared() && !executionDetails.isForceNew()) {
-				metadata = executionManager.getSharedExecutionIndexAndAddIfNoneExist(executionDetails);
-			} else {
-				metadata = executionManager.addExecution(executionDetails);
+		log.debug("POST - Adding new execution");
+		if (executionDetails != null && executionDetails.isShared() && !executionDetails.isForceNew()) {
+			metadata = metadataProvider.getShared();
+			if (null == metadata) {
+				log.debug("POST - Could not find an active shared execution. Creating a new execution");
+				metadata = metadataCreator.createMetadata(executionDetails);
 			}
+		} else {
+			metadata = metadataCreator.createMetadata(executionDetails);
 		}
-		publisher.publishEvent(new ExecutionCreatedEvent(metadata.getId(), metadata));
+		publisher.publishEvent(new ExecutionCreatedEvent(metadata));
 		return metadata.getId();
 
 	}
@@ -80,12 +83,12 @@ public class ExecutionResource {
 			@QueryParam("locked") Boolean locked) {
 		log.debug("PUT - Upating execution with id " + executionIndex + ". to active: " + active + " and locked: "
 				+ locked);
-		final ExecutionMetadata metadata = executionManager.getExecutionMetadata(executionIndex);
+		final ExecutionMetadata metadata = metadataProvider.getMetadata(executionIndex);
 
 		if (active != null && !active) {
 			// TODO: This should be changed to use the executionUpdatedEvent for
 			// consistency
-			publisher.publishEvent(new ExecutionEndedEvent(executionIndex, metadata));
+			publisher.publishEvent(new ExecutionEndedEvent(metadata));
 		}
 		if (locked != null) {
 			metadata.setLocked(locked);
@@ -103,7 +106,7 @@ public class ExecutionResource {
 	@Path("/{execution: [0-9]+}")
 	public void delete(@PathParam("execution") int executionIndex) {
 		log.debug("DELETE - Delete execution with id " + executionIndex);
-		final ExecutionMetadata executionMetaData = executionManager.getExecutionMetadata(executionIndex);
+		final ExecutionMetadata executionMetaData = metadataProvider.getMetadata(executionIndex);
 		if (null == executionMetaData) {
 			log.warn("Trying to delete execution with index " + executionIndex + " which is not exist");
 			return;

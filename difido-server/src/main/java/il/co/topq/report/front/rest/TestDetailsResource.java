@@ -14,8 +14,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RestController;
 
 import il.co.topq.difido.model.test.TestDetails;
-import il.co.topq.report.business.execution.MetadataController;
-import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.business.execution.ExecutionMetadata;
+import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.TestDetailsCreatedEvent;
 
 @RestController
@@ -23,19 +23,17 @@ import il.co.topq.report.events.TestDetailsCreatedEvent;
 public class TestDetailsResource {
 
 	private final Logger log = LoggerFactory.getLogger(TestDetailsResource.class);
-	
+
 	private final ApplicationEventPublisher publisher;
-	
-	private final MetadataController executionManager;
+
+	private final MetadataProvider metadataProvider;
 
 	@Autowired
-	public TestDetailsResource(ApplicationEventPublisher publisher,MetadataController executionManager) {
+	public TestDetailsResource(ApplicationEventPublisher publisher, MetadataProvider metadataProvider) {
 		super();
 		this.publisher = publisher;
-		this.executionManager = executionManager;
+		this.metadataProvider = metadataProvider;
 	}
-
-
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -45,26 +43,8 @@ public class TestDetailsResource {
 			log.error("Details can't be null");
 			throw new WebApplicationException("Details can't be null");
 		}
-		ExecutionMetadata metadata = executionManager.getExecutionMetadata(executionId);
-		publisher.publishEvent(new TestDetailsCreatedEvent(executionId, metadata, details));
+		ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
+		publisher.publishEvent(new TestDetailsCreatedEvent(metadata, details));
 	}
-
-//	@POST
-//	@Consumes(MediaType.MULTIPART_FORM_DATA)
-//	@Produces(MediaType.TEXT_PLAIN)
-//	@Path("/{uid}/file")
-//	public String postFile(@PathParam("execution") int executionId, @PathParam("uid") String uid,
-//			FormDataMultiPart multiPart) {
-//		log.debug("POST - Add file to execution with id " + executionId);
-//		FormDataBodyPart fileBodyPart = multiPart.getFields().values().iterator().next().get(0);
-//
-//		InputStream fileStream = fileBodyPart.getValueAs(InputStream.class);
-//		FormDataContentDisposition fileDisposition = fileBodyPart.getFormDataContentDisposition();
-//		String fileName = fileDisposition.getFileName();
-//
-//		ListenersManager.INSTANCE.notifyFileAddedToTest(executionId, uid, fileStream, fileName);
-//		
-//		return "Success";
-//	}
 
 }

@@ -2,7 +2,6 @@ package il.co.topq.report.front.rest;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Map;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
@@ -11,7 +10,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import il.co.topq.difido.model.execution.MachineNode;

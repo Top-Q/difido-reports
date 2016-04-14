@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.business.execution.MetadataController;
-import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.business.execution.ExecutionMetadata;
+import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.ExecutionEndedEvent;
 
 @Component
@@ -22,13 +22,13 @@ public class ExecutionEnder {
 
 	private static boolean enabled;
 	
-	private final MetadataController executionManager;
+	private final MetadataProvider metadataProvider;
 	
 	private final ApplicationEventPublisher publisher;
 
 	@Autowired
-	public ExecutionEnder(MetadataController executionManager, ApplicationEventPublisher publisher) {
-		this.executionManager = executionManager;
+	public ExecutionEnder(MetadataProvider metadataProvider, ApplicationEventPublisher publisher) {
+		this.metadataProvider = metadataProvider;
 		this.publisher = publisher;
 	}
 
@@ -46,7 +46,7 @@ public class ExecutionEnder {
 			return;
 		}
 		log.trace("Waking up in order to search for executions that need to end");
-		final ExecutionMetadata[] metaDataArr = executionManager.getAllMetaData();
+		final ExecutionMetadata[] metaDataArr = metadataProvider.getAllMetaData();
 		for (ExecutionMetadata meta : metaDataArr) {
 			if (!meta.isActive()) {
 				continue;
@@ -58,7 +58,7 @@ public class ExecutionEnder {
 			if (idleTime > maxExecutionIdleTimeout) {
 				log.debug("Execution with id " + meta.getId() + " idle time is " + idleTime
 						+ " which exceeded the max idle time of " + maxExecutionIdleTimeout + ". Disabling execution");
-				publisher.publishEvent(new ExecutionEndedEvent(meta.getId(), meta));
+				publisher.publishEvent(new ExecutionEndedEvent(meta));
 			}
 		}
 

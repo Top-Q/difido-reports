@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
-import il.co.topq.report.business.execution.MetadataController;
-import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.business.execution.ExecutionMetadata;
+import il.co.topq.report.business.execution.MetadataProvider;
 
 @RestController
 @Path("api/reports")
@@ -40,11 +40,11 @@ public class ReportsResource {
 
 	private static final Logger log = LoggerFactory.getLogger(ExecutionResource.class);
 
-	private final MetadataController executionManager;
+	private final MetadataProvider metadataProvider;
 	
 	@Autowired
-	public ReportsResource(MetadataController executionManager) {
-		this.executionManager = executionManager;
+	public ReportsResource(MetadataProvider metadataProvider) {
+		this.metadataProvider = metadataProvider;
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class ReportsResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public DataTable get(@PathParam("execution") int execution) {
 		log.debug("GET - Get all reports");
-		ExecutionMetadata[] metaData = executionManager.getAllMetaData();
+		ExecutionMetadata[] metaData = metadataProvider.getAllMetaData();
 		final DataTable table = new DataTable();
 
 		table.headers.add(ID);

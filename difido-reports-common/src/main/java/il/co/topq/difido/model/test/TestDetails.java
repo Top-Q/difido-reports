@@ -12,7 +12,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-@JsonPropertyOrder({ "name", "description", "timestamp", "duration", "parameters", "properties", "reportElements" })
+/**
+ * 
+ * @author itai
+ *
+ */
+// It is very important that the reportElements member will be the last one for
+// cases in which we want to append to the file
+@JsonPropertyOrder({ "uid", "name", "description", "timestamp", "duration", "parameters", "properties",
+		"reportElements" })
 public class TestDetails {
 
 	/**

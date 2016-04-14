@@ -16,7 +16,7 @@ import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionCreatedEvent;
 import il.co.topq.report.events.ExecutionDeletedEvent;
 import il.co.topq.report.events.ExecutionEndedEvent;

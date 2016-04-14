@@ -17,8 +17,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RestController;
 
 import il.co.topq.difido.model.execution.MachineNode;
-import il.co.topq.report.business.execution.MetadataController;
-import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
+import il.co.topq.report.business.execution.ExecutionMetadata;
+import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.MachineCreatedEvent;
 
 @RestController
@@ -26,14 +26,14 @@ import il.co.topq.report.events.MachineCreatedEvent;
 public class MachineResource {
 
 	private final Logger log = LoggerFactory.getLogger(MachineResource.class);
-	
-	private final MetadataController executionManager;
-	
+
 	private final ApplicationEventPublisher publisher;
-	
+
+	private final MetadataProvider metadataProvider;
+
 	@Autowired
-	public MachineResource(MetadataController executionManager, ApplicationEventPublisher publisher) {
-		this.executionManager = executionManager;
+	public MachineResource(MetadataProvider metadataProvider, ApplicationEventPublisher publisher) {
+		this.metadataProvider = metadataProvider;
 		this.publisher = publisher;
 	}
 
@@ -45,12 +45,12 @@ public class MachineResource {
 		if (null == machine) {
 			throw new WebApplicationException("Machine can't be null");
 		}
-		final ExecutionMetadata metadata = executionManager.getExecutionMetadata(executionId);
+		final ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
 		if (null == metadata) {
 			throw new WebApplicationException("Execution with id " + executionId + " is not exist");
 		}
 		metadata.getExecution().addMachine(machine);
-		publisher.publishEvent(new MachineCreatedEvent(executionId,metadata, machine));
+		publisher.publishEvent(new MachineCreatedEvent(metadata, machine));
 		return metadata.getExecution().getMachines().indexOf(machine);
 	}
 
@@ -63,12 +63,12 @@ public class MachineResource {
 		if (null == machine) {
 			throw new WebApplicationException("Machine can't be null");
 		}
-		final ExecutionMetadata metadata = executionManager.getExecutionMetadata(executionId);
+		final ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
 		if (null == metadata) {
 			throw new WebApplicationException("Execution with id " + executionId + " is not exist");
 		}
 		metadata.getExecution().getMachines().set(machineId, machine);
-		publisher.publishEvent(new MachineCreatedEvent(executionId,metadata, machine));
+		publisher.publishEvent(new MachineCreatedEvent(metadata, machine));
 	}
 
 	@GET
@@ -76,6 +76,6 @@ public class MachineResource {
 	@Path("/{machine}")
 	public MachineNode get(@PathParam("execution") int execution, @PathParam("machine") int machine) {
 		log.debug("GET - Get machine from execution with id " + execution + " and machine id " + machine);
-		return executionManager.getExecutionMetadata(execution).getExecution().getMachines().get(machine);
+		return metadataProvider.getMetadata(execution).getExecution().getMachines().get(machine);
 	}
 }

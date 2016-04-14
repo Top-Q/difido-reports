@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -22,8 +21,6 @@ import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Application;
 import il.co.topq.report.business.elastic.ESController;
-import il.co.topq.report.business.execution.MetadataController;
-import il.co.topq.report.business.execution.MetadataController.ExecutionMetadata;
 import il.co.topq.report.front.rest.DifidoClient;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -59,7 +56,7 @@ public abstract class AbstractResourceTest {
 
 	private void flushPreviousReports() throws IOException {
 		FileUtils.deleteDirectory(reportsFolder);
-		executionManager.executionsCache = new HashMap<Integer, ExecutionMetadata>();
+		executionManager.persistency.dump();
 	}
 
 	protected static Execution getExecution() {
