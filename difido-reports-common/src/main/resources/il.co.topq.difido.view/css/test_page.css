@@ -10,17 +10,6 @@
 
 #detailsDiv .step {color: #4E6CA3;}
 
-/* Test Statuses */
-#detailsDiv .failure > span {
-    color: #EE0000 !important;
-}
-#detailsDiv .warning > span {
-    color: #FFBB00;
-}
-#detailsDiv .error > span {
-    color: #E00000;
-}
-
 #detailsDiv div{
     word-wrap: break-word;
     margin: 5px 0 5px 0;
@@ -31,18 +20,16 @@ h3 {color: gray ; font-size: small}
 img {width: 100px}
 
 .innerToggle {
-    color: blue;
     cursor: pointer;
+    text-decoration: underline;
 }
 
-.startLevel {
-    color: blue;
+.startLevel {   
     cursor: pointer;
     font-weight: bold;
 }
 
-.emptyStartLevel{
-    color: blue;
+.emptyStartLevel{   
     font-weight: bold;
 }
 
