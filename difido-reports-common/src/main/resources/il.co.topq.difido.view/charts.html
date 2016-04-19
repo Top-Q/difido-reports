@@ -7,7 +7,7 @@
         <meta name="description" content="">
         <meta name="author" content="Itai Agmon">
 
-        <title>Dashboard</title>
+        <title>Charts</title>
 
         <!-- Bootstrap core CSS -->
         <link href="css/status_colors.css" rel="stylesheet">
@@ -16,10 +16,6 @@
         <!-- Custom styles for this template -->
         <link href="css/dashboard.css" rel="stylesheet">
         
-
-        <!-- Just for debugging purposes. Don't actually copy this line! -->
-        <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
           <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -59,42 +55,37 @@
             <div class="row">
                 <div class="col-sm-3 col-md-2 sidebar">
                     <ul class="nav nav-sidebar">
-                        <li class="active"><a href="index.html">Overview</a></li>
-                        <li><a href="charts.html">Charts</a></li>
+                        <li><a href="index.html">Overview</a></li>
+                        <li class="active"><a href="charts.html">Charts</a></li>
                     </ul>
                 </div>
                 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-                    <h1 class="page-header">Dashboard</h1>
-                    <h2 class="sub-header">Summary Table</h2>
-                    <div class="table-responsive">
-                        <table class="table table-striped" id="sumTable">
-                            <thead>
+                    <h1 class="page-header">Charts</h1>
+                    <h2 class="sub-header">Execution Charts</h2>
+                    <div class="row placeholders">
+                        <div class="col-md-4 placeholder">
+                            <canvas id="pie" height="250" width="250"></canvas>
+                            <div>
+                            <h4>Test Status Pie</h4>
+                            <br/>
+                            <table style="margin-left:auto; margin-right:auto;">
                                 <tr>
-                                    <th>Suite</th>
-                                    <th>Tests</th>
-                                    <th>Duration</th>
-                                    <th>Success</th>
-                                    <th>Error</th>
-                                    <th>Failure</th>
-                                    <th>Warning</th>
-                                    <th>Pass Rate</th>
+                                    <td align="left"><div style="width:15px; height:15px; float:left;" class="s_success_back"></div>&nbsp;= Success&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                    <td align="left"><div style="width:15px; height:15px; float:left;" class="s_warning_back"></div>&nbsp;= Warning</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                    <h2 class = "sub-header">Properties</h2>
-                    <div class="table-responsive">
-                        <table class="table table-striped" id="propTable">
-                            <thead>
                                 <tr>
-                                    <th>Property</th>
-                                    <th>Value</th>
+                                    <td align="left"><div style="width:15px; height:15px; float:left;" class="s_failure_back"></div>&nbsp;= Failure</td>
+                                    <td align="left"><div style="width:15px; height:15px; float:left;" class="s_error_back"></div>&nbsp;= Error</td>
                                 </tr>
-                            </thead>
-                        </table>
-                    </div>
+                            </table>
+                            </div>
+                            <!--<span class="text-muted">Success=Green,Failure=Orange,<br>Error=Red,Warning=Yellow</span> -->
+                        </div>
+                        <div class="col-md-5 placeholder">
+                            <canvas id="bar" height="250" width="500"></canvas>
+                            <h4>Execution Trend</h4>
+                            <span class="text-muted">Test Status per Execution</span>
+                        </div>
                     </div>
 
 
@@ -110,21 +101,20 @@
         <script src="js/docs.min.js"></script>
         <script src="execution.js"></script>
         <script src="controllers/controllerUtils.js"></script>
-        <script src="controllers/executionPropertiesTableController.js"></script>
-        <script src="controllers/sumTableController.js"></script>
+        <script src="controllers/pieController.js"></script>
+        <script src="controllers/sumBarChartController.js"></script>
+        <script type="text/javascript" src="js/Chart.js"></script>
         <script>
             try {
-                executionPropertiesTableController(document.getElementById("propTable"));            
+                sumBarChartController(document.getElementById("bar"));            
             } catch (err) {
-                console.log("Failed to create execution properties table controller " + err.message);
+                console.log("Failed to create bar chart due to " + err.message);
             }
-
 			try {
-				sumTableController(document.getElementById("sumTable"));
+				pieController(document.getElementById("pie"));
 			} catch(err) {
-				console.log("Failed to create summary table due to " + err.message);
+				console.log("Failed to create pie due to " + err.message);
 			}
-            
         </script>
     </body>
 </html>

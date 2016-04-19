@@ -26,6 +26,17 @@ function collectTestsFromScenario(children,tests){
     });
 }
 
+
+function collectAllScenarioProperties(){
+  var properties = {};
+  $(execution.machines).each(function(){
+    for (var key in this.children[0].scenarioProperties) {
+      properties[key] = this.children[0].scenarioProperties[key];
+    };
+  });
+  return properties;
+
+}
 /**
  * Collects all the tests from the model into array. Each item in the array
  * contains a single test including the scenario and machine name.
