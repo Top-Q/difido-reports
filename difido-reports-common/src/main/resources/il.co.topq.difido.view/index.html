@@ -32,7 +32,7 @@
     </head>
 
     <body>
-
+    <!-- START NAVIGATION BLOCK -->
         <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
             <div class="container-fluid">
                 <div class="navbar-header">
@@ -54,7 +54,9 @@
                 </div>
             </div>
         </div>
-
+        
+        <!-- END NAVIGATION BLOCK -->
+        
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-3 col-md-2 sidebar">
@@ -65,6 +67,21 @@
                 </div>
                 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
                     <h1 class="page-header">Dashboard</h1>
+                    <h2 class="sub-header">Status Bars</h2>
+                    <div id="statusBars">
+                        <div class="progress">
+                            <div class="progress-bar s_success_back success" role="progressbar" style="width:0%">
+                            </div>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar s_failure_back failure" role="progressbar" style="width:0%">
+                            </div>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar s_warning_back warning" role="progressbar" style="width:0%">
+                            </div>
+                        </div>
+                    </div>
                     <h2 class="sub-header">Summary Table</h2>
                     <div class="table-responsive">
                         <table class="table table-striped" id="sumTable">
@@ -112,6 +129,7 @@
         <script src="controllers/controllerUtils.js"></script>
         <script src="controllers/executionPropertiesTableController.js"></script>
         <script src="controllers/sumTableController.js"></script>
+        <script src="controllers/statusBarsController.js"></script>
         <script>
             try {
                 executionPropertiesTableController(document.getElementById("propTable"));            
@@ -124,7 +142,14 @@
 			} catch(err) {
 				console.log("Failed to create summary table due to " + err.message);
 			}
+            try {
+                statusBarsController(document.getElementById("statusBars"));
+            } catch(err) {
+                console.log("Failed to create short summary table due to " + err.message);
+            }
+
             
         </script>
+
     </body>
 </html>
