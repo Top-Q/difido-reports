@@ -6,6 +6,10 @@ import java.io.File;
 
 public interface ReportDispatcher {
 
+	public abstract void logHtml(String title,Status status);
+
+	public abstract void logHtml(String title, String message, Status status);
+
 	public abstract void log(String title);
 
 	public abstract void log(String title, Status status);

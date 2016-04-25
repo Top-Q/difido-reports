@@ -42,7 +42,7 @@ function addStatusAsClass(elementToAppend, elementWithStatus) {
     }
 }
 
-function setRegularElement($container, element) {
+function setRegularElement($container, element, isHtml) {
     var $div = $("<div>");
     var $timestamp = $("<span>").addClass('timestamp').text(element.time);
 
@@ -57,7 +57,7 @@ function setRegularElement($container, element) {
         $div.append($innerDiv);
     }
     else{
-        var $content = $("<span>").text(element.title);
+        var $content = isHtml ? $("<span>").html(element.title) :  $("<span>").text(element.title);
         indent($content);
         $div.append($timestamp).append($content);
     }
@@ -179,8 +179,11 @@ function setReportElements($container, reportElements) {
             case "img":
                 setImageElement($container,this);
                 break;
+            case "html":
+                setRegularElement($container, this,true);
+                break;
             default:
-                setRegularElement($container, this);
+                setRegularElement($container, this ,false);
                 break;
         }
         if(parseInt($(this).attr("levelDepth")) > 1){

@@ -210,6 +210,9 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	@Override
 	public void log(String title, String message, Status status, ElementType type) {
+		if (null == testDetails){
+			return;
+		}
 		ReportElement element = new ReportElement();
 		element = updateTimestampAndTitle(element, title);
 		element.setMessage(message);

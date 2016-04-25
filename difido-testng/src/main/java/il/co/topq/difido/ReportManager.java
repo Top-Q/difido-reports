@@ -35,6 +35,18 @@ public class ReportManager implements ReportDispatcher {
 
 	}
 
+	@Override
+	public void logHtml(String title, Status status) {
+		log(title, null, status, ElementType.html);
+		
+	}
+
+	@Override
+	public void logHtml(String title, String message, Status status) {
+		log(title, message, status, ElementType.html);		
+	}
+
+	
 	public void log(String title, String message, Status status, ElementType type) {
 		for (Reporter reporter : reporters) {
 			reporter.log(title, message, status, type);
@@ -104,7 +116,11 @@ public class ReportManager implements ReportDispatcher {
 	public void addFile(File file, String description) {
 		for (Reporter reporter : reporters) {
 			reporter.addFile(file);
-			reporter.log(description, file.getName(), Status.success, ElementType.lnk);
+			if (null == description){
+				reporter.log(file.getName(), file.getName(), Status.success, ElementType.lnk);
+			} else {
+				reporter.log(description, file.getName(), Status.success, ElementType.lnk);
+			}
 		}
 	}
 
@@ -161,5 +177,6 @@ public class ReportManager implements ReportDispatcher {
 		}
 
 	}
+
 
 }
