@@ -15,9 +15,11 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 import org.testng.ITestContext;
@@ -31,7 +33,11 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	private Execution execution;
 
-	private ScenarioNode currentScenario;
+	private ScenarioNode currentTestScenario;
+
+	private ScenarioNode currentSuitScenario;
+
+	private ScenarioNode currentClassScenario;
 
 	private TestDetails testDetails;
 
@@ -39,9 +45,13 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	private TestNode currentTest;
 
+	boolean startOfSuite = true;
+
 	private int index;
 
 	private String executionUid;
+
+	private String testClassName;
 
 	protected void generateUid() {
 		executionUid = String.valueOf(new Random().nextInt(1000)) + String.valueOf(System.currentTimeMillis() / 1000);
@@ -120,10 +130,25 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	@Override
 	public void onTestStart(ITestResult result) {
+		if (!result.getTestClass().getName().equals(testClassName)) {
+			testClassName = result.getTestClass().getName();
+			startClassScenario(result);
+		}
 		String testName = result.getName();
+		List<String> testParameters = getTestParameters(result);
+		if (!testParameters.isEmpty()) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(testName);
+			sb.append("(");
+			String tempString = testParameters.toString().replaceFirst("\\[", "");
+			sb.append(tempString.substring(0, tempString.length() - 1));
+			sb.append(")");
+			testName = sb.toString();
+		}
+
 		currentTest = new TestNode(index++, testName, executionUid + "-" + index);
 		currentTest.setTimestamp(TIME_FORMAT.format(new Date(result.getStartMillis())));
-		currentScenario.addChild(currentTest);
+		currentClassScenario.addChild(currentTest);
 		testDetails = new TestDetails(testName, currentTest.getUid());
 		testDetails.setTimeStamp(TIME_AND_DATE_FORMAT.format(new Date(result.getStartMillis())));
 		if (result.getMethod().getDescription() != null) {
@@ -131,14 +156,11 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		}
 		addPropertyIfExist("Class", result.getTestClass().getName());
 		addPropertyIfExist("Groups", Arrays.toString(result.getMethod().getGroups()));
-		if (result.getParameters() != null) {
-			for (Object parameter : result.getParameters()) {
-				if (parameter != null) {
-					testDetails.addParameter(parameter.toString(), "");
-				}
-			}
+		for (String paramValue : testParameters) {
+			testDetails.addParameter(paramValue, "");
 		}
-		int numOfAppearances = getAndUpdateTestHistory(result.getName());
+
+		int numOfAppearances = getAndUpdateTestHistory(result.getTestClass().getName() + testName);
 		if (numOfAppearances > 0) {
 			currentTest.setName(currentTest.getName() + " (" + ++numOfAppearances + ")");
 		}
@@ -146,6 +168,24 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		writeExecution(execution);
 		writeTestDetails(testDetails);
 
+	}
+
+	private List<String> getTestParameters(ITestResult result) {
+		List<String> testParameters = new ArrayList<String>();
+		if (result.getParameters() != null) {
+			for (Object parameter : result.getParameters()) {
+				if (parameter != null) {
+					testParameters.add(parameter.toString());
+				}
+			}
+		}
+		return testParameters;
+	}
+
+	private void startClassScenario(ITestResult result) {
+		ScenarioNode scenario = new ScenarioNode(testClassName);
+		currentTestScenario.addChild(scenario);
+		currentClassScenario = scenario;
 	}
 
 	protected abstract void updateTestDirectory();
@@ -198,19 +238,31 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	@Override
 	public void onStart(ITestContext context) {
+		if (startOfSuite) {
+			onStartSuite(context);
+			startOfSuite = false;
+		}
+		ScenarioNode scenario = new ScenarioNode(context.getName());
+		currentSuitScenario.addChild(scenario);
+		currentTestScenario = scenario;
+
+	}
+
+	private void onStartSuite(ITestContext context) {
 		execution = null;
 		updateIndex();
 		generateUid();
 
 		addMachineToExecution(context);
-		currentScenario = new ScenarioNode(context.getSuite().getName());
-		execution.getLastMachine().addChild(currentScenario);
+		currentSuitScenario = new ScenarioNode(context.getSuite().getName());
+		execution.getLastMachine().addChild(currentSuitScenario);
 		currentTest = null;
+
 	}
 
 	@Override
 	public void log(String title, String message, Status status, ElementType type) {
-		if (null == testDetails){
+		if (null == testDetails) {
 			return;
 		}
 		ReportElement element = new ReportElement();
@@ -238,6 +290,13 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	protected TestNode getCurrentTest() {
 		return currentTest;
+	}
+
+	public static void main(String[] args) {
+		List<String> l = new ArrayList<String>();
+		l.add("foo");
+		l.add("bar");
+		System.out.println(l.toString());
 	}
 
 }
