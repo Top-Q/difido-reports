@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.testng.ISuite;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 
@@ -19,6 +20,7 @@ public class ReportManager implements ReportDispatcher {
 	private ReportManager() {
 		reporters = new ArrayList<Reporter>();
 		reporters.add(new LocalDifidoReporter());
+		reporters.add(new RemoteDifidoReporter());
 	}
 
 	public static ReportManager getInstance() {
@@ -176,6 +178,20 @@ public class ReportManager implements ReportDispatcher {
 			reporter.onFinish(context);
 		}
 
+	}
+
+	public void onStart(ISuite suite) {
+		for (Reporter reporter : reporters) {
+			reporter.onStart(suite);
+		}
+	}
+
+	public void onFinish(ISuite suite) {
+		for (Reporter reporter : reporters) {
+			reporter.onFinish(suite);
+		}
+
+		
 	}
 
 

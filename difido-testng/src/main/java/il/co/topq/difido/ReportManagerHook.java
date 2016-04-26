@@ -1,10 +1,22 @@
 package il.co.topq.difido;
 
+import org.testng.ISuite;
+import org.testng.ISuiteListener;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.internal.IResultListener2;
 
-public class ReportManagerHook implements IResultListener2 {
+public class ReportManagerHook implements IResultListener2, ISuiteListener {
+
+	/**
+	 * From some reason, TestNG is calling the suite events number of times.
+	 * From that reason, we are keeping a counter to know when to close the
+	 * execution. Also, from another strange reason, TestNG is registering the
+	 * hook for every class that has the annotation. From this reason, it is
+	 * important to keep the counter static
+	 */
+	private static int numOfSuites;
+
 	@Override
 	public void onTestStart(ITestResult result) {
 		ReportManager.getInstance().onTestStart(result);
@@ -61,6 +73,24 @@ public class ReportManagerHook implements IResultListener2 {
 
 	@Override
 	public void beforeConfiguration(ITestResult tr) {
+
+	}
+
+	@Override
+	public void onStart(ISuite suite) {
+		if (0 != numOfSuites++) {
+			return;
+		}
+		ReportManager.getInstance().onStart(suite);
+
+	}
+
+	@Override
+	public void onFinish(ISuite suite) {
+		if (0 != --numOfSuites) {
+			return;
+		}
+		ReportManager.getInstance().onFinish(suite);
 
 	}
 }

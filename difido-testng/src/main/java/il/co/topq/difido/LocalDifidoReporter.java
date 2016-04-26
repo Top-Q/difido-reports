@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
-import org.testng.ITestContext;
+import org.testng.ISuite;
 
 public class LocalDifidoReporter extends AbstractDifidoReporter {
 
@@ -28,11 +28,11 @@ public class LocalDifidoReporter extends AbstractDifidoReporter {
 		PersistenceUtils.writeExecution(execution, new File(reportDir + File.separator + "current"));
 
 	}
-
+	
 	@Override
-	public void onStart(ITestContext context) {
-		super.onStart(context);
-		reportDir = new File(new File(context.getOutputDirectory()).getParent(), "html");
+	public void onStart(ISuite suite){
+		super.onStart(suite);
+		reportDir = new File(new File(suite.getOutputDirectory()).getParent(), "html");
 		if (!reportDir.exists()) {
 			reportDir.mkdirs();
 		}
@@ -51,8 +51,9 @@ public class LocalDifidoReporter extends AbstractDifidoReporter {
 			}
 		}
 
-	}
 
+	}
+	
 	@Override
 	public void addFile(File file) {
 		if (file == null || !file.exists() || !file.isFile()) {
@@ -79,11 +80,6 @@ public class LocalDifidoReporter extends AbstractDifidoReporter {
 	@Override
 	public File getCurrentTestFolder() {
 		return currentTestFolder;
-	}
-
-	@Override
-	protected void filesWereAddedToReport(File[] files) {
-
 	}
 
 }

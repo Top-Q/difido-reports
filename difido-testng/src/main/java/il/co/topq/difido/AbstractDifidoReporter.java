@@ -11,7 +11,6 @@ import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 
-import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -22,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import org.testng.ISuite;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 
@@ -35,7 +35,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	private ScenarioNode currentTestScenario;
 
-	private ScenarioNode currentSuitScenario;
+	private MachineNode currentMachine;
 
 	private ScenarioNode currentClassScenario;
 
@@ -44,8 +44,6 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	private HashMap<Integer, Integer> testCounter;
 
 	private TestNode currentTest;
-
-	boolean startOfSuite = true;
 
 	private int index;
 
@@ -86,12 +84,12 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	 * @param context
 	 * 
 	 */
-	private void addMachineToExecution(ITestContext context) {
-		MachineNode currentMachine = null;
-		if (context.getHost() == null) {
+	private void addMachineToExecution(String host) {
+		currentMachine = null;
+		if (host == null) {
 			currentMachine = new MachineNode(getMachineName());
 		} else {
-			currentMachine = new MachineNode(context.getHost());
+			currentMachine = new MachineNode(host);
 		}
 		if (null == execution) {
 			execution = new Execution();
@@ -110,6 +108,8 @@ public abstract class AbstractDifidoReporter implements Reporter {
 			// The execution happened on machine different from the current
 			// machine, so we will create a new machine
 			execution.addMachine(currentMachine);
+		} else {
+			currentMachine = lastMachine;
 		}
 
 	}
@@ -190,8 +190,6 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	protected abstract void updateTestDirectory();
 
-	protected abstract void filesWereAddedToReport(File[] files);
-
 	private int getAndUpdateTestHistory(final Object bb) {
 		if (testCounter == null) {
 			testCounter = new HashMap<>();
@@ -238,26 +236,34 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	@Override
 	public void onStart(ITestContext context) {
-		if (startOfSuite) {
-			onStartSuite(context);
-			startOfSuite = false;
-		}
 		ScenarioNode scenario = new ScenarioNode(context.getName());
-		currentSuitScenario.addChild(scenario);
+		currentMachine.addChild(scenario);
 		currentTestScenario = scenario;
 
 	}
 
-	private void onStartSuite(ITestContext context) {
+	/**
+	 * Event for start of suite
+	 * 
+	 * @param suite
+	 */
+	@Override
+	public void onStart(ISuite suite) {
 		execution = null;
 		updateIndex();
 		generateUid();
 
-		addMachineToExecution(context);
-		currentSuitScenario = new ScenarioNode(context.getSuite().getName());
-		execution.getLastMachine().addChild(currentSuitScenario);
+		addMachineToExecution(suite.getHost());
 		currentTest = null;
+	}
 
+	/**
+	 * Event for end of suite
+	 * 
+	 * @param suite
+	 */
+	@Override
+	public void onFinish(ISuite suite) {
 	}
 
 	@Override
@@ -292,11 +298,12 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		return currentTest;
 	}
 
-	public static void main(String[] args) {
-		List<String> l = new ArrayList<String>();
-		l.add("foo");
-		l.add("bar");
-		System.out.println(l.toString());
+	protected TestDetails getTestDetails() {
+		return testDetails;
+	}
+
+	protected Execution getExecution() {
+		return execution;
 	}
 
 }

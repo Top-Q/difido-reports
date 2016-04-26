@@ -2,6 +2,7 @@ package il.co.topq.difido;
 
 import java.io.File;
 
+import org.testng.ISuite;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 
@@ -21,8 +22,22 @@ public interface Reporter {
 	void onStart(ITestContext context);
 
 	void onFinish(ITestContext context);
-	
+
 	void addFile(File file);
+
+	/**
+	 * Event for start of suite
+	 * 
+	 * @param suite
+	 */
+	void onStart(ISuite suite);
+
+	/**
+	 * Event for end of suite
+	 * 
+	 * @param suite
+	 */
+	void onFinish(ISuite suite);
 
 	/**
 	 * This method will be called by the ListenerManager when new report is

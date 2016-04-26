@@ -27,6 +27,13 @@ public class DifidoReporterTests {
 	}
 
 	@Test
+	public void testWithFailureAnother() throws Exception {
+		report.log("About to fail");
+		throw new Exception("This is my failure");
+	}
+
+	
+	@Test
 	public void testWithFailure() throws Exception {
 		report.log("About to fail");
 		throw new Exception("This is my failure");
