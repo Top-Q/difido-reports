@@ -32,7 +32,7 @@ public class LocalDifidoReporter extends AbstractDifidoReporter {
 	@Override
 	public void onStart(ISuite suite){
 		super.onStart(suite);
-		reportDir = new File(new File(suite.getOutputDirectory()).getParent(), "html");
+		reportDir = new File(new File(suite.getOutputDirectory()).getParent(), "difido");
 		if (!reportDir.exists()) {
 			reportDir.mkdirs();
 		}
