@@ -77,7 +77,7 @@ public class DifidoClient {
 		method.setRequestHeader(new Header("Content-Type", "application/json"));
 		final ObjectMapper mapper = new ObjectMapper();
 		final String json = mapper.writeValueAsString(testDetails);
-		final RequestEntity entity = new StringRequestEntity(json);
+		final RequestEntity entity = new StringRequestEntity(json,"application/json","UTF-8");
 		method.setRequestEntity(entity);
 		final int responseCode = client.executeMethod(method);
 		handleResponseCode(method, responseCode);
