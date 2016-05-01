@@ -35,7 +35,7 @@ public class DifidoClient {
 		method.setRequestHeader(new Header("Content-Type", "application/json"));
 		if (details != null) {
 			final String descriptionJson = new ObjectMapper().writeValueAsString(details);
-			method.setRequestEntity(new StringRequestEntity(descriptionJson));
+			method.setRequestEntity(new StringRequestEntity(descriptionJson,"application/json","UTF-8"));
 		}
 		final int responseCode = client.executeMethod(method);
 		handleResponseCode(method, responseCode);
@@ -54,7 +54,7 @@ public class DifidoClient {
 		method.setRequestHeader(new Header("Content-Type", "application/json"));
 		final ObjectMapper mapper = new ObjectMapper();
 		final String json = mapper.writeValueAsString(machine);
-		final RequestEntity entity = new StringRequestEntity(json);
+		final RequestEntity entity = new StringRequestEntity(json,"application/json","UTF-8");
 		method.setRequestEntity(entity);
 		int responseCode = client.executeMethod(method);
 		handleResponseCode(method, responseCode);
@@ -66,7 +66,7 @@ public class DifidoClient {
 		method.setRequestHeader(new Header("Content-Type", "application/json"));
 		final ObjectMapper mapper = new ObjectMapper();
 		final String json = mapper.writeValueAsString(machine);
-		final RequestEntity entity = new StringRequestEntity(json);
+		final RequestEntity entity = new StringRequestEntity(json,"application/json","UTF-8");
 		method.setRequestEntity(entity);
 		int responseCode = client.executeMethod(method);
 		handleResponseCode(method, responseCode);

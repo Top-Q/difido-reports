@@ -43,6 +43,11 @@ public class DifidoReporterTests {
 	public void testWithError() throws Exception {
 		report.log("Message with error", "Error message", Status.error);
 	}
+	
+	@Test
+	public void testWithEncoding(){
+		report.log("Japanease Yen: \u00A5");
+	}
 
 	@Test
 	public void testWithWarning() throws Exception {
