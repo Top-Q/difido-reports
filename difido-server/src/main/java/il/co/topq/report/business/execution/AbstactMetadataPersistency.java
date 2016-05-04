@@ -84,6 +84,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 
 	protected void initCache() {
 		executionsCache = Collections.synchronizedMap(new HashMap<Integer, ExecutionMetadata>());
+		lastId = 0;
 	}
 
 	protected void populateCache(Map<Integer, ExecutionMetadata> data) {
