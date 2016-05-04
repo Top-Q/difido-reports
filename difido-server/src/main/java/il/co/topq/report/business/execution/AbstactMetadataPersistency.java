@@ -12,23 +12,38 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstactMetadataPersistency implements MetadataPersistency {
 
 	private final Logger log = LoggerFactory.getLogger(AbstactMetadataPersistency.class);
-	
+
 	// Package private for unit testing
 	private Map<Integer, ExecutionMetadata> executionsCache;;
 
+	private int lastId;
+
 	protected abstract void readFromPersistency();
-	
+
 	protected abstract void writeToPersistency();
-	
-	public int getMaxId() {
+
+	public AbstactMetadataPersistency() {
+		lastId = getLastId();
+	}
+
+	/**
+	 * Get the last execution id
+	 * 
+	 * @return The largest id. -1 if none exists
+	 */
+	private int getLastId() {
 		readFromPersistency();
 		if (isCachedEmpty()) {
-			return 0;
+			return -1;
 		}
 		final List<ExecutionMetadata> result = new ArrayList<ExecutionMetadata>();
 		result.addAll(executionsCache.values());
 		Collections.sort(result);
 		return result.get(0).getId();
+	}
+
+	public int advanceId() {
+		return ++lastId;
 	}
 
 	public void add(ExecutionMetadata metadata) {
@@ -62,35 +77,33 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 		return result;
 
 	}
-	
-	public void dump(){
+
+	public void dump() {
 		initCache();
 	}
-	
-	protected void initCache(){
+
+	protected void initCache() {
 		executionsCache = Collections.synchronizedMap(new HashMap<Integer, ExecutionMetadata>());
 	}
-	
-	protected void populateCache(Map<Integer, ExecutionMetadata> data){
+
+	protected void populateCache(Map<Integer, ExecutionMetadata> data) {
 		executionsCache = Collections.synchronizedMap(data);
 		for (ExecutionMetadata meta : executionsCache.values()) {
 			meta.setActive(false);
 		}
 
 	}
-	
-	
-	protected boolean isCachedEmpty(){
+
+	protected boolean isCachedEmpty() {
 		return (null == executionsCache || executionsCache.isEmpty());
 	}
-	
-	protected boolean isCacheInitialized(){
+
+	protected boolean isCacheInitialized() {
 		return (null != executionsCache);
 	}
 
 	protected Map<Integer, ExecutionMetadata> getExecutionsCache() {
 		return executionsCache;
 	}
-	
 
 }

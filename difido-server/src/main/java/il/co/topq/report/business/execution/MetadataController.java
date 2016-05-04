@@ -54,8 +54,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		metaData.setTime(Common.API_TIME_FORMATTER.format(executionDate));
 		metaData.setDate(Common.API_DATE_FORMATTER.format(executionDate));
 
-		int maxId = persistency.getMaxId();
-		metaData.setId(++maxId);
+		metaData.setId(persistency.advanceId());
 		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + metaData.getId());
 		metaData.setUri(Common.REPORTS_FOLDER_NAME + "/" + metaData.getFolderName() + "/index.html");
 		metaData.setActive(true);
