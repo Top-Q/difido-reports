@@ -29,12 +29,12 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 	/**
 	 * Get the last execution id
 	 * 
-	 * @return The largest id. -1 if none exists
+	 * @return The largest id. 0 if none exists
 	 */
 	private int getLastId() {
 		readFromPersistency();
 		if (isCachedEmpty()) {
-			return -1;
+			return 0;
 		}
 		final List<ExecutionMetadata> result = new ArrayList<ExecutionMetadata>();
 		result.addAll(executionsCache.values());

@@ -1,5 +1,7 @@
 package il.co.topq.report.business.elastic;
 
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +10,8 @@ import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
@@ -179,23 +182,36 @@ public class ESUtils {
 	 * @throws Exception
 	 */
 	public static <T> List<T> getAll(String index, String type, Class<T> clazz, String filterTermKey, String filterTermValue) throws Exception {
+		
+		QueryBuilder qb = termQuery(filterTermKey, filterTermValue);
+		
 		//@formatter:off
-		final SearchResponse response = Common.elasticsearchClient.
-				prepareSearch(index).
-				setTypes(type).
-				setSearchType(SearchType.DFS_QUERY_THEN_FETCH).
-				setPostFilter(QueryBuilders.termQuery(filterTermKey, filterTermValue).buildAsBytes()).
-				//setPostFilter(filter).
-				setSize(Integer.MAX_VALUE).
-				setQuery(QueryBuilders.
-						matchAllQuery()).
-				execute().
-				actionGet();
+		SearchResponse scrollResp =  Common.elasticsearchClient.prepareSearch(index)
+		        .setScroll(new TimeValue(60000))
+		        .setQuery(qb)
+		        .setSize(100)
+		        .execute().actionGet(); //100 hits per shard will be returned for each scroll
 		//@formatter:on
-		List<T> results = new ArrayList<T>();
-		for (SearchHit hit : response.getHits()) {
-			results.add(mapper.readValue(hit.getSourceAsString(), clazz));
+
+		final List<T> results = new ArrayList<T>();
+		
+		// Scroll until no hits are returned
+		while (true) {
+			for (SearchHit hit : scrollResp.getHits().getHits()) {
+				results.add(mapper.readValue(hit.getSourceAsString(), clazz));
+			}
+			//@formatter:off
+		    scrollResp = Common.elasticsearchClient.prepareSearchScroll(
+		    		scrollResp.getScrollId())
+		    		.setScroll(new TimeValue(60000))
+		    		.execute().actionGet();
+		    //@formatter:on
+			// Break condition: No hits are returned
+			if (scrollResp.getHits().getHits().length == 0) {
+				break;
+			}
 		}
+
 		return results;
 	}
 
