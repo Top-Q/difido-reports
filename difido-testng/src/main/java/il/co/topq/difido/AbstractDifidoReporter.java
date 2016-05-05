@@ -280,6 +280,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		}
 		element.setType(type);
 		testDetails.addReportElement(element);
+		currentTest.setStatus(status);
 		writeTestDetails(testDetails);
 	}
 
