@@ -34,24 +34,9 @@
         <h1>
 <a id="difido-reports" class="anchor" href="#difido-reports" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Difido Reports</h1>
 
-<p>This project aims to provide an HTML report and report server for various test automation frameworks.</p>
+<p>This project aims to provide a flexible, realtime HTML report for various functional test automation frameworks.</p>
 
 <p>The solution is composed of different components</p>
-
-<h2>
-<a id="difido-nunit" class="anchor" href="#difido-nunit" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Difido NUnit</h2>
-
-<p>A binding for <a href="http://www.nunit.org/">NUnit</a>, the C# open source test automation framework. The binder allows creating a local HTML reports or/and send the reports to the Difido server </p>
-
-<h2>
-<a id="difido-testng" class="anchor" href="#difido-testng" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Difido TestNG</h2>
-
-<p>A binding for <a href="http://testng.org/doc/index.html">TestNG</a>, the popular Java test automation framework. At this stage allows creating of only local reports. </p>
-
-<h2>
-<a id="jsystem" class="anchor" href="#jsystem" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>JSystem</h2>
-
-<p>The JSystem binding exists but it is part of the <a href="http://jsystem.org/">JSystem</a> project. </p>
 
 <h2>
 <a id="difido-report-server" class="anchor" href="#difido-report-server" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Difido Report Server</h2>
@@ -62,11 +47,39 @@ The server allows connection using a simple REST API and receives the JSONS as t
 <p>The main features of the server are:</p>
 
 <ul>
+<li>Real time - No longer long waits for the end of the test execution to view the reports. The reports are generated on the fly.</li>
 <li>One central location for all the HTML reports with a web interface that allows searching and sorting the different executions</li>
 <li>Allows creating a single HTML report for number of machines running different executions. </li>
 <li>Creating easy to use JSONS from the test results and stores in an embedded Elasticsearch database. </li>
-<li>Based on the extremely fast <a href="https://grizzly.java.net/">Grizzly</a> framework. </li>
 </ul>
+
+<h2>
+<a id="framework-binders" class="anchor" href="#framework-binders" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Framework binders</h2>
+
+<h3>
+<a id="difido-nunit" class="anchor" href="#difido-nunit" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Difido NUnit</h3>
+
+<p>A binding for <a href="http://www.nunit.org/">NUnit</a>, the C# open source test automation framework. The binder allows creating a local HTML reports or/and send the reports to the Difido server </p>
+
+<h3>
+<a id="difido-testng" class="anchor" href="#difido-testng" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Difido TestNG</h3>
+
+<p>A binding for <a href="http://testng.org/doc/index.html">TestNG</a>, the popular Java test automation framework. At this stage allows creating of only local reports. </p>
+
+<h3>
+<a id="jsystem" class="anchor" href="#jsystem" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>JSystem</h3>
+
+<p>The JSystem binding exists but it is part of the <a href="http://jsystem.org/">JSystem</a> project. </p>
+
+<h2>
+<a id="full-documentation" class="anchor" href="#full-documentation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Full Documentation</h2>
+
+<p>A complete documentation of how to use the project please refer to our <a href="http://difido.readthedocs.io/en/latest/index.html">readthedocs</a></p>
+
+<h2>
+<a id="support" class="anchor" href="#support" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support</h2>
+
+<p>Bugs and feature requests are acceptible via GitHub issues</p>
       </section>
     </div>
 
