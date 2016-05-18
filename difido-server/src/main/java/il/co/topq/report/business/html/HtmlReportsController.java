@@ -168,7 +168,7 @@ public class HtmlReportsController {
 				stream.write(fileAddedToTestEvent.getFileContent());
 			}
 		} catch (IOException e) {
-			log.warn("Failed to save file with name " + fileAddedToTestEvent.getFileName());
+			log.warn("Failed to save file with name " + fileAddedToTestEvent.getFileName() + " due to " + e.getMessage());
 		}
 	}
 

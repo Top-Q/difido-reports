@@ -40,6 +40,9 @@ public class FileUploadResource {
 		if (!file.isEmpty()) {
 			try {
 				final ExecutionMetadata metadata = metadataProvider.getMetadata(execution);
+				if (null == metadata){
+					log.warn("Trying to add file to execution with id " + execution + " which is not exists");
+				}
 				publisher.publishEvent(
 						new FileAddedToTestEvent(metadata, uid, file.getBytes(), file.getOriginalFilename()));
 			} catch (IOException e1) {
