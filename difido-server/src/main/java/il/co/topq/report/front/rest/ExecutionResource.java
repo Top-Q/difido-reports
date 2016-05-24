@@ -84,6 +84,10 @@ public class ExecutionResource {
 		log.debug("PUT - Upating execution with id " + executionIndex + ". to active: " + active + " and locked: "
 				+ locked);
 		final ExecutionMetadata metadata = metadataProvider.getMetadata(executionIndex);
+		if (null == metadata) {
+			log.warn("Trying to update state of execution with id " + executionIndex +" which is not exist");
+			return;
+		}
 
 		if (active != null && !active) {
 			// TODO: This should be changed to use the executionUpdatedEvent for

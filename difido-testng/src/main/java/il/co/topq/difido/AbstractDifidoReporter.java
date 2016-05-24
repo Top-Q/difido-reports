@@ -239,6 +239,9 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		ScenarioNode scenario = new ScenarioNode(context.getName());
 		currentMachine.addChild(scenario);
 		currentTestScenario = scenario;
+		// TODO: We want to avoid a case in which there is the same test class
+		// in different tests and a new scenario class is not created
+		testClassName = null;
 
 	}
 
