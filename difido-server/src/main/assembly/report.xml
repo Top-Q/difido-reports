@@ -57,7 +57,7 @@
 		</fileSet>
 		<fileSet>
 			<directory>./</directory>
-			<outputDirectory>/addon</outputDirectory>
+			<outputDirectory>/plugin</outputDirectory>
 			<excludes>
 				<exclude>*/**</exclude>
 			</excludes>
