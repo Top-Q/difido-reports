@@ -1,4 +1,4 @@
-package il.co.topq.report.business.mail;
+package il.co.topq.report.plugins.mail;
 
 import java.io.StringWriter;
 
@@ -8,36 +8,40 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
 
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.business.execution.ExecutionMetadata;
-import il.co.topq.report.events.ExecutionEndedEvent;
+import il.co.topq.report.plugins.ExecutionPlugin;
 
-@Component
-public class MailController {
+public class DefaultMailPlugin implements ExecutionPlugin {
+
+	private final Logger log = LoggerFactory.getLogger(DefaultMailPlugin.class);
 
 	private static final String DEFAULT_SUBJECT = "Test automation execution was ended";
 
-	private final Logger log = LoggerFactory.getLogger(MailController.class);
-
 	private MailSender sender;
 
-	private boolean enable = true;
-	
-	private boolean enabled;
-	
-	public MailController() {
+	private boolean enabled = true;
+
+	public DefaultMailPlugin() {
 		enabled = Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_MAIL);
 	}
 
-	@EventListener
-	public void onExecutionEndedEvent(ExecutionEndedEvent executionEndedEvent) {
-		if (!enabled){
+	@Override
+	public String getName() {
+		return "defaultMailPlugin";
+	}
+
+	@Override
+	public void onExecutionEnded(ExecutionMetadata metadata) {
+		if (!enabled) {
 			return;
 		}
+		sendMail(metadata);
+	}
+
+	protected void sendMail(ExecutionMetadata metadata) {
 		configureMailSender();
 		if (null == sender) {
 			// We already logged an appropriate log message in the
@@ -45,22 +49,13 @@ public class MailController {
 			// log message here.
 			return;
 		}
-		final String subject = StringUtils.isEmpty(Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT)) ? DEFAULT_SUBJECT
-				: Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT);
-		final ExecutionMetadata metaData = executionEndedEvent.getMetadata();
-		if (null == metaData) {
-			log.error("Can't find meta data for ended execution with id " + executionEndedEvent.getExecutionId() + ". Will not send mail");
+		final String subject = getMailSubject();
+		if (null == metadata) {
+			log.error("Can't find meta data for ended execution. Will not send mail");
 			return;
 		}
 
-		VelocityEngine ve = new VelocityEngine();
-		ve.init();
-		Template t = ve.getTemplate("config/mail.vm");
-		/* create a context and add data */
-		VelocityContext context = new VelocityContext();
-		context.put("meta", metaData);
-		final StringWriter writer = new StringWriter();
-		t.merge(context, writer);
+		final StringWriter writer = populateTemplate(metadata);
 		new Thread() {
 			public void run() {
 				try {
@@ -70,11 +65,32 @@ public class MailController {
 				}
 			}
 		}.start();
-
 	}
 
-	private void configureMailSender() {
-		if (!enable || null != sender) {
+	protected String getMailSubject() {
+		final String subject = StringUtils.isEmpty(Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT))
+				? DEFAULT_SUBJECT : Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT);
+		return subject;
+	}
+
+	private StringWriter populateTemplate(ExecutionMetadata metadata) {
+		VelocityEngine ve = new VelocityEngine();
+		ve.init();
+		Template t = ve.getTemplate(getTemplateName());
+		/* create a context and add data */
+		VelocityContext context = new VelocityContext();
+		context.put("meta", metadata);
+		final StringWriter writer = new StringWriter();
+		t.merge(context, writer);
+		return writer;
+	}
+
+	protected String getTemplateName() {
+		return "config/mail.vm";
+	}
+
+	protected void configureMailSender() {
+		if (!enabled || null != sender) {
 			return;
 		}
 		sender = new MailSender();
@@ -83,7 +99,7 @@ public class MailController {
 		final String host = Configuration.INSTANCE.readString(ConfigProps.MAIL_SMTP_HOST);
 		if (StringUtils.isEmpty(host)) {
 			log.warn("SMTP host is not configured. Can't send mail");
-			enable = false;
+			enabled = false;
 			return;
 		}
 		sender.setSmtpHostName(host);
@@ -91,7 +107,7 @@ public class MailController {
 		final int port = Configuration.INSTANCE.readInt(ConfigProps.MAIL_SMTP_PORT);
 		if (port == 0) {
 			log.warn("SMTP port is not configured. Can't send mail");
-			enable = false;
+			enabled = false;
 			return;
 		}
 		sender.setSmtpPort(port);
@@ -113,27 +129,38 @@ public class MailController {
 		final boolean ssl = Configuration.INSTANCE.readBoolean(ConfigProps.MAIL_SSL);
 		sender.setSsl(ssl);
 
-		final String from = Configuration.INSTANCE.readString(ConfigProps.MAIL_FROM_ADDRESS);
+		final String from = getFromAddress();
 		if (StringUtils.isEmpty(from)) {
 			log.warn("Mail from address is not configured. Can't send mail");
-			enable = false;
+			enabled = false;
 			return;
 		}
 		sender.setFromAddress(from);
 
-		final String to = Configuration.INSTANCE.readString(ConfigProps.MAIL_TO_ADDRESS);
+		final String to = getToAddress();
 		if (StringUtils.isEmpty(to)) {
 			log.warn("Mail to address is not configured. Can't send mail");
-			enable = false;
+			enabled = false;
 			return;
 		}
 		sender.setSendTo(to);
 
-		final String cc = Configuration.INSTANCE.readString(ConfigProps.MAIL_CC_ADDRESS);
+		final String cc = getCcAddresses();
 		if (!StringUtils.isEmpty(cc)) {
 			sender.setSendCc(cc.split(","));
 		}
+	}
 
+	protected String getCcAddresses() {
+		return Configuration.INSTANCE.readString(ConfigProps.MAIL_CC_ADDRESS);
+	}
+
+	protected String getToAddress() {
+		return Configuration.INSTANCE.readString(ConfigProps.MAIL_TO_ADDRESS);
+	}
+
+	protected String getFromAddress() {
+		return Configuration.INSTANCE.readString(ConfigProps.MAIL_FROM_ADDRESS);
 	}
 
 }

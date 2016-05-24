@@ -40,7 +40,8 @@ public enum Configuration {
 		 * to each execution. If none was specified, 
 		 * no filter will be applied and clients could add any property 
 		 */
-		CUSTOM_EXECUTION_PROPERTIES("custom.execution.properties","");
+		CUSTOM_EXECUTION_PROPERTIES("custom.execution.properties",""),
+		PLUGIN_CLASSES("plugin.classes","il.co.topq.report.plugins.mail.DefaultMailPlugin");
 		
 		//@formatter:off
 		
@@ -86,7 +87,7 @@ public enum Configuration {
 			configProperties.load(reader);
 
 		} catch (Exception e) {
-			log.warn("Failure in reading filw " + CONFIG_PROP_NAME + ". Rolling back to default properties", e);
+			log.warn("Failure in reading file " + CONFIG_PROP_NAME + ". Rolling back to default properties", e);
 		}
 
 	}
@@ -110,6 +111,7 @@ public enum Configuration {
 		addPropWithDefaultValue(ConfigProps.MAIL_TO_ADDRESS);
 		addPropWithDefaultValue(ConfigProps.MAIL_CC_ADDRESS);
 		addPropWithDefaultValue(ConfigProps.CUSTOM_EXECUTION_PROPERTIES);
+		addPropWithDefaultValue(ConfigProps.PLUGIN_CLASSES);
 		try (FileOutputStream out = new FileOutputStream(new File(CONFIG_PROP_NAME))) {
 			configProperties.store(out, "Default difido server properties");
 		} catch (Exception e) {

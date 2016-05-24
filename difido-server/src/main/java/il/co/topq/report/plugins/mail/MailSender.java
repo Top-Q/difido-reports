@@ -1,4 +1,4 @@
-package il.co.topq.report.business.mail;
+package il.co.topq.report.plugins.mail;
 
 import java.io.File;
 import java.security.Security;
@@ -100,11 +100,6 @@ public class MailSender {
 	private String[] sendBcc = null;
 
 	/**
-	 * the directory full path to save email attachments
-	 */
-	private String attachmentsDir = null;
-
-	/**
 	 * if True will print debug info
 	 */
 	protected boolean isDebug = true;
@@ -138,6 +133,7 @@ public class MailSender {
 	 *            the msg content
 	 * @throws Exception
 	 */
+	@SuppressWarnings("restriction")
 	public void sendMail(String title, String msgContent) throws Exception {
 
 		Properties props = new Properties();
@@ -321,15 +317,6 @@ public class MailSender {
 	 */
 	public void setSendBcc(String[] sendBcc) {
 		this.sendBcc = sendBcc;
-	}
-
-	/**
-	 * the directory full path to save email message attachments
-	 * 
-	 * @param attachmentsDir
-	 */
-	public void setAttachmentsDir(String attachmentsDir) {
-		this.attachmentsDir = attachmentsDir;
 	}
 
 	public String getFromAddress() {

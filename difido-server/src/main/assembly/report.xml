@@ -43,18 +43,24 @@
 			<outputDirectory>config</outputDirectory>
 			<directory>src/main/etc</directory>
 			<fileMode>775</fileMode>
-			<includes>				
+			<includes>
 				<include>mail.vm</include>
 			</includes>
 		</fileSet>
-
 		<fileSet>
 			<outputDirectory></outputDirectory>
 			<directory>src/main/etc</directory>
 			<fileMode>775</fileMode>
 			<includes>
-				<include>LICENSE.txt</include>				
+				<include>LICENSE.txt</include>
 			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>./</directory>
+			<outputDirectory>/addon</outputDirectory>
+			<excludes>
+				<exclude>*/**</exclude>
+			</excludes>
 		</fileSet>
 	</fileSets>
 </assembly>

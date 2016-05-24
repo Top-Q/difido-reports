@@ -34,7 +34,7 @@ public class Application extends SpringBootServletInitializer {
 		return application.sources(Application.class);
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		startElastic();
 		configureReportsIndex();
 		SpringApplication.run(Application.class, args);
