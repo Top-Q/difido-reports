@@ -3,6 +3,7 @@ Difido Reports
 
 This project aims to provide a flexible, realtime HTML report for various functional test automation frameworks.
 
+To see a demo of the report nevigate [here](http://top-q.github.io/difido-reports/demo/)
 
 The solution is composed of different components
 
@@ -27,8 +28,6 @@ A binding for [TestNG](http://testng.org/doc/index.html), the popular Java test 
 ### JSystem
 The JSystem binding exists but it is part of the [JSystem](http://jsystem.org/) project. 
 
-## Full Documentation
-A complete documentation of how to use the project please refer to our [readthedocs](http://difido.readthedocs.io/en/latest/index.html)
 
 ## Support
 Bugs and feature requests are acceptible via GitHub issues
