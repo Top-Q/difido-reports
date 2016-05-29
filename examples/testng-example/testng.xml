@@ -1,0 +1,23 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="Sanity Example" verbose="1">
+	<test name="Test Everything">
+		<packages>
+			<package name="il.co.topq.difido"></package>
+		</packages>
+	</test>
+	<test name="Test Attaching Files">
+		<classes>
+			<class name="il.co.topq.difido.TestsWithFiles"></class>
+		</classes>
+	</test>
+	<test name="Test Report Messages">
+		<classes>
+			<class name="il.co.topq.difido.TestReportMessages"></class>
+		</classes>
+	</test>
+	<test name="Test Data Driven">
+		<classes>
+			<class name="il.co.topq.difido.TestsWithDataDriven"></class>
+		</classes>
+	</test>
+</suite>
