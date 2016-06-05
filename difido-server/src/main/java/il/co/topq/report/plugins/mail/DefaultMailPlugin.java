@@ -9,6 +9,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.business.execution.ExecutionMetadata;
@@ -86,7 +87,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 	}
 
 	protected String getTemplateName() {
-		return "config/mail.vm";
+		return Common.CONFIUGRATION_FOLDER_NAME + "/mail.vm";
 	}
 
 	protected void configureMailSender() {

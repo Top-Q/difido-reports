@@ -18,33 +18,28 @@ public enum Configuration {
 
 	public enum ConfigProps {
 
-		//@formatter:off
-		DOC_ROOT_FOLDER("doc.root.folder", "docRoot"), 
-		PATH_DATA("path.data", "data/index"),
-		MAX_EXECUTION_IDLE_TIME_IN_SEC("max.execution.idle.time.in.seconds", "600"),
-		ENABLE_ELASTIC_SEARCH("enable.elastic.search", "true"), 
-		ENABLE_HTML_REPORTS("enable.html.reports", "true"),
-		DAYS_TO_KEEP_HTML_REPORTS("days.to.keep.html.reports","0"),
-		ENABLE_MAIL("enable.mail","false"),				
-		MAIL_USER_NAME("mail.user.name",""),
-		MAIL_PASSWORD("mail.password",""),
-		MAIL_SSL("mail.ssl","false"),
-		MAIL_SMTP_HOST("mail.smtp.host",""),
-		MAIL_SMTP_PORT("mail.smtp.port",""),
-		MAIL_SUBJECT("mail.subject",""),
-		MAIL_FROM_ADDRESS("mail.from.address",""),
-		MAIL_TO_ADDRESS("mail.to.address",""),
-		MAIL_CC_ADDRESS("mail.cc.address",""),
+		// @formatter:off
+		DOC_ROOT_FOLDER("doc.root.folder", "docRoot"), PATH_DATA("path.data",
+				"data/index"), MAX_EXECUTION_IDLE_TIME_IN_SEC("max.execution.idle.time.in.seconds",
+						"600"), ENABLE_ELASTIC_SEARCH("enable.elastic.search", "true"), ENABLE_HTML_REPORTS(
+								"enable.html.reports", "true"), DAYS_TO_KEEP_HTML_REPORTS("days.to.keep.html.reports",
+										"0"), ENABLE_MAIL("enable.mail", "false"), MAIL_USER_NAME("mail.user.name",
+												""), MAIL_PASSWORD("mail.password", ""), MAIL_SSL("mail.ssl",
+														"false"), MAIL_SMTP_HOST("mail.smtp.host", ""), MAIL_SMTP_PORT(
+																"mail.smtp.port", ""), MAIL_SUBJECT("mail.subject",
+																		""), MAIL_FROM_ADDRESS("mail.from.address",
+																				""), MAIL_TO_ADDRESS("mail.to.address",
+																						""), MAIL_CC_ADDRESS(
+																								"mail.cc.address", ""),
 		/**
-		 * semicolon separated list of custom properties that can be added 
-		 * to each execution. If none was specified, 
-		 * no filter will be applied and clients could add any property 
+		 * semicolon separated list of custom properties that can be added to
+		 * each execution. If none was specified, no filter will be applied and
+		 * clients could add any property
 		 */
-		CUSTOM_EXECUTION_PROPERTIES("custom.execution.properties",""),
-		PLUGIN_CLASSES("plugin.classes","il.co.topq.report.plugins.mail.DefaultMailPlugin");
-		
-		//@formatter:off
-		
+		CUSTOM_EXECUTION_PROPERTIES("custom.execution.properties", ""), PLUGIN_CLASSES("plugin.classes", "il.co.topq.report.plugins.mail.DefaultMailPlugin");
+
+		// @formatter:off
+
 		private final String propName;
 
 		private final String defaultValue;
@@ -66,12 +61,12 @@ public enum Configuration {
 
 	private final Logger log = LoggerFactory.getLogger(Configuration.class);
 
-	private final static String CONFIG_PROP_NAME = "config/difido_config.properties";
+	private final static String CONFIG_PROP_NAME = "difido_config.properties";
 
 	private Properties configProperties = new Properties();
 
 	private Configuration() {
-		if (!new File(CONFIG_PROP_NAME).exists()) {
+		if (!new File(Common.CONFIUGRATION_FOLDER_NAME, CONFIG_PROP_NAME).exists()) {
 			useDefaultProperties();
 			return;
 		}
@@ -83,7 +78,7 @@ public enum Configuration {
 	}
 
 	private void readConfigurationFromFile() {
-		try (FileReader reader = new FileReader(new File(CONFIG_PROP_NAME))) {
+		try (FileReader reader = new FileReader(new File(Common.CONFIUGRATION_FOLDER_NAME, CONFIG_PROP_NAME))) {
 			configProperties.load(reader);
 
 		} catch (Exception e) {
@@ -94,7 +89,7 @@ public enum Configuration {
 
 	private void useDefaultProperties() {
 		log.info("No configuration file found - Creating one with default parameters in "
-				+ new File(CONFIG_PROP_NAME).getAbsolutePath());
+				+ new File(Common.CONFIUGRATION_FOLDER_NAME, CONFIG_PROP_NAME).getAbsolutePath());
 		addPropWithDefaultValue(ConfigProps.DOC_ROOT_FOLDER);
 		addPropWithDefaultValue(ConfigProps.PATH_DATA);
 		addPropWithDefaultValue(ConfigProps.MAX_EXECUTION_IDLE_TIME_IN_SEC);
@@ -112,7 +107,8 @@ public enum Configuration {
 		addPropWithDefaultValue(ConfigProps.MAIL_CC_ADDRESS);
 		addPropWithDefaultValue(ConfigProps.CUSTOM_EXECUTION_PROPERTIES);
 		addPropWithDefaultValue(ConfigProps.PLUGIN_CLASSES);
-		try (FileOutputStream out = new FileOutputStream(new File(CONFIG_PROP_NAME))) {
+		try (FileOutputStream out = new FileOutputStream(
+				new File(Common.CONFIUGRATION_FOLDER_NAME, CONFIG_PROP_NAME))) {
 			configProperties.store(out, "Default difido server properties");
 		} catch (Exception e) {
 			log.warn("Failed writing default configuration file", e);
@@ -134,10 +130,10 @@ public enum Configuration {
 		}
 		return 0;
 	}
-	
-	public List<String> readList(ConfigProps prop){
+
+	public List<String> readList(ConfigProps prop) {
 		final String value = configProperties.getProperty(prop.getPropName());
-		if (StringUtils.isEmpty(value)){
+		if (StringUtils.isEmpty(value)) {
 			return new ArrayList<String>();
 		}
 		return Arrays.asList(value.split(";"));
