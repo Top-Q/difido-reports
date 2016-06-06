@@ -11,6 +11,8 @@ import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -231,7 +233,26 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	private void onTestEnd(ITestResult result) {
 		currentTest.setDuration(result.getEndMillis() - result.getStartMillis());
+
+		printLastTestException(result);
 		writeTestDetails(testDetails);
+	}
+
+	private void printLastTestException(ITestResult result) {
+		// Get the test's last exception
+		Throwable e = result.getThrowable();
+		if (null == e)
+			return;
+
+		// Log the test's last unhandled exception
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		String title = ("The test ended with the following exception:");
+		String message = sw.toString();
+		// We need to check regarding the status: If we had an unhandled
+		// exception then the test should probably be failed
+		log(title, message, Status.failure, ElementType.regular);
 	}
 
 	@Override
