@@ -4,7 +4,7 @@ import org.testng.annotations.Test;
 
 import il.co.topq.difido.model.Enums.Status;
 
-public class TestReportMessages extends AbstractDifidoTestCase {
+public class TestWithReportMessages extends AbstractDifidoTestCase {
 
 	@Test(description = "Test with steps")
 	public void testWithSteps() {

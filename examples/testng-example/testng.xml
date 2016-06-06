@@ -12,7 +12,7 @@
 	</test>
 	<test name="Test Report Messages">
 		<classes>
-			<class name="il.co.topq.difido.TestReportMessages"></class>
+			<class name="il.co.topq.difido.TestWithReportMessages"></class>
 		</classes>
 	</test>
 	<test name="Test Data Driven">
@@ -20,4 +20,16 @@
 			<class name="il.co.topq.difido.TestsWithDataDriven"></class>
 		</classes>
 	</test>
+	<test name="Test HTML elements">
+		<classes>
+			<class name="il.co.topq.difido.TestsWithHtmlElements"></class>
+		</classes>
+	</test>
+		<test name="Test SugarCrm">
+		<classes>
+			<class name="il.co.topq.difido.TestsSugarCrm"></class>
+		</classes>
+	</test>
+	
+
 </suite>

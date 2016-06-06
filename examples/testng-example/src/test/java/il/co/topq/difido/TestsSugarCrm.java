@@ -4,21 +4,23 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class TestSugarCrm extends AbstractDifidoTestCase {
+public class TestsSugarCrm extends AbstractDifidoTestCase {
 
 	private int stepNum;
 
 	@BeforeMethod
 	public void setup() {
 		report.log("Initializing webdriver");
+		stepNum = 0;
 	}
 
-	@Test
-	public void testCreateNewLoad() {
+	@Test(description = "Test creation of a new lead", groups = "sugarcrm")
+	public void testCreateNewLead() {
 		step("Navigating to login screen");
 		addScreenshotFromResource("login.png");
 		sendKeys("userTb", "admin");
@@ -37,6 +39,30 @@ public class TestSugarCrm extends AbstractDifidoTestCase {
 		addScreenshotFromResource("saveleads.png");
 		step("Asserting that the lead exists");
 		addScreenshotFromResource("searchleads2.png");
+		Assert.assertEquals("Lead 'Mr. Itai Agmon' was found", "Lead 'Mr. Itai Agmon' was found");
+	}
+
+	@Test(description = "Test creation of a new lead", groups = "sugarcrm")
+	public void testCreateNewLeadAndFail() {
+		step("Navigating to login screen");
+		addScreenshotFromResource("login.png");
+		sendKeys("userTb", "admin");
+		sendKeys("passwordTb", "12345");
+		click("submitBtn");
+		addScreenshotFromResource("dashboard.png");
+		step("Navigating to create lead page");
+		click("leadsItm");
+		addScreenshotFromResource("searchleads.png");
+		click("createLeadItm");
+		addScreenshotFromResource("createlead.png");
+		select("salutationSelect", "Mr.");
+		sendKeys("firstNameTb", "Itai");
+		sendKeys("lastNameTb", "Agmon");
+		click("submitBtn");
+		addScreenshotFromResource("saveleads.png");
+		step("Asserting that the lead exists");
+		addScreenshotFromResource("searchleads2.png");
+		Assert.assertEquals("No lead 'Mr. Itai Agmon' was found", "Lead 'Mr. Itai Agmon' was found");
 
 	}
 
@@ -57,7 +83,7 @@ public class TestSugarCrm extends AbstractDifidoTestCase {
 	}
 
 	private File getResource(String resourceName) {
-		final File file = new File(getClass().getClassLoader().getResource("login.png").getFile());
+		final File file = new File(getClass().getClassLoader().getResource(resourceName).getFile());
 		return file;
 	}
 
