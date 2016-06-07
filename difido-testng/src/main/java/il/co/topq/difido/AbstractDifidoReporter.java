@@ -11,9 +11,6 @@ import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -221,7 +218,6 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	@Override
 	public void onTestFailure(ITestResult result) {
 		currentTest.setStatus(Status.failure);
-		reportLastTestException(result);
 		onTestEnd(result);
 
 	}
@@ -236,34 +232,6 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	private void onTestEnd(ITestResult result) {
 		currentTest.setDuration(result.getEndMillis() - result.getStartMillis());
 		writeTestDetails(testDetails);
-	}
-
-	private void reportLastTestException(ITestResult result) {
-		if (null == result){
-			return;
-		}
-		
-		// Get the test's last exception
-		final Throwable e = result.getThrowable();
-		if (null == e) {
-			return;
-		}
-
-		// Log the test's last unhandled exception
-		String title = null;
-		String message = null;
-		try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw)){
-			e.printStackTrace(pw);
-			title = ("The test ended with the following exception:");
-			message = sw.toString();
-		} catch (IOException e1) {
-			title = ("The test ended with unknown exception");
-		}
-		if (e instanceof AssertionError) {
-			log(title, message, Status.failure, ElementType.regular);
-		} else {
-			log(title, message, Status.error, ElementType.regular);
-		}
 	}
 
 	@Override
