@@ -4,7 +4,7 @@ import org.testng.annotations.Test;
 
 import il.co.topq.difido.model.Enums.Status;
 
-public class TestReportMessages extends AbstractDifidoTestCase {
+public class TestWithReportMessages extends AbstractDifidoTestCase {
 
 	@Test(description = "Test with steps")
 	public void testWithSteps() {
@@ -49,7 +49,7 @@ public class TestReportMessages extends AbstractDifidoTestCase {
 		}
 
 	}
-	
+
 	@Test(description = "Test with multiple levels with failures")
 	public void testWithMultipleLevelsWithFailures() {
 		report.startLevel("Level 1");
@@ -61,11 +61,11 @@ public class TestReportMessages extends AbstractDifidoTestCase {
 				report.startLevel("Level 3");
 				try {
 					report.log("Message in level 3");
-					report.log("Failure",Status.error);
+					report.log("Failure", Status.error);
 				} finally {
 					report.endLevel();
 				}
-				
+
 				report.startLevel("Level 3 (again)");
 				try {
 					report.log("Message in level 3");
@@ -74,19 +74,37 @@ public class TestReportMessages extends AbstractDifidoTestCase {
 					report.endLevel();
 				}
 
-				
 			} finally {
 				report.endLevel();
 			}
+			try {
+				report.startLevel("Level 2 (again)");
+				report.log("Message in level 2");
+			}finally {
+				report.endLevel();
+			}
+
 			report.log("Message in level 1");
 
 		} finally {
 			report.endLevel();
 
 		}
+		report.startLevel("Level 1 (2)");
+		try {
+			report.log("In level 1 (2)");
+			report.startLevel("Level 2 (2)");
+			try {
+				report.log("In level 2 (2)");
+			} finally {
+				report.endLevel();
+			}
+
+		} finally {
+			report.endLevel();
+		}
 
 	}
-
 
 	@Test(description = "Test with various log messages")
 	public void testWithVariousLogMessages() throws Exception {

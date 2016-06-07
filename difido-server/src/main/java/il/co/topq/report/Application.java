@@ -1,8 +1,9 @@
 package il.co.topq.report;
 
+import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.client.Requests;
@@ -45,20 +46,28 @@ public class Application extends SpringBootServletInitializer {
 		final IndicesExistsResponse res = Common.elasticsearchClient.admin().indices()
 				.prepareExists(Common.ELASTIC_INDEX).execute().actionGet();
 		if (res.isExists()) {
+			// Index is already exists, so there is no need to configure the
+			// mapping
 			return;
 		}
-		String mappingJson = null;
+		// We are reading the mapping from external file and not using the
+		// Java API since it seems that it is not possible to do a dynamic
+		// mapping using the API
+		final File mappingFile = new File(Common.CONFIUGRATION_FOLDER_NAME, MAPPING_FILE);
+		if (!mappingFile.exists()) {
+			logger.error("Failed to find elastic mapping file in " + mappingFile.getAbsolutePath()
+					+ ". Will not be able to configure Elastic");
+			return;
+		}
+
+		String mapping = null;
 		try {
-			// We are reading the mapping from external file and not using the
-			// Java API since it seems that it is not possible to do a dynamic
-			// mapping using the API
-			mappingJson = IOUtils.toString(Application.class.getClassLoader().getResourceAsStream(MAPPING_FILE));
+			mapping = FileUtils.readFileToString(mappingFile);
 		} catch (IOException e) {
 			logger.error("Failed to read mapping file. No index mapping will be set to the Elasticsearch", e);
 			return;
 		}
-		final CreateIndexRequest request = Requests.createIndexRequest(Common.ELASTIC_INDEX).mapping("test",
-				mappingJson);
+		final CreateIndexRequest request = Requests.createIndexRequest(Common.ELASTIC_INDEX).mapping("test", mapping);
 		Common.elasticsearchClient.admin().indices().create(request).actionGet();
 
 	}

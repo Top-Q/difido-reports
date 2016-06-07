@@ -45,6 +45,7 @@
 			<fileMode>775</fileMode>
 			<includes>
 				<include>mail.vm</include>
+				<include>mapping.json</include>
 			</includes>
 		</fileSet>
 		<fileSet>

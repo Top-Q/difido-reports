@@ -50,14 +50,17 @@
     <div>
         <div id="leftpane" class="ui-widget-content">
             <div class="btn-group btn-group-sm" style="padding:10px ; ">
+                <input type="textbox" id="selectedClass" hidden="true" value=""/>
                 <button type="button" onclick="javascript:$('#tree').jstree('open_all')">Expand all</button>
                 <button type="button" onclick="javascript:$('#tree').jstree('close_all')">Collapse all</button>
+                
             </div>
             <div class="input-group" style="padding:10px">
                 <input id="tree_q" type="text" class="form-control">
             </div>
             <div id="tree">
             </div>
+            
         </div>
         <div id="rightpane">
             <div class="panel-heading">
@@ -103,6 +106,30 @@
                 iframe.attr('src', a.href);
             }
         });
+        //Registering a double-click event, which will copy the node text to a clipboard. 
+        $('#tree').bind("dblclick.jstree", function (event) {
+            var node = $(event.target).closest("li");
+            var data = node.data("jstree");
+            var text = node.context.innerText;
+            var divForCopy = document.getElementById('selectedClass');
+            divForCopy.value = text;
+            divForCopy.hidden=false;
+            divForCopy.select();
+            try{
+                document.execCommand('copy');
+                divForCopy.value="";
+                divForCopy.hidden=true;
+            }
+            catch (err){
+                window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
+                divForCopy.hidden=true;
+            }
+            
+
+           // window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
+        });
+
+
         $(function() {
             $("#tree").jstree({
                 "plugins": ["search"]

@@ -8,7 +8,7 @@
     display: none;
 }
 
-#detailsDiv .step {color: #4E6CA3;}
+#detailsDiv .step {color: #4E6CA3 !important; font-weight: bold;}
 
 #detailsDiv div{
     word-wrap: break-word;
