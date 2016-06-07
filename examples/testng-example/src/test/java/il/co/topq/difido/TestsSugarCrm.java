@@ -9,61 +9,92 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import il.co.topq.difido.model.Enums.Status;
+
 public class TestsSugarCrm extends AbstractDifidoTestCase {
 
 	private int stepNum;
 
 	@BeforeMethod
 	public void setup() {
-		report.log("Initializing webdriver");
 		stepNum = 0;
 	}
 
-	@Test(description = "Test creation of a new lead", groups = "sugarcrm")
-	public void testCreateNewLead() {
-		step("Navigating to login screen");
-		addScreenshotFromResource("login.png");
-		sendKeys("userTb", "admin");
-		sendKeys("passwordTb", "12345");
-		click("submitBtn");
-		addScreenshotFromResource("dashboard.png");
-		step("Navigating to create lead page");
-		click("leadsItm");
-		addScreenshotFromResource("searchleads.png");
-		click("createLeadItm");
-		addScreenshotFromResource("createlead.png");
-		select("salutationSelect", "Mr.");
-		sendKeys("firstNameTb", "Itai");
-		sendKeys("lastNameTb", "Agmon");
-		click("submitBtn");
-		addScreenshotFromResource("saveleads.png");
-		step("Asserting that the lead exists");
-		addScreenshotFromResource("searchleads2.png");
+	@Test(description = "Test creation of a new lead", groups = { "sugarcrm", "regression" })
+	public void testCreateNewLead() throws Exception {
+		testBody(false);
 		Assert.assertEquals("Lead 'Mr. Itai Agmon' was found", "Lead 'Mr. Itai Agmon' was found");
 	}
 
-	@Test(description = "Test creation of a new lead", groups = "sugarcrm")
-	public void testCreateNewLeadAndFail() {
+	@Test(description = "Test creation of a new lead", groups = { "sugarcrm", "regression" })
+	public void testCreateNewLeadAndFail() throws Exception {
+		testBody(false);
+		Assert.assertEquals("No lead 'Mr. Itai Agmon' was found", "Lead 'Mr. Itai Agmon' was found");
+	}
+
+	@Test(description = "Test creation of a new lead", groups = { "sugarcrm", "regression" })
+	public void testCreateLeadWithWrongSelector() throws Exception {
+		testBody(true);
+	}
+
+	private void testBody(boolean failInStep) throws Exception {
 		step("Navigating to login screen");
 		addScreenshotFromResource("login.png");
+		report.startLevel("Performing login");
 		sendKeys("userTb", "admin");
 		sendKeys("passwordTb", "12345");
 		click("submitBtn");
+		report.endLevel();
+
 		addScreenshotFromResource("dashboard.png");
 		step("Navigating to create lead page");
-		click("leadsItm");
+		report.startLevel("Clicking on 'Leads' menu item");
+		click("SalesItm");
+		click("LeadsItm");
+		report.endLevel();
+
 		addScreenshotFromResource("searchleads.png");
+		report.startLevel("Clicking on create new lead");
 		click("createLeadItm");
+		report.endLevel();
+
 		addScreenshotFromResource("createlead.png");
+		report.startLevel("Typing lead details");
 		select("salutationSelect", "Mr.");
 		sendKeys("firstNameTb", "Itai");
+		if (failInStep) {
+			throw new Exception("Element not found exception");
+
+		}
 		sendKeys("lastNameTb", "Agmon");
 		click("submitBtn");
+		report.endLevel();
+
 		addScreenshotFromResource("saveleads.png");
 		step("Asserting that the lead exists");
+		report.logHtml("SELECT key,salutation,first_name,last_name FROM Leads WHERE last_name='Agmon';", getHtmlTable(),
+				Status.success);
+		report.addFile(getResource("server.log"), "Server log file");
 		addScreenshotFromResource("searchleads2.png");
-		Assert.assertEquals("No lead 'Mr. Itai Agmon' was found", "Lead 'Mr. Itai Agmon' was found");
+	}
 
+	private static String getHtmlTable() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("<table style=\"width:100%\"  border=\"1\">");
+		sb.append("	<tr>");
+		sb.append("		<th>key</th>");
+		sb.append("		<th>salutation</th>");
+		sb.append("		<th>first_name</th> ");
+		sb.append("		<th>last_name</th>");
+		sb.append("	</tr>");
+		sb.append("	<tr>");
+		sb.append("		<td>34523</td>");
+		sb.append("		<td>Mr.</td>");
+		sb.append("		<td>Itai</td> ");
+		sb.append("		<td>Agmon</td>");
+		sb.append("	</tr>");
+		sb.append("</table>");
+		return sb.toString();
 	}
 
 	private void select(String compName, String option) {
@@ -106,6 +137,7 @@ public class TestsSugarCrm extends AbstractDifidoTestCase {
 
 	@AfterMethod
 	public void tearDown() {
+		report.step("Teardown");
 		report.log("Closing webdriver");
 	}
 
