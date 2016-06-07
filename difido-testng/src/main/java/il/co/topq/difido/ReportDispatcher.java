@@ -29,5 +29,11 @@ public interface ReportDispatcher {
 	public abstract void addImage(File file, String description);
 
 	public abstract void addLink(String link, String description);
+	
+	public abstract void addTestProperty(String name, String value);
+	
+	public abstract void addRunProperty(String name, String value);
+	
+	
 
 }

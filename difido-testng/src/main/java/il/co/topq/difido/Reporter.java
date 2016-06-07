@@ -55,6 +55,22 @@ public interface Reporter {
 	void log(String title, String message, Status status, ElementType type);
 
 	/**
+	 * Add free property to the current test
+	 * 
+	 * @param name
+	 * @param value
+	 */
+	void addTestProperty(String name, String value);
+
+	/**
+	 * Add free property to the whole run
+	 * 
+	 * @param name
+	 * @param value
+	 */
+	void addRunProperty(String name, String value);
+
+	/**
 	 * Get the reporter unique name.
 	 * 
 	 * @return the reporter name.

@@ -190,7 +190,20 @@ public class ReportManager implements ReportDispatcher {
 		for (Reporter reporter : reporters) {
 			reporter.onFinish(suite);
 		}
+	}
 
+	@Override
+	public void addTestProperty(String name, String value) {
+		for (Reporter reporter : reporters) {
+			reporter.addTestProperty(name,value);
+		}
+	}
+
+	@Override
+	public void addRunProperty(String name, String value) {
+		for (Reporter reporter : reporters) {
+			reporter.addRunProperty(name,value);
+		}
 		
 	}
 

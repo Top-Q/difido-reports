@@ -239,10 +239,10 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	}
 
 	private void reportLastTestException(ITestResult result) {
-		if (null == result){
+		if (null == result) {
 			return;
 		}
-		
+
 		// Get the test's last exception
 		final Throwable e = result.getThrowable();
 		if (null == e) {
@@ -252,7 +252,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		// Log the test's last unhandled exception
 		String title = null;
 		String message = null;
-		try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw)){
+		try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw)) {
 			e.printStackTrace(pw);
 			title = ("The test ended with the following exception:");
 			message = sw.toString();
@@ -323,6 +323,27 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		element.setTime(TIME_FORMAT.format(new Date()));
 		element.setTitle(title);
 		return element;
+	}
+
+	public void addTestProperty(String name, String value) {
+		if (null == testDetails) {
+			return;
+		}
+		testDetails.addProperty(name, value);
+	}
+
+	/**
+	 * Add free property to the whole run
+	 * 
+	 * @param name
+	 * @param value
+	 */
+	public void addRunProperty(String name, String value) {
+		if (null == currentClassScenario) {
+			return;
+		}
+		log("Adding run proprty '" + name + "'='" + value + "'", null, Status.success, ElementType.regular);
+		currentTestScenario.addScenarioProperty(name, value);
 	}
 
 	@Override
