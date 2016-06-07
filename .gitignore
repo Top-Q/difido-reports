@@ -40,3 +40,4 @@ difido-server/htmlTemplate
 difido-testng/remoteDifido.properties
 examples/testng-example/remoteDifido.properties
 !difido-nunit/difido-client/Resources/difido-reports-common.jar
+!server.log
