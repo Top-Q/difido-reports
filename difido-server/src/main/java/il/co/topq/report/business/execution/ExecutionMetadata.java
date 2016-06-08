@@ -1,9 +1,10 @@
 package il.co.topq.report.business.execution;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -17,8 +18,8 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	private int id;
 
 	/**
-	 * The description of the execution as described by the user the
-	 * triggered it
+	 * The description of the execution as described by the user the triggered
+	 * it
 	 */
 	private String description;
 
@@ -63,20 +64,20 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	private boolean active;
 
 	/**
-	 * If execution is locked it will not be deleted from disk no matter how
-	 * old it is
+	 * If execution is locked it will not be deleted from disk no matter how old
+	 * it is
 	 */
 	private boolean locked;
 
 	/**
-	 * When the HTML is deleted, the flag is set to false. This can happen
-	 * if the execution age is larger then the maximum days allowed.
+	 * When the HTML is deleted, the flag is set to false. This can happen if
+	 * the execution age is larger then the maximum days allowed.
 	 */
 	private boolean htmlExists = true;
 
 	/**
-	 * The last time in absolute nanoseconds that this execution was
-	 * changed. This is used for calculating if the max idle time is over
+	 * The last time in absolute nanoseconds that this execution was changed.
+	 * This is used for calculating if the max idle time is over
 	 */
 	private long lastAccessedTime;
 
@@ -106,8 +107,8 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	private int numOfMachines;
 
 	/**
-	 * The date and time in which the execution has started in. e.g.
-	 * 2015/05/12 18:17:49
+	 * The date and time in which the execution has started in. e.g. 2015/05/12
+	 * 18:17:49
 	 */
 	private String timestamp;
 
@@ -163,8 +164,8 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	/**
-	 * Enable to sort collection of this class by descending order of the
-	 * date and time
+	 * Enable to sort collection of this class by descending order of the date
+	 * and time
 	 */
 	@Override
 	public int compareTo(ExecutionMetadata o) {
@@ -175,7 +176,12 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 			return 0;
 		}
 		if (null == getDate() || null == getTime() || null == o.getTime() || null == o.getDate()) {
-			throw new IllegalArgumentException("Can't compare when fields are null");
+			throw new IllegalArgumentException("Can't compare when some fields are null. Trying to compare '"
+					+ this.toString() + "' with '" + o.toString() + "'");
+		}
+		if (getDate().isEmpty() || getTime().isEmpty() || o.getTime().isEmpty() || o.getDate().isEmpty()) {
+			throw new IllegalArgumentException("Can't compare when some fields are empty. Trying to compare '"
+					+ this.toString() + "' with '" + o.toString() + "'");
 		}
 		try {
 			final Date thisDate = Common.API_DATE_FORMATTER.parse(getDate());
@@ -193,10 +199,23 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 					return -1;
 				}
 			}
-		} catch (ParseException e) {
+		} catch (Throwable t) {
 			throw new IllegalArgumentException(
-					"Exception accured while trying to parse date or time when comparing");
+					"Exception accured while trying to parse date or time when comparing. Trying to compare '"
+							+ this.toString() + "' with '" + o.toString() + "'",
+					t);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this).append("id", id).append("description", description)
+				.append("properties", properties).append("shared", shared).append("folderName", folderName)
+				.append("uri", uri).append("date", date).append("time", time).append("active", active)
+				.append("locked", locked).append("htmlExists", htmlExists).append("lastAccessedTime", lastAccessedTime)
+				.append("numOfTests", numOfTests).append("numOfSuccessfulTests", numOfSuccessfulTests)
+				.append("numOfFailedTests", numOfFailedTests).append("numOfTestsWithWarnings", numOfTestsWithWarnings)
+				.append("numOfMachines", numOfMachines).append("timestamp", timestamp).toString();
 	}
 
 	public String getTimestamp() {
