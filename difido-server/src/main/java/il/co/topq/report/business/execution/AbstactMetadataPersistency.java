@@ -46,13 +46,13 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 		return ++lastId;
 	}
 
-	public void add(ExecutionMetadata metadata) {
+	public synchronized void add(ExecutionMetadata metadata) {
 		readFromPersistency();
 		executionsCache.put(metadata.getId(), metadata);
 		writeToPersistency();
 	}
 
-	public void remove(int id) {
+	public synchronized void remove(int id) {
 		readFromPersistency();
 		if (null == executionsCache.remove(id)) {
 			log.warn("Tried to delete execution with id " + id + " which is not exists");
@@ -60,20 +60,23 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 		writeToPersistency();
 	}
 
-	public void update(ExecutionMetadata metadata) {
+	public synchronized void update(ExecutionMetadata metadata) {
 		add(metadata);
 	}
 
-	public ExecutionMetadata get(int executionId) {
+	public synchronized ExecutionMetadata get(int executionId) {
 		readFromPersistency();
 		return executionsCache.get(executionId);
 	}
 
-	public List<ExecutionMetadata> getAll() {
+	public synchronized List<ExecutionMetadata> getAll() {
 		readFromPersistency();
 		final List<ExecutionMetadata> result = new ArrayList<ExecutionMetadata>();
 		result.addAll(executionsCache.values());
-		Collections.sort(result);
+		// This synchronized is very important. See issue #81
+		synchronized (this) {
+			Collections.sort(result);
+		}
 		return result;
 
 	}

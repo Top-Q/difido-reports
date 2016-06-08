@@ -22,7 +22,7 @@ public class AddMultipleExecutionsIT extends AbstractResourceTest {
 
 	
 	@Test
-	public void testAddConcurrentExecutions() throws Exception{
+	public void testAddExecutions() throws Exception{
 		for (int i = 0 ; i < NUM_OF_EXECUTIONS ; i++){
 			ExecutionDetails description = new ExecutionDetails();
 			description.setShared(false);

@@ -55,22 +55,49 @@ public abstract class AbstractResourceTest {
 	}
 
 	private void flushPreviousReports() throws IOException {
-		FileUtils.deleteDirectory(reportsFolder);
+		try {
+			FileUtils.deleteDirectory(reportsFolder);
+			
+		}catch (IOException e){
+			// This can happen. Let's give it another try
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e1) {
+			}
+			FileUtils.deleteDirectory(reportsFolder);
+		}
 		executionManager.persistency.dump();
 	}
 
 	protected static Execution getExecution() {
-		final File executionFolder = findExecutionFolder();
+		final File executionFolder = findSingleExecutionFolder();
 		return PersistenceUtils.readExecution(executionFolder);
+	}
+	
+	protected static Execution[] getAllExecutions(){
+		final File[] executionFolders = findAllExecutionFolders();
+		Execution[] executions = new Execution[executionFolders.length];
+		for (int i = 0 ; i < executions.length ; i++){
+			executions[i] = PersistenceUtils.readExecution(executionFolders[i]);
+		}
+		return executions;
 	}
 
 	protected static TestDetails getTestDetails(final String uid) {
-		final File executionFolder = findExecutionFolder();
+		final File executionFolder = findSingleExecutionFolder();
 		TestDetails test = PersistenceUtils.readTest(new File(executionFolder, "tests/test_" + uid));
 		return test;
 	}
 
-	protected static File findExecutionFolder() {
+	protected static File findSingleExecutionFolder() {
+		final File[] executionFolders = findAllExecutionFolders();
+		if (executionFolders.length > 0) {
+			return executionFolders[0];
+		}
+		return null;
+	}
+	
+	protected static File[] findAllExecutionFolders() {
 		final File[] executionFolders = new File("docRoot/reports").listFiles(new FileFilter() {
 
 			@Override
@@ -82,10 +109,8 @@ public abstract class AbstractResourceTest {
 			}
 
 		});
-		if (executionFolders.length > 0) {
-			return executionFolders[0];
-		}
-		return null;
+		return executionFolders;
 	}
+
 
 }
