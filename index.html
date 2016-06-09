@@ -1,57 +1,88 @@
 <!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="UTF-8">
-    <title>Difido-reports by Top-Q</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-  </head>
-  <body>
-    <section class="page-header">
-      <h1 class="project-name">Difido-reports</h1>
-      <h2 class="project-tagline">This project aims to provide a generic implementation for HTML test reports. </h2>
-      <a href="https://github.com/Top-Q/difido-reports" class="btn">View on GitHub</a>
-      <a href="https://github.com/Top-Q/difido-reports/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/Top-Q/difido-reports/tarball/master" class="btn">Download .tar.gz</a>
-    </section>
+<html>
 
-    <section class="main-content">
-      <h3>
-<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Difido-reports : This project aims to provide a generic implementation for HTML test reports. ">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <title>Difido-reports</title>
+</head>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here <a href="https://guides.github.com/features/mastering-markdown/">using GitHub Flavored Markdown</a>, select a template crafted by a designer, and publish. After your page is generated, you can check out the new <code>gh-pages</code> branch locally. If you’re using GitHub Desktop, simply sync your repository and you’ll see the new branch.</p>
+<body>
+    <!-- HEADER #0090FF -->
+    <div id="header_wrap" class="outer">
+        <a class="navbar-brand" href="#">Difido</a>
+        <ul class="nav navbar-nav navbar-left">
+            <li class="nav-item">
+                <a class="nav-link" href="https://github.com/Top-Q/difido-reports/releases">Downloads</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="https://github.com/Top-Q/difido-reports/wiki">Documentaion</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="https://github.com/Top-Q/difido-reports/issues">Issues</a>
+            </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li class="nav-item" style="width:220px">
+                <a id="forkme_banner" href="https://github.com/Top-Q/difido-reports">View on GitHub</a>
+            </li>
+        </ul>
+        </nav>
+        <header class="inner">
+            <h1 id="project_title">Difido-reports</h1>
+            <h2 id="project_tagline">This project aims to provide a generic implementation for HTML test reports. </h2>
+            <section id="downloads">
+                <a class="zip_download_link" href="https://github.com/Top-Q/difido-reports/releases/download/2.0.02/difido-server.zip">Download Difido Server</a>
+        </header>
+    </div>
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+        <section id="main_content" class="inner">
+            <h1>
+<a id="difido-reports" class="anchor" href="#difido-reports" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Difido Reports</h1>
+            <p>This project aims to provide a flexible, realtime HTML report for various functional test automation frameworks.</p>
+            <p>The solution is composed of different components</p>
+            <h2>
+<a id="difido-report-server" class="anchor" href="#difido-report-server" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Difido Report Server</h2>
+            <p>The server allows creation of HTML reports in a central location instead of the local file system of each machine that executes the tests. The server allows connection using a simple REST API and receives the JSONS as the data. In addition, the server stores the data in an embedded <a href="https://www.elastic.co/">Elasticsearch</a>. This allow users to create complex queries on the tests results and even use solutions such as <a href="https://www.elastic.co/products/kibana">Kibana</a> to visualize the data. </p>
+            <p>The main features of the server are:</p>
+            <ul>
+                <li>Real time - No longer long waits for the end of the test execution to view the reports. The reports are generated on the fly.</li>
+                <li>One central location for all the HTML reports with a web interface that allows searching and sorting the different executions</li>
+                <li>Allows creating a single HTML report for number of machines running different executions. </li>
+                <li>Creating easy to use JSONS from the test results and stores in an embedded Elasticsearch database. </li>
+            </ul>
+            <h2>
+<a id="framework-binders" class="anchor" href="#framework-binders" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Framework binders</h2>
+            <h3>
+<a id="difido-nunit" class="anchor" href="#difido-nunit" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Difido NUnit</h3>
+            <p>A binding for <a href="http://www.nunit.org/">NUnit</a>, the C# open source test automation framework. The binder allows creating a local HTML reports or/and send the reports to the Difido server </p>
+            <h3>
+<a id="difido-testng" class="anchor" href="#difido-testng" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Difido TestNG</h3>
+            <p>A binding for <a href="http://testng.org/doc/index.html">TestNG</a>, the popular Java test automation framework. At this stage allows creating of only local reports. </p>
+            <h3>
+<a id="jsystem" class="anchor" href="#jsystem" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>JSystem</h3>
+            <p>The JSystem binding exists but it is part of the <a href="http://jsystem.org/">JSystem</a> project. </p>
+            <h2>
+<a id="support" class="anchor" href="#support" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support</h2>
+            <p>Bugs and feature requests are acceptible via GitHub issues</p>
+        </section>
+    </div>
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+        <footer class="inner">
+            <p class="copyright">Difido-reports maintained by <a href="https://github.com/Top-Q">Top-Q</a></p>
+            <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+        </footer>
+    </div>
+</body>
 
-<h3>
-<a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Designer Templates</h3>
-
-<p>We’ve crafted some handsome templates for you to use. Go ahead and click 'Continue to layouts' to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved.</p>
-
-<h3>
-<a id="creating-pages-manually" class="anchor" href="#creating-pages-manually" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Creating pages manually</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
-
-<h3>
-<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors</h3>
-
-<p>You can <a href="https://help.github.com/articles/basic-writing-and-formatting-syntax/#mentioning-users-and-teams" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor’s GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>
-<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p>
-
-      <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/Top-Q/difido-reports">Difido-reports</a> is maintained by <a href="https://github.com/Top-Q">Top-Q</a>.</span>
-
-        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
-      </footer>
-
-    </section>
-
-  
-  </body>
 </html>
