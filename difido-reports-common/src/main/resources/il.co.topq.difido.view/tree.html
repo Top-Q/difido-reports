@@ -89,6 +89,48 @@
         });
     });
 
+    function selectNode(){
+      // read the desired node from the URL 
+      var nodeName = getUrlParameter("node");
+      if (nodeName == undefined){
+            return ;
+      }
+        
+
+      var len = nodeName.length;
+      var id = "";
+
+    // loop through all the nodes of the tree, and find the one that matches the desired node name
+    //this can surely be implemented more efficiently! (one liner?) 
+    $( "#tree li" ).each(function( index ) {
+        if ($(this).text().substring(0,len) == nodeName){
+            //console.log($(this).text().substring(0,len));
+            id = $(this).attr("id")
+            return false;
+       }
+    });
+
+    //if no node was found - exit. 
+    if (id==""){
+        return;
+    }
+
+    //now deselect and close all nodes..
+    $("#tree").jstree('close_all');
+    $("#tree").jstree('deselect_all');
+
+
+    //and just open and select the desired node. 
+    $("#tree").jstree('open_node',id);
+    $("#tree").jstree('select_node',id);
+   
+  
+    return;
+   
+  
+    }
+
+
     function populateTreeNew() {
         $.jstree.defaults.search.show_only_matches = true;
         treeController($('#tree'));
@@ -106,7 +148,7 @@
                 iframe.attr('src', a.href);
             }
         });
-        //Registering a double-click event, which will copy the node text to a clipboard. 
+
         $('#tree').bind("dblclick.jstree", function (event) {
             var node = $(event.target).closest("li");
             var data = node.data("jstree");
@@ -124,7 +166,6 @@
                 window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
                 divForCopy.hidden=true;
             }
-            
 
            // window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
         });
@@ -148,8 +189,26 @@
     }
 
 
+    //Retrieves the URL parameter. 
+    function getUrlParameter(sParam) {
+            var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                      return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    };
+
+
     $(document).ready(function() {
-        populateTreeNew();
+       populateTreeNew();
+       selectNode();
     });
     </script>
 </body>

@@ -48,7 +48,8 @@ function appendTestsToSumTable(tests, table) {
         var durationMin = Math.floor((((durInSec % 31536000) % 86400) % 3600) / 60);
         var durationSec = (((durInSec % 31536000) % 86400) % 3600) % 60;
         var tr = $('<tr>');
-        tr.append($('<td>').text(this.name));
+        var a = $("<a>").text(this.name).attr("href","tree.html?node="+this.name);
+        tr.append($('<td>').append(a));
         var tests = this.success + this.error + this.failure + this.warning * 1;
         tr.append($('<td>').text(tests));
         total.tests+=tests;
@@ -94,4 +95,3 @@ function sumTableController(element) {
     appendTestsToSumTable(tests, element);
 
 }
-
