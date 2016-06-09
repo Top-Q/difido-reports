@@ -4,7 +4,9 @@ import il.co.topq.difido.model.Enums.Status;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+@JsonPropertyOrder({ "index", "uid", "duration", "timestamp", "className" })
 public class TestNode extends Node {
 
 	@JsonProperty("index")
@@ -18,6 +20,9 @@ public class TestNode extends Node {
 
 	@JsonProperty("timestamp")
 	private String timestamp;
+
+	@JsonProperty("className")
+	private String className;
 
 	public TestNode() {
 		setStatus(Status.in_progress);
@@ -96,6 +101,14 @@ public class TestNode extends Node {
 
 	public void setUid(String uid) {
 		this.uid = uid;
+	}
+
+	public String getClassName() {
+		return className;
+	}
+
+	public void setClassName(String className) {
+		this.className = className;
 	}
 
 }

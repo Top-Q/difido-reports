@@ -150,6 +150,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		}
 
 		currentTest = new TestNode(index++, testName, executionUid + "-" + index);
+		currentTest.setClassName(testClassName);
 		currentTest.setTimestamp(TIME_FORMAT.format(new Date(result.getStartMillis())));
 		currentClassScenario.addChild(currentTest);
 		testDetails = new TestDetails(testName, currentTest.getUid());
