@@ -5,7 +5,7 @@ Difido Reports
 
 This project aims to provide a flexible, realtime HTML report for various functional test automation frameworks.
 
-To see a demo of the report nevigate [here](http://top-q.github.io/difido-reports/demo/)
+To see a demo of the report nevigate [here](http://top-q.github.io/difido-reports-demo/)
 
 The solution is composed of different components
 
