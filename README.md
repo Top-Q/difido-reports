@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Top-Q/difido-reports.svg?branch=master)](https://travis-ci.org/Top-Q/difido-reports)
+
 Difido Reports
 ================
 
