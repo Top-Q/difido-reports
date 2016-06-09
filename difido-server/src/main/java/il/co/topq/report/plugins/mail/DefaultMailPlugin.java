@@ -19,7 +19,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 
 	private final Logger log = LoggerFactory.getLogger(DefaultMailPlugin.class);
 
-	private static final String DEFAULT_SUBJECT = "Test automation execution was ended";
+	private static final String DEFAULT_SUBJECT = "Test execution ended";
 
 	private MailSender sender;
 
@@ -50,17 +50,18 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 			// log message here.
 			return;
 		}
-		final String subject = getMailSubject();
 		if (null == metadata) {
 			log.error("Can't find meta data for ended execution. Will not send mail");
 			return;
 		}
 
-		final StringWriter writer = populateTemplate(metadata);
+		final String subject = getMailSubject(metadata);
+		final String body = getMailBody(metadata);
+
 		new Thread() {
 			public void run() {
 				try {
-					sender.sendMail(subject, writer.toString());
+					sender.sendMail(subject, body);
 				} catch (Exception e) {
 					log.error("Failed sending mail", e);
 				}
@@ -68,13 +69,26 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		}.start();
 	}
 
-	protected String getMailSubject() {
-		final String subject = StringUtils.isEmpty(Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT))
+	protected String getMailBody(ExecutionMetadata metadata) {
+		return populateTemplate(metadata);
+	}
+
+	protected String getMailSubject(ExecutionMetadata metadata) {
+		String subject = StringUtils.isEmpty(Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT))
 				? DEFAULT_SUBJECT : Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT);
+		if (metadata.getNumOfFailedTests() > 0) {
+			subject += " - Ended with " + metadata.getNumOfFailedTests() + " failures out of "
+					+ metadata.getNumOfTests();
+		} else if (metadata.getNumOfTestsWithWarnings() > 0) {
+			subject += " - Ended with " + metadata.getNumOfTestsWithWarnings() + " warnings out of "
+					+ metadata.getNumOfTests();
+		} else {
+			subject += " - Ended with " + metadata.getNumOfTests() + " successful tests";
+		}
 		return subject;
 	}
 
-	private StringWriter populateTemplate(ExecutionMetadata metadata) {
+	private String populateTemplate(ExecutionMetadata metadata) {
 		VelocityEngine ve = new VelocityEngine();
 		ve.init();
 		Template t = ve.getTemplate(getTemplateName());
@@ -83,7 +97,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		context.put("meta", metadata);
 		final StringWriter writer = new StringWriter();
 		t.merge(context, writer);
-		return writer;
+		return writer.toString();
 	}
 
 	protected String getTemplateName() {
