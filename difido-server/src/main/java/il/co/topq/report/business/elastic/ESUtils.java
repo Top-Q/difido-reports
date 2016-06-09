@@ -1,7 +1,9 @@
 package il.co.topq.report.business.elastic;
 
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +20,9 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.max.Max;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import il.co.topq.report.Common;
@@ -169,6 +173,23 @@ public class ESUtils {
 		return maxValue;
 	}
 	
+	/**
+	 * 
+	 * 
+	 * Sends a DSL query string and return list of all the objects that match the query. 
+	 * More information on the DSL can be found 
+	 * in the<br> <a href = "https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax">Elastic documentations</a> 
+	 * 
+	 * @param index
+	 * @param type
+	 * @param clazz
+	 * @param queryString DSL String
+	 * @return List of objects from the specified class
+	 * @throws Exception
+	 */
+	public static <T> List<T> getAll(String index, String type, Class<T> clazz, String queryString) throws Exception {
+		return query(index, clazz, queryStringQuery(queryString));
+	}
 	
 	/**
 	 * Get all the documents using the specified class that matches the specified filter
@@ -182,9 +203,11 @@ public class ESUtils {
 	 * @throws Exception
 	 */
 	public static <T> List<T> getAll(String index, String type, Class<T> clazz, String filterTermKey, String filterTermValue) throws Exception {
-		
-		QueryBuilder qb = termQuery(filterTermKey, filterTermValue);
-		
+		return query(index, clazz, termQuery(filterTermKey, filterTermValue));
+	}
+
+	private static <T> List<T> query(String index, Class<T> clazz, QueryBuilder qb)
+			throws IOException, JsonParseException, JsonMappingException {
 		//@formatter:off
 		SearchResponse scrollResp =  Common.elasticsearchClient.prepareSearch(index)
 		        .setScroll(new TimeValue(60000))
@@ -194,7 +217,7 @@ public class ESUtils {
 		//@formatter:on
 
 		final List<T> results = new ArrayList<T>();
-		
+
 		// Scroll until no hits are returned
 		while (true) {
 			for (SearchHit hit : scrollResp.getHits().getHits()) {
