@@ -1,0 +1,87 @@
+<assembly
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+	<formats>
+		<format>dir</format>
+	</formats>
+	<baseDirectory>..</baseDirectory>
+	<includeBaseDirectory>false</includeBaseDirectory>
+
+	<id>create-lib</id>
+	<dependencySets>
+		<dependencySet>
+			<excludes>
+				<!-- JSystem Lib -->
+				<exclude>*:jsystemCore:*</exclude>
+				<exclude>*:jsystemAnt:*</exclude>
+				<exclude>*:jsystemCommon:*</exclude>
+				<exclude>*:jsystemApp:*</exclude>
+				<exclude>*:jsystemAgent:*</exclude>
+				<exclude>*:jsystem-launcher:*</exclude>
+				
+				<!-- JSystem third party -->
+				<exclude>*:ant:*</exclude>
+				<exclude>*:ant-launcher:*</exclude>
+				<exclude>*:asm:*</exclude>
+				<exclude>*:asm-commons:*</exclude>
+				<exclude>*:asm-tree:*</exclude>
+				<exclude>*:avalon-framework:*</exclude>
+				<exclude>*:commons-codec:*</exclude>
+				<exclude>*:commons-httpclient:*</exclude>
+				<exclude>*:commons-jxpath:*</exclude>
+				<exclude>*:hamcrest-core:*</exclude>
+				<exclude>*:jcommon:*</exclude>
+				<exclude>*:jfreechart:*</exclude>
+				<exclude>*:junit:*</exclude>
+				<exclude>*:jython:*</exclude>
+				<exclude>*:log4j:*</exclude>
+				<exclude>*:logkit:*</exclude>
+				<exclude>*:mail:*</exclude>
+				<exclude>*:qdox:*</exclude>
+				<exclude>*:serializer:*</exclude>
+				<exclude>*:servlet-api:*</exclude>
+				<exclude>*:spring:*</exclude>
+				<exclude>*:xalan:*</exclude>
+				<exclude>*:xml-apis:*</exclude>
+				<exclude>*:activation:*</exclude>
+				<exclude>*:cli:*</exclude>
+				<exclude>*:FileTransfer:*</exclude>
+				<exclude>*:embeddedCatalina:*</exclude>
+				<exclude>*:commons-logging:*</exclude>
+				<exclude>*:commons-logging-api:*</exclude>
+				<exclude>*:looks:*</exclude>
+				<exclude>javax.mail:mail:*</exclude>				
+				<exclude>*:tftp4java-server:*</exclude>
+				<exclude>*:tftp4java-client:*</exclude>
+				<exclude>*:commons-net:*</exclude>
+				<exclude>*:ganymed-ssh2:*</exclude>
+				<exclude>*:comm:*</exclude>
+				<exclude>*:ftpserver-core:*</exclude>
+				<exclude>*:commons-io:*</exclude>
+				<exclude>*:catalina:*</exclude>
+				<exclude>*:jwizz:*</exclude>
+				<exclude>*:swingx:*</exclude>
+				<exclude>*:junit:*</exclude>
+				<exclude>*:swing-worker:*</exclude>
+				<exclude>*:mx4j-jmx:*</exclude>
+				<exclude>*:commons-digester:*</exclude>
+				<exclude>*:commons-modeler:*</exclude>
+				<exclude>*:filters:*</exclude>
+				<exclude>*:commons-compress:*</exclude>
+				<exclude>*:xz:*</exclude>
+				<exclude>*:jackson-annotations:*</exclude>
+				<exclude>*:jackson-core:*</exclude>
+				<exclude>*:jackson-databind:*</exclude>
+				<exclude>*:difido-reports-common:*</exclude>
+								
+				<!-- The project artifact should not be in the lib folder because it should be read from the classes folder-->
+				<exclude>*:${artifactId}:*</exclude>
+			</excludes>
+		</dependencySet>
+
+
+	</dependencySets>
+
+
+</assembly>
