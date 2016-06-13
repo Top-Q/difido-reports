@@ -3,10 +3,12 @@ package il.co.topq.difido.model.execution;
 import il.co.topq.difido.model.Enums.Status;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonPropertyOrder({ "index", "uid", "duration", "timestamp", "className" })
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class TestNode extends Node {
 
 	@JsonProperty("index")
