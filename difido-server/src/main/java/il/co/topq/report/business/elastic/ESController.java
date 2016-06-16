@@ -189,11 +189,25 @@ public class ESController {
 		if (!enabled) {
 			return;
 		}
-
-		if (testDetailsCreatedEvent.getTestDetails() == null
-				|| testDetailsCreatedEvent.getTestDetails().getUid() == null || openTestsPerExecution == null) {
+		if (null == testDetailsCreatedEvent) {
+			log.warn("Recieved null 'testDetailsCreatedEvent'. Aborting");
 			return;
 		}
+		
+		if (null == testDetailsCreatedEvent.getTestDetails()) {
+			log.warn("Recieved null 'TestDetails'. Aborting");
+			return;
+		}
+		
+		if (null == testDetailsCreatedEvent.getTestDetails().getUid()) {
+			log.warn("Recieved null 'UID'. Aborting");
+			return;
+		}
+		
+		if (null == openTestsPerExecution){
+			return;
+		}
+		
 		final TestDetails testDetails = testDetailsCreatedEvent.getTestDetails();
 		final int executionId = testDetailsCreatedEvent.getExecutionId();
 		
