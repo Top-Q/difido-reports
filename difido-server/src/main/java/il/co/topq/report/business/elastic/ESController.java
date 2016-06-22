@@ -75,7 +75,7 @@ public class ESController {
 		// using the id of each one.
 		List<ElasticsearchTest> testsToDelete = null;
 		try {
-			testsToDelete = ESUtils.getAll(Common.ELASTIC_INDEX, TEST_TYPE, ElasticsearchTest.class, "executionId",
+			testsToDelete = ESUtils.getAllByTerm(Common.ELASTIC_INDEX, TEST_TYPE, ElasticsearchTest.class, "executionId",
 					String.valueOf(executionDeletedEvent.getExecutionId()));
 
 		} catch (Exception e) {

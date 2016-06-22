@@ -144,21 +144,38 @@ public class ESUtils {
 	}
 
 	/**
-	 * Get the maximum value of a specific numeric field.<br>
+	 * Get the maximum value of specific numeric field.<br>
 	 * e.g. Finding the biggest element id exits.
 	 * 
 	 * @param index
 	 * @param type
 	 * @param field
-	 * @return
+	 * @return max field value
 	 */
-	public static double max(String index, String type, String field) {
+	public static double maxFieldValue(String index, String type, String field) {
+		return max(index, type, field, QueryBuilders.matchAllQuery());
+	}
+
+	/**
+	 * Get the maximum value of specific numeric field after filtering with
+	 * query.
+	 * 
+	 * @param index
+	 * @param type
+	 * @param field
+	 * @param queryString
+	 * @return max field value
+	 */
+	public static double maxFieldValueByQuery(String index, String type, String field, String queryString) {
+		return max(index, type, field, queryStringQuery(queryString));
+	}
+
+	private static double max(String index, String type, String field, QueryBuilder query) {
 		//@formatter:off
 		final SearchResponse response = Common.elasticsearchClient.
 				prepareSearch(index).
 				setTypes(type).
-				setQuery(QueryBuilders.
-						matchAllQuery()).
+				setQuery(query).
 				addAggregation(AggregationBuilders.
 						max("agg").
 						field(field))
@@ -171,6 +188,7 @@ public class ESUtils {
 			maxValue = max.getValue();
 		}
 		return maxValue;
+		
 	}
 	
 	/**
@@ -187,7 +205,7 @@ public class ESUtils {
 	 * @return List of objects from the specified class
 	 * @throws Exception
 	 */
-	public static <T> List<T> getAll(String index, String type, Class<T> clazz, String queryString) throws Exception {
+	public static <T> List<T> getAllByQuery(String index, String type, Class<T> clazz, String queryString) throws Exception {
 		return query(index, clazz, queryStringQuery(queryString));
 	}
 	
@@ -202,7 +220,7 @@ public class ESUtils {
 	 * @return list of objects from the specified class
 	 * @throws Exception
 	 */
-	public static <T> List<T> getAll(String index, String type, Class<T> clazz, String filterTermKey, String filterTermValue) throws Exception {
+	public static <T> List<T> getAllByTerm(String index, String type, Class<T> clazz, String filterTermKey, String filterTermValue) throws Exception {
 		return query(index, clazz, termQuery(filterTermKey, filterTermValue));
 	}
 
@@ -238,7 +256,7 @@ public class ESUtils {
 		return results;
 	}
 
-	public static <T> T get(String index, String type, String id, Class<T> clazz) throws Exception {
+	public static <T> T getById(String index, String type, String id, Class<T> clazz) throws Exception {
 		//@formatter:off
 		GetResponse response = Common.elasticsearchClient.
 				prepareGet(index, type, id).
