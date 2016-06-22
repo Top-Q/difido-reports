@@ -19,25 +19,32 @@ public enum Configuration {
 	public enum ConfigProps {
 
 		// @formatter:off
-		DOC_ROOT_FOLDER("doc.root.folder", "docRoot"), PATH_DATA("path.data",
-				"data/index"), MAX_EXECUTION_IDLE_TIME_IN_SEC("max.execution.idle.time.in.seconds",
-						"600"), ENABLE_ELASTIC_SEARCH("enable.elastic.search", "true"), ENABLE_HTML_REPORTS(
-								"enable.html.reports", "true"), DAYS_TO_KEEP_HTML_REPORTS("days.to.keep.html.reports",
-										"0"), ENABLE_MAIL("enable.mail", "false"), MAIL_USER_NAME("mail.user.name",
-												""), MAIL_PASSWORD("mail.password", ""), MAIL_SSL("mail.ssl",
-														"false"), MAIL_SMTP_HOST("mail.smtp.host", ""), MAIL_SMTP_PORT(
-																"mail.smtp.port", ""), MAIL_SUBJECT("mail.subject",
-																		""), MAIL_FROM_ADDRESS("mail.from.address",
-																				""), MAIL_TO_ADDRESS("mail.to.address",
-																						""), MAIL_CC_ADDRESS(
-																								"mail.cc.address", ""),
+		DOC_ROOT_FOLDER("doc.root.folder", "docRoot"),
+		PATH_DATA("path.data","data/index"), 
+		MAX_EXECUTION_IDLE_TIME_IN_SEC("max.execution.idle.time.in.seconds","600"),
+		ENABLE_ELASTIC_SEARCH("enable.elastic.search", "true"),
+		EXTERNAL_ELASTIC("external.elastic","false"),
+		EXTERNAL_ELASTIC_HOST("external.elastic.host","localhost"),
+		EXTERNAL_ELASTIC_PORT("external.elastic.port","9300"),
+		ENABLE_HTML_REPORTS("enable.html.reports", "true"), 
+		DAYS_TO_KEEP_HTML_REPORTS("days.to.keep.html.reports","0"),
+		ENABLE_MAIL("enable.mail", "false"), MAIL_USER_NAME("mail.user.name",""), 
+		MAIL_PASSWORD("mail.password", ""),
+		MAIL_SSL("mail.ssl","false"), 
+		MAIL_SMTP_HOST("mail.smtp.host", ""),
+		MAIL_SMTP_PORT("mail.smtp.port", ""),
+		MAIL_SUBJECT("mail.subject",""), 
+		MAIL_FROM_ADDRESS("mail.from.address",""), 
+		MAIL_TO_ADDRESS("mail.to.address",""),
+		MAIL_CC_ADDRESS("mail.cc.address", ""),
+		
 		/**
 		 * semicolon separated list of custom properties that can be added to
 		 * each execution. If none was specified, no filter will be applied and
 		 * clients could add any property
 		 */
-		CUSTOM_EXECUTION_PROPERTIES("custom.execution.properties", ""), PLUGIN_CLASSES("plugin.classes", "il.co.topq.report.plugins.mail.DefaultMailPlugin");
-
+		CUSTOM_EXECUTION_PROPERTIES("custom.execution.properties", ""),
+		PLUGIN_CLASSES("plugin.classes", "il.co.topq.report.plugins.mail.DefaultMailPlugin");
 		// @formatter:off
 
 		private final String propName;
@@ -94,6 +101,9 @@ public enum Configuration {
 		addPropWithDefaultValue(ConfigProps.PATH_DATA);
 		addPropWithDefaultValue(ConfigProps.MAX_EXECUTION_IDLE_TIME_IN_SEC);
 		addPropWithDefaultValue(ConfigProps.ENABLE_ELASTIC_SEARCH);
+		addPropWithDefaultValue(ConfigProps.EXTERNAL_ELASTIC);
+		addPropWithDefaultValue(ConfigProps.EXTERNAL_ELASTIC_HOST);
+		addPropWithDefaultValue(ConfigProps.EXTERNAL_ELASTIC_PORT);
 		addPropWithDefaultValue(ConfigProps.ENABLE_HTML_REPORTS);
 		addPropWithDefaultValue(ConfigProps.DAYS_TO_KEEP_HTML_REPORTS);
 		addPropWithDefaultValue(ConfigProps.ENABLE_MAIL);

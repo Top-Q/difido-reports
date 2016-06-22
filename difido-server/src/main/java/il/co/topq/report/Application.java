@@ -2,12 +2,16 @@ package il.co.topq.report;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.client.Requests;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.Logger;
@@ -73,18 +77,30 @@ public class Application extends SpringBootServletInitializer {
 	}
 
 	public static void stopElastic() {
-		node.close();
+		if (node != null) {
+			node.close();
+		}
 		Common.elasticsearchClient.close();
 	}
 
-	public static void startElastic() {
+	public static void startElastic() throws UnknownHostException {
 		Settings.Builder settings = Settings.settingsBuilder();
 		settings.put("node.name", "reportserver");
-		settings.put("path.data", Configuration.INSTANCE.readString(ConfigProps.PATH_DATA));
-		settings.put("http.enabled", true);
-		settings.put("path.home", ".");
-		node = NodeBuilder.nodeBuilder().settings(settings).clusterName("reportserver").data(true).local(true).node();
-		Common.elasticsearchClient = node.client();
+		if (Configuration.INSTANCE.readBoolean(ConfigProps.EXTERNAL_ELASTIC)) {
+			final String host = Configuration.INSTANCE.readString(ConfigProps.EXTERNAL_ELASTIC_HOST);
+			final int port = Configuration.INSTANCE.readInt(ConfigProps.EXTERNAL_ELASTIC_PORT);
+			Common.elasticsearchClient = TransportClient.builder().settings(settings).build()
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
+		} else {
+			settings.put("cluster.name", "reportserver");
+			settings.put("path.data", Configuration.INSTANCE.readString(ConfigProps.PATH_DATA));
+			settings.put("http.enabled", true);
+			settings.put("path.home", ".");
+			node = NodeBuilder.nodeBuilder().settings(settings).data(true).local(true).node();
+			Common.elasticsearchClient = node.client();
+
+
+		}
 
 	}
 
