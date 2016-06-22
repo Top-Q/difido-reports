@@ -53,6 +53,8 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	private String executionUid;
 
 	private String testClassName;
+	
+	private long lastWrite;
 
 	protected void generateUid() {
 		executionUid = String.valueOf(new Random().nextInt(1000)) + String.valueOf(System.currentTimeMillis() / 1000);
@@ -317,7 +319,10 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		element.setType(type);
 		testDetails.addReportElement(element);
 		currentTest.setStatus(status);
-		writeTestDetails(testDetails);
+		if ((System.currentTimeMillis() - lastWrite) > 100){
+			lastWrite = System.currentTimeMillis();
+			writeTestDetails(testDetails);
+		}
 	}
 
 	private ReportElement updateTimestampAndTitle(ReportElement element, String title) {
