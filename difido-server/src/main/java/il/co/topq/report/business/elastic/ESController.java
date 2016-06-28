@@ -75,8 +75,8 @@ public class ESController {
 		// using the id of each one.
 		List<ElasticsearchTest> testsToDelete = null;
 		try {
-			testsToDelete = ESUtils.getAllByTerm(Common.ELASTIC_INDEX, TEST_TYPE, ElasticsearchTest.class, "executionId",
-					String.valueOf(executionDeletedEvent.getExecutionId()));
+			testsToDelete = ESUtils.getAllByTerm(Common.ELASTIC_INDEX, TEST_TYPE, ElasticsearchTest.class,
+					"executionId", String.valueOf(executionDeletedEvent.getExecutionId()));
 
 		} catch (Exception e) {
 			log.error("Failed to get tests to delete for execution " + executionDeletedEvent.getExecutionId(), e);
@@ -186,6 +186,7 @@ public class ESController {
 
 	@EventListener
 	public void OnTestDetailsCreatedEvent(TestDetailsCreatedEvent testDetailsCreatedEvent) {
+		
 		if (!enabled) {
 			return;
 		}
@@ -212,64 +213,68 @@ public class ESController {
 		final int executionId = testDetailsCreatedEvent.getExecutionId();
 		
 		final List<ElasticsearchTest> executionOpenTests = openTestsPerExecution.get(executionId);
-		
-			for (ElasticsearchTest elasticTest : executionOpenTests) {
-				if (null == elasticTest) {
-					continue;
-				}
-				if (elasticTest.getUid().trim().equals(testDetails.getUid().trim())) {
-					// We already updated the test, so most of the data is already
-					// in the ES. The only data that is interesting and maybe was
-					// updated is the test properties, so we are going to check it.
-					if (testDetails.getProperties() != null) {
-						if (elasticTest.getProperties() == null
-								|| elasticTest.getProperties().size() != testDetails.getProperties().size()) {
-							elasticTest.setProperties(testDetailsCreatedEvent.getTestDetails().getProperties());
-							try {
-								ESUtils.update(Common.ELASTIC_INDEX, TEST_TYPE, elasticTest.getUid(), elasticTest);
-							} catch (ElasticsearchException | JsonProcessingException e) {
-								log.error("Failed updating test details in the Elasticsearch", e);
-							}
+		if (null == executionOpenTests){
+			log.warn("There are no open tests for execution with id " + executionId);
+			return;
+		}
+	
+		for (ElasticsearchTest elasticTest : executionOpenTests) {
+			if (null == elasticTest) {
+				continue;
+			}
+			if (elasticTest.getUid().trim().equals(testDetails.getUid().trim())) {
+				// We already updated the test, so most of the data is already
+				// in the ES. The only data that is interesting and maybe was
+				// updated is the test properties, so we are going to check it.
+				if (testDetails.getProperties() != null) {
+					if (elasticTest.getProperties() == null
+							|| elasticTest.getProperties().size() != testDetails.getProperties().size()) {
+						elasticTest.setProperties(testDetailsCreatedEvent.getTestDetails().getProperties());
+						try {
+							ESUtils.update(Common.ELASTIC_INDEX, TEST_TYPE, elasticTest.getUid(), elasticTest);
+						} catch (ElasticsearchException | JsonProcessingException e) {
+							log.error("Failed updating test details in the Elasticsearch", e);
 						}
 					}
-					return;
 				}
-			}
-
-			if (ESUtils.isExist(Common.ELASTIC_INDEX, "test", testDetails.getUid())) {
-				log.warn("Test with uid " + testDetails.getUid() + " already exists in the Elasticsearch");
 				return;
 			}
-			String timestamp = null;
-			if (testDetails.getTimeStamp() != null) {
-				timestamp = testDetails.getTimeStamp().replaceFirst(" at ", " ");
-			} else {
-				timestamp = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.format(new Date());
-			}
-			String executionTimestamp = convertToUtc(testDetailsCreatedEvent.getMetadata().getTimestamp());
-			final ElasticsearchTest esTest = new ElasticsearchTest(testDetails.getUid(), executionTimestamp,
-					convertToUtc(timestamp));
-			esTest.setName(testDetails.getName());
-			esTest.setDuration(0);
-			esTest.setStatus("In progress");
-			esTest.setExecutionId(executionId);
-			esTest.setProperties(testDetails.getProperties());
-			esTest.setUrl(findTestUrl(testDetailsCreatedEvent.getMetadata(), testDetails));
-			esTest.setDescription(testDetails.getDescription());
-			esTest.setParameters(testDetails.getParameters());
-			log.debug("Adding test with UID " + esTest.getUid() + " to the test list");
-			executionOpenTests.add(esTest);
-			IndexResponse indexResponse = null;
-			try {
-				indexResponse = ESUtils.add(Common.ELASTIC_INDEX, "test", esTest.getUid(), esTest);
-			} catch (Throwable t) {
-				log.error("Failed adding test with UID " + esTest.getUid(), t);
-				return;
+		}
 
-			}
-			if (indexResponse == null || !indexResponse.isCreated()) {
-				log.warn("Test with id " + esTest.getUid() + " is already exists");
-			}
+		if (ESUtils.isExist(Common.ELASTIC_INDEX, "test", testDetails.getUid())) {
+			log.warn("Test with uid " + testDetails.getUid() + " already exists in the Elasticsearch");
+			return;
+		}
+		String timestamp = null;
+		if (testDetails.getTimeStamp() != null) {
+			timestamp = testDetails.getTimeStamp().replaceFirst(" at ", " ");
+		} else {
+			timestamp = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.format(new Date());
+		}
+		String executionTimestamp = convertToUtc(testDetailsCreatedEvent.getMetadata().getTimestamp());
+		final ElasticsearchTest esTest = new ElasticsearchTest(testDetails.getUid(), executionTimestamp,
+				convertToUtc(timestamp));
+		esTest.setName(testDetails.getName());
+		esTest.setDuration(0);
+		esTest.setStatus("In progress");
+		esTest.setExecutionId(executionId);
+		esTest.setProperties(testDetails.getProperties());
+		esTest.setUrl(findTestUrl(testDetailsCreatedEvent.getMetadata(), testDetails));
+		esTest.setDescription(testDetails.getDescription());
+		esTest.setParameters(testDetails.getParameters());
+		log.debug("Adding test with UID " + esTest.getUid() + " to the test list");
+		executionOpenTests.add(esTest);
+		IndexResponse indexResponse = null;
+		try {
+			indexResponse = ESUtils.add(Common.ELASTIC_INDEX, "test", esTest.getUid(), esTest);
+		} catch (Throwable t) {
+			log.error("Failed adding test with UID " + esTest.getUid(), t);
+			return;
+
+		}
+		if (indexResponse == null || !indexResponse.isCreated()) {
+			log.warn("Test with id " + esTest.getUid() + " is already exists");
+		}
 
 	}
 
