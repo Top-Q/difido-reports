@@ -44,6 +44,7 @@
 			<directory>src/main/etc</directory>
 			<fileMode>775</fileMode>
 			<includes>
+				<include>difido_config.properties</include>
 				<include>mail.vm</include>
 				<include>mapping.json</include>
 			</includes>

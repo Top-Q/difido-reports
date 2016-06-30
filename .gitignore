@@ -34,7 +34,6 @@ nbproject
 server/difido-server/docRoot/reports
 server/difido-server/docRoot/meta.json
 server/difido-server/data
-server/difido-server/config/difido_config.properties
 server/difido-server/log
 server/difido-server/htmlTemplate
 server/difido-testng/remoteDifido.properties
