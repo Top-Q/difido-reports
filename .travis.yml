@@ -4,4 +4,4 @@ jdk:
 
 script: 
   - mvn clean install -f difido-reports-common/pom.xml
-  - mvn verify -f difido-server/pom.xml
+  - mvn verify -f server/difido-server/pom.xml

@@ -31,13 +31,13 @@ test-output/
 nbproject
 
 #Project files
-difido-server/docRoot/reports
-difido-server/docRoot/meta.json
-difido-server/data
-difido-server/config/difido_config.properties
-difido-server/log
-difido-server/htmlTemplate
-difido-testng/remoteDifido.properties
+server/difido-server/docRoot/reports
+server/difido-server/docRoot/meta.json
+server/difido-server/data
+server/difido-server/config/difido_config.properties
+server/difido-server/log
+server/difido-server/htmlTemplate
+server/difido-testng/remoteDifido.properties
 examples/testng-example/remoteDifido.properties
-!difido-nunit/difido-client/Resources/difido-reports-common.jar
+!binders/difido-nunit/difido-client/Resources/difido-reports-common.jar
 !server.log
