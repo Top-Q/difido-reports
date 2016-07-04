@@ -154,6 +154,6 @@ public enum Configuration {
 		if (null == value) {
 			return prop.getDefaultValue();
 		}
-		return value;
+		return value.trim();
 	}
 }
