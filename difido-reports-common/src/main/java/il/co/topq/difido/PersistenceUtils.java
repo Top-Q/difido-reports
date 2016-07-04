@@ -1,5 +1,6 @@
 package il.co.topq.difido;
 
+import static java.nio.file.StandardCopyOption.*;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.test.TestDetails;
 
@@ -7,6 +8,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -194,10 +196,16 @@ public class PersistenceUtils {
 				log.warning("Failed to create HTML test details file due to " + e.getMessage());
 			}
 		}
+
+		final File tempFile = new File(testDestinationFolder, TEST_DETAILS_MODEL_FILE + "~");
+		final File finalFile = new File(testDestinationFolder, TEST_DETAILS_MODEL_FILE);
 		try {
+			// We use temporary file and then we move it to the final to avoid
+			// situations in which we try to read a file that is not completed
 			String json = mapper.writeValueAsString(testDetails);
 			json = "var test = " + json + ";";
-			FileUtils.write(new File(testDestinationFolder, TEST_DETAILS_MODEL_FILE), json);
+			FileUtils.write(tempFile, json);
+			Files.move(tempFile.toPath(), finalFile.toPath(), REPLACE_EXISTING);
 		} catch (Exception e) {
 			log.warning("Failed to write test details due to " + e.getMessage());
 		}

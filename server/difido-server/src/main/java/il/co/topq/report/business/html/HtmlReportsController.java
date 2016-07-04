@@ -151,8 +151,10 @@ public class HtmlReportsController {
 	private void writeTestDetails(TestDetails details, ExecutionMetadata executionMetadata) {
 		synchronized (testFileLockObject) {
 			final File executionDestinationFolder = getExecutionDestinationFolder(executionMetadata);
+			log.trace("About to write test details for execution " + executionMetadata.getId());
 			PersistenceUtils.writeTest(details, executionDestinationFolder,
 					new File(executionDestinationFolder, "tests" + File.separator + "test_" + details.getUid()));
+			log.trace("Finished writing test details for execution " + executionMetadata.getId());
 		}
 	}
 
@@ -168,7 +170,8 @@ public class HtmlReportsController {
 				stream.write(fileAddedToTestEvent.getFileContent());
 			}
 		} catch (IOException e) {
-			log.warn("Failed to save file with name " + fileAddedToTestEvent.getFileName() + " due to " + e.getMessage());
+			log.warn("Failed to save file with name " + fileAddedToTestEvent.getFileName() + " due to "
+					+ e.getMessage());
 		}
 	}
 
