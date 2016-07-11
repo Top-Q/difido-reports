@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>il.co.topq</groupId>
 	<artifactId>so-project</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.00</version>
 	<repositories>
 		<repository>
 			<id>top-q</id>

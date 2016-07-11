@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>il.co.topq</groupId>
 	<artifactId>tests-project</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.00</version>
 	<repositories>
 		<repository>
 			<id>top-q</id>
@@ -20,12 +20,12 @@
 		<dependency>
 			<groupId>org.jsystemtest</groupId>
 			<artifactId>jsystemApp</artifactId>
-			<version>6.1.05-SNAPSHOT</version>
+			<version>6.1.04</version>
 		</dependency>
 		<dependency>
 			<groupId>il.co.topq</groupId>
 			<artifactId>so-project</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>1.0.00</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -56,7 +56,7 @@
 			<plugin>
 				<groupId>org.jsystemtest</groupId>
 				<artifactId>jsystem-maven-plugin</artifactId>
-				<version>6.1.05-SNAPSHOT</version>
+				<version>6.1.04</version>
 				<dependencies>
 					<dependency>
 						<groupId>il.co.topq</groupId>
