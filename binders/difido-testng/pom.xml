@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>il.co.topq.difido</groupId>
 	<artifactId>difido-testng</artifactId>
-	<version>0.6</version>
+	<version>0.7-SNAPSHOT</version>
 	<name>Difido Reports</name>
 	<organization>
 		<name>Top-Q</name>
