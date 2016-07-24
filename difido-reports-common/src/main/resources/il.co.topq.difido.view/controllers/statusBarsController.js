@@ -25,20 +25,20 @@ function statusBarsController(bars){
 
     function calculatePercent(part) {
     	var percent = part / tests.length * 100;
-    	if (percent > 0 && percent <= 2) {
-    		percent = 2;
-    	}
-    	return Math.round(percent) + "%";
+    	return percent + "%";
 
     };
 
     function renderPercentageText(part) {
     	var percent = part / tests.length * 100;
     	if (percent > 0 && percent < 1) {
-    		return "<1%";
+    		return ".";
     	}
    		percent = Math.round(percent);
-    	if (percent <= 5){
+        if (percent <= 2) {
+            return percent;
+        }
+        else if (percent <= 5){
     		return percent +"%";
     	} else {
     		return percent + "% (" + part + ")";
@@ -57,5 +57,6 @@ function statusBarsController(bars){
         width: calculatePercent(warning)
     }, 100).text(renderPercentageText(warning));
 }
+
 
 
