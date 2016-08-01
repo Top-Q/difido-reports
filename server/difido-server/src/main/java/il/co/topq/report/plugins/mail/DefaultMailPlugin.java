@@ -25,6 +25,8 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 
 	private boolean enabled = true;
 
+	private ExecutionMetadata metadata;
+
 	public DefaultMailPlugin() {
 		setEnabled(Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_MAIL));
 	}
@@ -39,11 +41,17 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		if (!isEnabled()) {
 			return;
 		}
-		sendMail(metadata);
+		if (null == metadata) {
+			log.error("Can't find meta data for ended execution. Will not send mail");
+			return;
+		}
+
+		this.metadata = metadata;
+		sendMail();
 	}
 
-	protected void sendMail(ExecutionMetadata metadata) {
-		if (!isEnabled()){
+	protected void sendMail() {
+		if (!isEnabled()) {
 			return;
 		}
 		configureMailSender();
@@ -53,13 +61,9 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 			// log message here.
 			return;
 		}
-		if (null == metadata) {
-			log.error("Can't find meta data for ended execution. Will not send mail");
-			return;
-		}
 
-		final String subject = getMailSubject(metadata);
-		final String body = getMailBody(metadata);
+		final String subject = getMailSubject();
+		final String body = getMailBody();
 
 		new Thread() {
 			public void run() {
@@ -72,32 +76,32 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		}.start();
 	}
 
-	protected String getMailBody(ExecutionMetadata metadata) {
-		return populateTemplate(metadata);
+	protected String getMailBody() {
+		return populateTemplate();
 	}
 
-	protected String getMailSubject(ExecutionMetadata metadata) {
+	protected String getMailSubject() {
 		String subject = StringUtils.isEmpty(Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT))
 				? DEFAULT_SUBJECT : Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT);
-		if (metadata.getNumOfFailedTests() > 0) {
-			subject += " - Ended with " + metadata.getNumOfFailedTests() + " failures out of "
-					+ metadata.getNumOfTests();
-		} else if (metadata.getNumOfTestsWithWarnings() > 0) {
-			subject += " - Ended with " + metadata.getNumOfTestsWithWarnings() + " warnings out of "
-					+ metadata.getNumOfTests();
+		if (getMetadata().getNumOfFailedTests() > 0) {
+			subject += " - Ended with " + getMetadata().getNumOfFailedTests() + " failures out of "
+					+ getMetadata().getNumOfTests();
+		} else if (getMetadata().getNumOfTestsWithWarnings() > 0) {
+			subject += " - Ended with " + getMetadata().getNumOfTestsWithWarnings() + " warnings out of "
+					+ getMetadata().getNumOfTests();
 		} else {
-			subject += " - Ended with " + metadata.getNumOfTests() + " successful tests";
+			subject += " - Ended with " + getMetadata().getNumOfTests() + " successful tests";
 		}
 		return subject;
 	}
 
-	private String populateTemplate(ExecutionMetadata metadata) {
+	private String populateTemplate() {
 		VelocityEngine ve = new VelocityEngine();
 		ve.init();
 		Template t = ve.getTemplate(getTemplateName());
 		/* create a context and add data */
 		VelocityContext context = new VelocityContext();
-		context.put("meta", metadata);
+		context.put("meta", getMetadata());
 		final StringWriter writer = new StringWriter();
 		t.merge(context, writer);
 		return writer.toString();
@@ -187,6 +191,10 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 
 	protected void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	protected ExecutionMetadata getMetadata() {
+		return metadata;
 	}
 	
 	
