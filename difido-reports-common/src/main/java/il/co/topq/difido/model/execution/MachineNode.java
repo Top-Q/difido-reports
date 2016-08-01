@@ -4,8 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({ "plannedTests" })
 public class MachineNode extends NodeWithChildren<ScenarioNode> {
+
+	/**
+	 * The total number of tests that are planned to be executed on the machine
+	 */
+	@JsonProperty("plannedTests")
+	private int plannedTests;
 
 	@JsonIgnore
 	private List<ScenarioNode> allScenarios;
@@ -60,6 +71,14 @@ public class MachineNode extends NodeWithChildren<ScenarioNode> {
 			}
 		}
 		return null;
+	}
+
+	public int getPlannedTests() {
+		return plannedTests;
+	}
+
+	public void setPlannedTests(int plannedTests) {
+		this.plannedTests = plannedTests;
 	}
 
 }

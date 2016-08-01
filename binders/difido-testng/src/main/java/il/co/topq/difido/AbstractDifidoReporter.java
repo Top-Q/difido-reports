@@ -14,6 +14,7 @@ import il.co.topq.difido.model.test.TestDetails;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -26,7 +27,10 @@ import java.util.Random;
 
 import org.testng.ISuite;
 import org.testng.ITestContext;
+import org.testng.ITestNGMethod;
 import org.testng.ITestResult;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 public abstract class AbstractDifidoReporter implements Reporter {
 
@@ -55,6 +59,8 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	private String testClassName;
 	
 	private long lastWrite;
+
+	private int totalPlannedTests = 0;
 
 	protected void generateUid() {
 		executionUid = String.valueOf(new Random().nextInt(1000)) + String.valueOf(System.currentTimeMillis() / 1000);
@@ -93,9 +99,11 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		currentMachine = null;
 		if (host == null) {
 			currentMachine = new MachineNode(getMachineName());
+			
 		} else {
 			currentMachine = new MachineNode(host);
 		}
+		currentMachine.setPlannedTests(totalPlannedTests);
 		if (null == execution) {
 			execution = new Execution();
 			execution.addMachine(currentMachine);
@@ -288,6 +296,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	@Override
 	public void onStart(ISuite suite) {
 		execution = null;
+		totalPlannedTests =  getAllPlannedTestsCount(suite);
 		updateIndex();
 		generateUid();
 
@@ -330,6 +339,65 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		element.setTitle(title);
 		return element;
 	}
+	
+	
+	private int getAllPlannedTestsCount(ISuite suite){
+		int totalPlanned = 0;
+
+		for (ITestNGMethod method : suite.getAllMethods()) {
+			totalPlanned +=  getDataProviderCases(method);
+		}
+	//	System.out.println("Total tests planned with dataProviders:" + totalPlanned );
+		return totalPlanned;
+		
+		
+	}
+	
+	/**
+	 * This method counts all the planned test cases using dataProviders for the given ITestNGMethod.
+	 * @param method
+	 * @return the number of cases, returns 1 if no dataProvider is found for the test.
+	 */
+	private int getDataProviderCases(ITestNGMethod method){
+		int ret = 1;
+		try {
+			Method m = method.getConstructorOrMethod().getMethod();
+			Object instance = method.getInstance();
+			
+			if (!m.isAnnotationPresent(Test.class)){
+				return ret;
+			}
+			
+			String dataProviderName =  m.getAnnotation(Test.class).dataProvider();
+			if (null == dataProviderName || dataProviderName.isEmpty())
+				return ret;
+			
+			Class<?> testClass =  instance.getClass();
+			for (Method classM : testClass.getMethods()){
+				 if (classM.isAnnotationPresent(DataProvider.class)) {
+					 String thisDataProviderName = m.getAnnotation(Test.class).dataProvider();
+                     if (thisDataProviderName.equals(dataProviderName)){
+                    	 try {
+                    		 Object[][] theData = (Object[][]) classM.invoke(instance);
+                             ret = theData.length;
+                           //  System.out.printf("Found %s cases for %s\n", ret, m.getName());
+                             return ret;
+						} catch (Exception e) {
+							System.out.println("Exception in couting dataProvider cases" + e.getMessage());
+						}
+                     }
+				 }
+			}	 
+			
+			return ret;
+			
+			
+		} catch (Exception e2) {
+			System.out.println("Exception 2 in couting dataProvider cases" + e2.getMessage());
+			return ret;
+		}
+	}
+	
 
 	public void addTestProperty(String name, String value) {
 		if (null == testDetails) {

@@ -5,6 +5,7 @@
 .s_warning_back { background-color: #FFCA28 !important; }
 
 /*Used in the 'execution tree' ,'test details'*/
+.totalExecuted { color:  #FFFFFF  !important; font-weight: normal;}
 .s_success_text { color: #000000 !important; font-weight: normal;}
 .s_error_text { color: #FF8A65 !important; font-weight: bold;}
 .s_failure_text { color: #E57373 !important;  font-weight: bold;}
