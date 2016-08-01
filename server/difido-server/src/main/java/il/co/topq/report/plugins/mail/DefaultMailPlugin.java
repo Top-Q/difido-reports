@@ -26,7 +26,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 	private boolean enabled = true;
 
 	public DefaultMailPlugin() {
-		enabled = Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_MAIL);
+		setEnabled(Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_MAIL));
 	}
 
 	@Override
@@ -36,13 +36,16 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 
 	@Override
 	public void onExecutionEnded(ExecutionMetadata metadata) {
-		if (!enabled) {
+		if (!isEnabled()) {
 			return;
 		}
 		sendMail(metadata);
 	}
 
 	protected void sendMail(ExecutionMetadata metadata) {
+		if (!isEnabled()){
+			return;
+		}
 		configureMailSender();
 		if (null == sender) {
 			// We already logged an appropriate log message in the
@@ -105,7 +108,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 	}
 
 	protected void configureMailSender() {
-		if (!enabled || null != sender) {
+		if (!isEnabled() || null != sender) {
 			return;
 		}
 		sender = new MailSender();
@@ -114,7 +117,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		final String host = Configuration.INSTANCE.readString(ConfigProps.MAIL_SMTP_HOST);
 		if (StringUtils.isEmpty(host)) {
 			log.warn("SMTP host is not configured. Can't send mail");
-			enabled = false;
+			setEnabled(false);
 			return;
 		}
 		sender.setSmtpHostName(host);
@@ -122,7 +125,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		final int port = Configuration.INSTANCE.readInt(ConfigProps.MAIL_SMTP_PORT);
 		if (port == 0) {
 			log.warn("SMTP port is not configured. Can't send mail");
-			enabled = false;
+			setEnabled(false);
 			return;
 		}
 		sender.setSmtpPort(port);
@@ -147,7 +150,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		final String from = getFromAddress();
 		if (StringUtils.isEmpty(from)) {
 			log.warn("Mail from address is not configured. Can't send mail");
-			enabled = false;
+			setEnabled(false);
 			return;
 		}
 		sender.setFromAddress(from);
@@ -155,7 +158,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		final String to = getToAddress();
 		if (StringUtils.isEmpty(to)) {
 			log.warn("Mail to address is not configured. Can't send mail");
-			enabled = false;
+			setEnabled(false);
 			return;
 		}
 		sender.setSendTo(to);
@@ -177,5 +180,15 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 	protected String getFromAddress() {
 		return Configuration.INSTANCE.readString(ConfigProps.MAIL_FROM_ADDRESS);
 	}
+
+	protected boolean isEnabled() {
+		return enabled;
+	}
+
+	protected void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+	
+	
 
 }
