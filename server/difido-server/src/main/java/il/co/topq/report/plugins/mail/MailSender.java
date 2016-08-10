@@ -242,7 +242,7 @@ public class MailSender {
 	 * 
 	 * @param sendTo
 	 */
-	public void setSendTo(String... sendTo) {
+	public void setSendTo(String[] sendTo) {
 		this.sendTo = sendTo;
 	}
 

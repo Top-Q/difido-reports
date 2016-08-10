@@ -165,11 +165,11 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 			setEnabled(false);
 			return;
 		}
-		sender.setSendTo(to);
+		sender.setSendTo(to.split(";"));
 
 		final String cc = getCcAddresses();
 		if (!StringUtils.isEmpty(cc)) {
-			sender.setSendCc(cc.split(","));
+			sender.setSendCc(cc.split(";"));
 		}
 	}
 
@@ -196,7 +196,5 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 	protected ExecutionMetadata getMetadata() {
 		return metadata;
 	}
-	
-	
 
 }
