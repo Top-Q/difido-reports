@@ -44,7 +44,9 @@ public class ExecutionTableService {
 			final Map<String, Object> row = new HashMap<String, Object>();
 			List<String> executionHeaders = new LinkedList<>();
 			executionHeaders.addAll(headers);
-			executionHeaders.addAll(meta.getProperties().keySet());
+			if (meta != null && meta.getProperties() != null) {
+				executionHeaders.addAll(meta.getProperties().keySet());
+			}
 			for(String header : headers) {
 				populateRow(table, row, header, meta);
 			}
