@@ -56,6 +56,9 @@ public class ExecutionTableService {
 	}
 
 	private void populateRow(DataTable table, Map<String, Object> row, String header, ExecutionMetadata meta) {
+		if( ! table.headers.contains(header)) {
+			table.headers.add(header);
+		}
 		if (header.equalsIgnoreCase(ID)) {
 			  row.put(ID, meta.getId());
 			  return;
@@ -108,8 +111,8 @@ public class ExecutionTableService {
 			row.put(LOCKED, meta.isLocked());
 			return;
 		}
-		if( ! table.headers.contains(header)) {
-			table.headers.add(header);
+		if ( meta == null || meta.getProperties() == null) {
+			return;
 		}
 		String value = meta.getProperties().get(header);
 		row.put(header, value != null ? value : "");
