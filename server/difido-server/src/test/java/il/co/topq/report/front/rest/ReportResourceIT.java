@@ -1,5 +1,7 @@
 package il.co.topq.report.front.rest;
 
+import java.util.List;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -12,6 +14,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import il.co.topq.difido.model.remote.ExecutionDetails;
+import il.co.topq.report.Configuration;
+import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.business.execution.AbstractResourceTest;
 import il.co.topq.report.front.rest.ReportsResource.DataTable;
 
