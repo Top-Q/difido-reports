@@ -32,8 +32,9 @@ public class ExecutionTableService {
 
 	public DataTable initTable(ExecutionMetadata[] metaData) {
 		DataTable table = new DataTable();	
-		List<String> headers = Arrays.asList(Configuration.INSTANCE.readString(ConfigProps.HEADERS).split("\\s*,\\s"));
-		if (headers == null || headers.size() == 0) {
+		String headersStr = Configuration.INSTANCE.readString(ConfigProps.HEADERS);
+		List<String> headers = Arrays.asList(headersStr.split("\\s*,\\s"));
+		if (headersStr == null || headersStr.length() == 0 || headers == null || headers.size() == 0) {
 			headers = Arrays.asList(DEFAULT_HEADERS);
 		}
 		for (String header : headers) {
