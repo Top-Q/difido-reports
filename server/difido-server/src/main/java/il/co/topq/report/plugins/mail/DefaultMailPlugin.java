@@ -64,6 +64,15 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 
 		final String subject = getMailSubject();
 		final String body = getMailBody();
+		
+		if (!isEnabled()) {
+			log.warn("The mail sender was disabled during the preperation of the mail body or header");
+			// During the process of preparing the mail subject or the mail
+			// body, bad things can happen and the plugin writer can decide
+			// that he does not want to send mails. So we give him another
+			// chance to disable the mail sender.
+			return;
+		}
 
 		new Thread() {
 			public void run() {
