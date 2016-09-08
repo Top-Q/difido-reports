@@ -170,8 +170,9 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		}
 		addPropertyIfExist("Class", result.getTestClass().getName());
 		addPropertyIfExist("Groups", Arrays.toString(result.getMethod().getGroups()));
+		int paramCounter = 0;
 		for (String paramValue : testParameters) {
-			testDetails.addParameter(paramValue, "");
+			testDetails.addParameter("param" + paramCounter++, paramValue);
 		}
 
 		int numOfAppearances = getAndUpdateTestHistory(result.getTestClass().getName() + testName);
