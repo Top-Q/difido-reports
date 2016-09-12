@@ -27,14 +27,16 @@ function collectTestsFromScenario(children,tests){
 }
 
 
-function collectAllScenarioProperties(){
-  var properties = {};
-  $(execution.machines).each(function(){
-    for (var key in this.children[0].scenarioProperties) {
-      properties[key] = this.children[0].scenarioProperties[key];
-    };
-  });
-  return properties;
+function collectAllScenarioProperties() {
+    var properties = {};
+    $(execution.machines).each(function () {
+        for (i = 0; i < this.children.length; i++) {
+            for (var key in this.children[i].scenarioProperties) {
+                properties[key] = this.children[i].scenarioProperties[key];
+            };
+        }
+    });
+    return properties;
 
 }
 /**
