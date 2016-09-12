@@ -47,6 +47,9 @@ public class ScenarioNode extends NodeWithChildren<Node> {
 			scenarioProperties = new HashMap<String, String>();
 		}
 		scenarioProperties.put(key, property);
+		if (getParent() instanceof ScenarioNode){
+			((ScenarioNode)getParent()).addScenarioProperty(key, property);
+		}
 	}
 
 	@JsonIgnore
@@ -110,7 +113,7 @@ public class ScenarioNode extends NodeWithChildren<Node> {
 		return scenarioProperties;
 	}
 
-	public void setScenarioProperties(Map<String, String> scenarioProperties) {
+	private void setScenarioProperties(Map<String, String> scenarioProperties) {
 		this.scenarioProperties = scenarioProperties;
 	}
 
