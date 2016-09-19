@@ -2,6 +2,7 @@ package il.co.topq.report.business.plugins;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,5 +39,34 @@ public class PluginController {
 			}
 
 		}
+	}
+
+	/**
+	 * Execute plugin
+	 * 
+	 * @param pluginName
+	 *            The name of the plugin to execute
+	 * @param params
+	 *            Free parameter for the plugin
+	 */
+	public void executePlugin(final String pluginName, final String params) {
+		if (StringUtils.isEmpty(pluginName)) {
+			log.warn("Trying to call plugin with empty name");
+			return;
+		}
+		List<ExecutionPlugin> executionPlugins = pluginManager.getPlugins(ExecutionPlugin.class);
+		for (ExecutionPlugin plugin : executionPlugins) {
+			try {
+				if (pluginName.trim().equals(plugin.getName().trim())) {
+					log.debug("Calling plugin " + plugin.getName());
+					plugin.execute(params);
+				}
+			} catch (Exception e) {
+				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "
+						+ plugin.getName() + " and params " + params);
+			}
+
+		}
+
 	}
 }

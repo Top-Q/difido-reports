@@ -206,4 +206,10 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		return metadata;
 	}
 
+	@Override
+	public void execute(String params) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
