@@ -1,6 +1,7 @@
 package il.co.topq.report.plugins.mail;
 
 import java.io.StringWriter;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.Template;
@@ -37,6 +38,16 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 	}
 
 	@Override
+	public void execute(List<Integer> executions, String params) {
+		if (!isEnabled()) {
+			return;
+		}
+		configureMailSender();
+		sendMail("A test mail", "Recieved request for executions " + executions);
+
+	}
+
+	@Override
 	public void onExecutionEnded(ExecutionMetadata metadata) {
 		if (!isEnabled()) {
 			return;
@@ -47,14 +58,14 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		}
 
 		this.metadata = metadata;
-		sendMail();
+		configureMailSender();
+		sendMail(getMailSubject(), getMailBody());
 	}
 
-	protected void sendMail() {
+	protected void sendMail(final String subject, final String body) {
 		if (!isEnabled()) {
 			return;
 		}
-		configureMailSender();
 		if (null == sender) {
 			// We already logged an appropriate log message in the
 			// configureMailServer method, so there is no need in adding another
@@ -62,9 +73,6 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 			return;
 		}
 
-		final String subject = getMailSubject();
-		final String body = getMailBody();
-		
 		if (!isEnabled()) {
 			log.warn("The mail sender was disabled during the preperation of the mail body or header");
 			// During the process of preparing the mail subject or the mail
@@ -204,12 +212,6 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 
 	protected ExecutionMetadata getMetadata() {
 		return metadata;
-	}
-
-	@Override
-	public void execute(String params) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

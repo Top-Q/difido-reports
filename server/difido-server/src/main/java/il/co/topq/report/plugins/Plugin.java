@@ -1,5 +1,7 @@
 package il.co.topq.report.plugins;
 
+import java.util.List;
+
 public interface Plugin {
 
 	/**
@@ -15,6 +17,6 @@ public interface Plugin {
 	 * @param params
 	 *            Open string for any parameter that the plugin require
 	 */
-	void execute(String params);
+	void execute(List<Integer> executions,String params);
 
 }
