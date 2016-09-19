@@ -105,6 +105,83 @@ div.dt-buttons { #
 							});
 		}
 
+		function executePlugin(table) {
+			var numOfSelected = table.rows('.selected').data().length;
+			if (numOfSelected == 0) {
+				console.log("No executions were selected. aborting");
+				return;
+			}
+			var selected = "";
+			for (var i = 0; i < numOfSelected; i++) {
+				if (i != 0){
+					selected += ","
+				}
+				selected += table.rows('.selected').data()[i].Id;
+			}
+			$.ajax({
+				url : 'api/plugins/',
+				type : 'GET',
+			}).done(function(plugins) {
+				if (plugins.length == 0) {
+					console.log("No plugins were defined. aborting");
+					return;
+				}
+				var options = "";
+				for (var i = 0; i < plugins.length ; i++){
+					options += '<option>' + plugins[i] +'</option>';
+				}
+				bootbox.dialog({
+                title: "Execute Plugin",
+                message: '   <form class="form-horizontal">' +
+'       <div class="form-group">' +
+'           <div class="form-group">' +
+'               <label class="col-md-4 control-label" for="name">Plugin Name</label>' +
+'               <div class="col-md-4">' +
+'                   <select id="name" name="name" class="form-control">' + options +
+'                   </select>' +
+'               </div>' +
+'           </div>' +
+'           <div class="form-group">' +
+'               <label class="col-md-4 control-label" for="Parameters">Parameters</label>' +
+'               <div class="col-md-4">' +
+'                   <input id="parameter" name="parameter" type="text" placeholder="Free string parameter" class="form-control input-md">' +
+'               </div>' +
+'           </div>' +
+'           <div class="form-group">' +
+'               <label class="col-md-4 control-label" for="executions">Selected Executions</label>' +
+'               <div class="col-md-4">' +
+'                   <input id="executions" name="executions" type="text" placeholder="Selected Executions" class="form-control input-md" value='+selected+'' +
+'                       readonly/>' +
+'               </div>' +
+'           </div>' +
+'       </div>' +
+'   </form>',
+	                buttons: {
+	                    success: {
+	                        label: "Execute",
+	                        className: "btn-success",
+	                        callback: function () {
+	                            var name = $('#name').val();
+	                            var parameter = $('#parameter').val();
+								var executions = "";
+								for (var i = 0; i < numOfSelected; i++) {
+									executions += '&executions=' + table.rows('.selected').data()[i].Id;
+								}
+								$.ajax({
+									url : 'api/plugins/' + name + '?params=' + parameter + executions,
+									type : 'GET',
+								}).done(function() {
+									
+								});
+	                        }
+	                    }
+	                }
+            	}
+       		);
+			});
+
+		}
+
 		$(document).ready(function() {
 			$.ajax('/api/reports').done(maketable);
 		});
@@ -138,6 +215,11 @@ div.dt-buttons { #
 									text : 'Unlock',
 									action : function(e, dt, node, config) {
 										lockUnlockSelected(table,"false");
+									}
+								}, {
+									text : 'Execute Plugin',
+									action : function(e, dt, node, config) {
+										executePlugin(table);
 									}
 								},
 								'copyHtml5', 'csvHtml5', 'pdfHtml5' ],
