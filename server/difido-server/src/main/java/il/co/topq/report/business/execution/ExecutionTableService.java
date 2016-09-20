@@ -48,7 +48,7 @@ public class ExecutionTableService {
 			if (meta != null && meta.getProperties() != null) {
 				executionHeaders.addAll(meta.getProperties().keySet());
 			}
-			for(String header : headers) {
+			for(String header : executionHeaders) {
 				populateRow(table, row, header, meta);
 			}
 			table.data.add(row);
