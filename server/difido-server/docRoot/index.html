@@ -4,41 +4,39 @@
 
 
 <head>
-<meta charset="UTF-8">
-<meta name="description" content="Main view of the Difido report server">
-<meta name="author" content="Itai Agmon">
-<title>List of Reports</title>
+	<meta charset="UTF-8">
+	<meta name="description" content="Main view of the Difido report server">
+	<meta name="author" content="Itai Agmon">
+	<title>List of Reports</title>
 
-<link href="css/bootstrap.min.css" rel="stylesheet">
-<link href="css/buttons.dataTables.min.css" rel="stylesheet">
-<link href="css/jquery.dataTables.min.css" rel="stylesheet">
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/buttons.dataTables.min.css" rel="stylesheet">
+	<link href="css/jquery.dataTables.min.css" rel="stylesheet">
 
-<style>
-h2 {
-	color: #CCCCCC;
-	text-align: center;
-}
-
-div.dt-buttons { #
-	float: none;
-	text-align: center;
-}
-</style>
+	<style>
+		h2 {
+			color: #CCCCCC;
+			text-align: center;
+		}
+		
+		div.dt-buttons {
+			# float: none;
+			text-align: center;
+		}
+	</style>
 </head>
+
 <body>
 	<div class="container-fluid">
 		<!--<div class="row">-->
-		<div class="col-sm-2 hidden-sm hidden-xs"></div>
-		<div class="col-sm-8 main">
+		<div class="col-md-12 main">
 			<h2>Execution Reports</h2>
 			<hr>
-			<table id="etable" class="display" cellspacing="0" width="100%">
+			<table id="etable" class="display">
 			</table>
 
 			<hr>
 		</div>
-		<div class="col-sm-2 hidden-sm hidden-xs"></div>
-
 	</div>
 
 	<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
@@ -262,4 +260,5 @@ div.dt-buttons { #
 		}
 	</script>
 </body>
+
 </html>
