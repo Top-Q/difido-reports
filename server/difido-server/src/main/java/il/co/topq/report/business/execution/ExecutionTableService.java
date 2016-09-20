@@ -53,6 +53,12 @@ public class ExecutionTableService {
 		} else {
 			headers = new LinkedList<String>(Arrays.asList(DEFAULT_HEADERS));
 			for (ExecutionMetadata meta : metaData) {
+				if (null == meta) {
+					continue;
+				}
+				if (null == meta.getProperties()) {
+					continue;
+				}
 				headers.addAll(meta.getProperties().keySet());
 			}
 		}
