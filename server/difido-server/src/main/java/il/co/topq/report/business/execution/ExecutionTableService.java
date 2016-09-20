@@ -33,7 +33,7 @@ public class ExecutionTableService {
 	public DataTable initTable(ExecutionMetadata[] metaData) {
 		DataTable table = new DataTable();	
 		String headersStr = Configuration.INSTANCE.readString(ConfigProps.HEADERS);
-		List<String> headers = Arrays.asList(headersStr.split("\\s*,\\s"));
+		List<String> headers = Arrays.asList(headersStr.split(","));
 		if (headersStr == null || headersStr.length() == 0 || headers == null || headers.size() == 0) {
 			headers = Arrays.asList(DEFAULT_HEADERS);
 		}
