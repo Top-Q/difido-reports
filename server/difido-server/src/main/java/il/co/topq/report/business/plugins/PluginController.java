@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.plugins.ExecutionPlugin;
 import il.co.topq.report.plugins.Plugin;
@@ -67,7 +68,7 @@ public class PluginController {
 	 * @param params
 	 *            Free parameter for the plugin
 	 */
-	public void executePlugin(final String pluginName, final List<Integer> executions, final String params) {
+	public void executePlugin(final String pluginName, final List<ExecutionMetadata> metaDataList, final String params) {
 		if (StringUtils.isEmpty(pluginName)) {
 			log.warn("Trying to call plugin with empty name");
 			return;
@@ -76,7 +77,7 @@ public class PluginController {
 			try {
 				if (pluginName.trim().equals(plugin.getName().trim())) {
 					log.debug("Calling plugin " + plugin.getName());
-					plugin.execute(executions, params);
+					plugin.execute(metaDataList, params);
 				}
 			} catch (Exception e) {
 				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "

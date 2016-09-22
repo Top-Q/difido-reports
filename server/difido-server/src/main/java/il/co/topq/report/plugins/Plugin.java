@@ -2,6 +2,8 @@ package il.co.topq.report.plugins;
 
 import java.util.List;
 
+import il.co.topq.report.business.execution.ExecutionMetadata;
+
 public interface Plugin {
 
 	/**
@@ -16,7 +18,11 @@ public interface Plugin {
 	 * 
 	 * @param params
 	 *            Open string for any parameter that the plugin require
+	 * 
+	 * @param List
+	 *            of the execution metaData on which the plugin should be
+	 *            operated on.
 	 */
-	void execute(List<Integer> executions,String params);
+	void execute(List<ExecutionMetadata> metaDataList, String params);
 
 }

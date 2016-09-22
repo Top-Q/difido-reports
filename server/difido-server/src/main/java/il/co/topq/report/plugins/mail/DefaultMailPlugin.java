@@ -38,17 +38,29 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 	}
 
 	@Override
-	public void execute(List<Integer> executions, String params) {
+	public void execute(List<ExecutionMetadata> metaDataList, String params) {
 		if (!isEnabled()) {
 			return;
 		}
-		configureMailSender();
-		sendMail("A test mail", "Recieved request for executions " + executions);
 
+		if (null == metaDataList || metaDataList.size() == 0) {
+			log.error("No execution was defined. Will not send mail");
+			return;
+		}
+
+		if (metaDataList.size() > 1) {
+			log.warn(
+					"Plugin support only a single execution. Will send mail with details of only the first execution in the list");
+		}
+		sendExecutionMail(metaDataList.get(0));
 	}
 
 	@Override
 	public void onExecutionEnded(ExecutionMetadata metadata) {
+		sendExecutionMail(metadata);
+	}
+
+	private void sendExecutionMail(ExecutionMetadata metadata) {
 		if (!isEnabled()) {
 			return;
 		}
