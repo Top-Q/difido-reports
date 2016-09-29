@@ -37,7 +37,7 @@ public enum Configuration {
 		MAIL_FROM_ADDRESS("mail.from.address",""), 
 		MAIL_TO_ADDRESS("mail.to.address",""),
 		MAIL_CC_ADDRESS("mail.cc.address", ""),
-		HEADERS("headers", ""),
+		EXECUTION_TABLE_HEADERS("execution.table.headers", ""),
 		
 		/**
 		 * semicolon separated list of custom properties that can be added to
@@ -118,7 +118,7 @@ public enum Configuration {
 		addPropWithDefaultValue(ConfigProps.MAIL_CC_ADDRESS);
 		addPropWithDefaultValue(ConfigProps.CUSTOM_EXECUTION_PROPERTIES);
 		addPropWithDefaultValue(ConfigProps.PLUGIN_CLASSES);
-		addPropWithDefaultValue(ConfigProps.HEADERS);
+		addPropWithDefaultValue(ConfigProps.EXECUTION_TABLE_HEADERS);
 		try (FileOutputStream out = new FileOutputStream(
 				new File(Common.CONFIUGRATION_FOLDER_NAME, CONFIG_PROP_NAME))) {
 			configProperties.store(out, "Default difido server properties");

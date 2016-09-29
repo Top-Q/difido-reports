@@ -1,4 +1,4 @@
-package il.co.topq.report.business.execution;
+package il.co.topq.report.business.report;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
+import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.front.rest.ReportsResource.DataTable;
 
 @Service
@@ -34,7 +35,7 @@ public class ExecutionTableService {
 	public DataTable initTable(ExecutionMetadata[] metaData) {
 		DataTable table = new DataTable();
 		List<String> headers;
-		if (!Configuration.INSTANCE.readString(ConfigProps.HEADERS).isEmpty()) {
+		if (!Configuration.INSTANCE.readList(ConfigProps.EXECUTION_TABLE_HEADERS).isEmpty()) {
 			headers = new ArrayList<String>();
 			// There are some columns that we always want to display. And also,
 			// it is really hard to to handle the 'description' column when it
@@ -42,7 +43,7 @@ public class ExecutionTableService {
 			headers.add(ID);
 			headers.add(DESCRIPTION);
 			headers.add(LINK);
-			for (String desiredHeader: Configuration.INSTANCE.readString(ConfigProps.HEADERS).split(",")){
+			for (String desiredHeader: Configuration.INSTANCE.readList(ConfigProps.EXECUTION_TABLE_HEADERS)){
 				desiredHeader = desiredHeader.trim();
 				if (desiredHeader.equals(ID) || desiredHeader.equals(DESCRIPTION) || desiredHeader.equals(LINK)){
 					// We already added those headers.

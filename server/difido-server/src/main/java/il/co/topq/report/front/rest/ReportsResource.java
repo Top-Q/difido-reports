@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
-import il.co.topq.report.business.execution.ExecutionTableService;
 import il.co.topq.report.business.execution.MetadataProvider;
+import il.co.topq.report.business.report.ExecutionTableService;
 
 @RestController
 @Path("api/reports")
