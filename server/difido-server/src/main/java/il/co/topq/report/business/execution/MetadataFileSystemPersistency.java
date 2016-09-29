@@ -1,7 +1,10 @@
 package il.co.topq.report.business.execution;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -52,7 +55,13 @@ class MetadataFileSystemPersistency extends AbstactMetadataPersistency {
 				}
 			}
 			try {
-				new ObjectMapper().writeValue(getExecutionMetaFile(), getExecutionsCache());
+				// We will create a temporary file and only after successful
+				// write we
+				// will move it to be the actual file.
+				final File executionTempMetaFile = new File(executionMetaFile.getParent(),
+						executionMetaFile.getName() + ".tmp");
+				new ObjectMapper().writeValue(executionTempMetaFile, getExecutionsCache());
+				Files.move(executionTempMetaFile.toPath(), executionMetaFile.toPath(), REPLACE_EXISTING);
 			} catch (IOException e) {
 				log.error("Failed writing execution meta data", e);
 			}
