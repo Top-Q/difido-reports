@@ -97,7 +97,7 @@ public class CreateElementsIT extends AbstractResourceTest {
 		element.setMessage(file.getName());
 		details.addReportElement(element);
 		client.addTestDetails(executionId, details);
-		client.addFile(executionId, uid, file);
+		client.addFileFromClasspath(executionId, uid, file);
 		sleep();
 		assertExecution();
 

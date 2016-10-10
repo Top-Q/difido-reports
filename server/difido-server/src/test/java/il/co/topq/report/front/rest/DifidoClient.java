@@ -3,7 +3,9 @@ package il.co.topq.report.front.rest;
 import java.io.File;
 import java.net.URL;
 
+import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -51,9 +53,17 @@ public class DifidoClient {
 		template.postForEntity(base.toString() + "executions/" + executionId + "/details", testDetails, Void.class);
 	}
 
-	public void addFile(int executionId, String uid, File file) throws Exception {
+	public void addFileFromClasspath(int executionId, String uid, File file) throws Exception {
+		addFile(executionId, uid, new ClassPathResource(file.getName()));
+	}
+
+	public void addFileFromFileSystem(int executionId, String uid, File file) throws Exception {
+		addFile(executionId, uid, new FileSystemResource(file));
+	}
+
+	private void addFile(int executionId, String uid, AbstractResource resource) {
 		LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-		map.add("file", new ClassPathResource(file.getName()));
+		map.add("file", resource);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
@@ -61,22 +71,6 @@ public class DifidoClient {
 				map, headers);
 		template.exchange(base.toString() + "executions/" + executionId + "/details/" + uid + "/file/", HttpMethod.POST,
 				requestEntity, Void.class);
-				// MultiValueMap<String, Object> mvm = new
-				// LinkedMultiValueMap<String, Object>();
-				// mvm.add("bin", file); // MultipartFile
-				//
-				// template.postForObject(base.toString() + "executions/" +
-				// executionId + "/details/" + uid + "/file/", mvm,
-				// Map.class);
-
-		// final HttpPost request = new HttpPost(baseUri + "executions/" +
-		// executionId + "/details/" + uid + "/file/");
-		// HttpEntity reqEntity = MultipartEntityBuilder.create().addPart("bin",
-		// new
-		// FileBody(file)).build();
-		// request.setEntity(reqEntity);
-		// final HttpResponse response = client.execute(request);
-		// handleResponse(response);
 	}
 
 }

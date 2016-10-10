@@ -2,6 +2,7 @@ package il.co.topq.report.business.execution;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
 
@@ -37,10 +38,10 @@ public abstract class AbstractResourceTest {
 	protected URL base;
 
 	protected DifidoClient client;
-	
+
 	@Autowired
 	private MetadataController executionManager;
-	
+
 	@Before
 	public void setUp() throws Exception {
 		this.base = new URL("http://localhost:" + port + "/api/");
@@ -48,7 +49,7 @@ public abstract class AbstractResourceTest {
 		client = new DifidoClient(base);
 		flushPreviousReports();
 	}
-	
+
 	@After
 	public void tearDown() throws IOException {
 		flushPreviousReports();
@@ -57,8 +58,8 @@ public abstract class AbstractResourceTest {
 	private void flushPreviousReports() throws IOException {
 		try {
 			FileUtils.deleteDirectory(reportsFolder);
-			
-		}catch (IOException e){
+
+		} catch (IOException e) {
 			// This can happen. Let's give it another try
 			try {
 				Thread.sleep(100);
@@ -73,11 +74,11 @@ public abstract class AbstractResourceTest {
 		final File executionFolder = findSingleExecutionFolder();
 		return PersistenceUtils.readExecution(executionFolder);
 	}
-	
-	protected static Execution[] getAllExecutions(){
+
+	protected static Execution[] getAllExecutions() {
 		final File[] executionFolders = findAllExecutionFolders();
 		Execution[] executions = new Execution[executionFolders.length];
-		for (int i = 0 ; i < executions.length ; i++){
+		for (int i = 0; i < executions.length; i++) {
 			executions[i] = PersistenceUtils.readExecution(executionFolders[i]);
 		}
 		return executions;
@@ -96,7 +97,22 @@ public abstract class AbstractResourceTest {
 		}
 		return null;
 	}
-	
+
+	protected static File[] findFilesInTest( String uid, String fileName) {
+		File testFolder = new File(findSingleExecutionFolder(), "tests/test_" + uid);
+		return testFolder.listFiles(new FilenameFilter() {
+
+			@Override
+			public boolean accept(File dir, String name) {
+				if (fileName.equals(name)) {
+					return true;
+				}
+				return false;
+			}
+
+		});
+	}
+
 	protected static File[] findAllExecutionFolders() {
 		final File[] executionFolders = new File("docRoot/reports").listFiles(new FileFilter() {
 
@@ -111,6 +127,5 @@ public abstract class AbstractResourceTest {
 		});
 		return executionFolders;
 	}
-
 
 }

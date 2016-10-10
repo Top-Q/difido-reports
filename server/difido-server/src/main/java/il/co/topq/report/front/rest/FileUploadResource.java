@@ -37,10 +37,11 @@ public class FileUploadResource {
 	@RequestMapping(value = "/api/executions/{execution}/details/{uid}/file", method = RequestMethod.POST)
 	public @ResponseBody void handleFileUpload(@PathVariable int execution, @PathVariable String uid,
 			@RequestParam("file") MultipartFile file) {
+		log.debug("POST - Attach file '" + file.getName() + "' to test with uid " + uid + " in execution " + execution);
 		if (!file.isEmpty()) {
 			try {
 				final ExecutionMetadata metadata = metadataProvider.getMetadata(execution);
-				if (null == metadata){
+				if (null == metadata) {
 					log.warn("Trying to add file to execution with id " + execution + " which is not exists");
 				}
 				publisher.publishEvent(
