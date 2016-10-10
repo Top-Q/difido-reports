@@ -60,7 +60,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		sendExecutionMail(metadata);
 	}
 
-	private void sendExecutionMail(ExecutionMetadata metadata) {
+	protected void sendExecutionMail(ExecutionMetadata metadata) {
 		if (!isEnabled()) {
 			return;
 		}
@@ -68,10 +68,12 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 			log.error("Can't find meta data for ended execution. Will not send mail");
 			return;
 		}
-
-		this.metadata = metadata;
+		
+		setMetadata(metadata);
+		String body = getMailBody();
+		String subject = getMailSubject();
 		configureMailSender();
-		sendMail(getMailSubject(), getMailBody());
+		sendMail(subject, body);
 	}
 
 	protected void sendMail(final String subject, final String body) {
@@ -224,6 +226,10 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 
 	protected ExecutionMetadata getMetadata() {
 		return metadata;
+	}
+
+	protected void setMetadata(ExecutionMetadata metadata) {
+		this.metadata = metadata;
 	}
 
 }
