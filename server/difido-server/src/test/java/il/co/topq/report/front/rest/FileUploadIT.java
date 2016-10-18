@@ -39,7 +39,7 @@ public class FileUploadIT extends AbstractResourceTest {
 		test.setUid(uid);
 		scenario.addChild(test);
 		client.updateMachine(executionId, machineId, machine);
-		details = new TestDetails("myTestDetails", uid);
+		details = new TestDetails(uid);
 		client.addTestDetails(executionId, details);
 
 	}
