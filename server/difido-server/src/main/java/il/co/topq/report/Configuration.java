@@ -23,6 +23,7 @@ public enum Configuration {
 		PATH_DATA("path.data","data/index"), 
 		MAX_EXECUTION_IDLE_TIME_IN_SEC("max.execution.idle.time.in.seconds","600"),
 		ENABLE_ELASTIC_SEARCH("enable.elastic.search", "true"),
+		STORE_IN_ELASTIC_ONLY_AT_EXECUTION_END("store.in.elastic.only.at.execution.end", "false"),
 		EXTERNAL_ELASTIC("external.elastic","false"),
 		EXTERNAL_ELASTIC_HOST("external.elastic.host","localhost"),
 		EXTERNAL_ELASTIC_PORT("external.elastic.port","9300"),
@@ -102,6 +103,7 @@ public enum Configuration {
 		addPropWithDefaultValue(ConfigProps.PATH_DATA);
 		addPropWithDefaultValue(ConfigProps.MAX_EXECUTION_IDLE_TIME_IN_SEC);
 		addPropWithDefaultValue(ConfigProps.ENABLE_ELASTIC_SEARCH);
+		addPropWithDefaultValue(ConfigProps.STORE_IN_ELASTIC_ONLY_AT_EXECUTION_END);
 		addPropWithDefaultValue(ConfigProps.EXTERNAL_ELASTIC);
 		addPropWithDefaultValue(ConfigProps.EXTERNAL_ELASTIC_HOST);
 		addPropWithDefaultValue(ConfigProps.EXTERNAL_ELASTIC_PORT);

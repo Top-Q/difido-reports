@@ -5,10 +5,10 @@ Array.prototype.top = function(){
     return this.length > 0 ? this[this.length-1] : undefined;
 };
 
-function setFixedProperties(element) {
-    $(element).find("#name").text(test.name);
-    $(element).find("#timestamp").text(test.timestamp);
-    $(element).find("#description").text(test.description);
+function setFixedProperties(currentTest, element) {
+    $(element).find("#name").text(currentTest.name);
+    $(element).find("#timestamp").text(currentTest.date + " " + currentTest.timestamp);
+    $(element).find("#description").text(currentTest.description);
 }
 
 function addPropertiesToTbl(properties, table) {
@@ -20,12 +20,12 @@ function addPropertiesToTbl(properties, table) {
     }
 }
 
-function setCustomProperties(element) {
-    addPropertiesToTbl(test.properties, $(element).find("#propTbl > tbody"));
+function setCustomProperties(currentTest,element) {
+    addPropertiesToTbl(currentTest.properties, $(element).find("#propTbl > tbody"));
 }
 
-function setParameters(element) {
-    addPropertiesToTbl(test.parameters, $(element).find("#paramTbl > tbody"));
+function setParameters(currentTest,element) {
+    addPropertiesToTbl(currentTest.parameters, $(element).find("#paramTbl > tbody"));
 }
 
 function createDetailsTable() {
@@ -195,9 +195,10 @@ function setReportElements($container, reportElements) {
 }
 
 function testController(element) {
-    setFixedProperties(element);
-    setCustomProperties(element);
-    setParameters(element);
+    var currentTest = getTestWithUid(test.uid);
+    setFixedProperties(currentTest,element);
+    setCustomProperties(currentTest,element);
+    setParameters(currentTest,element);
     setReportElements($(element).find("#detailsDiv"), test.reportElements);
 
 }

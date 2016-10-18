@@ -39,6 +39,17 @@ function collectAllScenarioProperties() {
     return properties;
 
 }
+
+function getTestWithUid(uid) {
+    var tests = collectAllTests();
+    for (i = 0 ; tests.length; i++){
+        if (tests[i].uid == uid) {
+            return tests[i];
+        }
+
+    }
+    return null;
+}
 /**
  * Collects all the tests from the model into array. Each item in the array
  * contains a single test including the scenario and machine name.

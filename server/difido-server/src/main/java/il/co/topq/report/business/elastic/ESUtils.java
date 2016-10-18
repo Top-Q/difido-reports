@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
@@ -53,6 +55,29 @@ public class ESUtils {
 		//@formatter:on
 	}
 
+	/**
+	 * 
+	 * @param index
+	 * @param type
+	 * @param ids
+	 * @param objects
+	 * @return
+	 * @throws JsonProcessingException 
+	 */
+	public static BulkResponse addBulk(String index, String type, String[] ids, List<?> objects) throws JsonProcessingException {
+		if (ids.length != objects.size()){
+			throw new IllegalArgumentException("Number of ids have to be equals to number of objects");
+		}
+		BulkRequestBuilder bulkRequest = Common.elasticsearchClient.prepareBulk();
+		for (int i = 0 ; i < ids.length ; i++){
+			bulkRequest.add(Common.elasticsearchClient.prepareIndex(index,type, ids[i])
+					.setSource(mapper.writeValueAsBytes(objects.get(i)))
+					.setId(ids[i])
+					);
+		}
+		return bulkRequest.execute().actionGet();
+	}
+	
 	public static IndexResponse add(String index, String type, String id, Object object)
 			throws JsonProcessingException {
 		//@formatter:off

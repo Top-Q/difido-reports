@@ -35,8 +35,8 @@ import org.testng.annotations.Test;
 public abstract class AbstractDifidoReporter implements Reporter {
 
 	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss:");
-
-	private static final SimpleDateFormat TIME_AND_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd 'at' HH:mm:ss");
+	
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd");
 
 	private Execution execution;
 
@@ -57,7 +57,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	private String executionUid;
 
 	private String testClassName;
-	
+
 	private long lastWrite;
 
 	private int totalPlannedTests = 0;
@@ -99,7 +99,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		currentMachine = null;
 		if (host == null) {
 			currentMachine = new MachineNode(getMachineName());
-			
+
 		} else {
 			currentMachine = new MachineNode(host);
 		}
@@ -161,18 +161,19 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 		currentTest = new TestNode(index++, testName, executionUid + "-" + index);
 		currentTest.setClassName(testClassName);
-		currentTest.setTimestamp(TIME_FORMAT.format(new Date(result.getStartMillis())));
+		final Date date = new Date(result.getStartMillis());
+		currentTest.setTimestamp(TIME_FORMAT.format(date));
+		currentTest.setDate(DATE_FORMAT.format(date));
 		currentClassScenario.addChild(currentTest);
-		testDetails = new TestDetails(testName, currentTest.getUid());
-		testDetails.setTimeStamp(TIME_AND_DATE_FORMAT.format(new Date(result.getStartMillis())));
+		testDetails = new TestDetails(currentTest.getUid());
 		if (result.getMethod().getDescription() != null) {
-			testDetails.setDescription(result.getMethod().getDescription());
+			currentTest.setDescription(result.getMethod().getDescription());
 		}
 		addPropertyIfExist("Class", result.getTestClass().getName());
 		addPropertyIfExist("Groups", Arrays.toString(result.getMethod().getGroups()));
 		int paramCounter = 0;
 		for (String paramValue : testParameters) {
-			testDetails.addParameter("param" + paramCounter++, paramValue);
+			currentTest.addParameter("param" + paramCounter++, paramValue);
 		}
 
 		int numOfAppearances = getAndUpdateTestHistory(result.getTestClass().getName() + testName);
@@ -220,7 +221,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	private void addPropertyIfExist(String propertyName, String property) {
 		if (property != null) {
-			testDetails.addProperty(propertyName, property);
+			currentTest.addProperty(propertyName, property);
 		}
 	}
 
@@ -297,7 +298,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	@Override
 	public void onStart(ISuite suite) {
 		execution = null;
-		totalPlannedTests =  getAllPlannedTestsCount(suite);
+		totalPlannedTests = getAllPlannedTestsCount(suite);
 		updateIndex();
 		generateUid();
 
@@ -329,7 +330,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		element.setType(type);
 		testDetails.addReportElement(element);
 		currentTest.setStatus(status);
-		if ((System.currentTimeMillis() - lastWrite) > 100){
+		if ((System.currentTimeMillis() - lastWrite) > 100) {
 			lastWrite = System.currentTimeMillis();
 			writeTestDetails(testDetails);
 		}
@@ -340,71 +341,72 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		element.setTitle(title);
 		return element;
 	}
-	
-	
-	private int getAllPlannedTestsCount(ISuite suite){
+
+	private int getAllPlannedTestsCount(ISuite suite) {
 		int totalPlanned = 0;
 
 		for (ITestNGMethod method : suite.getAllMethods()) {
-			totalPlanned +=  getDataProviderCases(method);
+			totalPlanned += getDataProviderCases(method);
 		}
-	//	System.out.println("Total tests planned with dataProviders:" + totalPlanned );
+		// System.out.println("Total tests planned with dataProviders:" +
+		// totalPlanned );
 		return totalPlanned;
-		
-		
+
 	}
-	
+
 	/**
-	 * This method counts all the planned test cases using dataProviders for the given ITestNGMethod.
+	 * This method counts all the planned test cases using dataProviders for the
+	 * given ITestNGMethod.
+	 * 
 	 * @param method
-	 * @return the number of cases, returns 1 if no dataProvider is found for the test.
+	 * @return the number of cases, returns 1 if no dataProvider is found for
+	 *         the test.
 	 */
-	private int getDataProviderCases(ITestNGMethod method){
+	private int getDataProviderCases(ITestNGMethod method) {
 		int ret = 1;
 		try {
 			Method m = method.getConstructorOrMethod().getMethod();
 			Object instance = method.getInstance();
-			
-			if (!m.isAnnotationPresent(Test.class)){
+
+			if (!m.isAnnotationPresent(Test.class)) {
 				return ret;
 			}
-			
-			String dataProviderName =  m.getAnnotation(Test.class).dataProvider();
+
+			String dataProviderName = m.getAnnotation(Test.class).dataProvider();
 			if (null == dataProviderName || dataProviderName.isEmpty())
 				return ret;
-			
-			Class<?> testClass =  instance.getClass();
-			for (Method classM : testClass.getMethods()){
-				 if (classM.isAnnotationPresent(DataProvider.class)) {
-					 String thisDataProviderName = m.getAnnotation(Test.class).dataProvider();
-                     if (thisDataProviderName.equals(dataProviderName)){
-                    	 try {
-                    		 Object[][] theData = (Object[][]) classM.invoke(instance);
-                             ret = theData.length;
-                           //  System.out.printf("Found %s cases for %s\n", ret, m.getName());
-                             return ret;
+
+			Class<?> testClass = instance.getClass();
+			for (Method classM : testClass.getMethods()) {
+				if (classM.isAnnotationPresent(DataProvider.class)) {
+					String thisDataProviderName = m.getAnnotation(Test.class).dataProvider();
+					if (thisDataProviderName.equals(dataProviderName)) {
+						try {
+							Object[][] theData = (Object[][]) classM.invoke(instance);
+							ret = theData.length;
+							// System.out.printf("Found %s cases for %s\n", ret,
+							// m.getName());
+							return ret;
 						} catch (Exception e) {
 							System.out.println("Exception in couting dataProvider cases" + e.getMessage());
 						}
-                     }
-				 }
-			}	 
-			
+					}
+				}
+			}
+
 			return ret;
-			
-			
+
 		} catch (Exception e2) {
 			System.out.println("Exception 2 in couting dataProvider cases" + e2.getMessage());
 			return ret;
 		}
 	}
-	
 
 	public void addTestProperty(String name, String value) {
 		if (null == testDetails) {
 			return;
 		}
-		testDetails.addProperty(name, value);
+		currentTest.addProperty(name, value);
 	}
 
 	/**

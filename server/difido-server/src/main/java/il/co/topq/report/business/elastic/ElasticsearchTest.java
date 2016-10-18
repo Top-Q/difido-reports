@@ -1,7 +1,9 @@
 package il.co.topq.report.business.elastic;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -53,7 +55,7 @@ public class ElasticsearchTest {
 
 	@JsonProperty("properties")
 	private Map<String, String> properties;
-	
+
 	@JsonProperty("scenarioProperties")
 	private Map<String, String> scenarioProperties;
 
@@ -66,6 +68,95 @@ public class ElasticsearchTest {
 	public ElasticsearchTest() {
 	}
 	
+	/**
+	 * Copy constructor
+	 * @param other
+	 */
+	public ElasticsearchTest(ElasticsearchTest other){
+		this.uid = other.getUid();
+		this.executionTimeStamp = other.executionTimeStamp;
+		this.timeStamp = other.timeStamp;
+		this.description = other.description;
+		this.duration = other.duration;
+		this.machine = other.machine;
+		this.name = other.name;
+		this.executionId = other.executionId;
+		this.parent = other.parent;
+		this.status = other.status;
+		this.url = other.url;
+		if (other.parameters != null) {
+			this.parameters = new HashMap<String,String>(other.parameters);
+		}
+		if (other.properties != null) {
+			this.properties = new HashMap<String,String>(other.properties);
+		}
+		if (other.scenarioProperties != null){
+			this.scenarioProperties = new HashMap<String,String>(other.scenarioProperties);
+		}
+	
+	}
+	
+	@JsonIgnore
+	@Override
+	public boolean equals(Object other){
+		if (null == other){
+			return false;
+		}
+		if (other.hashCode() != hashCode()){
+			return false;
+		}
+		return true;
+	}
+
+	@JsonIgnore
+	@Override
+	public int hashCode() {
+		int result = 31;
+		if (uid != null) {
+			result = 31 * result + uid.hashCode();
+		}
+		if (name != null) {
+			result = 31 * result + name.hashCode();
+		}
+		result = 31 * result + executionId;
+		if (execution != null) {
+			result = 31 * result + execution.hashCode();
+		}
+		if (parent != null) {
+			result = 31 * result + parent.hashCode();
+		}
+		if (status != null) {
+			result = 31 * result + status.hashCode();
+		}
+		if (executionTimeStamp != null) {
+			result = 31 * result + executionTimeStamp.hashCode();
+		}
+		if (machine != null) {
+			result = 31 * result + machine.hashCode();
+		}
+		if (description != null) {
+			result = 31 * result + description.hashCode();
+		}
+		if (timeStamp != null) {
+			result = 31 * result + timeStamp.hashCode();
+		}
+		if (url != null) {
+			result = 31 * result + url.hashCode();
+		}
+		result = 31 * result + new Long(duration).intValue();
+
+		if (parameters != null) {
+			result = 31 * result + parameters.hashCode();
+		}
+		if (properties != null) {
+			result = 31 * result + properties.hashCode();
+		}
+		if (scenarioProperties != null) {
+			result = 31 * result + scenarioProperties.hashCode();
+		}
+		return result;
+	}
+
 	public String getName() {
 		return name;
 	}

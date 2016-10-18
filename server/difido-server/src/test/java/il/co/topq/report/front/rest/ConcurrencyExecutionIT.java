@@ -126,7 +126,7 @@ public class ConcurrencyExecutionIT extends AbstractResourceTest {
 					final TestNode test = new TestNode(i, "Test " + tName, uid);
 					scenario.addChild(test);
 					client.updateMachine(executionId, machineId, machine);
-					TestDetails details = new TestDetails("Details " + tName + " #" + i, uid);
+					TestDetails details = new TestDetails(uid);
 					ReportElement element = new ReportElement(details);
 					element.setType(ElementType.regular);
 					element.setTime("00:" + i);

@@ -23,7 +23,6 @@ public class CreateElementsIT extends AbstractResourceTest {
 	private static final String MACHINE_NAME = "My Machine";
 	private static final String SCENARIO_NAME = "My Scenario";
 	private static final String TEST_NAME = "My test";
-	private static final String TEST_DETAILS_NAME = "My test details";
 	private static final long SLEEP_TIME = 1000;
 	private TestDetails details;
 	private int executionId;
@@ -43,8 +42,7 @@ public class CreateElementsIT extends AbstractResourceTest {
 		test.setUid(uid);
 		scenario.addChild(test);
 		client.updateMachine(executionId, machineId, machine);
-		details = new TestDetails(TEST_DETAILS_NAME, "0");
-		details.setUid(uid);
+		details = new TestDetails(uid);
 	}
 
 	@Test
@@ -122,7 +120,6 @@ public class CreateElementsIT extends AbstractResourceTest {
 		Assert.assertEquals(uid, test.getUid());
 		TestDetails testDetails = getTestDetails(uid);
 		Assert.assertNotNull(testDetails);
-		Assert.assertEquals(TEST_DETAILS_NAME, testDetails.getName());
 		return testDetails;
 	}
 

@@ -1,16 +1,14 @@
 package il.co.topq.difido.model.test;
 
-import il.co.topq.difido.model.Enums.ElementType;
-import il.co.topq.difido.model.Enums.Status;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import il.co.topq.difido.model.Enums.ElementType;
+import il.co.topq.difido.model.Enums.Status;
 
 /**
  * 
@@ -19,8 +17,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  */
 // It is very important that the reportElements member will be the last one for
 // cases in which we want to append to the file
-@JsonPropertyOrder({ "uid", "name", "description", "timestamp", "duration", "parameters", "properties",
-		"reportElements" })
+@JsonPropertyOrder({ "uid", "reportElements" })
 public class TestDetails {
 
 	/**
@@ -30,32 +27,13 @@ public class TestDetails {
 	@JsonIgnore
 	private List<ReportElement> levelElementsBuffer;
 
-	@JsonProperty("name")
-	private String name;
-
-	@JsonProperty("description")
-	private String description = "";
-
-	@JsonProperty("timestamp")
-	private String timeStamp;
-
-	@JsonProperty("duration")
-	private long duration;
-
-	@JsonProperty("parameters")
-	private Map<String, String> parameters;
-
-	@JsonProperty("properties")
-	private Map<String, String> properties;
+	@JsonProperty("uid")
+	private String uid;
 
 	@JsonProperty("reportElements")
 	private List<ReportElement> reportElements;
 
-	@JsonProperty("uid")
-	private String uid;
-
-	public TestDetails(String name, String uid) {
-		this.name = name;
+	public TestDetails(String uid) {
 		this.uid = uid;
 	}
 
@@ -65,10 +43,7 @@ public class TestDetails {
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Name: ").append(name).append("\n");
-		sb.append("Description: ").append(description).append("\n");
-		sb.append("Timestamp: ").append(timeStamp).append("\n");
-		sb.append("Duration: ").append(duration).append("\n");
+		sb.append("Uid: ").append(uid).append("\n");
 		return sb.toString();
 	}
 
@@ -137,86 +112,6 @@ public class TestDetails {
 			}
 			levelElementsBuffer.remove(levelElementsBuffer.size() - 1);
 		}
-	}
-
-	@JsonIgnore
-	public void addProperty(String key, String value) {
-		if (properties == null) {
-			properties = new HashMap<String, String>();
-		}
-		properties.put(key, value);
-	}
-
-	@JsonIgnore
-	public void addParameter(String key, String value) {
-		if (parameters == null) {
-			parameters = new HashMap<String, String>();
-		}
-		parameters.put(key, value);
-	}
-
-	// @Override
-	// @JsonIgnore
-	// public int hashCode() {
-	// int hash = 1;
-	// if (parameters != null) {
-	// hash = hash * 17 + parameters.hashCode();
-	// }
-	// if (properties != null) {
-	// hash = hash * 13 + properties.hashCode();
-	// }
-	// if (name != null) {
-	// hash = hash * 31 + name.hashCode();
-	// }
-	// return hash;
-	// }
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getTimeStamp() {
-		return timeStamp;
-	}
-
-	public void setTimeStamp(String timeStamp) {
-		this.timeStamp = timeStamp;
-	}
-
-	public long getDuration() {
-		return duration;
-	}
-
-	public void setDuration(long duration) {
-		this.duration = duration;
-	}
-
-	public Map<String, String> getParameters() {
-		return parameters;
-	}
-
-	public void setParameters(Map<String, String> parameters) {
-		this.parameters = parameters;
-	}
-
-	public Map<String, String> getProperties() {
-		return properties;
-	}
-
-	public void setProperties(Map<String, String> properties) {
-		this.properties = properties;
 	}
 
 	public List<ReportElement> getReportElements() {
