@@ -197,4 +197,10 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 		return null;
 	}
 
+	protected int getExecutionId() {
+		return executionId;
+	}
+	
+	
+
 }
