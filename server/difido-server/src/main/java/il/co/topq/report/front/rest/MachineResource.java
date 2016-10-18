@@ -1,5 +1,7 @@
 package il.co.topq.report.front.rest;
 
+import java.util.List;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -74,8 +76,16 @@ public class MachineResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{machine}")
-	public MachineNode get(@PathParam("execution") int execution, @PathParam("machine") int machine) {
+	public MachineNode getSingleMachine(@PathParam("execution") int execution, @PathParam("machine") int machine) {
 		log.debug("GET - Get machine from execution with id " + execution + " and machine id " + machine);
 		return metadataProvider.getMetadata(execution).getExecution().getMachines().get(machine);
 	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<MachineNode> getMachines(@PathParam("execution") int execution) {
+		log.debug("GET - Get machines from execution with id " + execution );
+		return metadataProvider.getMetadata(execution).getExecution().getMachines();
+	}
+
 }
