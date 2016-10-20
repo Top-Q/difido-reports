@@ -61,6 +61,8 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	private long lastWrite;
 
 	private int totalPlannedTests = 0;
+	
+//	private String lastKnownTestName;
 
 	protected void generateUid() {
 		executionUid = String.valueOf(new Random().nextInt(1000)) + String.valueOf(System.currentTimeMillis() / 1000);
@@ -148,7 +150,8 @@ public abstract class AbstractDifidoReporter implements Reporter {
 			startClassScenario(result);
 		}
 		List<String> testParameters = getTestParameters(result);
-		String testName = getTestNameWithParams(result);
+		final String testName = getTestNameWithParams(result);
+//		lastKnownTestName =  getTestFullName(result);
 		currentTest = new TestNode(index++, testName, executionUid + "-" + index);
 		currentTest.setClassName(testClassName);
 		final Date date = new Date(result.getStartMillis());
@@ -245,19 +248,12 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	 * @return Is the test actually started
 	 */
 	protected boolean isTestStarted(ITestResult result) {
-		String currentTestName = String.format("%s.%s", result.getTestClass().getName(), getTestNameWithParams(result));
-		String lastKnownTestName = String.format("%s.%s", currentTest.getClassName(), currentTest.getName());
-
-		if (!currentTestName.equals(lastKnownTestName))
+		final String lastStartedTestName = String.format("%s.%s", currentTest.getClassName(), currentTest.getName());
+		final String currentTest = String.format("%s.%s", result.getTestClass().getName(), getTestNameWithParams(result));
+		if (!lastStartedTestName.equals(currentTest)) {
 			return false;
-
-		// Make sure the test params also match
-		List<String> currentTestParams = getTestParameters(result);
-		if (currentTest.getParameters() == null || currentTest.getParameters().values() == null)
-			return currentTestParams == null || currentTestParams.isEmpty();
-
-		return currentTest.getParameters().values().equals(currentTestParams);
-
+		}
+		return true;
 	}
 
 	@Override
