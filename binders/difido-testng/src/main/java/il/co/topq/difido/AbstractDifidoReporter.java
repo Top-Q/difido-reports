@@ -35,7 +35,7 @@ import org.testng.annotations.Test;
 public abstract class AbstractDifidoReporter implements Reporter {
 
 	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss:");
-	
+
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd");
 
 	private Execution execution;
@@ -147,18 +147,8 @@ public abstract class AbstractDifidoReporter implements Reporter {
 			testClassName = result.getTestClass().getName();
 			startClassScenario(result);
 		}
-		String testName = result.getName();
 		List<String> testParameters = getTestParameters(result);
-		if (!testParameters.isEmpty()) {
-			StringBuilder sb = new StringBuilder();
-			sb.append(testName);
-			sb.append("(");
-			String tempString = testParameters.toString().replaceFirst("\\[", "");
-			sb.append(tempString.substring(0, tempString.length() - 1));
-			sb.append(")");
-			testName = sb.toString();
-		}
-
+		String testName = getTestNameWithParams(result);
 		currentTest = new TestNode(index++, testName, executionUid + "-" + index);
 		currentTest.setClassName(testClassName);
 		final Date date = new Date(result.getStartMillis());
@@ -184,6 +174,22 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		writeExecution(execution);
 		writeTestDetails(testDetails);
 
+	}
+
+	private String getTestNameWithParams(ITestResult result) {
+		String testName = result.getName();
+		List<String> testParameters = getTestParameters(result);
+
+		if (!testParameters.isEmpty()) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(testName);
+			sb.append("(");
+			String tempString = testParameters.toString().replaceFirst("\\[", "");
+			sb.append(tempString.substring(0, tempString.length() - 1));
+			sb.append(")");
+			testName = sb.toString();
+		}
+		return testName;
 	}
 
 	private List<String> getTestParameters(ITestResult result) {
@@ -231,8 +237,34 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		onTestEnd(result);
 	}
 
+	/**
+	 * There are cases, like when using data providers with more params that the
+	 * test method actually get, a test can be ended without getting started.
+	 * 
+	 * @param result
+	 * @return Is the test actually started
+	 */
+	protected boolean isTestStarted(ITestResult result) {
+		String currentTestName = String.format("%s.%s", result.getTestClass().getName(), getTestNameWithParams(result));
+		String lastKnownTestName = String.format("%s.%s", currentTest.getClassName(), currentTest.getName());
+
+		if (!currentTestName.equals(lastKnownTestName))
+			return false;
+
+		// Make sure the test params also match
+		List<String> currentTestParams = getTestParameters(result);
+		if (currentTest.getParameters() == null || currentTest.getParameters().values() == null)
+			return currentTestParams == null || currentTestParams.isEmpty();
+
+		return currentTest.getParameters().values().equals(currentTestParams);
+
+	}
+
 	@Override
 	public void onTestFailure(ITestResult result) {
+		if (!isTestStarted(result)) {
+			onTestStart(result);
+		}
 		currentTest.setStatus(Status.failure);
 		reportLastTestException(result);
 		onTestEnd(result);
@@ -241,6 +273,9 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	@Override
 	public void onTestSkipped(ITestResult result) {
+		if (!isTestStarted(result)) {
+			onTestStart(result);
+		}
 		currentTest.setStatus(Status.warning);
 		onTestEnd(result);
 
