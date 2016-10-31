@@ -379,7 +379,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 			Class<?> testClass = instance.getClass();
 			for (Method classM : testClass.getMethods()) {
 				if (classM.isAnnotationPresent(DataProvider.class)) {
-					String thisDataProviderName = m.getAnnotation(Test.class).dataProvider();
+					String thisDataProviderName = classM.getAnnotation(DataProvider.class).name();
 					if (thisDataProviderName.equals(dataProviderName)) {
 						try {
 							Object[][] theData = (Object[][]) classM.invoke(instance);
