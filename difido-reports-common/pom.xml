@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>il.co.topq.difido</groupId>
 	<artifactId>difido-reports-common</artifactId>
-	<version>2.0.05-SNAPSHOT</version>
+	<version>2.0.05-beta1</version>
 	<name>Difido Reports</name>
 	<organization>
 		<name>Top-Q</name>
