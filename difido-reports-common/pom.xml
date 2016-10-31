@@ -13,9 +13,6 @@
 			<name>Itai Agmon</name>
 			<email>itai.agmon@top-q.co.il</email>
 		</developer>
-		<developer>
-			<name>Rony Byalsky</name>
-		</developer>
 	</developers>
 	<licenses>
 		<license>
@@ -26,6 +23,7 @@
 		</license>
 	</licenses>
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<topq.repository.rootUrl>http://maven.top-q.co.il</topq.repository.rootUrl>
 	</properties>
 
