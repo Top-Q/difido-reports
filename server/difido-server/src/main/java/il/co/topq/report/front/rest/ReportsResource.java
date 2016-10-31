@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import il.co.topq.report.StopWatch;
+import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.business.report.ExecutionTableService;
 
@@ -24,15 +26,17 @@ import il.co.topq.report.business.report.ExecutionTableService;
 @Path("api/reports")
 public class ReportsResource {
 
+	private static final Logger log = LoggerFactory.getLogger(ReportsResource.class);
 
-
-	private static final Logger log = LoggerFactory.getLogger(ExecutionResource.class);
-
+	private final StopWatch stopWatch;
+	
 	private final MetadataProvider metadataProvider;
 	
 	@Autowired
 	public ReportsResource(MetadataProvider metadataProvider) {
 		this.metadataProvider = metadataProvider;
+		stopWatch = new StopWatch(log);
+		
 	}
 	
 	@Autowired
@@ -48,7 +52,14 @@ public class ReportsResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public DataTable get(@PathParam("execution") int execution) {
 		log.debug("GET - Get all reports");
-		return executionTableService.initTable(metadataProvider.getAllMetaData());
+		stopWatch.start("Getting all metaData");
+		final ExecutionMetadata[] metaDataArr = metadataProvider.getAllMetaData();
+		stopWatch.stopAndLog();
+		
+		stopWatch.start("Initilaizing table");
+		final DataTable dataTable = executionTableService.initTable(metaDataArr);
+		stopWatch.stopAndLog();
+		return dataTable;
 	}
 
 	public static class DataTable {

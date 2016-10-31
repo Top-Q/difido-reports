@@ -7,15 +7,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
+import il.co.topq.report.StopWatch;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.front.rest.ReportsResource.DataTable;
 
 @Service
 public class ExecutionTableService {
+
+	private static final Logger log = LoggerFactory.getLogger(ExecutionTableService.class);
+
+	private final StopWatch stopWatch;
 
 	private static final String ID = "Id";
 	private static final String DESCRIPTION = "Description";
@@ -32,6 +39,10 @@ public class ExecutionTableService {
 	private static final String[] DEFAULT_HEADERS = new String[] { ID, DESCRIPTION, LINK, DATE, TIME, NUM_OF_TESTS,
 			NUM_OF_SUCCESSFUL, NUM_OF_WARNINGS, NUM_OF_FAILS, NUM_OF_MACHINES, ACTIVE, LOCKED };
 
+	public ExecutionTableService() {
+		stopWatch = new StopWatch(log);
+	}
+
 	public DataTable initTable(ExecutionMetadata[] metaData) {
 		DataTable table = new DataTable();
 		List<String> headers;
@@ -43,9 +54,9 @@ public class ExecutionTableService {
 			headers.add(ID);
 			headers.add(DESCRIPTION);
 			headers.add(LINK);
-			for (String desiredHeader: Configuration.INSTANCE.readList(ConfigProps.EXECUTION_TABLE_HEADERS)){
+			for (String desiredHeader : Configuration.INSTANCE.readList(ConfigProps.EXECUTION_TABLE_HEADERS)) {
 				desiredHeader = desiredHeader.trim();
-				if (desiredHeader.equals(ID) || desiredHeader.equals(DESCRIPTION) || desiredHeader.equals(LINK)){
+				if (desiredHeader.equals(ID) || desiredHeader.equals(DESCRIPTION) || desiredHeader.equals(LINK)) {
 					// We already added those headers.
 					continue;
 				}
@@ -68,6 +79,7 @@ public class ExecutionTableService {
 			table.headers.add(header.trim());
 		}
 
+		stopWatch.start("Populating rows");
 		for (ExecutionMetadata meta : metaData) {
 			final Map<String, Object> row = new HashMap<String, Object>();
 			for (String header : headers) {
@@ -75,6 +87,7 @@ public class ExecutionTableService {
 			}
 			table.data.add(row);
 		}
+		stopWatch.stopAndLog();
 		return table;
 	}
 

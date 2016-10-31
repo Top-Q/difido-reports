@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import il.co.topq.difido.model.Enums.Status;
 import jsystem.framework.TestProperties;
 import junit.framework.SystemTestCase4;
 

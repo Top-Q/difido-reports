@@ -26,6 +26,11 @@ class MetadataFileSystemPersistency extends AbstactMetadataPersistency {
 
 	private static final String EXECUTION_FILE_NAME = "reports/meta.json";
 
+	
+	public MetadataFileSystemPersistency(){
+		super();
+	}
+	
 	private File getExecutionMetaFile() {
 		return new File(Configuration.INSTANCE.readString(ConfigProps.DOC_ROOT_FOLDER), EXECUTION_FILE_NAME);
 	}

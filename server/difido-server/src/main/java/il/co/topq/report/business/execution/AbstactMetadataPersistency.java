@@ -9,10 +9,14 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import il.co.topq.report.StopWatch;
+
 public abstract class AbstactMetadataPersistency implements MetadataPersistency {
 
-	private final Logger log = LoggerFactory.getLogger(AbstactMetadataPersistency.class);
+	private final Logger logger;
 
+	private final StopWatch stopWatch;
+	
 	// Package private for unit testing
 	private Map<Integer, ExecutionMetadata> executionsCache;;
 
@@ -23,6 +27,8 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 	protected abstract void writeToPersistency();
 
 	public AbstactMetadataPersistency() {
+		logger = LoggerFactory.getLogger(AbstactMetadataPersistency.class);
+		stopWatch = new StopWatch(logger);
 		lastId = getLastId();
 	}
 
@@ -32,7 +38,10 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 	 * @return The largest id. 0 if none exists
 	 */
 	private int getLastId() {
+		stopWatch.start("Reading from persistency");
 		readFromPersistency();
+		stopWatch.stopAndLog();
+		
 		if (isCachedEmpty()) {
 			return 0;
 		}
@@ -47,17 +56,27 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 	}
 
 	public synchronized void add(ExecutionMetadata metadata) {
+		stopWatch.start("Reading from persistency");
 		readFromPersistency();
+		stopWatch.stopAndLog();
+		
 		executionsCache.put(metadata.getId(), metadata);
+		stopWatch.start("Writing to persistency");
 		writeToPersistency();
+		stopWatch.stopAndLog();
 	}
 
 	public synchronized void remove(int id) {
+		stopWatch.start("Reading from persistency");
 		readFromPersistency();
+		stopWatch.stopAndLog();
 		if (null == executionsCache.remove(id)) {
-			log.warn("Tried to delete execution with id " + id + " which is not exists");
+			logger.warn("Tried to delete execution with id " + id + " which is not exists");
 		}
+		stopWatch.start("Writing to persistency");
 		writeToPersistency();
+		stopWatch.stopAndLog();
+		
 	}
 
 	public synchronized void update(ExecutionMetadata metadata) {
@@ -70,7 +89,9 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 	}
 
 	public synchronized List<ExecutionMetadata> getAll() {
+		stopWatch.start("Reading from persistency");
 		readFromPersistency();
+		stopWatch.stopAndLog();
 		final List<ExecutionMetadata> result = new ArrayList<ExecutionMetadata>();
 		result.addAll(executionsCache.values());
 		// This synchronized is very important. See issue #81
@@ -95,7 +116,6 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 		for (ExecutionMetadata meta : executionsCache.values()) {
 			meta.setActive(false);
 		}
-
 	}
 
 	protected boolean isCachedEmpty() {

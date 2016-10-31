@@ -2,7 +2,6 @@ package il.co.topq.difido;
 
 import org.junit.Test;
 
-import il.co.topq.difido.model.Enums.Status;
 import jsystem.framework.TestProperties;
 import junit.framework.Assert;
 import junit.framework.SystemTestCase4;

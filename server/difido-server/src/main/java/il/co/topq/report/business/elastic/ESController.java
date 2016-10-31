@@ -25,6 +25,7 @@ import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
+import il.co.topq.report.StopWatch;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.events.MachineCreatedEvent;
@@ -40,6 +41,8 @@ public class ESController {
 	private static final String TEST_TYPE = "test";
 
 	private final Logger log = LoggerFactory.getLogger(ESController.class);
+	
+	private final StopWatch stopWatch;
 
 	volatile Map<Integer, Set<TestNode>> savedTestsPerExecution;
 
@@ -55,6 +58,7 @@ public class ESController {
 		log.debug("Elasticsearch is set to: enabled=" + enabled);
 		storeOnlyAtEnd = Configuration.INSTANCE.readBoolean(ConfigProps.STORE_IN_ELASTIC_ONLY_AT_EXECUTION_END);
 		log.debug("Store only at end of execution is set to: enabled=" + storeOnlyAtEnd);
+		stopWatch = new StopWatch(log);
 	}
 
 	@EventListener
@@ -79,33 +83,32 @@ public class ESController {
 	}
 
 	private void saveDirtyTests(ExecutionMetadata metadata, MachineNode machineNode) {
-		long currentTime = System.currentTimeMillis();
+		stopWatch.start("Fetching all execution tests");
 		final Set<TestNode> executionTests = getExecutionTests(machineNode);
-		log.trace("Fetching all execution tests took " + (System.currentTimeMillis() - currentTime + " ms"));
+		stopWatch.stopAndLog();
 		if (executionTests.isEmpty()) {
 			return;
 		}
 
-		currentTime = System.currentTimeMillis();
+		stopWatch.start("Finding tests that are not updated in the Elastic");
 		final Set<TestNode> testsToUpdate = findTestsToUpdate(metadata.getId(), executionTests);
-		log.trace("Finding tests that are not updated in the Elastic took "
-				+ (System.currentTimeMillis() - currentTime + " ms"));
+		stopWatch.stopAndLog();
 
 		if (testsToUpdate.isEmpty()) {
 			return;
 		}
 
-		currentTime = System.currentTimeMillis();
+		stopWatch.start("Converting tests to Elastic");
 		List<ElasticsearchTest> esTests = convertToElasticTests(metadata, machineNode, testsToUpdate);
-		log.trace("Converting tests to Elastic took " + (System.currentTimeMillis() - currentTime + " ms"));
+		stopWatch.stopAndLog();
 
-		currentTime = System.currentTimeMillis();
+		stopWatch.start("Storing tests in Elastic");
 		addOrUpdateInElastic(esTests);
-		log.trace("Storing tests in Elastic took " + (System.currentTimeMillis() - currentTime + " ms"));
+		stopWatch.stopAndLog();
 
-		currentTime = System.currentTimeMillis();
+		stopWatch.start("Clonning all the updated tests");
 		Set<TestNode> clonedTests = cloneTests(executionTests);
-		log.trace("Clonning all the updated tests took " + (System.currentTimeMillis() - currentTime + " ms"));
+		stopWatch.stopAndLog();
 
 		savedTestsPerExecution.put(metadata.getId(), clonedTests);
 	}
