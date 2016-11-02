@@ -12,8 +12,7 @@ public class StopWatch {
 			throw new NullPointerException("Log is null");
 		}
 		stopWatch = new org.springframework.util.StopWatch();
-		// We may want to set this to false
-		stopWatch.setKeepTaskList(true);
+		stopWatch.setKeepTaskList(false);
 		this.log = log;
 	}
 

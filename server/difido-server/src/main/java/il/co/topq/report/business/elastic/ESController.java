@@ -42,8 +42,6 @@ public class ESController {
 
 	private final Logger log = LoggerFactory.getLogger(ESController.class);
 	
-	private final StopWatch stopWatch;
-
 	volatile Map<Integer, Set<TestNode>> savedTestsPerExecution;
 
 	// TODO: For testing. Of course that this should be handled differently.
@@ -58,7 +56,6 @@ public class ESController {
 		log.debug("Elasticsearch is set to: enabled=" + enabled);
 		storeOnlyAtEnd = Configuration.INSTANCE.readBoolean(ConfigProps.STORE_IN_ELASTIC_ONLY_AT_EXECUTION_END);
 		log.debug("Store only at end of execution is set to: enabled=" + storeOnlyAtEnd);
-		stopWatch = new StopWatch(log);
 	}
 
 	@EventListener
@@ -83,7 +80,7 @@ public class ESController {
 	}
 
 	private void saveDirtyTests(ExecutionMetadata metadata, MachineNode machineNode) {
-		stopWatch.start("Fetching all execution tests");
+		StopWatch stopWatch = new StopWatch(log).start("Fetching all execution tests");
 		final Set<TestNode> executionTests = getExecutionTests(machineNode);
 		stopWatch.stopAndLog();
 		if (executionTests.isEmpty()) {

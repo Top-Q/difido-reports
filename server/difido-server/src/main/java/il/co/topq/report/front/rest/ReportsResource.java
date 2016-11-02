@@ -28,15 +28,11 @@ public class ReportsResource {
 
 	private static final Logger log = LoggerFactory.getLogger(ReportsResource.class);
 
-	private final StopWatch stopWatch;
-	
 	private final MetadataProvider metadataProvider;
 	
 	@Autowired
 	public ReportsResource(MetadataProvider metadataProvider) {
 		this.metadataProvider = metadataProvider;
-		stopWatch = new StopWatch(log);
-		
 	}
 	
 	@Autowired
@@ -52,7 +48,7 @@ public class ReportsResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public DataTable get(@PathParam("execution") int execution) {
 		log.debug("GET - Get all reports");
-		stopWatch.start("Getting all metaData");
+		StopWatch stopWatch = new StopWatch(log).start("Getting all metaData");
 		final ExecutionMetadata[] metaDataArr = metadataProvider.getAllMetaData();
 		stopWatch.stopAndLog();
 		

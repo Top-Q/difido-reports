@@ -22,8 +22,6 @@ public class ExecutionTableService {
 
 	private static final Logger log = LoggerFactory.getLogger(ExecutionTableService.class);
 
-	private final StopWatch stopWatch;
-
 	private static final String ID = "Id";
 	private static final String DESCRIPTION = "Description";
 	private static final String LINK = "Link";
@@ -38,10 +36,6 @@ public class ExecutionTableService {
 	private static final String LOCKED = "Locked";
 	private static final String[] DEFAULT_HEADERS = new String[] { ID, DESCRIPTION, LINK, DATE, TIME, NUM_OF_TESTS,
 			NUM_OF_SUCCESSFUL, NUM_OF_WARNINGS, NUM_OF_FAILS, NUM_OF_MACHINES, ACTIVE, LOCKED };
-
-	public ExecutionTableService() {
-		stopWatch = new StopWatch(log);
-	}
 
 	public DataTable initTable(ExecutionMetadata[] metaData) {
 		DataTable table = new DataTable();
@@ -79,7 +73,7 @@ public class ExecutionTableService {
 			table.headers.add(header.trim());
 		}
 
-		stopWatch.start("Populating rows");
+		StopWatch stopWatch = new StopWatch(log).start("Populating rows");
 		for (ExecutionMetadata meta : metaData) {
 			final Map<String, Object> row = new HashMap<String, Object>();
 			for (String header : headers) {

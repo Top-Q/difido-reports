@@ -37,8 +37,6 @@ public class HtmlReportsController {
 
 	private Object testFileLockObject = new Object();
 
-	private StopWatch stopWatch;
-
 	enum HtmlGenerationLevel {
 		EXECUTION, MACHINE, SCENARIO, TEST, TEST_DETAILS, ELEMENT
 	}
@@ -47,10 +45,6 @@ public class HtmlReportsController {
 	 * . TODO: Read from the configuration file
 	 */
 	private HtmlGenerationLevel creationLevel = HtmlGenerationLevel.ELEMENT;
-
-	public HtmlReportsController() {
-		stopWatch = new StopWatch(log);
-	}
 
 	@EventListener
 	public void onExecutionCreatedEvent(ExecutionCreatedEvent executionCreatedEvent) {
@@ -148,7 +142,7 @@ public class HtmlReportsController {
 
 	private void writeExecution(ExecutionMetadata executionMetadata) {
 		synchronized (executionFileLockObject) {
-			stopWatch.start("Writing execution " + executionMetadata.getId());
+			StopWatch stopWatch = new StopWatch(log).start("Writing execution " + executionMetadata.getId());
 			PersistenceUtils.writeExecution(executionMetadata.getExecution(),
 					getExecutionDestinationFolder(executionMetadata));
 			stopWatch.stopAndLog();
@@ -159,7 +153,7 @@ public class HtmlReportsController {
 
 	private void writeTestDetails(TestDetails details, ExecutionMetadata executionMetadata) {
 		synchronized (testFileLockObject) {
-			stopWatch.start(
+			StopWatch stopWatch = new StopWatch(log).start(
 					"Writing test details of test " + details.getUid() + " for execution " + executionMetadata.getId());
 			final File executionDestinationFolder = getExecutionDestinationFolder(executionMetadata);
 			PersistenceUtils.writeTest(details, executionDestinationFolder,
@@ -170,7 +164,7 @@ public class HtmlReportsController {
 
 	@EventListener
 	public void onFileAddedToTestEvent(FileAddedToTestEvent fileAddedToTestEvent) {
-		stopWatch.start("Writing file " + fileAddedToTestEvent.getFileName() + " for test "
+		StopWatch stopWatch = new StopWatch(log).start("Writing file " + fileAddedToTestEvent.getFileName() + " for test "
 				+ fileAddedToTestEvent.getTestUid());
 
 		final File destinationFolder = buildTestFolderName(

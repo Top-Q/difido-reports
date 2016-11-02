@@ -15,8 +15,6 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 
 	private final Logger logger;
 
-	private final StopWatch stopWatch;
-	
 	// Package private for unit testing
 	private Map<Integer, ExecutionMetadata> executionsCache;;
 
@@ -28,7 +26,6 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 
 	public AbstactMetadataPersistency() {
 		logger = LoggerFactory.getLogger(AbstactMetadataPersistency.class);
-		stopWatch = new StopWatch(logger);
 		lastId = getLastId();
 	}
 
@@ -38,7 +35,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 	 * @return The largest id. 0 if none exists
 	 */
 	private int getLastId() {
-		stopWatch.start("Reading from persistency");
+		StopWatch stopWatch = new StopWatch(logger).start("Reading from persistency");
 		readFromPersistency();
 		stopWatch.stopAndLog();
 		
@@ -59,7 +56,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 		readFromPersistency();
 		
 		executionsCache.put(metadata.getId(), metadata);
-		stopWatch.start("Writing to persistency");
+		StopWatch stopWatch = new StopWatch(logger).start("Writing to persistency");
 		writeToPersistency();
 		stopWatch.stopAndLog();
 	}
@@ -69,7 +66,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 		if (null == executionsCache.remove(id)) {
 			logger.warn("Tried to delete execution with id " + id + " which is not exists");
 		}
-		stopWatch.start("Writing to persistency");
+		StopWatch stopWatch = new StopWatch(logger).start("Writing to persistency");
 		writeToPersistency();
 		stopWatch.stopAndLog();
 		
