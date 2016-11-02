@@ -22,7 +22,7 @@ using difido_client.Main.Report.Reporters.HtmlTestReporter;
 namespace difido_client.Report.Html
 {
     public class HtmlTestReporter : AbstractDifidoReporter
-    {        
+    {
         private const string htmlArchiveFile = @"Resources\difido-reports-common.jar";
         private const string executionModelFileName = "execution.js";
         private const string testModelFileName = "test.js";
@@ -144,19 +144,51 @@ namespace difido_client.Report.Html
 
         protected override void TestDetailsWereAdded(TestDetails details)
         {
-            CreateTestFolderIfNotExists(details.uid);
-            string json = "var test=" + new JavaScriptSerializer().Serialize(details) + ";";
-            System.IO.StreamWriter file = new System.IO.StreamWriter(testFolder + @"\" + testModelFileName);
-            file.WriteLine(json);
-            file.Close();
+            try
+            {
+                CreateTestFolderIfNotExists(details.uid);
+                JavaScriptSerializer serializer = new JavaScriptSerializer();
+                serializer.MaxJsonLength = int.MaxValue;
+                string json = "var test=" + serializer.Serialize(details) + ";";
+                System.IO.StreamWriter file = new System.IO.StreamWriter(testFolder + @"\" + testModelFileName);
+                try
+                {
+                    file.WriteLine(json);
+                }
+                finally
+                {
+                    file.Close();
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed writing test details due to " + e.Message);
+            }
         }
 
         protected override void ExecutionWasAddedOrUpdated(Execution execution)
         {
-            string json = "var execution=" + new JavaScriptSerializer().Serialize(execution) + ";";
-            System.IO.StreamWriter file = new System.IO.StreamWriter(currentReportFolder + @"\" + executionModelFileName);
-            file.WriteLine(json);
-            file.Close();
+            try
+            {
+                JavaScriptSerializer serailizer = new JavaScriptSerializer();
+                string json = "var execution=" + serailizer.Serialize(execution) + ";";
+                System.IO.StreamWriter file = new System.IO.StreamWriter(currentReportFolder + @"\" + executionModelFileName);
+
+                try
+                {
+                    file.WriteLine(json);
+                }
+                finally
+                {
+                    file.Close();
+                }
+            }
+            catch (Exception e)
+            {
+
+                Console.WriteLine("Failed to write execution due to " + e.Message);
+            }
         }
 
         protected override string FileWasAdded(TestDetails testDetails, string file)

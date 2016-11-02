@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -18,9 +19,14 @@ namespace difido_client_tests
 
         protected IReportDispatcher report = ReportManager.Instance;
 
+        [SetUp]
+        public void SetUp()
+        {            
+        }
+        
         [Test]
         public void SimpleReport()
-        {
+        {            
             report.Report("My very simple report");
         }
 

@@ -15,8 +15,13 @@ namespace difido_client.Nunit
         protected static IReportDispatcher report = ReportManager.Instance;
         private Stopwatch testStopwatch;
         private ReporterTestInfo testInfo;
+        private int testCount;
         
-        public void RunStarted(string name, int testCount) { }
+        public void RunStarted(string name, int testCount)
+        {
+            this.testCount = testCount;
+        }
+        
         public void RunFinished(TestResult result) { }
         public void RunFinished(Exception exception) { }
         public void TestStarted(TestName testName)
@@ -65,7 +70,7 @@ namespace difido_client.Nunit
         }
         public void SuiteStarted(TestName testName)
         {
-            report.StartSuite(null);
+            report.StartSuite(null, testCount);
         }
         public void SuiteFinished(TestResult result)
         {

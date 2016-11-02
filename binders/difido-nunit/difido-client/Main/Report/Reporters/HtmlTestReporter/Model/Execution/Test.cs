@@ -12,6 +12,7 @@ namespace difido_client.Report.Html.Model
         public string uid { get; set; }
         public long duration { get; set; }
         public string timestamp { get; set; }
+        public string className { get; set; }
 
         public Test()
         {

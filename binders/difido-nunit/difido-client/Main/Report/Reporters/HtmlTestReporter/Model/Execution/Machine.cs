@@ -8,6 +8,8 @@ namespace difido_client.Report.Html.Model
 {
     public class Machine : NodeWithChildren
     {
+        public int plannedTests { get; set; }
+
         public Machine()
         {
             type = "machine";

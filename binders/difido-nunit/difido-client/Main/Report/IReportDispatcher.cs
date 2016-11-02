@@ -12,7 +12,7 @@ namespace difido_client
 
         void EndTest(ReporterTestInfo testInfo);
 
-        void StartSuite(string suiteName);
+        void StartSuite(string suiteName,int testCount);
 
         void EndSuite(string suiteName);
 
@@ -37,5 +37,7 @@ namespace difido_client
         void Step(string title);
 
         void AddTestProperty(string propertyName, string propertyValue);
+
+        void EndRun();
     }
 }

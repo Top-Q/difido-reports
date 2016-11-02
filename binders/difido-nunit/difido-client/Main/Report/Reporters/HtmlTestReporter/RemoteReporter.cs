@@ -1,4 +1,5 @@
-﻿using difido_client.Main.Report.Reporters.HtmlTestReporter.Model.Execution;
+﻿using difido_client.Main.Config;
+using difido_client.Main.Report.Reporters.HtmlTestReporter.Model.Execution;
 using difido_client.Report.Html.Model;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
     public class RemoteHtmlReporter : AbstractDifidoReporter
     {
         private readonly int MAX_NUM_OF_ALLOWED_FAILURES = 10;
+        private readonly string CONFIGURATION_SECTION = "reportServer";
         private DifidoClient client;
         private Boolean enabled = true;
         private int executionId;
@@ -33,32 +35,45 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             {
                 return;
             }
-            string host = "localhost";
-            int port = 8080;
-            
+            string host = null;
+            string port = null;
+            try
+            {
+                enabled = Boolean.Parse(Configuration.Instance.GetProperty(CONFIGURATION_SECTION, "enabled"));
+            }
+            catch
+            {
+                enabled = false;
+            }
+
             try
             {
                 if (!enabled)
                 {
                     return;
                 }
-                // host = Configuration.Instance.GetProperty("report", "reportServerHost");
-                // port = Configuration.Instance.GetProperty("report", "reportServerPort");
+                host = Configuration.Instance.GetProperty(CONFIGURATION_SECTION, "host");
+                port = Configuration.Instance.GetProperty(CONFIGURATION_SECTION, "port");
                 ExecutionDetails executionDetails = new ExecutionDetails();
-                //executionDetails.description = "Some description";
+                if (Configuration.Instance.IsPropertyExists(CONFIGURATION_SECTION, "executionDescription"))
+                {
+                    executionDetails.description = Configuration.Instance.GetProperty(CONFIGURATION_SECTION, "executionDescription");
+                }
+                if (Configuration.Instance.IsPropertyExists(CONFIGURATION_SECTION, "executionProperties"))
+                {
+                    string executionPropertiesValue = Configuration.Instance.GetProperty(CONFIGURATION_SECTION, "executionProperties");
 
-                //string executionPropertiesValue = "key0=val0;key1=val1";
+                    // Parsing the properties from the configuration file and adding them as execution properties
+                    executionDetails.executionProperties = executionPropertiesValue.Split(';')
+                        .Select(value => value.Split('='))
+                        .ToDictionary(pair => pair[0], pair => pair[1]);
 
-                //// Parsing the properties from the configuration file and adding them as execution properties
-                //executionDetails.executionProperties = executionPropertiesValue.Split(';')
-                //    .Select(value => value.Split('='))
-                //    .ToDictionary(pair => pair[0], pair => pair[1]);
+                    // We are also adding the execution properties as scenario properties so we could see it in the ElasticSearch
+                    Scenario scenario = (Scenario)CurrentExecution.GetLastMachine().children[0];
+                    scenario.scenarioProperties = executionDetails.executionProperties;
+                }
 
-                //// We are also adding the execution properties as scenario properties so we could see it in the ElasticSearch
-                //Scenario scenario = (Scenario)CurrentExecution.GetLastMachine().children[0];
-                //scenario.scenarioProperties = executionDetails.executionProperties;
-
-                client = new DifidoClient(host, port);
+                client = new DifidoClient(host, Int32.Parse(port));
                 executionId = client.AddExecution(executionDetails);
                 machineId = client.AddMachine(executionId, CurrentExecution.GetLastMachine());
                 enabled = true;
@@ -69,6 +84,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
                 enabled = false;
             }
             first = false;
+
 
 
         }
@@ -84,9 +100,9 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             {
                 client.AddTestDetails(executionId, testDetails);
             }
-            catch
+            catch(Exception e)
             {
-                //log.warning("Failed updating test details to remote server due to " + e.getMessage());
+                Console.WriteLine(e.Message);
                 CheckIfNeedsToDisable();
             }
 
@@ -107,8 +123,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
                 client.UpdateMachine(executionId, machineId, execution.GetLastMachine());
             }
             catch
-            {
-                //log.warning("Failed updating test details to remote server due to " + e.getMessage());
+            {                
                 CheckIfNeedsToDisable();
             }
         }
@@ -128,9 +143,9 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             {
                 client.AddFile(executionId, testDetails.uid, file);
             }
-            catch
+            catch (Exception e)
             {
-                //log.warning("Failed uploading file " + file.getName() + " to remote server due to " + e.getMessage());
+                Console.WriteLine("Failed sending file " + file + " due to " + e.Message);
             }
             return Path.GetFileName(file);
 
@@ -146,14 +161,17 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             numOfFailures++;
             if (numOfFailures > MAX_NUM_OF_ALLOWED_FAILURES)
             {
-                //log.warning("Communication to server has failed more then " + MAX_NUM_OF_ALLOWED_FAILURES
-                //        + ". Disabling report reporter");
+                Console.WriteLine("Communication to server has failed more then " + MAX_NUM_OF_ALLOWED_FAILURES + ". Disabling report reporter");
                 enabled = false;
             }
         }
 
         public override void EndSuite(string suiteName)
         {
+            if (!enabled)
+            {
+                return;
+            }
             client.endExecution(executionId);
         }
 

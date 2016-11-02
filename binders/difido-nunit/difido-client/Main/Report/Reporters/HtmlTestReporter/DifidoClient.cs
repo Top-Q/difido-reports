@@ -61,8 +61,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             {                
                 dataStream.Write(byteArray, 0, byteArray.Length);
 
-            }
-            
+            }            
             return Send(request);
 
         }

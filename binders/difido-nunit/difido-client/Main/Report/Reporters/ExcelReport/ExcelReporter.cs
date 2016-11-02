@@ -93,7 +93,7 @@ namespace difido_client.Report.Excel
             templateWorkbook.Write(new FileStream(outputFile, FileMode.Create, FileAccess.ReadWrite));
         }
 
-        public void StartSuite(string suiteName)
+        public void StartSuite(string suiteName, int testCount)
         {
 
         }
@@ -109,6 +109,11 @@ namespace difido_client.Report.Excel
         }
 
         public void AddTestProperty(string propertyName, string propertyValue)
+        {
+            //Not used
+        }
+
+        public void EndRun()
         {
             //Not used
         }

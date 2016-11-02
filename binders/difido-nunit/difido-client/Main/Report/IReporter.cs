@@ -16,7 +16,9 @@ namespace difido_client
 
         void EndTest(ReporterTestInfo testInfo);
 
-        void StartSuite(string suiteName);
+        void EndRun();
+
+        void StartSuite(string suiteName, int testCount);
 
         void EndSuite(string suiteName);
 

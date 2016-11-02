@@ -2,6 +2,7 @@
 using difido_client.Report.Excel;
 using difido_client.Report.Html;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace difido_client
         private static object syncRoot = new Object();
         private List<IReporter> reporters;
         private string outputFolder;
+        private static List<string> errorsList = new List<string>();
 
         private ReportManager() {
             reporters = new List<IReporter>();
@@ -79,8 +81,9 @@ namespace difido_client
                 {
                     reporter.StartTest(testInfo);
                 }
-
             }
+            errorsList.Clear();
+            
 
         }
 
@@ -90,6 +93,11 @@ namespace difido_client
             {
                 lock (syncRoot)
                 {
+                    if (errorsList.Count > 0)
+                    {
+                        Report("Errors during the test", ConvertListToString(errorsList));
+                    }
+
                     reporter.EndTest(testInfo);
                 }
 
@@ -97,14 +105,60 @@ namespace difido_client
 
         }
 
-        public void StartSuite(string suiteName)
+
+
+
+        public void StartSuite(string suiteName, int testCount)
         {
+            foreach (IReporter reporter in reporters)
+            {
+                lock (syncRoot)
+                {
+                    reporter.StartSuite(suiteName, testCount);
+                }
+            }
+
             
         }
 
         public void EndSuite(string suiteName)
         {
-            
+            foreach (IReporter reporter in reporters)
+            {
+                lock (syncRoot)
+                {
+                    reporter.EndSuite(suiteName);
+
+                }
+
+            }            
+        }
+
+        public void EndRun()
+        {
+            foreach (IReporter reporter in reporters)
+            {
+                lock (syncRoot)
+                {
+                    reporter.EndRun();
+
+                }
+
+            }
+        }
+
+
+        public void ReportError(params object[] args)
+        {
+            var info = ConvertStringArgsToFormatterAndValues(args);
+            var title = string.Format(info[0].ToString(), (string[])info[1]);
+
+            lock (syncRoot)
+            {
+                errorsList.Add(title);
+            }
+
+            Report(title, "");
         }
 
 
@@ -178,6 +232,40 @@ namespace difido_client
             }
 
         }
+
+        private static string ConvertListToString(IEnumerable SourceList)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var item in SourceList)
+            {
+
+                sb.AppendFormat("{0} <br />", item);
+            }
+            return sb.ToString();
+        }
+
+        private static List<object> ConvertStringArgsToFormatterAndValues(params object[] args)
+        {
+            List<object> FormatterAndArgs = new List<object>();
+
+            try
+            {
+                FormatterAndArgs.Add(args[0].ToString());
+                string[] stringArgs = new string[args.Count() - 1];
+                for (int i = 1; i < args.Count(); i++)
+                {
+                    stringArgs[i - 1] = args[i] != null ? args[i].ToString() : "";
+                }
+                FormatterAndArgs.Add(stringArgs);
+            }
+            catch (Exception ex)
+            {
+
+                //ErrorFormat("ConvertStringArgsToFormatterAndValues threw exception :{0}", ex);
+            }
+            return FormatterAndArgs;
+        }
+
     }
 
 

@@ -28,10 +28,7 @@ namespace difido_client.Nunit
                 return true;
 
             }
-            else
-            {
-                return true;
-            }
+            return true;
         }
     }
 }
