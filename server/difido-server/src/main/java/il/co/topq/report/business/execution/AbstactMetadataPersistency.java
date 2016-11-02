@@ -56,9 +56,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 	}
 
 	public synchronized void add(ExecutionMetadata metadata) {
-		stopWatch.start("Reading from persistency");
 		readFromPersistency();
-		stopWatch.stopAndLog();
 		
 		executionsCache.put(metadata.getId(), metadata);
 		stopWatch.start("Writing to persistency");
@@ -67,9 +65,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 	}
 
 	public synchronized void remove(int id) {
-		stopWatch.start("Reading from persistency");
 		readFromPersistency();
-		stopWatch.stopAndLog();
 		if (null == executionsCache.remove(id)) {
 			logger.warn("Tried to delete execution with id " + id + " which is not exists");
 		}
@@ -89,9 +85,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 	}
 
 	public synchronized List<ExecutionMetadata> getAll() {
-		stopWatch.start("Reading from persistency");
 		readFromPersistency();
-		stopWatch.stopAndLog();
 		final List<ExecutionMetadata> result = new ArrayList<ExecutionMetadata>();
 		result.addAll(executionsCache.values());
 		// This synchronized is very important. See issue #81
