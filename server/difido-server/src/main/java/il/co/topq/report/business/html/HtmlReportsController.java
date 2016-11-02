@@ -160,10 +160,24 @@ public class HtmlReportsController {
 
 	@EventListener
 	public void onFileAddedToTestEvent(FileAddedToTestEvent fileAddedToTestEvent) {
-		final File file = new File(
-				getExecutionDestinationFolder(fileAddedToTestEvent.getMetadata()) + File.separator + "tests"
-						+ File.separator + "test_" + fileAddedToTestEvent.getTestUid(),
-				fileAddedToTestEvent.getFileName());
+		final String destinationFolder = getExecutionDestinationFolder(fileAddedToTestEvent.getMetadata())
+				+ File.separator + "tests" + File.separator + "test_" + fileAddedToTestEvent.getTestUid();
+		if (!(new File(destinationFolder).exists())) {
+			log.warn("Test destination folder '" + destinationFolder + "'is not exist and can not save file '"
+					+ fileAddedToTestEvent.getFileName() + "'");
+			return;
+		}
+
+		final File file = new File(destinationFolder, fileAddedToTestEvent.getFileName());
+		try {
+			if (!file.createNewFile()) {
+				log.warn("Failed to create new file in name " + file.getAbsolutePath());
+				return;
+			}
+		} catch (IOException e) {
+			log.warn("Failed to create new file in name " + file.getAbsolutePath() + " due to " + e.getMessage());
+			return;
+		}
 
 		try {
 			try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file))) {
