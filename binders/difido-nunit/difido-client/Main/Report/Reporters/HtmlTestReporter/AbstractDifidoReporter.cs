@@ -42,12 +42,12 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
 
         public void StartTest(ReporterTestInfo testInfo)
         {
-
-            Console.WriteLine("StartTest - Start");
-            
             currentTest = new Test(index, testInfo.TestName, executionUid + "-" + index);
-            currentTest.timestamp = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+            DateTime dateTime = DateTime.Now;
+            currentTest.timestamp = dateTime.ToString("HH:mm:ss");
+            currentTest.date = dateTime.ToString("yyyy/MM/dd");
             currentTest.className = testInfo.FullyQualifiedTestClassName;
+            currentTest.description = testInfo.FullyQualifiedTestClassName;
             string scenarioName = testInfo.FullyQualifiedTestClassName.Split('.')[testInfo.FullyQualifiedTestClassName.Split('.').Length - 2];
             Scenario scenario;
             if (machine.IsChildWithNameExists(scenarioName))
@@ -67,19 +67,15 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             }
             scenario.AddChild(currentTest);
             ExecutionWasAddedOrUpdated(execution);
-            testDetails = new TestDetails(testInfo.TestName, currentTest.uid);
-            testDetails.description = testInfo.FullyQualifiedTestClassName;
-            testDetails.timestamp = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
-
-            Console.WriteLine("StartTest - End");
+            testDetails = new TestDetails(currentTest.uid);
+            
         }
 
         public void EndTest(ReporterTestInfo testInfo)
         {
             TestDetailsWereAdded(testDetails);
             currentTest.status = testInfo.Status.ToString();
-            currentTest.duration = testInfo.DurationTime;
-            testDetails.duration = testInfo.DurationTime;
+            currentTest.duration = testInfo.DurationTime;            
             ExecutionWasAddedOrUpdated(execution);            
             index++;
         }
@@ -87,8 +83,6 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
 
         public void Report(string title, string message, ReporterTestInfo.TestStatus status, ReportElementType type)
         {
-            Console.WriteLine("Report - Start");
-            
             ReportElement element = new ReportElement();
             if (null == testDetails)
             {
@@ -131,8 +125,6 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             stopwatch.Restart();
             TestDetailsWereAdded(testDetails);
 
-            Console.WriteLine("Report - End");
-
         }
 
         public void AddTestProperty(string propertyName, string propertyValue)
@@ -142,8 +134,8 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
                 Console.WriteLine("HTML reporter was not initiliazed propertly. No reports would be created.");
                 return;
             }
-            testDetails.AddProperty(propertyName, propertyValue);
-            TestDetailsWereAdded(testDetails);
+            currentTest.AddProperty(propertyName, propertyValue);
+            ExecutionWasAddedOrUpdated(CurrentExecution);
         }
 
 

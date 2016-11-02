@@ -12,12 +12,17 @@ public class StopWatch {
 			throw new NullPointerException("Log is null");
 		}
 		stopWatch = new org.springframework.util.StopWatch();
+		// We may want to set this to false
+		stopWatch.setKeepTaskList(true);
 		this.log = log;
 	}
 
 	public StopWatch start(String taskName) {
 		if (!log.isTraceEnabled()){
 			return this;
+		}
+		if (stopWatch.isRunning()){
+			stopWatch.stop();
 		}
 		try {
 			stopWatch.start(taskName);

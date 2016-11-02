@@ -22,7 +22,7 @@ public class TestsWithFiles extends AbstractDifidoTestCase {
 	}
 
 	@Test(description = "Adding screenshot to the report")
-	public void testAddScreenshot() throws IOException, AWTException {
+	public void testAddScreenshot0() throws IOException, AWTException {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Rectangle screenRectangle = new Rectangle(screenSize);
 		Robot robot = new Robot();
@@ -33,5 +33,19 @@ public class TestsWithFiles extends AbstractDifidoTestCase {
 		imgFile.delete();
 
 	}
+	
+	@Test(description = "Adding screenshot to the report")
+	public void testAddScreenshot1() throws IOException, AWTException {
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Rectangle screenRectangle = new Rectangle(screenSize);
+		Robot robot = new Robot();
+		BufferedImage image = robot.createScreenCapture(screenRectangle);
+		File imgFile = File.createTempFile("screenshot_file", "png");
+		ImageIO.write(image, "png", imgFile);
+		report.addImage(imgFile, "My screenshot file");
+		imgFile.delete();
+
+	}
+
 
 }
