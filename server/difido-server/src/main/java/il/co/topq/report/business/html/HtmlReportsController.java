@@ -16,6 +16,7 @@ import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
+import il.co.topq.report.StopWatch;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionCreatedEvent;
 import il.co.topq.report.events.ExecutionDeletedEvent;
@@ -36,6 +37,8 @@ public class HtmlReportsController {
 
 	private Object testFileLockObject = new Object();
 
+	private StopWatch stopWatch;
+
 	enum HtmlGenerationLevel {
 		EXECUTION, MACHINE, SCENARIO, TEST, TEST_DETAILS, ELEMENT
 	}
@@ -44,6 +47,10 @@ public class HtmlReportsController {
 	 * . TODO: Read from the configuration file
 	 */
 	private HtmlGenerationLevel creationLevel = HtmlGenerationLevel.ELEMENT;
+
+	public HtmlReportsController() {
+		stopWatch = new StopWatch(log);
+	}
 
 	@EventListener
 	public void onExecutionCreatedEvent(ExecutionCreatedEvent executionCreatedEvent) {
@@ -141,8 +148,10 @@ public class HtmlReportsController {
 
 	private void writeExecution(ExecutionMetadata executionMetadata) {
 		synchronized (executionFileLockObject) {
+			stopWatch.start("Writing execution " + executionMetadata.getId());
 			PersistenceUtils.writeExecution(executionMetadata.getExecution(),
 					getExecutionDestinationFolder(executionMetadata));
+			stopWatch.stopAndLog();
 
 		}
 
@@ -150,32 +159,45 @@ public class HtmlReportsController {
 
 	private void writeTestDetails(TestDetails details, ExecutionMetadata executionMetadata) {
 		synchronized (testFileLockObject) {
+			stopWatch.start(
+					"Writing test details of test " + details.getUid() + " for execution " + executionMetadata.getId());
 			final File executionDestinationFolder = getExecutionDestinationFolder(executionMetadata);
-			log.trace("About to write test details for execution " + executionMetadata.getId());
 			PersistenceUtils.writeTest(details, executionDestinationFolder,
-					new File(executionDestinationFolder, "tests" + File.separator + "test_" + details.getUid()));
-			log.trace("Finished writing test details for execution " + executionMetadata.getId());
+					buildTestFolderName(executionDestinationFolder, details.getUid()));
+			stopWatch.stopAndLog();
 		}
 	}
 
 	@EventListener
 	public void onFileAddedToTestEvent(FileAddedToTestEvent fileAddedToTestEvent) {
-		final String destinationFolder = getExecutionDestinationFolder(fileAddedToTestEvent.getMetadata())
-				+ File.separator + "tests" + File.separator + "test_" + fileAddedToTestEvent.getTestUid();
-		if (!(new File(destinationFolder).exists())) {
-			log.warn("Test destination folder '" + destinationFolder + "'is not exist and can not save file '"
-					+ fileAddedToTestEvent.getFileName() + "'");
-			return;
+		stopWatch.start("Writing file " + fileAddedToTestEvent.getFileName() + " for test "
+				+ fileAddedToTestEvent.getTestUid());
+
+		final File destinationFolder = buildTestFolderName(
+				getExecutionDestinationFolder(fileAddedToTestEvent.getMetadata()), fileAddedToTestEvent.getTestUid());
+		if (!destinationFolder.exists()) {
+			// In some cases there can be a race condition between the
+			// WriteTestDetails method and this method. If this method will be
+			// executed first, the destination folder will not be ready so we
+			// have to create it here
+			try {
+				FileUtils.forceMkdir(destinationFolder);
+			} catch (IOException e) {
+				log.warn("Test destination folder '" + destinationFolder.getAbsolutePath()
+						+ "'is not exist and failed to create one for storing file '"
+						+ fileAddedToTestEvent.getFileName() + "'");
+				return;
+			}
 		}
 
 		final File file = new File(destinationFolder, fileAddedToTestEvent.getFileName());
 		try {
 			if (!file.createNewFile()) {
-				log.warn("Failed to create new file in name " + file.getAbsolutePath());
+				log.warn("Failed to create new file " + file.getAbsolutePath());
 				return;
 			}
 		} catch (IOException e) {
-			log.warn("Failed to create new file in name " + file.getAbsolutePath() + " due to " + e.getMessage());
+			log.warn("Failed to create new file " + file.getAbsolutePath() + " due to " + e.getMessage());
 			return;
 		}
 
@@ -187,6 +209,7 @@ public class HtmlReportsController {
 			log.warn("Failed to save file with name " + fileAddedToTestEvent.getFileName() + " due to "
 					+ e.getMessage());
 		}
+		stopWatch.stopAndLog();
 	}
 
 	@EventListener
@@ -201,6 +224,10 @@ public class HtmlReportsController {
 	public void executionEnded(ExecutionEndedEvent executionEndedEvent) {
 		writeExecution(executionEndedEvent.getMetadata());
 
+	}
+
+	private static File buildTestFolderName(final File executionDestinationFolder, String uid) {
+		return new File(executionDestinationFolder, "tests" + File.separator + "test_" + uid);
 	}
 
 }
