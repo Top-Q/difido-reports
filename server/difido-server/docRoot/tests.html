@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html>
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Compare tests view">
+    <meta name="author" content="Itai Agmon">
+    <title>Tests Comparison</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/buttons.dataTables.min.css" rel="stylesheet">
+    <link href="css/jquery.dataTables.min.css" rel="stylesheet">
+
+    <style>
+        h2 {
+            color: #CCCCCC;
+            text-align: center;
+        }
+        
+        div.dt-buttons {
+            # float: none;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <!--<div class="row">-->
+        <h2>Tests Comparison</h2>
+        <hr>
+        <div class="col-md-12 main">
+            <table id="etable" class="display">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name #1</th>
+                        <th>ExecutionId #1</th>
+                        <th>Status #1</th>
+                        <th>Name #2</th>
+                        <th>ExecutionId #2</th>
+                        <th>Status #2</th>
+
+                    </tr>
+                    
+                </thead>
+                <tbody>
+                    
+
+                </tbody>
+            </table>
+    </div>
+
+    <script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="js/pdfmake.min.js"></script>
+    <script type="text/javascript" src="js/vfs_fonts.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootbox.js"></script>
+
+    <script>
+
+        function getParameterByName(name, url) {
+            if (!url) {
+                url = window.location.href;
+            }
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
+        }
+
+		$(document).ready(function() {
+            var ids = getParameterByName("ids").split(",");
+            var results = [];
+			$.ajax('/api/elastic?query=executionId:'+ids[0] + " OR executionId:" + ids[1]).done(makeTable);
+		});
+
+        function sort(json) {
+            var ids = [];
+            // Get the ids
+            for (var i = 0 ; i < json.length ; i++){
+                var id = json[i]["executionId"];
+                if (ids.indexOf(id) < 0){
+                    ids.push(id);
+                }
+                // ids.add(json[i]["executionId"]);
+            }
+            var executions = [];
+            for (var i = 0 ; i < ids.length ; i++){
+                executions.push([]);
+            }
+
+            console.log(ids);
+            for (var i = 0 ; i < json.length ; i++){
+                executions[ids.indexOf(json[i]['executionId'])].push(json[i]);
+            }
+            return executions;
+        }
+        
+        function makeTable(json) {
+            console.log(json);
+            var data = sort(json)
+
+            return;
+            for (var i = 0 ; i < json.length ; i++){
+                var row = [];
+                row.push(i);
+                row.push(json[i]["name"]);
+                row.push(json[i]["executionId"]);
+                row.push(json[i]["status"]);
+                data.push(row);
+            }
+
+            var table = $('etable')
+                    .DataTable(
+                            {
+                                dom : 'lBfrtip',
+                                buttons: ['copyHtml5', 'csvHtml5', 'pdfHtml5' ],
+                                data : data,
+                                aaSorting : [],
+                                deferRender : true,
+                                sPaginationType : "full_numbers",
+            
+                            }
+                        );
+
+
+
+        }
+
+	</script>
+</body>
+
+</html>
