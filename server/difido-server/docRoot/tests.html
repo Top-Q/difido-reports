@@ -75,13 +75,25 @@
             return decodeURIComponent(results[2].replace(/\+/g, " "));
         }
 
+        function buildElasticQuery(queryString) {
+            var ids = queryString.split(",");
+            var elasticQuery = "executionId:" + ids[0];
+            if (ids.length <= 1) {
+                return elasticQuery;
+            }
+            for (var i = 1 ; i < ids.length ; i++) {
+                elasticQuery += " OR executionId:" + ids[i];
+            }
+            return elasticQuery;
+
+        }
+
 		$(document).ready(function() {
-            var ids = getParameterByName("ids").split(",");
-            var results = [];
-			$.ajax('/api/elastic?query=executionId:'+ids[0] + " OR executionId:" + ids[1]).done(makeTable);
+            var query = buildElasticQuery(getParameterByName("ids"));
+			$.ajax('/api/elastic?query=' + query).done(makeTable);
 		});
 
-        function sort(json) {
+        function sortByExecution(json) {
             var ids = [];
             // Get the ids
             for (var i = 0 ; i < json.length ; i++){
@@ -89,23 +101,69 @@
                 if (ids.indexOf(id) < 0){
                     ids.push(id);
                 }
-                // ids.add(json[i]["executionId"]);
             }
             var executions = [];
             for (var i = 0 ; i < ids.length ; i++){
                 executions.push([]);
             }
 
-            console.log(ids);
             for (var i = 0 ; i < json.length ; i++){
                 executions[ids.indexOf(json[i]['executionId'])].push(json[i]);
             }
+            console.log(executions);
             return executions;
+        }
+
+        function isSameTest(test0, test1){
+            return test0.name === test1.name;
+        }
+
+        function isTestResultEquals(test0, test1) {
+            return test0.status === test1.status;
+        }
+
+        function compare(tests){
+            if (tests.length != 2){
+                var errorMsg = "Comparison supports only two executions";
+                alert(errorMsg);
+                throw errorMsg;
+            }
+            var equals = "EQUALS";
+            var notEquals = "NOT EQUALS";
+            var notExists = "NOT EXISTS";
+            var result = [];            
+            var rIndex = 0;
+            for (var lIndex = 0 ; lIndex < tests[0].length ; lIndex++){
+                
+                for (var i = rIndex ; i < tests[1].length ; i++) {
+                    if (isSameTest(tests[0][lIndex] , tests[1][i])) {
+                        rIndex = i;
+                        var row = [];
+                        row.push(tests[0][lIndex]);
+                        row.push(tests[1][rIndex]);
+                        if (isTestResultEquals(tests[0][rIndex],tests[1][i])){
+                            row.push(equals);
+                        } else {
+                            row.push(notEquals);
+                        }
+                        result.push(row);
+                        break;
+                    }
+                    var row = [];
+                    row.push("");
+                    row.push(tests[1][i]);
+                    row.push(notExists);
+
+
+                    
+                }
+            }
         }
         
         function makeTable(json) {
             console.log(json);
-            var data = sort(json)
+            var testsByExecution = sortByExecution(json)
+            var comparisonData = compare(testsByExecution);
 
             return;
             for (var i = 0 ; i < json.length ; i++){
