@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html>
+
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="description" content="Main view of the Difido report server">
+	<meta name="author" content="Itai Agmon">
+	<title>List of Reports</title>
+
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/buttons.dataTables.min.css" rel="stylesheet">
+	<link href="css/jquery.dataTables.min.css" rel="stylesheet">
+
+	<style>
+		h2 {
+			color: #CCCCCC;
+			text-align: center;
+		}
+		
+		div.dt-buttons {
+			# float: none;
+			text-align: center;
+		}
+		body {
+    		margin: 0;
+		}
+	</style>
+</head>
+
+<body style="margin:0px;padding:0px;overflow:hidden">
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	  <div class="container-fluid">
+	    <div class="navbar-header">
+	      <a class="navbar-brand" href="index.html">Difido</a>
+	    </div>
+	    <ul class="nav navbar-nav">
+	      <li><a href="index.html">Execution Reports</a></li>
+	      <li class="active"><a href="#">Kibana</a></li>
+	    </ul>
+	  </div>
+	</nav>
+		<iframe src="http://localhost:5601/goto/0b2e9f3936265ea6eebda34df918353f" frameborder="0" style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:51px;left:0px;right:0px;bottom:0px" height="100%" width="100%"></iframe>
+
+</body>
+
+</html>
