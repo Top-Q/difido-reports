@@ -21,6 +21,7 @@ public enum Configuration {
 		// @formatter:off
 		DOC_ROOT_FOLDER("doc.root.folder", "docRoot"),
 		PATH_DATA("path.data","data/index"), 
+		KIBANA_URL("kibana.url","http://localhost:5601/app/kibana#/dashboard/Main?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-7d,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:8,id:Status-per-Test,panelIndex:1,row:3,size_x:5,size_y:3,type:visualization),(col:8,id:Number-of-Tests,panelIndex:2,row:1,size_x:5,size_y:2,type:visualization),(col:1,id:Tests-per-Execution,panelIndex:3,row:1,size_x:7,size_y:5,type:visualization),(col:10,id:Top-Duration-of-Tests,panelIndex:4,row:20,size_x:3,size_y:3,type:visualization),(col:1,id:Average-duration-per-test,panelIndex:5,row:6,size_x:7,size_y:5,type:visualization),(col:8,id:Number-of-tests-per-execution,panelIndex:6,row:6,size_x:5,size_y:4,type:visualization),(col:8,id:Learn-query-string,panelIndex:7,row:10,size_x:5,size_y:1,type:visualization),(col:1,id:Execution-comparison,panelIndex:9,row:11,size_x:9,size_y:6,type:visualization),(col:10,id:Most-frequent-test-failures,panelIndex:10,row:11,size_x:3,size_y:6,type:visualization),(col:1,id:Test-status-per-execution,panelIndex:11,row:17,size_x:12,size_y:3,type:visualization),(col:1,id:Duration-of-last-executions,panelIndex:12,row:20,size_x:9,size_y:3,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:Main,uiState:(P-1:(vis:(colors:(error:%23E24D42,failure:%23EF843C,success:%237EB26D,warning:%23EAB839),legendOpen:!f)),P-3:(vis:(colors:(error:%23E24D42,failure:%23EF843C,success:%237EB26D,warning:%23EAB839),legendOpen:!f))))"),
 		MAX_EXECUTION_IDLE_TIME_IN_SEC("max.execution.idle.time.in.seconds","600"),
 		ENABLE_ELASTIC_SEARCH("enable.elastic.search", "true"),
 		STORE_IN_ELASTIC_ONLY_AT_EXECUTION_END("store.in.elastic.only.at.execution.end", "false"),
@@ -96,31 +97,21 @@ public enum Configuration {
 
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (Object key : configProperties.keySet()) {
+			sb.append(key).append(":").append(configProperties.getProperty(String.valueOf(key))).append("\n");
+		}
+		return sb.toString();
+	}
+
 	private void useDefaultProperties() {
 		log.info("No configuration file found - Creating one with default parameters in "
 				+ new File(Common.CONFIUGRATION_FOLDER_NAME, CONFIG_PROP_NAME).getAbsolutePath());
-		addPropWithDefaultValue(ConfigProps.DOC_ROOT_FOLDER);
-		addPropWithDefaultValue(ConfigProps.PATH_DATA);
-		addPropWithDefaultValue(ConfigProps.MAX_EXECUTION_IDLE_TIME_IN_SEC);
-		addPropWithDefaultValue(ConfigProps.ENABLE_ELASTIC_SEARCH);
-		addPropWithDefaultValue(ConfigProps.STORE_IN_ELASTIC_ONLY_AT_EXECUTION_END);
-		addPropWithDefaultValue(ConfigProps.EXTERNAL_ELASTIC);
-		addPropWithDefaultValue(ConfigProps.EXTERNAL_ELASTIC_HOST);
-		addPropWithDefaultValue(ConfigProps.EXTERNAL_ELASTIC_PORT);
-		addPropWithDefaultValue(ConfigProps.ENABLE_HTML_REPORTS);
-		addPropWithDefaultValue(ConfigProps.DAYS_TO_KEEP_HTML_REPORTS);
-		addPropWithDefaultValue(ConfigProps.ENABLE_MAIL);
-		addPropWithDefaultValue(ConfigProps.MAIL_USER_NAME);
-		addPropWithDefaultValue(ConfigProps.MAIL_PASSWORD);
-		addPropWithDefaultValue(ConfigProps.MAIL_SMTP_HOST);
-		addPropWithDefaultValue(ConfigProps.MAIL_SMTP_PORT);
-		addPropWithDefaultValue(ConfigProps.MAIL_SSL);
-		addPropWithDefaultValue(ConfigProps.MAIL_FROM_ADDRESS);
-		addPropWithDefaultValue(ConfigProps.MAIL_TO_ADDRESS);
-		addPropWithDefaultValue(ConfigProps.MAIL_CC_ADDRESS);
-		addPropWithDefaultValue(ConfigProps.CUSTOM_EXECUTION_PROPERTIES);
-		addPropWithDefaultValue(ConfigProps.PLUGIN_CLASSES);
-		addPropWithDefaultValue(ConfigProps.EXECUTION_TABLE_HEADERS);
+		for (ConfigProps prop : ConfigProps.values()){
+			addPropWithDefaultValue(prop);
+		}
 		try (FileOutputStream out = new FileOutputStream(
 				new File(Common.CONFIUGRATION_FOLDER_NAME, CONFIG_PROP_NAME))) {
 			configProperties.store(out, "Default difido server properties");
@@ -160,4 +151,5 @@ public enum Configuration {
 		}
 		return value.trim();
 	}
+	
 }
