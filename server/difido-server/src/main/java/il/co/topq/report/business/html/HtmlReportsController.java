@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,8 @@ import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.StopWatch;
+import il.co.topq.report.business.AsyncActionQueue;
+import il.co.topq.report.business.AsyncActionQueue.AsyncAction;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionCreatedEvent;
 import il.co.topq.report.events.ExecutionDeletedEvent;
@@ -33,12 +36,15 @@ public class HtmlReportsController {
 
 	private static final File TEMPLATE_FOLDER = new File("htmlTemplate");
 
-	private Object executionFileLockObject = new Object();
-
-	private Object testFileLockObject = new Object();
+	private AsyncActionQueue queue;
 
 	enum HtmlGenerationLevel {
 		EXECUTION, MACHINE, SCENARIO, TEST, TEST_DETAILS, ELEMENT
+	}
+
+	@Autowired
+	public HtmlReportsController(AsyncActionQueue queue) {
+		this.queue = queue;
 	}
 
 	/**
@@ -100,26 +106,29 @@ public class HtmlReportsController {
 	}
 
 	private void prepareExecutionFolder(ExecutionMetadata executionMetadata) {
-		synchronized (executionFileLockObject) {
-			final File executionDestinationFolder = getExecutionDestinationFolder(executionMetadata);
-			if (!TEMPLATE_FOLDER.exists() || !(new File(TEMPLATE_FOLDER, "index.html").exists())) {
-				PersistenceUtils.copyResources(TEMPLATE_FOLDER);
-			}
-
-			if (!executionDestinationFolder.exists()) {
-				if (!executionDestinationFolder.mkdirs()) {
-					log.error("Failed creating report destination folder in "
-							+ executionDestinationFolder.getAbsolutePath());
-					return;
+		final File executionDestinationFolder = getExecutionDestinationFolder(executionMetadata);
+		queue.addAction(new AsyncAction() {
+			@Override
+			public void execute() {
+				if (!TEMPLATE_FOLDER.exists() || !(new File(TEMPLATE_FOLDER, "index.html").exists())) {
+					PersistenceUtils.copyResources(TEMPLATE_FOLDER);
+				}
+				
+				if (!executionDestinationFolder.exists()) {
+					if (!executionDestinationFolder.mkdirs()) {
+						log.error(
+								"Failed creating report destination folder in " + executionDestinationFolder.getAbsolutePath());
+						return;
+					}
+				}
+				
+				try {
+					FileUtils.copyDirectory(TEMPLATE_FOLDER, executionDestinationFolder);
+				} catch (IOException e) {
+					log.error("Failed copying html files to execution folder", e);
 				}
 			}
-			try {
-				FileUtils.copyDirectory(TEMPLATE_FOLDER, executionDestinationFolder);
-			} catch (IOException e) {
-				log.error("Failed copying html files to execution folder", e);
-			}
-		}
-
+		});
 	}
 
 	private File getExecutionDestinationFolder(ExecutionMetadata metadata) {
@@ -141,31 +150,38 @@ public class HtmlReportsController {
 	}
 
 	private void writeExecution(ExecutionMetadata executionMetadata) {
-		synchronized (executionFileLockObject) {
-			StopWatch stopWatch = new StopWatch(log).start("Writing execution " + executionMetadata.getId());
-			PersistenceUtils.writeExecution(executionMetadata.getExecution(),
-					getExecutionDestinationFolder(executionMetadata));
-			stopWatch.stopAndLog();
+		queue.addAction(new AsyncAction() {
 
-		}
+			@Override
+			public void execute() {
+				StopWatch stopWatch = new StopWatch(log).start("Writing execution " + executionMetadata.getId());
+				PersistenceUtils.writeExecution(executionMetadata.getExecution(),
+						getExecutionDestinationFolder(executionMetadata));
+				stopWatch.stopAndLog();
+			}
+		});
 
 	}
 
 	private void writeTestDetails(TestDetails details, ExecutionMetadata executionMetadata) {
-		synchronized (testFileLockObject) {
-			StopWatch stopWatch = new StopWatch(log).start(
-					"Writing test details of test " + details.getUid() + " for execution " + executionMetadata.getId());
-			final File executionDestinationFolder = getExecutionDestinationFolder(executionMetadata);
-			PersistenceUtils.writeTest(details, executionDestinationFolder,
-					buildTestFolderName(executionDestinationFolder, details.getUid()));
-			stopWatch.stopAndLog();
-		}
+		queue.addAction(new AsyncAction() {
+
+			@Override
+			public void execute() {
+				StopWatch stopWatch = new StopWatch(log).start("Writing test details of test " + details.getUid()
+						+ " for execution " + executionMetadata.getId());
+				final File executionDestinationFolder = getExecutionDestinationFolder(executionMetadata);
+				PersistenceUtils.writeTest(details, executionDestinationFolder,
+						buildTestFolderName(executionDestinationFolder, details.getUid()));
+				stopWatch.stopAndLog();
+			}
+		});
 	}
 
 	@EventListener
 	public void onFileAddedToTestEvent(FileAddedToTestEvent fileAddedToTestEvent) {
-		StopWatch stopWatch = new StopWatch(log).start("Writing file " + fileAddedToTestEvent.getFileName() + " for test "
-				+ fileAddedToTestEvent.getTestUid());
+		StopWatch stopWatch = new StopWatch(log).start("Writing file " + fileAddedToTestEvent.getFileName()
+				+ " for test " + fileAddedToTestEvent.getTestUid());
 
 		final File destinationFolder = buildTestFolderName(
 				getExecutionDestinationFolder(fileAddedToTestEvent.getMetadata()), fileAddedToTestEvent.getTestUid());

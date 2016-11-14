@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -16,21 +17,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
+import il.co.topq.report.business.AsyncActionQueue;
+import il.co.topq.report.business.AsyncActionQueue.AsyncAction;
 
 @Component
 class MetadataFileSystemPersistency extends AbstactMetadataPersistency {
 
 	private final Logger log = LoggerFactory.getLogger(MetadataFileSystemPersistency.class);
 
-	private static Object fileAccessLockObject = new Object();
-
 	private static final String EXECUTION_FILE_NAME = "reports/meta.json";
 
-	
-	public MetadataFileSystemPersistency(){
+	private AsyncActionQueue queue;
+
+	@Autowired
+	public MetadataFileSystemPersistency(AsyncActionQueue queue) {
 		super();
+		this.queue = queue;
 	}
-	
+
 	private File getExecutionMetaFile() {
 		return new File(Configuration.INSTANCE.readString(ConfigProps.DOC_ROOT_FOLDER), EXECUTION_FILE_NAME);
 	}
@@ -40,37 +44,40 @@ class MetadataFileSystemPersistency extends AbstactMetadataPersistency {
 		if (!isCacheInitialized()) {
 			return;
 		}
-		synchronized (fileAccessLockObject) {
-			final File executionMetaFile = getExecutionMetaFile();
-			if (!executionMetaFile.exists()) {
-				if (!executionMetaFile.getParentFile().exists()) {
-					if (!executionMetaFile.getParentFile().mkdirs()) {
-						log.error("Failed creating folder for execution meta file ");
+		final File executionMetaFile = getExecutionMetaFile();
+		if (!executionMetaFile.exists()) {
+			if (!executionMetaFile.getParentFile().exists()) {
+				if (!executionMetaFile.getParentFile().mkdirs()) {
+					log.error("Failed creating folder for execution meta file ");
+					return;
+				}
+				try {
+					if (!executionMetaFile.createNewFile()) {
+						log.error("Failed creating execution meta file");
 						return;
 					}
-					try {
-						if (!executionMetaFile.createNewFile()) {
-							log.error("Failed creating execution meta file");
-							return;
-						}
-					} catch (IOException e) {
-						log.error("Failed creating execution meta file", e);
-						return;
-					}
+				} catch (IOException e) {
+					log.error("Failed creating execution meta file", e);
+					return;
 				}
 			}
-			try {
-				// We will create a temporary file and only after successful
-				// write we
-				// will move it to be the actual file.
-				final File executionTempMetaFile = new File(executionMetaFile.getParent(),
-						executionMetaFile.getName() + ".tmp");
-				new ObjectMapper().writeValue(executionTempMetaFile, getExecutionsCache());
-				Files.move(executionTempMetaFile.toPath(), executionMetaFile.toPath(), REPLACE_EXISTING);
-			} catch (IOException e) {
-				log.error("Failed writing execution meta data", e);
-			}
 		}
+		queue.addAction(new AsyncAction() {
+			@Override
+			public void execute() {
+				try {
+					// We will create a temporary file and only after successful
+					// write we
+					// will move it to be the actual file.
+					final File executionTempMetaFile = new File(executionMetaFile.getParent(),
+							executionMetaFile.getName() + ".tmp");
+					new ObjectMapper().writeValue(executionTempMetaFile, getExecutionsCache());
+					Files.move(executionTempMetaFile.toPath(), executionMetaFile.toPath(), REPLACE_EXISTING);
+				} catch (IOException e) {
+					log.error("Failed writing execution meta data", e);
+				}
+			}
+		});
 	}
 
 	@Override
@@ -79,24 +86,22 @@ class MetadataFileSystemPersistency extends AbstactMetadataPersistency {
 			// We read it already
 			return;
 		}
-		synchronized (fileAccessLockObject) {
-			final File metaFile = getExecutionMetaFile();
-			if (!metaFile.exists()) {
-				initCache();
-				return;
-			}
-			try {
-				Map<Integer, ExecutionMetadata> data = new ObjectMapper().readValue(metaFile,
-						new TypeReference<Map<Integer, ExecutionMetadata>>() {
-						});
-				populateCache(data);
-			} catch (IOException e) {
-				log.error("Failed reading execution meta data file.", e);
-				initCache();
-				return;
-			}
-
+		final File metaFile = getExecutionMetaFile();
+		if (!metaFile.exists()) {
+			initCache();
+			return;
 		}
+		try {
+			Map<Integer, ExecutionMetadata> data = new ObjectMapper().readValue(metaFile,
+					new TypeReference<Map<Integer, ExecutionMetadata>>() {
+					});
+			populateCache(data);
+		} catch (IOException e) {
+			log.error("Failed reading execution meta data file.", e);
+			initCache();
+			return;
+		}
+
 	}
 
 }
