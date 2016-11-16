@@ -95,13 +95,15 @@ public class HtmlReportsController {
 			log.warn("Could not find folder for exeuction with id " + executionMetadata.getId());
 			return;
 		}
-		try {
-			FileUtils.deleteDirectory(executionFolder);
-			log.debug("Finished deleting execution folder of execution with id " + executionMetadata.getId());
-		} catch (IOException e) {
-			log.warn("Failed to delete folder " + executionFolder.getAbsolutePath() + " for execution "
-					+ executionMetadata.getId());
-		}
+		queue.addAction(() -> {
+			try {
+				FileUtils.deleteDirectory(executionFolder);
+				log.debug("Finished deleting execution folder of execution with id " + executionMetadata.getId());
+			} catch (IOException e) {
+				log.warn("Failed to delete folder " + executionFolder.getAbsolutePath() + " for execution "
+						+ executionMetadata.getId());
+			}
+		});
 	}
 
 	private void prepareExecutionFolder(ExecutionMetadata executionMetadata) {
@@ -173,41 +175,45 @@ public class HtmlReportsController {
 
 		final File destinationFolder = buildTestFolderName(
 				getExecutionDestinationFolder(fileAddedToTestEvent.getMetadata()), fileAddedToTestEvent.getTestUid());
-		if (!destinationFolder.exists()) {
-			// In some cases there can be a race condition between the
-			// WriteTestDetails method and this method. If this method will be
-			// executed first, the destination folder will not be ready so we
-			// have to create it here
+		queue.addAction(() -> {
+			if (!destinationFolder.exists()) {
+				// In some cases there can be a race condition between the
+				// WriteTestDetails method and this method. If this method will
+				// be
+				// executed first, the destination folder will not be ready so
+				// we
+				// have to create it here
+				try {
+					FileUtils.forceMkdir(destinationFolder);
+				} catch (IOException e) {
+					log.warn("Test destination folder '" + destinationFolder.getAbsolutePath()
+							+ "'is not exist and failed to create one for storing file '"
+							+ fileAddedToTestEvent.getFileName() + "'");
+					return;
+				}
+			}
+
+			final File file = new File(destinationFolder, fileAddedToTestEvent.getFileName());
 			try {
-				FileUtils.forceMkdir(destinationFolder);
+				if (!file.createNewFile()) {
+					log.warn("Failed to create new file " + file.getAbsolutePath());
+					return;
+				}
 			} catch (IOException e) {
-				log.warn("Test destination folder '" + destinationFolder.getAbsolutePath()
-						+ "'is not exist and failed to create one for storing file '"
-						+ fileAddedToTestEvent.getFileName() + "'");
+				log.warn("Failed to create new file " + file.getAbsolutePath() + " due to " + e.getMessage());
 				return;
 			}
-		}
 
-		final File file = new File(destinationFolder, fileAddedToTestEvent.getFileName());
-		try {
-			if (!file.createNewFile()) {
-				log.warn("Failed to create new file " + file.getAbsolutePath());
-				return;
+			try {
+				try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file))) {
+					stream.write(fileAddedToTestEvent.getFileContent());
+				}
+			} catch (IOException e) {
+				log.warn("Failed to save file with name " + fileAddedToTestEvent.getFileName() + " due to "
+						+ e.getMessage());
 			}
-		} catch (IOException e) {
-			log.warn("Failed to create new file " + file.getAbsolutePath() + " due to " + e.getMessage());
-			return;
-		}
-
-		try {
-			try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file))) {
-				stream.write(fileAddedToTestEvent.getFileContent());
-			}
-		} catch (IOException e) {
-			log.warn("Failed to save file with name " + fileAddedToTestEvent.getFileName() + " due to "
-					+ e.getMessage());
-		}
-		stopWatch.stopAndLog();
+			stopWatch.stopAndLog();
+		});
 	}
 
 	@EventListener
