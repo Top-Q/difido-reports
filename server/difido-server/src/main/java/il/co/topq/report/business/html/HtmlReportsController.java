@@ -19,7 +19,6 @@ import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.StopWatch;
 import il.co.topq.report.business.AsyncActionQueue;
-import il.co.topq.report.business.AsyncActionQueue.AsyncAction;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionCreatedEvent;
 import il.co.topq.report.events.ExecutionDeletedEvent;
@@ -107,26 +106,23 @@ public class HtmlReportsController {
 
 	private void prepareExecutionFolder(ExecutionMetadata executionMetadata) {
 		final File executionDestinationFolder = getExecutionDestinationFolder(executionMetadata);
-		queue.addAction(new AsyncAction() {
-			@Override
-			public void execute() {
-				if (!TEMPLATE_FOLDER.exists() || !(new File(TEMPLATE_FOLDER, "index.html").exists())) {
-					PersistenceUtils.copyResources(TEMPLATE_FOLDER);
+		queue.addAction(() -> {
+			if (!TEMPLATE_FOLDER.exists() || !(new File(TEMPLATE_FOLDER, "index.html").exists())) {
+				PersistenceUtils.copyResources(TEMPLATE_FOLDER);
+			}
+
+			if (!executionDestinationFolder.exists()) {
+				if (!executionDestinationFolder.mkdirs()) {
+					log.error("Failed creating report destination folder in "
+							+ executionDestinationFolder.getAbsolutePath());
+					return;
 				}
-				
-				if (!executionDestinationFolder.exists()) {
-					if (!executionDestinationFolder.mkdirs()) {
-						log.error(
-								"Failed creating report destination folder in " + executionDestinationFolder.getAbsolutePath());
-						return;
-					}
-				}
-				
-				try {
-					FileUtils.copyDirectory(TEMPLATE_FOLDER, executionDestinationFolder);
-				} catch (IOException e) {
-					log.error("Failed copying html files to execution folder", e);
-				}
+			}
+
+			try {
+				FileUtils.copyDirectory(TEMPLATE_FOLDER, executionDestinationFolder);
+			} catch (IOException e) {
+				log.error("Failed copying html files to execution folder", e);
 			}
 		});
 	}
@@ -150,31 +146,23 @@ public class HtmlReportsController {
 	}
 
 	private void writeExecution(ExecutionMetadata executionMetadata) {
-		queue.addAction(new AsyncAction() {
-
-			@Override
-			public void execute() {
-				StopWatch stopWatch = new StopWatch(log).start("Writing execution " + executionMetadata.getId());
-				PersistenceUtils.writeExecution(executionMetadata.getExecution(),
-						getExecutionDestinationFolder(executionMetadata));
-				stopWatch.stopAndLog();
-			}
+		queue.addAction(() -> {
+			StopWatch stopWatch = new StopWatch(log).start("Writing execution " + executionMetadata.getId());
+			PersistenceUtils.writeExecution(executionMetadata.getExecution(),
+					getExecutionDestinationFolder(executionMetadata));
+			stopWatch.stopAndLog();
 		});
 
 	}
 
 	private void writeTestDetails(TestDetails details, ExecutionMetadata executionMetadata) {
-		queue.addAction(new AsyncAction() {
-
-			@Override
-			public void execute() {
-				StopWatch stopWatch = new StopWatch(log).start("Writing test details of test " + details.getUid()
-						+ " for execution " + executionMetadata.getId());
-				final File executionDestinationFolder = getExecutionDestinationFolder(executionMetadata);
-				PersistenceUtils.writeTest(details, executionDestinationFolder,
-						buildTestFolderName(executionDestinationFolder, details.getUid()));
-				stopWatch.stopAndLog();
-			}
+		queue.addAction(() -> {
+			StopWatch stopWatch = new StopWatch(log).start(
+					"Writing test details of test " + details.getUid() + " for execution " + executionMetadata.getId());
+			final File executionDestinationFolder = getExecutionDestinationFolder(executionMetadata);
+			PersistenceUtils.writeTest(details, executionDestinationFolder,
+					buildTestFolderName(executionDestinationFolder, details.getUid()));
+			stopWatch.stopAndLog();
 		});
 	}
 

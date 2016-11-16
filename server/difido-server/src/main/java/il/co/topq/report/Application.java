@@ -109,10 +109,17 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 
 	}
 
+	/**
+	 * Configuration of the async executor. This is used for writing to the file
+	 * system and it is very important that there will be no more then one
+	 * thread in the pool.
+	 */
 	@Override
 	public Executor getAsyncExecutor() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		// Do not change the number of threads here
 		executor.setCorePoolSize(1);
+		// Do not change the number of threads here
 		executor.setMaxPoolSize(1);
 		executor.setQueueCapacity(10000);
 		executor.setThreadNamePrefix("AsyncActionQueue-");

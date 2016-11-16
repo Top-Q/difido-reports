@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.business.AsyncActionQueue;
-import il.co.topq.report.business.AsyncActionQueue.AsyncAction;
 
 @Component
 class MetadataFileSystemPersistency extends AbstactMetadataPersistency {
@@ -62,20 +61,17 @@ class MetadataFileSystemPersistency extends AbstactMetadataPersistency {
 				}
 			}
 		}
-		queue.addAction(new AsyncAction() {
-			@Override
-			public void execute() {
-				try {
-					// We will create a temporary file and only after successful
-					// write we
-					// will move it to be the actual file.
-					final File executionTempMetaFile = new File(executionMetaFile.getParent(),
-							executionMetaFile.getName() + ".tmp");
-					new ObjectMapper().writeValue(executionTempMetaFile, getExecutionsCache());
-					Files.move(executionTempMetaFile.toPath(), executionMetaFile.toPath(), REPLACE_EXISTING);
-				} catch (IOException e) {
-					log.error("Failed writing execution meta data", e);
-				}
+		queue.addAction(() -> {
+			try {
+				// We will create a temporary file and only after successful
+				// write we
+				// will move it to be the actual file.
+				final File executionTempMetaFile = new File(executionMetaFile.getParent(),
+						executionMetaFile.getName() + ".tmp");
+				new ObjectMapper().writeValue(executionTempMetaFile, getExecutionsCache());
+				Files.move(executionTempMetaFile.toPath(), executionMetaFile.toPath(), REPLACE_EXISTING);
+			} catch (IOException e) {
+				log.error("Failed writing execution meta data", e);
 			}
 		});
 	}
