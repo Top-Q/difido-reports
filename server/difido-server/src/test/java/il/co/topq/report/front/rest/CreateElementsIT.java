@@ -23,7 +23,6 @@ public class CreateElementsIT extends AbstractResourceTest {
 	private static final String MACHINE_NAME = "My Machine";
 	private static final String SCENARIO_NAME = "My Scenario";
 	private static final String TEST_NAME = "My test";
-	private static final long SLEEP_TIME = 1000;
 	private TestDetails details;
 	private int executionId;
 	private String uid;
@@ -57,7 +56,7 @@ public class CreateElementsIT extends AbstractResourceTest {
 		details.addReportElement(element);
 		client.addTestDetails(executionId, details);
 
-		sleep();
+		waitForTasksToFinish();
 		final TestDetails testDetails = assertExecution();
 		element = testDetails.getReportElements().get(0);
 		Assert.assertEquals(ElementType.regular, element.getType());
@@ -79,7 +78,7 @@ public class CreateElementsIT extends AbstractResourceTest {
 			client.addTestDetails(executionId, details);
 			System.out.println("Element was added in " + (System.currentTimeMillis() - start) + " millis");
 		}
-		sleep();
+		waitForTasksToFinish();
 		assertExecution();
 		System.out.println("End");
 
@@ -96,17 +95,11 @@ public class CreateElementsIT extends AbstractResourceTest {
 		details.addReportElement(element);
 		client.addTestDetails(executionId, details);
 		client.addFileFromClasspath(executionId, uid, file);
-		sleep();
+		waitForTasksToFinish();
 		assertExecution();
 
 	}
-	
-	private static void sleep(){
-		try {
-			Thread.sleep(SLEEP_TIME);
-		} catch (InterruptedException e) {
-		}
-	}
+
 
 	private TestDetails assertExecution() {
 		final Execution execution = getExecution();

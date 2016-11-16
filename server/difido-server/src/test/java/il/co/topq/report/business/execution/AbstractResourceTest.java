@@ -5,6 +5,7 @@ import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -52,13 +53,13 @@ public abstract class AbstractResourceTest {
 
 	@After
 	public void tearDown() throws IOException {
-		flushPreviousReports();
+		// flushPreviousReports();
 	}
 
 	private void flushPreviousReports() throws IOException {
 		try {
+			waitForTasksToFinish();
 			FileUtils.deleteDirectory(reportsFolder);
-
 		} catch (IOException e) {
 			// This can happen. Let's give it another try
 			try {
@@ -98,7 +99,7 @@ public abstract class AbstractResourceTest {
 		return null;
 	}
 
-	protected static File[] findFilesInTest( String uid, String fileName) {
+	protected static File[] findFilesInTest(String uid, String fileName) {
 		File testFolder = new File(findSingleExecutionFolder(), "tests/test_" + uid);
 		return testFolder.listFiles(new FilenameFilter() {
 
@@ -126,6 +127,35 @@ public abstract class AbstractResourceTest {
 
 		});
 		return executionFolders;
+	}
+
+	/**
+	 * Waits until all the async operations in the server are done
+	 */
+	protected static void waitForTasksToFinish() {
+		while (isTasksInQueue()) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
+		}
+	}
+
+	/**
+	 * An hack that checks that the async queue finished all threads which means
+	 * that everything is written to the file systems
+	 * 
+	 * @return true if there are still tasks to be executed
+	 */
+	private static boolean isTasksInQueue() {
+		Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+		for (Thread thread : threadSet) {
+			if (thread.getName().startsWith("AsyncActionQueue")) {
+				return (!thread.getState().toString().equals("WAITING"));
+			}
+		}
+		return false;
+
 	}
 
 }

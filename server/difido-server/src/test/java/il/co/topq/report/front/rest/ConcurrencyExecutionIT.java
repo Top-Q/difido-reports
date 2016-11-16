@@ -73,6 +73,8 @@ public class ConcurrencyExecutionIT extends AbstractResourceTest {
 		}
 
 		System.out.println("Finished all reports in " + (System.currentTimeMillis() - start) + " millis");
+
+		waitForTasksToFinish();
 		start = System.currentTimeMillis();
 
 		final Execution[] executions = getAllExecutions();
