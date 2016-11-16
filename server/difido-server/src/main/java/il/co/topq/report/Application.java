@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.concurrent.Executor;
 
 import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
@@ -16,17 +17,22 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import il.co.topq.report.Configuration.ConfigProps;
 
 @SpringBootApplication
 @EnableScheduling
-public class Application extends SpringBootServletInitializer {
+@EnableAsync
+public class Application extends SpringBootServletInitializer implements AsyncConfigurer {
 
 	private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
@@ -99,9 +105,32 @@ public class Application extends SpringBootServletInitializer {
 			node = NodeBuilder.nodeBuilder().settings(settings).data(true).local(true).node();
 			Common.elasticsearchClient = node.client();
 
-
 		}
 
+	}
+
+	/**
+	 * Configuration of the async executor. This is used for writing to the file
+	 * system and it is very important that there will be no more then one
+	 * thread in the pool.
+	 */
+	@Override
+	public Executor getAsyncExecutor() {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		// Do not change the number of threads here
+		executor.setCorePoolSize(1);
+		// Do not change the number of threads here
+		executor.setMaxPoolSize(1);
+		executor.setQueueCapacity(10000);
+		executor.setThreadNamePrefix("AsyncActionQueue-");
+		executor.initialize();
+		return executor;
+	}
+
+	@Override
+	public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+		// Unused
+		return null;
 	}
 
 }
