@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -27,6 +28,7 @@ import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.StopWatch;
 import il.co.topq.report.business.execution.ExecutionMetadata;
+import il.co.topq.report.events.ExecutionDeletedEvent;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.events.MachineCreatedEvent;
 
@@ -41,7 +43,7 @@ public class ESController {
 	private static final String TEST_TYPE = "test";
 
 	private final Logger log = LoggerFactory.getLogger(ESController.class);
-	
+
 	volatile Map<Integer, Set<TestNode>> savedTestsPerExecution;
 
 	// TODO: For testing. Of course that this should be handled differently.
@@ -56,6 +58,41 @@ public class ESController {
 		log.debug("Elasticsearch is set to: enabled=" + enabled);
 		storeOnlyAtEnd = Configuration.INSTANCE.readBoolean(ConfigProps.STORE_IN_ELASTIC_ONLY_AT_EXECUTION_END);
 		log.debug("Store only at end of execution is set to: enabled=" + storeOnlyAtEnd);
+	}
+
+	@EventListener
+	public void onExecutionDeletedEvent(ExecutionDeletedEvent executionDeletedEvent) {
+		if (!enabled) {
+			return;
+		}
+		StopWatch stopWatch = new StopWatch(log).start("Deleting all tests of execution with id "
+				+ executionDeletedEvent.getMetadata().getId() + " from the Elastic");
+
+		log.debug("About to delete all tests of execution " + executionDeletedEvent.getExecutionId()
+				+ " from the ElasticSearch");
+		// Delete by filter is not possible anymore so we do the deletion in two
+		// parts. First we get all the tests and then we delete it one by one
+		// using the id of each one.
+		List<ElasticsearchTest> testsToDelete = null;
+		try {
+			testsToDelete = ESUtils.getAllByTerm(Common.ELASTIC_INDEX, TEST_TYPE, ElasticsearchTest.class,
+					"executionId", String.valueOf(executionDeletedEvent.getExecutionId()));
+
+		} catch (Exception e) {
+			log.error("Failed to get tests to delete for execution " + executionDeletedEvent.getExecutionId(), e);
+			return;
+		}
+		log.debug("Found " + testsToDelete.size() + " tests to delete");
+		for (ElasticsearchTest test : testsToDelete) {
+			DeleteResponse response = ESUtils.delete(Common.ELASTIC_INDEX, TEST_TYPE, test.getUid());
+			if (!response.isFound()) {
+				log.warn("Test of execution " + executionDeletedEvent.getExecutionId() + " with id " + test.getUid()
+						+ " was not found for deletion");
+			}
+		}
+		log.debug("Finished deleting tests of execution " + executionDeletedEvent.getExecutionId()
+				+ " from the Elasticsearch");
+		stopWatch.stopAndLog();
 	}
 
 	@EventListener
