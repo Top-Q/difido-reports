@@ -51,6 +51,7 @@ public class FileUploadIT extends AbstractResourceTest {
 		writeContentToFile(tempFile, FILE_SIZE_IN_MB);
 		long expectedFileSize = tempFile.length();
 		client.addFileFromFileSystem(executionId, uid, tempFile);
+		waitForTasksToFinish();
 		File uploadedFiles[] = findFilesInTest(uid, fileName);
 		Assert.assertEquals(1, uploadedFiles.length);
 		Assert.assertNotNull(uploadedFiles[0]);
