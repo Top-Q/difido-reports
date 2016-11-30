@@ -21,7 +21,7 @@
 			<outputDirectory>docRoot</outputDirectory>
 			<directory>docRoot</directory>
 			<excludes>
-				<exclude>reports</exclude>
+				<exclude>reports/</exclude>
 			</excludes>
 		</fileSet>
 		<fileSet>
