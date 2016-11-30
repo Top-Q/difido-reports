@@ -1,42 +1,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>il.co.topq.difido</groupId>
 	<artifactId>difido-reports-common</artifactId>
-	<version>2.0.05-beta2-SNAPSHOT</version>
 	<name>Difido Reports</name>
-	<organization>
-		<name>Top-Q</name>
-	</organization>
-	<developers>
-		<developer>
-			<name>Itai Agmon</name>
-			<email>itai.agmon@top-q.co.il</email>
-		</developer>
-	</developers>
-	<licenses>
-		<license>
-			<name>Apache License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-			<comments>A business-friendly OSS license</comments>
-		</license>
-	</licenses>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<topq.repository.rootUrl>http://maven.top-q.co.il</topq.repository.rootUrl>
-	</properties>
-
-
+	<parent>
+		<artifactId>difido-parent</artifactId>
+		<groupId>il.co.topq.difido</groupId>
+		<version>2.0.05-beta2-SNAPSHOT</version>
+		<relativePath>../difido-parent</relativePath>
+	</parent>
 	<dependencies>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<version>2.3.2</version>
 		</dependency>
-		<!-- <dependency> <groupId>org.codehaus.jackson</groupId> <artifactId>jackson-mapper-asl</artifactId> 
-			<version>1.9.13</version> </dependency> <dependency> <groupId>org.codehaus.jackson</groupId> 
-			<artifactId>jackson-core-asl</artifactId> <version>1.9.13</version> </dependency> -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -48,49 +26,4 @@
 			<version>2.3</version>
 		</dependency>
 	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.5.1</version>
-				<configuration>
-					<target>1.7</target>
-					<source>1.7</source>
-					<encoding>UTF-8</encoding>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-	<repositories>
-		<repository>
-			<id>topq</id>
-			<url>${topq.repository.rootUrl}/content/groups/public</url>
-		</repository>
-	</repositories>
-	<distributionManagement>
-		<repository>
-			<id>topq</id>
-			<name>RepositoryProxy</name>
-			<url>${topq.repository.rootUrl}/content/repositories/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>topq</id>
-			<name>RepositoryProxy</name>
-			<url>${topq.repository.rootUrl}/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
 </project>
