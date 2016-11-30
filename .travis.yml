@@ -3,5 +3,4 @@ jdk:
   - oraclejdk8
 
 script: 
-  - mvn clean install -f difido-reports-common/pom.xml
-  - mvn verify -f server/difido-server/pom.xml
+  - mvn clean install -f difido-parent/pom.xml
