@@ -2,7 +2,7 @@ package il.co.topq.report;
 
 import java.text.SimpleDateFormat;
 
-import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
 
 public class Common {
 
@@ -20,7 +20,7 @@ public class Common {
 
 	public static final String REPORTS_FOLDER_NAME = "reports";
 
-	public static Client elasticsearchClient;
+	public static TransportClient elasticsearchClient;
 
 	public static final String ELASTIC_INDEX = "report";
 

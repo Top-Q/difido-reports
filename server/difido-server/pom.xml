@@ -31,6 +31,7 @@
 		<topq.repository.rootUrl>http://maven.top-q.co.il</topq.repository.rootUrl>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
+		<elastic.version>5.1.1</elastic.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -53,7 +54,12 @@
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
-			<version>2.3.1</version>
+			<version>${elastic.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.elasticsearch.client</groupId>
+			<artifactId>transport</artifactId>
+			<version>${elastic.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>

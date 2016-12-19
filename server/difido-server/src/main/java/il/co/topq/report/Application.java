@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.concurrent.Executor;
 
 import org.apache.commons.io.FileUtils;
@@ -14,7 +15,7 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
@@ -84,18 +85,24 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 
 	public static void stopElastic() {
 		if (node != null) {
-			node.close();
+			try {
+				node.close();
+			} catch (IOException e) {
+				logger.warn("Failed to close Elastic");
+			}
 		}
 		Common.elasticsearchClient.close();
 	}
 
 	public static void startElastic() throws UnknownHostException {
-		Settings.Builder settings = Settings.settingsBuilder();
+		Settings.Builder settings = Settings.builder();
 		settings.put("node.name", "reportserver");
 		if (Configuration.INSTANCE.readBoolean(ConfigProps.EXTERNAL_ELASTIC)) {
+			
+			
 			final String host = Configuration.INSTANCE.readString(ConfigProps.EXTERNAL_ELASTIC_HOST);
 			final int port = Configuration.INSTANCE.readInt(ConfigProps.EXTERNAL_ELASTIC_PORT);
-			Common.elasticsearchClient = TransportClient.builder().settings(settings).build()
+			Common.elasticsearchClient = new PreBuiltTransportClient(settings.build(), new ArrayList<>())
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
 		} else {
 			settings.put("cluster.name", "reportserver");

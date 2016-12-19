@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.elasticsearch.action.DocWriteResponse.Result;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.slf4j.Logger;
@@ -85,7 +86,7 @@ public class ESController {
 		log.debug("Found " + testsToDelete.size() + " tests to delete");
 		for (ElasticsearchTest test : testsToDelete) {
 			DeleteResponse response = ESUtils.delete(Common.ELASTIC_INDEX, TEST_TYPE, test.getUid());
-			if (!response.isFound()) {
+			if (response.getResult() == Result.NOT_FOUND) {
 				log.warn("Test of execution " + executionDeletedEvent.getExecutionId() + " with id " + test.getUid()
 						+ " was not found for deletion");
 			}
