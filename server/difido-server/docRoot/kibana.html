@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="description" content="Kibana frame">
@@ -8,48 +9,117 @@
 	<link href="css/bootstrap.min.css" rel="stylesheet">
 	<style>
 		body {
-    		margin: 0;
+			margin: 0;
 		}
+		
 		#kibana {
-			overflow:hidden;
-			overflow-x:hidden;
-			overflow-y:hidden;
-			height:100%;
-			width:100%;
-			position:absolute;
-			top:51px;
-			left:0px;
-			right:0px;
-			bottom:0px;
-			border:0px;
+			overflow: hidden;
+			overflow-x: hidden;
+			overflow-y: hidden;
+			height: 100%;
+			width: 100%;
+			position: absolute;
+			top: 51px;
+			left: 0px;
+			right: 0px;
+			bottom: 0px;
+			border: 0px;
 		}
 	</style>
 </head>
 
 <body style="margin:0px;padding:0px;overflow:hidden">
 	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-	  <div class="container-fluid">
-	    <div class="navbar-header">
-	      <a class="navbar-brand" href="index.html">Difido</a>
-	    </div>
-	    <ul class="nav navbar-nav">
-	      <li><a href="index.html">Execution Reports</a></li>
-	      <li class="active"><a href="#">Kibana</a></li>
-	    </ul>
-	  </div>
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="index.html">Difido</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li><a href="index.html">Execution Reports</a></li>
+				<li class="active"><a href="#">Kibana</a></li>
+			</ul>
+		</div>
 	</nav>
-		<iframe id="kibana" src="#"></iframe>
+	<iframe id="kibana" src="#"></iframe>
 
-<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
+	<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/bootbox.js"></script>
 <script>
 		$(document).ready(function() {
-			$.ajax({
-				url : '/api/settings',
-				type : 'GET',
-			}).done(function(settings) {
-				var regex = /kibana.url:(.+)/;
-				document.getElementById('kibana').src = regex.exec(settings)[1];
-			});
+							$.ajax({
+											url : '/api/settings',
+											type : 'GET',
+												}).done(function(settings) {
+														var regex = /kibana.url:(.+)/;
+														var kibanaUrl = regex.exec(settings)[1].trim();
+														var regex = /kibana.dashboards:(.+)/;
+														var dashboards = regex.exec(settings)[1].trim().split(";");
+														regex = /kibana.fields:(.+)/;
+														var fields = regex.exec(settings)[1].trim().split(";");
+
+														var selected = "";
+														var dashboardOptions = "";
+														var fieldsSection = "";
+														for (var i = 0; i < dashboards.length ; i++) {
+																dashboardOptions += '<option>' + dashboards[i] +'</option>';
+														}
+														for (var i = 0; i < fields.length; i++) {
+																fieldsSection += '<div class="form-group">' +
+								'               <label class="col-md-4 control-label" for="'+ fields[i] +'">'+ fields[i] +'</label>' +
+								'               <div class="col-md-4">' +
+								'                   <input id="'+ fields[i] +'" name="'+ fields[i] +'" type="text" placeholder="'+ fields[i] +'" class="form-control input-md">' +
+								'               </div>' +
+								'           </div>';
+														}
+														bootbox.dialog({
+																title: "Dashboard Parameters",
+																message: '   <form class="form-horizontal">' +
+								'       <div class="form-group">' +
+								'           <div class="form-group">' +
+								'               <label class="col-md-4 control-label" for="name">Dashboard</label>' +
+								'               <div class="col-md-4">' +
+								'                   <select id="dashboard" name="dashboard" class="form-control">' + dashboardOptions +
+								'                   </select>' +
+								'               </div>' +
+								'           </div>' + fieldsSection +
+								'           <div class="form-group">' +
+								'               <label class="col-md-4 control-label" for="executions">Selected Executions</label>' +
+								'               <div class="col-md-4">' +
+								'                   <input id="executions" name="executions" type="text" placeholder="Selected Executions" class="form-control input-md" value='+selected+'' +
+								'                       readonly/>' +
+								'               </div>' +
+								'           </div>' +
+								'       </div>' +
+								'   </form>',
+																	buttons: {
+																			success: {
+																					label: "Execute",
+																					className: "btn-success",
+																					callback: function () {	                            
+																							$.ajax({
+																								url : '/api/settings',
+																								type : 'GET',
+																						}).done(function(settings) {
+																								document.getElementById('kibana').src = kibanaUrl + "/app/kibana?#/dashboard/" + $('#dashboard').val() + "?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!f),query:(query_string:(analyze_wildcard:!t,query:'status:error')),title:main,uiState:())";
+																						});
+
+
+
+																					}
+																			}
+																	}
+															}
+													);
+
+
+
+
+
+												});
+						
+						
+
 		});
 
 </script>
