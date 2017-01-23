@@ -185,7 +185,7 @@ public class ESController {
 		try {
 			BulkResponse response = ESUtils.addBulk(Common.ELASTIC_INDEX, TEST_TYPE, ids, esTests);
 			if (response.hasFailures()) {
-				log.error("Failed updating tests in Elastic");
+				log.error("Failed updating tests in Elastic due to: " + response.buildFailureMessage());
 			}
 		} catch (Exception e) {
 			log.error("Failed to add tests to Elastic due to " + e.getMessage());
