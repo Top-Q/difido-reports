@@ -46,80 +46,152 @@
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/bootbox.js"></script>
 <script>
+
+		function getKeysFromAggregrasionResponse(response) {
+			var buckets = response.aggregations.field_value.buckets;
+			var result = [];
+			buckets.forEach(function(bucket){
+				result.push(bucket.key);				
+			});
+			return result;
+
+		}
+
+		function getElasticUrl(){
+			return new Promise(function (fulfill, reject){
+				$.ajax({
+					url : '/api/settings',
+					type : 'GET',
+						}).done(function(settings) {
+								var regex = /kibana.url:(.+)/;
+								var kibanaUrl = regex.exec(settings)[1].trim();
+								fulfill(kibanaUrl);
+						});
+
+			});
+
+		}
+
+		function getElasticFields(){
+			return new Promise(function (fulfill, reject){
+				$.ajax({
+					url : '/api/settings',
+					type : 'GET',
+						}).done(function(settings) {
+								var regex = /kibana.fields:(.+)/;
+								var fields = regex.exec(settings)[1].trim().split(";");
+								fulfill(fields);
+						});
+
+			});
+
+		}
+
+		function getAggregatedTermsFromElastic(index, document, term) {
+			return new Promise(function (fulfill, reject){
+				url = "/api/elastic/" + index + "/" + document;
+				$.ajax({
+					contentType: 'application/json',
+					url : url,
+					type: "POST",
+					data: '{  "aggs": {"field_value": {"terms": { "field": "' + term +'", "size": 0 } } } }'
+				}).done(function(response){
+					fulfill(getKeysFromAggregrasionResponse(response));
+				});
+
+			});
+
+		}
+
+		function displayForm(kibanaUrl,dashboards,fieldNames, fieldValues) {
+			var dashboardOptions = "";
+			dashboards.forEach(function(dashboard){
+					dashboardOptions += '<option>' + dashboard +'</option>';
+
+			});
+			var fieldSections = "";
+			for (var i = 0 ; i < fieldNames.length ; i++) {
+				fieldSections += createFieldSection("field" + i,fieldNames[i],fieldValues[i])
+
+			}
+			bootbox.dialog({
+					title: "Dashboard Parameters",
+					message:'   <form class="form-horizontal">' +
+							'       <div class="form-group">' +
+							'           <div class="form-group">' +
+							'               <label class="col-md-4 control-label" for="name">Dashboard</label>' +
+							'               <div class="col-md-4">' +
+							'                   <select id="dashboard" name="dashboard" class="form-control">' + dashboardOptions +
+							'                   </select>' +
+							'               </div>' +
+							'           </div>' + fieldSections +
+							'       </div>' +
+							'   </form>',
+					buttons: {
+							success: {
+									label: "Execute",
+									className: "btn-success",
+									callback: function () {										
+										var query = "";
+										var first = true;
+										for (var i = 0; i < fieldNames.length ; i++) {
+											if (i != 0){
+												query += " AND ";											
+											}
+											query += fieldNames[i] + ":" + $('#field' + i +'').val();
+										}
+										$.ajax({
+												url : '/api/settings',
+												type : 'GET',
+										}).done(function(settings) {
+												document.getElementById('kibana').src = kibanaUrl + "/app/kibana?#/dashboard/" + $('#dashboard').val() + "?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-30d,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!f),query:(query_string:(analyze_wildcard:!t,query:'" + query + "')),title:main,uiState:())";
+										});
+
+
+
+										}
+									}
+							}
+					}
+				);
+		}
+
+		function createFieldSection(id,field, values) {
+			var options = "";
+			values.forEach(function(value){
+					options += '<option>' + value +'</option>';
+
+			});
+			return '<div class="form-group">' +
+				'   	<label class="col-md-4 control-label" for="'+ field +'">'+ field +'</label>' +
+				'       	<div class="col-md-4">' +
+				'           	<select id="'+ id +'" name="'+ id +'" placeholder="'+ field +'" class="form-control input-md">' +
+				                options +
+				'               </select>' +
+				'           </div>' +
+				'   </div>';
+
+		}
+
 		$(document).ready(function() {
-							$.ajax({
-											url : '/api/settings',
-											type : 'GET',
-												}).done(function(settings) {
-														var regex = /kibana.url:(.+)/;
-														var kibanaUrl = regex.exec(settings)[1].trim();
-														var regex = /kibana.dashboards:(.+)/;
-														var dashboards = regex.exec(settings)[1].trim().split(";");
-														regex = /kibana.fields:(.+)/;
-														var fields = regex.exec(settings)[1].trim().split(";");
+			getAggregatedTermsFromElastic(".kibana","dashboard","title")
+				.then(function(dashboards){
+					getElasticUrl()
+						.then(function(kibanaUrl) {
+							getElasticFields()
+								.then(function(fieldNames) {
+									var fieldsSection = "";
+									promises = [];
+									fieldNames.forEach(function(fieldName){
+										promises.push(getAggregatedTermsFromElastic("report","test",fieldName));
+									});
+									Promise.all(promises).then(fieldValues => {
+										displayForm(kibanaUrl,dashboards,fieldNames,fieldValues);
+									});
 
-														var selected = "";
-														var dashboardOptions = "";
-														var fieldsSection = "";
-														for (var i = 0; i < dashboards.length ; i++) {
-																dashboardOptions += '<option>' + dashboards[i] +'</option>';
-														}
-														for (var i = 0; i < fields.length; i++) {
-																fieldsSection += '<div class="form-group">' +
-								'               <label class="col-md-4 control-label" for="'+ fields[i] +'">'+ fields[i] +'</label>' +
-								'               <div class="col-md-4">' +
-								'                   <input id="'+ fields[i] +'" name="'+ fields[i] +'" type="text" placeholder="'+ fields[i] +'" class="form-control input-md">' +
-								'               </div>' +
-								'           </div>';
-														}
-														bootbox.dialog({
-																title: "Dashboard Parameters",
-																message: '   <form class="form-horizontal">' +
-								'       <div class="form-group">' +
-								'           <div class="form-group">' +
-								'               <label class="col-md-4 control-label" for="name">Dashboard</label>' +
-								'               <div class="col-md-4">' +
-								'                   <select id="dashboard" name="dashboard" class="form-control">' + dashboardOptions +
-								'                   </select>' +
-								'               </div>' +
-								'           </div>' + fieldsSection +
-								'           <div class="form-group">' +
-								'               <label class="col-md-4 control-label" for="executions">Selected Executions</label>' +
-								'               <div class="col-md-4">' +
-								'                   <input id="executions" name="executions" type="text" placeholder="Selected Executions" class="form-control input-md" value='+selected+'' +
-								'                       readonly/>' +
-								'               </div>' +
-								'           </div>' +
-								'       </div>' +
-								'   </form>',
-																	buttons: {
-																			success: {
-																					label: "Execute",
-																					className: "btn-success",
-																					callback: function () {	                            
-																							$.ajax({
-																								url : '/api/settings',
-																								type : 'GET',
-																						}).done(function(settings) {
-																								document.getElementById('kibana').src = kibanaUrl + "/app/kibana?#/dashboard/" + $('#dashboard').val() + "?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!f),query:(query_string:(analyze_wildcard:!t,query:'status:error')),title:main,uiState:())";
-																						});
-
-
-
-																					}
-																			}
-																	}
-															}
-													);
-
-
-
-
-
-												});
-						
-						
-
+								});
+						});
+				});
 		});
 
 </script>
