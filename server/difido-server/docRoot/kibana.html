@@ -40,7 +40,7 @@
 			</ul>
 		</div>
 	</nav>
-	<iframe id="kibana" src="#"></iframe>
+	<iframe id="kibana"></iframe>
 
 	<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
@@ -64,8 +64,12 @@
 					type : 'GET',
 						}).done(function(settings) {
 								var regex = /kibana.url:(.+)/;
-								var kibanaUrl = regex.exec(settings)[1].trim();
-								fulfill(kibanaUrl);
+								if (regex.test(settings)) {
+									var kibanaUrl = regex.exec(settings)[1].trim();
+									fulfill(kibanaUrl);
+								} else {
+									reject();
+								}
 						});
 
 			});
@@ -77,10 +81,17 @@
 				$.ajax({
 					url : '/api/settings',
 					type : 'GET',
-						}).done(function(settings) {
+					error: function(xhr) {
+           					reject("Failed to get elastic fields");
+       					}
+					}).done(function(settings) {								
 								var regex = /kibana.fields:(.+)/;
-								var fields = regex.exec(settings)[1].trim().split(";");
-								fulfill(fields);
+								if (regex.test(settings)){
+									var fields = regex.exec(settings)[1].trim().split(";");
+									fulfill(fields);
+								} else {
+									fulfill([]);
+								}
 						});
 
 			});
@@ -94,7 +105,7 @@
 					contentType: 'application/json',
 					url : url,
 					type: "POST",
-					data: '{  "aggs": {"field_value": {"terms": { "field": "' + term +'", "size": 0 } } } }'
+					data: '{ "size": 0, "aggs": {"field_value": {"terms": { "field": "' + term +'", "size": 0 } } } }'
 				}).done(function(response){
 					fulfill(getKeysFromAggregrasionResponse(response));
 				});
@@ -104,9 +115,19 @@
 		}
 
 		function displayForm(kibanaUrl,dashboards,fieldNames, fieldValues) {
+			if (!kibanaUrl) {
+				alert("Kibana URL was not configured in the server")
+				return;
+			}
+			if (null == dashboards || 0 == dashboards.length) {
+				alert("No dashboards found");
+				return;
+			}
+
 			var dashboardOptions = "";
 			dashboards.forEach(function(dashboard){
-					dashboardOptions += '<option>' + dashboard +'</option>';
+				var formattedName = dashboard.replace("dashboard#","");
+				dashboardOptions += '<option value=' + formattedName +'>' + formattedName.replace("-"," ") +'</option>';
 
 			});
 			var fieldSections = "";
@@ -132,12 +153,21 @@
 							'               <label class="col-md-4 control-label" for="name">Time Range</label>' +
 							'               <div class="col-md-4">' +
 							'                   <select id="range" name="range" class="form-control">' +
-							'                   	<option>now-15m</option>' +
-							'                   	<option>now-30m</option>' +
-							'                   	<option>now-12h</option>' +
-							'                   	<option>now-7d</option>' +
-							'                   	<option selected="selected">now-30d</option>' +   
-							'                   	<option>now-1y</option>' +
+							'                   	<option value="now-15m">Last 15 minutes</option>' +
+							'                   	<option value="now-30m">Last 30 minutes</option>' +
+							'                   	<option value="now-12h">Last 12 hours</option>' +
+							'                   	<option value="now-7d">Last 7 days</option>' +
+							'                   	<option value="now-30d" selected="selected">Last 30 days</option>' +   
+							'                   	<option value="now-1y">Last year</option>' +
+							'                   </select>' +
+							'               </div>' +
+							'           </div>' +
+							'           <div class="form-group">' +
+							'               <label class="col-md-4 control-label" for="name">AND/OR</label>' +
+							'               <div class="col-md-4">' +
+							'                   <select id="andor" name="andor" class="form-control">' +
+							'                   	<option selected="selected">AND</option>' +
+							'                   	<option>OR</option>' +   
 							'                   </select>' +
 							'               </div>' +
 							'           </div>' + 
@@ -149,10 +179,11 @@
 									label: "Execute",
 									className: "btn-success",
 									callback: function () {										
-										var query = "";										
+										var query = "";	
+										var andor = $('#andor').val();									
 										for (var i = 0; i < fieldNames.length ; i++) {
 											if (i != 0){
-												query += " AND ";											
+												query += " " + andor + " ";											
 											}
 											query += fieldNames[i] + ":" + $('#field' + i +'').val();
 										}
@@ -189,10 +220,8 @@
 				'   </div>';
 
 		}
-
 		$(document).ready(function() {
-			console.log("CALLED");
-			getAggregatedTermsFromElastic(".kibana","dashboard","title")
+			getAggregatedTermsFromElastic(".kibana","dashboard","_uid")
 				.then(function(dashboards){
 					getElasticUrl()
 						.then(function(kibanaUrl) {
@@ -208,6 +237,8 @@
 									});
 
 								});
+						}, function(){
+							alert("Can't open display since Elastic URL is not configured in the server");
 						});
 				});
 		});
