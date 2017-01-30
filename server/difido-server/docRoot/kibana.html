@@ -45,7 +45,7 @@
 	<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/bootbox.js"></script>
-<script>
+	<script>
 
 		function getKeysFromAggregrasionResponse(response) {
 			var buckets = response.aggregations.field_value.buckets;
@@ -111,6 +111,9 @@
 			});
 			var fieldSections = "";
 			for (var i = 0 ; i < fieldNames.length ; i++) {
+				if (!fieldValues[i] || fieldValues[i].length == 0){
+					continue;
+				}
 				fieldSections += createFieldSection("field" + i,fieldNames[i],fieldValues[i])
 
 			}
@@ -124,7 +127,21 @@
 							'                   <select id="dashboard" name="dashboard" class="form-control">' + dashboardOptions +
 							'                   </select>' +
 							'               </div>' +
-							'           </div>' + fieldSections +
+							'           </div>' +
+							'           <div class="form-group">' +
+							'               <label class="col-md-4 control-label" for="name">Time Range</label>' +
+							'               <div class="col-md-4">' +
+							'                   <select id="range" name="range" class="form-control">' +
+							'                   	<option>now-15m</option>' +
+							'                   	<option>now-30m</option>' +
+							'                   	<option>now-12h</option>' +
+							'                   	<option>now-7d</option>' +
+							'                   	<option selected="selected">now-30d</option>' +   
+							'                   	<option>now-1y</option>' +
+							'                   </select>' +
+							'               </div>' +
+							'           </div>' + 
+									 fieldSections +
 							'       </div>' +
 							'   </form>',
 					buttons: {
@@ -132,19 +149,19 @@
 									label: "Execute",
 									className: "btn-success",
 									callback: function () {										
-										var query = "";
-										var first = true;
+										var query = "";										
 										for (var i = 0; i < fieldNames.length ; i++) {
 											if (i != 0){
 												query += " AND ";											
 											}
 											query += fieldNames[i] + ":" + $('#field' + i +'').val();
 										}
+										var range = $('#range').val();
 										$.ajax({
 												url : '/api/settings',
 												type : 'GET',
 										}).done(function(settings) {
-												document.getElementById('kibana').src = kibanaUrl + "/app/kibana?#/dashboard/" + $('#dashboard').val() + "?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-30d,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!f),query:(query_string:(analyze_wildcard:!t,query:'" + query + "')),title:main,uiState:())";
+												document.getElementById('kibana').src = kibanaUrl + "/app/kibana?#/dashboard/" + $('#dashboard').val() + "?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:" + range + ",mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!f),query:(query_string:(analyze_wildcard:!t,query:'" + query + "')),title:main,uiState:())";
 										});
 
 
@@ -174,6 +191,7 @@
 		}
 
 		$(document).ready(function() {
+			console.log("CALLED");
 			getAggregatedTermsFromElastic(".kibana","dashboard","title")
 				.then(function(dashboards){
 					getElasticUrl()
@@ -194,7 +212,7 @@
 				});
 		});
 
-</script>
+	</script>
 
 </body>
 
