@@ -37,6 +37,13 @@ public class LocalDifidoReporter extends AbstractDifidoReporter {
 			reportDir.mkdirs();
 		}
 		final File currentLogFolder = new File(reportDir, "current");
+		if (currentLogFolder.exists()){
+			try {
+				FileUtils.deleteDirectory(currentLogFolder);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		final File templateFolder = new File(reportDir, "template");
 		if (!templateFolder.exists() || !(new File(templateFolder, "index.html").exists())) {
 			PersistenceUtils.copyResources(templateFolder);
