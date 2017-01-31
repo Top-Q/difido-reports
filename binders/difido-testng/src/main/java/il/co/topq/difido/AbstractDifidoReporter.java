@@ -35,7 +35,7 @@ import org.testng.annotations.Test;
 public abstract class AbstractDifidoReporter implements Reporter {
 
 	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss:");
-	
+
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd");
 
 	private Execution execution;
@@ -202,7 +202,15 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		ScenarioNode scenario = new ScenarioNode(testClassName);
 		currentTestScenario.addChild(scenario);
 		currentClassScenario = scenario;
+		onScenarioStart(currentClassScenario);
 	}
+
+	/**
+	 * Event that is called when a new scenario is created
+	 * 
+	 * @param scenario
+	 */
+	protected abstract void onScenarioStart(ScenarioNode scenario);
 
 	protected abstract void updateTestDirectory();
 

@@ -19,10 +19,15 @@ public class RemoteDifidoProperties {
 
 	enum RemoteDifidoOptions {
 		// @formatter:off
-		HOST("host", "localhost"), PORT("port", "8080"), ENABLED("enabled", "true"), DESCRIPTION(
-				"execution.description", ""), EXECUTION_PROPETIES("execution.properties", ""), USE_SHARED_EXECUTION(
-				"use.shared.execution", "false"), EXISTING_EXECUTION_ID("existing.execution.id", "-1"), FORCE_NEW_EXECUTION(
-				"force.new.execution", "false"), APPEND_TO_EXISTING_EXECUTION("append.to.existing.execution", "false");
+		HOST("host", "localhost"),
+		PORT("port", "8080"),
+		ENABLED("enabled", "true"),
+		DESCRIPTION("execution.description", ""),
+		EXECUTION_PROPETIES("execution.properties", ""),
+		USE_SHARED_EXECUTION("use.shared.execution", "false"),
+		EXISTING_EXECUTION_ID("existing.execution.id", "-1"),
+		FORCE_NEW_EXECUTION("force.new.execution", "false"),
+		APPEND_TO_EXISTING_EXECUTION("append.to.existing.execution", "false");
 		// @formatter:on
 
 		private String property;
@@ -61,33 +66,9 @@ public class RemoteDifidoProperties {
 	}
 
 	private void initDefaultProperties() {
-		// @formatter:off
-		properties.setProperty(RemoteDifidoOptions.HOST.getProperty(), RemoteDifidoOptions.HOST.getDefaultValue());
-
-		properties.setProperty(RemoteDifidoOptions.PORT.getProperty(), RemoteDifidoOptions.PORT.getDefaultValue());
-
-		properties
-				.setProperty(RemoteDifidoOptions.ENABLED.getProperty(), RemoteDifidoOptions.ENABLED.getDefaultValue());
-
-		properties.setProperty(RemoteDifidoOptions.APPEND_TO_EXISTING_EXECUTION.getProperty(),
-				RemoteDifidoOptions.APPEND_TO_EXISTING_EXECUTION.getDefaultValue());
-
-		properties.setProperty(RemoteDifidoOptions.DESCRIPTION.getProperty(),
-				RemoteDifidoOptions.DESCRIPTION.getDefaultValue());
-
-		properties.setProperty(RemoteDifidoOptions.USE_SHARED_EXECUTION.getProperty(),
-				RemoteDifidoOptions.USE_SHARED_EXECUTION.getDefaultValue());
-
-		properties.setProperty(RemoteDifidoOptions.EXISTING_EXECUTION_ID.getProperty(),
-				RemoteDifidoOptions.EXISTING_EXECUTION_ID.getDefaultValue());
-
-		properties.setProperty(RemoteDifidoOptions.FORCE_NEW_EXECUTION.getProperty(),
-				RemoteDifidoOptions.FORCE_NEW_EXECUTION.getDefaultValue());
-
-		properties.setProperty(RemoteDifidoOptions.EXECUTION_PROPETIES.getProperty(),
-				RemoteDifidoOptions.EXECUTION_PROPETIES.getDefaultValue());
-		// @formatter:on
-
+		for (RemoteDifidoOptions option:RemoteDifidoOptions.values()){
+			properties.setProperty(option.getProperty(), option.getDefaultValue());
+		}
 		final File propertiesFile = new File(FILE_NAME);
 		if (propertiesFile.exists()) {
 			propertiesFile.delete();

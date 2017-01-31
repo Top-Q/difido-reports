@@ -1,6 +1,7 @@
 package il.co.topq.difido;
 
 import il.co.topq.difido.model.execution.Execution;
+import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.test.TestDetails;
 
 import java.io.File;
@@ -87,6 +88,11 @@ public class LocalDifidoReporter extends AbstractDifidoReporter {
 	@Override
 	public File getCurrentTestFolder() {
 		return currentTestFolder;
+	}
+
+	@Override
+	protected void onScenarioStart(ScenarioNode scenario) {
+		// Unused
 	}
 
 }

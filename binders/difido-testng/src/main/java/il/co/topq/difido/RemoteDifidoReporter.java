@@ -118,13 +118,15 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 		return client.addExecution(details);
 	}
 
+	
 	/**
 	 * We want to add all the execution properties for each scenario. This will
 	 * eventually appear in the ElasticSearch
 	 * 
 	 * @param scenario
 	 */
-	protected void addScenarioProperties(ScenarioNode scenario) {
+	@Override
+	protected void onScenarioStart(ScenarioNode scenario) {
 		// If the execution is shared, and we were not responsible for creating
 		// the execution, the execution details in this stage will be null.
 		if (details != null && details.getExecutionProperties() != null) {
@@ -132,7 +134,9 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 				scenario.addScenarioProperty(key, details.getExecutionProperties().get(key));
 			}
 		}
+		
 	}
+
 
 	@Override
 	protected void writeTestDetails(TestDetails testDetails) {
@@ -200,6 +204,7 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 	protected int getExecutionId() {
 		return executionId;
 	}
+
 	
 	
 
