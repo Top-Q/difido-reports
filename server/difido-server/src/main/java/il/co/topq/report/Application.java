@@ -4,16 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.concurrent.Executor;
 
 import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.client.Requests;
-import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.settings.Settings.Builder;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
@@ -95,21 +92,13 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 		Common.elasticsearchClient.close();
 	}
 
+	@SuppressWarnings("resource")
 	public static void startElastic() throws UnknownHostException {
-		Builder settingsBuilder = Settings.builder();
-		settingsBuilder.put("node.name", "reportserver");
-		if (Configuration.INSTANCE.readBoolean(ConfigProps.EXTERNAL_ELASTIC)) {
-			final String host = Configuration.INSTANCE.readString(ConfigProps.EXTERNAL_ELASTIC_HOST);
-			final int port = Configuration.INSTANCE.readInt(ConfigProps.EXTERNAL_ELASTIC_PORT);
-			Common.elasticsearchClient = new PreBuiltTransportClient(settingsBuilder.build(), new ArrayList<>())
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
-		} else {
-			settingsBuilder.put("cluster.name", "reportserver");
-			settingsBuilder.put("path.data", Configuration.INSTANCE.readString(ConfigProps.PATH_DATA));
-			settingsBuilder.put("http.enabled", true);
-			settingsBuilder.put("path.home", ".");
-			Common.elasticsearchClient = new PreBuiltTransportClient(settingsBuilder.build());
-		}
+		Settings settingsBuilder = Settings.builder().put("node.name", "reportserver").build();
+		final String host = Configuration.INSTANCE.readString(ConfigProps.ELASTIC_HOST);
+		final int port = Configuration.INSTANCE.readInt(ConfigProps.ELASTIC_TRANSPORT_TCP_PORT);
+		Common.elasticsearchClient = new PreBuiltTransportClient(settingsBuilder)
+				.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
 
 	}
 
