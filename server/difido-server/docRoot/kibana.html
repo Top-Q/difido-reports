@@ -114,6 +114,19 @@
 
 		}
 
+		function createAndOrSection() {
+			return 	' <div class="form-group">' +
+					'     <label class="col-md-4 control-label" for="name">AND/OR</label>' +
+					'         <div class="col-md-4">' +
+					'             <select id="andor" name="andor" class="form-control">' +
+					'                 <option selected="selected">AND</option>' +
+					'                 <option>OR</option>' +   
+					'              </select>' +
+					'         </div>' +
+					' </div>'; 
+			
+		}
+
 		function displayForm(kibanaUrl,dashboards,fieldNames, fieldValues) {
 			if (!kibanaUrl) {
 				alert("Kibana URL was not configured in the server")
@@ -132,12 +145,13 @@
 			});
 			var fieldSections = "";
 			for (var i = 0 ; i < fieldNames.length ; i++) {
-				if (!fieldValues[i] || fieldValues[i].length == 0){
-					continue;
-				}
 				fieldSections += createFieldSection("field" + i,fieldNames[i],fieldValues[i])
-
 			}
+			var andOrSection = "";
+			if (fieldNames.length > 1) {
+				andOrSection = createAndOrSection();
+			}
+
 			bootbox.dialog({
 					title: "Dashboard Parameters",
 					message:'   <form class="form-horizontal">' +
@@ -162,15 +176,7 @@
 							'                   </select>' +
 							'               </div>' +
 							'           </div>' +
-							'           <div class="form-group">' +
-							'               <label class="col-md-4 control-label" for="name">AND/OR</label>' +
-							'               <div class="col-md-4">' +
-							'                   <select id="andor" name="andor" class="form-control">' +
-							'                   	<option selected="selected">AND</option>' +
-							'                   	<option>OR</option>' +   
-							'                   </select>' +
-							'               </div>' +
-							'           </div>' + 
+							         andOrSection +
 									 fieldSections +
 							'       </div>' +
 							'   </form>',
@@ -182,10 +188,16 @@
 										var query = "";	
 										var andor = $('#andor').val();									
 										for (var i = 0; i < fieldNames.length ; i++) {
-											if (i != 0){
+											if ($('#field' + i +'').val() == 'undefined'){
+												continue;
+											}
+											if (query.length > 0){
 												query += " " + andor + " ";											
 											}
 											query += fieldNames[i] + ":" + $('#field' + i +'').val();
+										}
+										if (query.length == 0){
+											query = "*";
 										}
 										var range = $('#range').val();
 										$.ajax({
@@ -194,9 +206,6 @@
 										}).done(function(settings) {
 												document.getElementById('kibana').src = kibanaUrl + "/app/kibana?#/dashboard/" + $('#dashboard').val() + "?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:" + range + ",mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!f),query:(query_string:(analyze_wildcard:!t,query:'" + query + "')),title:main,uiState:())";
 										});
-
-
-
 										}
 									}
 							}
@@ -204,8 +213,9 @@
 				);
 		}
 
-		function createFieldSection(id,field, values) {
+		function createFieldSection(id, field, values) {
 			var options = "";
+			options += '<option>undefined</option>';
 			values.forEach(function(value){
 					options += '<option>' + value +'</option>';
 
