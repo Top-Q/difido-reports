@@ -13,6 +13,7 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRespon
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.settings.Settings.Builder;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
@@ -95,23 +96,19 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 	}
 
 	public static void startElastic() throws UnknownHostException {
-		Settings.Builder settings = Settings.builder();
-		settings.put("node.name", "reportserver");
+		Builder settingsBuilder = Settings.builder();
+		settingsBuilder.put("node.name", "reportserver");
 		if (Configuration.INSTANCE.readBoolean(ConfigProps.EXTERNAL_ELASTIC)) {
-			
-			
 			final String host = Configuration.INSTANCE.readString(ConfigProps.EXTERNAL_ELASTIC_HOST);
 			final int port = Configuration.INSTANCE.readInt(ConfigProps.EXTERNAL_ELASTIC_PORT);
-			Common.elasticsearchClient = new PreBuiltTransportClient(settings.build(), new ArrayList<>())
+			Common.elasticsearchClient = new PreBuiltTransportClient(settingsBuilder.build(), new ArrayList<>())
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
 		} else {
-			settings.put("cluster.name", "reportserver");
-			settings.put("path.data", Configuration.INSTANCE.readString(ConfigProps.PATH_DATA));
-			settings.put("http.enabled", true);
-			settings.put("path.home", ".");
-			node = NodeBuilder.nodeBuilder().settings(settings).data(true).local(true).node();
-			Common.elasticsearchClient = node.client();
-
+			settingsBuilder.put("cluster.name", "reportserver");
+			settingsBuilder.put("path.data", Configuration.INSTANCE.readString(ConfigProps.PATH_DATA));
+			settingsBuilder.put("http.enabled", true);
+			settingsBuilder.put("path.home", ".");
+			Common.elasticsearchClient = new PreBuiltTransportClient(settingsBuilder.build());
 		}
 
 	}
