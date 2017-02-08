@@ -54,8 +54,9 @@ public class ESController {
 	private static boolean storeOnlyAtEnd;
 
 	public ESController() {
-		savedTestsPerExecution = Collections.synchronizedMap(new HashMap<Integer, Set<TestNode>>());
+		enabled = Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED);
 		log.debug("Elasticsearch is set to: enabled=" + enabled);
+		savedTestsPerExecution = Collections.synchronizedMap(new HashMap<Integer, Set<TestNode>>());
 		storeOnlyAtEnd = Configuration.INSTANCE.readBoolean(ConfigProps.STORE_IN_ELASTIC_ONLY_AT_EXECUTION_END);
 		log.debug("Store only at end of execution is set to: enabled=" + storeOnlyAtEnd);
 	}

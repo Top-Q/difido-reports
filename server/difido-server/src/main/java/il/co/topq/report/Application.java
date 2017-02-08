@@ -2,14 +2,22 @@ package il.co.topq.report;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.concurrent.Executor;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.nio.entity.NStringEntity;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.client.Requests;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
@@ -52,13 +60,35 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 	}
 
 	private static void configureReportsIndex() {
-		final IndicesExistsResponse res = Common.elasticsearchClient.admin().indices()
-				.prepareExists(Common.ELASTIC_INDEX).execute().actionGet();
-		if (res.isExists()) {
-			// Index is already exists, so there is no need to configure the
-			// mapping
+		if (!Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED)) {
 			return;
 		}
+		try {
+			Response response = Common.elasticsearchRestClient.performRequest("HEAD", "/report",
+					Collections.singletonMap("pretty", "true"));
+			logger.debug("Response code is: " + response.getStatusLine().getStatusCode());
+			if (response.getStatusLine().getStatusCode() == 200) {
+				// Index is already exists, so there is no need to configure the
+				// mapping
+				logger.debug("Report index exists");
+				return;
+			}
+		} catch (IOException e1) {
+			logger.error("Failed to connect to Elastic. ");
+			return;
+		}
+
+		try {
+			HttpEntity entity = new NStringEntity(
+					"{\"settings\" : {\"index\" : {\"number_of_shards\" : 3,\"number_of_replicas\" : 1}}}",
+					ContentType.APPLICATION_JSON);
+			Common.elasticsearchRestClient.performRequest("PUT", "/report", Collections.<String, String> emptyMap(),
+					entity);
+		} catch (IOException e1) {
+			logger.error("Failed to create new index");
+			return;
+		}
+
 		// We are reading the mapping from external file and not using the
 		// Java API since it seems that it is not possible to do a dynamic
 		// mapping using the API
@@ -76,12 +106,22 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 			logger.error("Failed to read mapping file. No index mapping will be set to the Elasticsearch", e);
 			return;
 		}
-		final CreateIndexRequest request = Requests.createIndexRequest(Common.ELASTIC_INDEX).mapping("test", mapping);
-		Common.elasticsearchClient.admin().indices().create(request).actionGet();
 
+		HttpEntity entity = new NStringEntity(mapping, ContentType.APPLICATION_JSON);
+		try {
+			Common.elasticsearchRestClient.performRequest("PUT", "/report", Collections.<String, String> emptyMap(),
+					entity);
+		} catch (IOException e) {
+			logger.error("Failed to create mappings");
+			return;
+		}
 	}
 
 	public static void stopElastic() {
+		if (!Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED)) {
+			return;
+		}
+
 		if (node != null) {
 			try {
 				node.close();
@@ -89,15 +129,30 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 				logger.warn("Failed to close Elastic");
 			}
 		}
-		Common.elasticsearchClient.close();
+		Common.elasticsearchJavaClient.close();
+
+		try {
+			Common.elasticsearchRestClient.close();
+		} catch (IOException e) {
+			logger.warn("Failed to close Elastic Rest client");
+		}
 	}
 
 	@SuppressWarnings("resource")
 	public static void startElastic() throws UnknownHostException {
+		if (!Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED)) {
+			return;
+		}
+
+		Common.elasticsearchRestClient = RestClient
+				.builder(new HttpHost(Configuration.INSTANCE.readString(ConfigProps.ELASTIC_HOST),
+						Configuration.INSTANCE.readInt(ConfigProps.ELASTIC_HTTP_PORT), "http"))
+				.build();
+
 		Settings settingsBuilder = Settings.builder().put("node.name", "reportserver").build();
 		final String host = Configuration.INSTANCE.readString(ConfigProps.ELASTIC_HOST);
 		final int port = Configuration.INSTANCE.readInt(ConfigProps.ELASTIC_TRANSPORT_TCP_PORT);
-		Common.elasticsearchClient = new PreBuiltTransportClient(settingsBuilder)
+		Common.elasticsearchJavaClient = new PreBuiltTransportClient(settingsBuilder)
 				.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
 
 	}

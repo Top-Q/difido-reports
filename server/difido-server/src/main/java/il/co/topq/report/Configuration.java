@@ -24,6 +24,7 @@ public enum Configuration {
 		KIBANA_FIELDS("kibana.fields","machine;properties.Class"),
 		MAX_EXECUTION_IDLE_TIME_IN_SEC("max.execution.idle.time.in.seconds","600"),
 		STORE_IN_ELASTIC_ONLY_AT_EXECUTION_END("store.in.elastic.only.at.execution.end", "false"),
+		ELASTIC_ENABLED("elastic.enabled","true"),
 		ELASTIC_HOST("elastic.host","localhost"),
 		ELASTIC_HTTP_PORT("elastic.http.port","9200"),
 		ELASTIC_TRANSPORT_TCP_PORT("elastic.transport.tcp.port","9300"),
