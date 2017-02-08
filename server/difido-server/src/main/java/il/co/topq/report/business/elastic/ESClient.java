@@ -14,10 +14,14 @@ import org.apache.http.nio.entity.NStringEntity;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class ESClient implements Closeable {
 
 	private final static Map<String, String> EMPTY_MAP = Collections.<String, String>emptyMap();
 
+	private static final ObjectMapper mapper = new ObjectMapper();
+	
 	private final RestClient rest;
 
 	public ESClient(String host, int port) {
@@ -45,6 +49,11 @@ public class ESClient implements Closeable {
 		String requestBody = String.format("{\"query\": {\"term\" : { \"%s\" : \"%s\" }  } }", filterTermKey, filterTermValue);
 		final Response response = rest.performRequest("POST", "/" + index + "/" + type +"/_search",  Collections.singletonMap("pretty", "true"),  new NStringEntity(requestBody, ContentType.APPLICATION_JSON));
 		String responseBody = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
+		ElasticResponse elResponse = mapper.readValue(responseBody, ElasticResponse.class);
+		for (Hit h : elResponse.getHits().getHits()){
+			System.out.println(h.getSource().getName());
+			
+		}
 		return null;
 	}
 
