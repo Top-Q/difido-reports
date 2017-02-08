@@ -2,22 +2,11 @@ package il.co.topq.report;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collections;
 import java.util.concurrent.Executor;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.nio.entity.NStringEntity;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.client.Requests;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.client.RestClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
@@ -35,6 +24,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import il.co.topq.report.Configuration.ConfigProps;
+import il.co.topq.report.business.elastic.ESClient;
 
 @SpringBootApplication
 @EnableScheduling
@@ -43,7 +33,7 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 
 	private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
-	private static final String MAPPING_FILE = "mapping.json";
+	private static final String INDEX_SETTINGS_FILE = "mapping.json";
 
 	private static Node node;
 
@@ -63,57 +53,33 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 		if (!Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED)) {
 			return;
 		}
-		try {
-			Response response = Common.elasticsearchRestClient.performRequest("HEAD", "/report",
-					Collections.singletonMap("pretty", "true"));
-			logger.debug("Response code is: " + response.getStatusLine().getStatusCode());
-			if (response.getStatusLine().getStatusCode() == 200) {
-				// Index is already exists, so there is no need to configure the
-				// mapping
-				logger.debug("Report index exists");
+		try (ESClient client = new ESClient(Configuration.INSTANCE.readString(ConfigProps.ELASTIC_HOST),Configuration.INSTANCE.readInt(ConfigProps.ELASTIC_HTTP_PORT))){
+			if (client.isIndexExists(Common.ELASTIC_INDEX)){
 				return;
 			}
-		} catch (IOException e1) {
-			logger.error("Failed to connect to Elastic. ");
-			return;
-		}
-
-		try {
-			HttpEntity entity = new NStringEntity(
-					"{\"settings\" : {\"index\" : {\"number_of_shards\" : 3,\"number_of_replicas\" : 1}}}",
-					ContentType.APPLICATION_JSON);
-			Common.elasticsearchRestClient.performRequest("PUT", "/report", Collections.<String, String> emptyMap(),
-					entity);
-		} catch (IOException e1) {
-			logger.error("Failed to create new index");
-			return;
-		}
-
-		// We are reading the mapping from external file and not using the
-		// Java API since it seems that it is not possible to do a dynamic
-		// mapping using the API
-		final File mappingFile = new File(Common.CONFIUGRATION_FOLDER_NAME, MAPPING_FILE);
-		if (!mappingFile.exists()) {
-			logger.error("Failed to find elastic mapping file in " + mappingFile.getAbsolutePath()
-					+ ". Will not be able to configure Elastic");
-			return;
-		}
-
-		String mapping = null;
-		try {
-			mapping = FileUtils.readFileToString(mappingFile);
+			
+			// We are reading the mapping from external file and not using the
+			// Java API since it seems that it is not possible to do a dynamic
+			// mapping using the API
+			final File settingsFile = new File(Common.CONFIUGRATION_FOLDER_NAME, INDEX_SETTINGS_FILE);
+			if (!settingsFile.exists()) {
+				logger.error("Failed to find elastic mapping file in " + settingsFile.getAbsolutePath()
+				+ ". Will not be able to configure Elastic");
+				return;
+			}
+			
+			String settings = null;
+			try {
+				settings = FileUtils.readFileToString(settingsFile);
+			} catch (IOException e) {
+				logger.error("Failed to read mapping file. No index mapping will be set to the Elasticsearch", e);
+				return;
+			}
+			
+			client.createIndex(Common.ELASTIC_INDEX, settings);
+			
 		} catch (IOException e) {
-			logger.error("Failed to read mapping file. No index mapping will be set to the Elasticsearch", e);
-			return;
-		}
-
-		HttpEntity entity = new NStringEntity(mapping, ContentType.APPLICATION_JSON);
-		try {
-			Common.elasticsearchRestClient.performRequest("PUT", "/report", Collections.<String, String> emptyMap(),
-					entity);
-		} catch (IOException e) {
-			logger.error("Failed to create mappings");
-			return;
+			logger.error("Failed to connect to Elasticsearc or to create index");
 		}
 	}
 
@@ -131,23 +97,15 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 		}
 		Common.elasticsearchJavaClient.close();
 
-		try {
-			Common.elasticsearchRestClient.close();
-		} catch (IOException e) {
-			logger.warn("Failed to close Elastic Rest client");
-		}
 	}
 
+	@Deprecated
 	@SuppressWarnings("resource")
 	public static void startElastic() throws UnknownHostException {
 		if (!Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED)) {
 			return;
 		}
-
-		Common.elasticsearchRestClient = RestClient
-				.builder(new HttpHost(Configuration.INSTANCE.readString(ConfigProps.ELASTIC_HOST),
-						Configuration.INSTANCE.readInt(ConfigProps.ELASTIC_HTTP_PORT), "http"))
-				.build();
+		
 
 		Settings settingsBuilder = Settings.builder().put("node.name", "reportserver").build();
 		final String host = Configuration.INSTANCE.readString(ConfigProps.ELASTIC_HOST);

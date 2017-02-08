@@ -23,8 +23,6 @@ public class Common {
 
 	public static TransportClient elasticsearchJavaClient;
 	
-	public static RestClient elasticsearchRestClient;
-
 	public static final String ELASTIC_INDEX = "report";
 
 	public static final String CONFIUGRATION_FOLDER_NAME = "config";
