@@ -1,5 +1,5 @@
 
-package il.co.topq.report.business.elastic;
+package il.co.topq.report.business.elastic.client.response;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +29,7 @@ public class Hit {
     @JsonProperty("_score")
     private Integer score;
     @JsonProperty("_source")
-    private ElasticSource source;
+    private Map<String, Object> dataSource;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -74,13 +74,13 @@ public class Hit {
     }
 
     @JsonProperty("_source")
-    public ElasticSource getSource() {
-        return source;
+    public Map<String, Object> getDataSource() {
+    	return dataSource;
     }
 
     @JsonProperty("_source")
-    public void setSource(ElasticSource source) {
-        this.source = source;
+    public void setDataSource(Map<String, Object> source) {
+        this.dataSource = source;
     }
 
     @JsonAnyGetter

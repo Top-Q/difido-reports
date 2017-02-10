@@ -1,4 +1,4 @@
-package il.co.topq.report.business.elastic;
+package il.co.topq.report.business.elastic.client.response;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,13 +11,16 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-    "took",
+	"_scroll_id",
+	"took",
     "timed_out",
     "_shards",
     "hits"
 })
-public class ElasticResponse {
+public class QueryResponse {
 
+	@JsonProperty("_scroll_id")
+	private String scrollId;
     @JsonProperty("took")
     private Integer took;
     @JsonProperty("timed_out")
@@ -68,8 +71,18 @@ public class ElasticResponse {
     public void setHits(Hits hits) {
         this.hits = hits;
     }
+    
+    @JsonProperty("_scroll_id")
+    public String getScrollId() {
+		return scrollId;
+	}
 
-    @JsonAnyGetter
+    @JsonProperty("_scroll_id")
+    public void setScrollId(String scrollId) {
+		this.scrollId = scrollId;
+	}
+
+	@JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
     }

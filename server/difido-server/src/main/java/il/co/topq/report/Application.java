@@ -24,7 +24,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.business.elastic.ESClient;
+import il.co.topq.report.business.elastic.client.ESClient;
 
 @SpringBootApplication
 @EnableScheduling
@@ -53,21 +53,22 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 		if (!Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED)) {
 			return;
 		}
-		try (ESClient client = new ESClient(Configuration.INSTANCE.readString(ConfigProps.ELASTIC_HOST),Configuration.INSTANCE.readInt(ConfigProps.ELASTIC_HTTP_PORT))){
-			if (client.isIndexExists(Common.ELASTIC_INDEX)){
+		try (ESClient client = new ESClient(Configuration.INSTANCE.readString(ConfigProps.ELASTIC_HOST),
+				Configuration.INSTANCE.readInt(ConfigProps.ELASTIC_HTTP_PORT))) {
+			if (client.index(Common.ELASTIC_INDEX).isExists()) {
 				return;
 			}
-			
+
 			// We are reading the mapping from external file and not using the
 			// Java API since it seems that it is not possible to do a dynamic
 			// mapping using the API
 			final File settingsFile = new File(Common.CONFIUGRATION_FOLDER_NAME, INDEX_SETTINGS_FILE);
 			if (!settingsFile.exists()) {
 				logger.error("Failed to find elastic mapping file in " + settingsFile.getAbsolutePath()
-				+ ". Will not be able to configure Elastic");
+						+ ". Will not be able to configure Elastic");
 				return;
 			}
-			
+
 			String settings = null;
 			try {
 				settings = FileUtils.readFileToString(settingsFile);
@@ -75,9 +76,9 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 				logger.error("Failed to read mapping file. No index mapping will be set to the Elasticsearch", e);
 				return;
 			}
-			
-			client.createIndex(Common.ELASTIC_INDEX, settings);
-			
+
+			client.index(Common.ELASTIC_INDEX).create(settings);
+
 		} catch (IOException e) {
 			logger.error("Failed to connect to Elasticsearc or to create index");
 		}
@@ -105,7 +106,6 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 		if (!Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED)) {
 			return;
 		}
-		
 
 		Settings settingsBuilder = Settings.builder().put("node.name", "reportserver").build();
 		final String host = Configuration.INSTANCE.readString(ConfigProps.ELASTIC_HOST);

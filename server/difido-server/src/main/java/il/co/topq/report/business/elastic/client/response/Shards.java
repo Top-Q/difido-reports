@@ -1,8 +1,7 @@
 
-package il.co.topq.report.business.elastic;
+package il.co.topq.report.business.elastic.client.response;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -14,17 +13,17 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
     "total",
-    "max_score",
-    "hits"
+    "successful",
+    "failed"
 })
-public class Hits {
+public class Shards {
 
     @JsonProperty("total")
     private Integer total;
-    @JsonProperty("max_score")
-    private Integer maxScore;
-    @JsonProperty("hits")
-    private List<Hit> hits = null;
+    @JsonProperty("successful")
+    private Integer successful;
+    @JsonProperty("failed")
+    private Integer failed;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -38,24 +37,24 @@ public class Hits {
         this.total = total;
     }
 
-    @JsonProperty("max_score")
-    public Integer getMaxScore() {
-        return maxScore;
+    @JsonProperty("successful")
+    public Integer getSuccessful() {
+        return successful;
     }
 
-    @JsonProperty("max_score")
-    public void setMaxScore(Integer maxScore) {
-        this.maxScore = maxScore;
+    @JsonProperty("successful")
+    public void setSuccessful(Integer successful) {
+        this.successful = successful;
     }
 
-    @JsonProperty("hits")
-    public List<Hit> getHits() {
-        return hits;
+    @JsonProperty("failed")
+    public Integer getFailed() {
+        return failed;
     }
 
-    @JsonProperty("hits")
-    public void setHits(List<Hit> hits) {
-        this.hits = hits;
+    @JsonProperty("failed")
+    public void setFailed(Integer failed) {
+        this.failed = failed;
     }
 
     @JsonAnyGetter

@@ -1,5 +1,5 @@
 
-package il.co.topq.report.business.elastic;
+package il.co.topq.report.business.elastic.client.response;
 
 import java.util.HashMap;
 import java.util.Map;
