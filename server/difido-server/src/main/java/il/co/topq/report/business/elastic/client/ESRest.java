@@ -1,5 +1,6 @@
 package il.co.topq.report.business.elastic.client;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collections;
 
@@ -12,13 +13,13 @@ import org.elasticsearch.client.RestClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class AbstractSender {
+public class ESRest implements Closeable{
 
 	protected static final ObjectMapper mapper = new ObjectMapper();
 
 	protected final RestClient client;
 
-	public AbstractSender(RestClient client) {
+	public ESRest(RestClient client) {
 		this.client = client;
 	}
 
@@ -32,8 +33,16 @@ public class AbstractSender {
 		return mapper.readValue(IOUtils.toString(response.getEntity().getContent(), "UTF-8"), responseClass);
 	}
 
-	protected Response head(String resource, boolean assertSuccess) throws IOException {
-		return client.performRequest("HEAD", resource, Collections.singletonMap("pretty", "true"));
+	/**
+	 * 
+	 * @param resource
+	 * @param assertSuccess
+	 * @return Status code
+	 * @throws IOException
+	 */
+	protected int head(String resource, boolean assertSuccess) throws IOException {
+		Response response = client.performRequest("HEAD", resource, Collections.singletonMap("pretty", "true"));
+		return response.getStatusLine().getStatusCode();
 	}
 
 	protected <T> T put(String resource, String body ,Class<T> responseClass, boolean assertSuccess) throws IOException {
@@ -57,6 +66,13 @@ public class AbstractSender {
 	private void assertSuccess(Response response) throws IOException {
 		if (response.getStatusLine().getStatusCode() != 200) {
 			throw new IOException("Return status is " + response.getStatusLine().getStatusCode());
+		}
+	}
+	
+	@Override
+	public void close() throws IOException{
+		if (client != null){
+			client.close();
 		}
 	}
 

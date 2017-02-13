@@ -12,7 +12,6 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import il.co.topq.report.Application;
 import il.co.topq.report.Common;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionEndedEvent;
@@ -29,7 +28,6 @@ public class EsControllerElasticIntegrationIT {
 	@BeforeClass
 	public static void setup() throws IOException, InterruptedException {
 		FileUtils.deleteDirectory(new File("data"));
-		Application.startElastic();
 
 		// It seems that we need to give the ELastic some time to create the
 		// index on slow machines
@@ -44,8 +42,15 @@ public class EsControllerElasticIntegrationIT {
 		List<ElasticsearchTest> tests = ElasticsearchTestGenerator.generateTests(executionId, executionTimeStamp, 10);
 		escontroller.addOrUpdateInElastic(tests);
 		Thread.sleep(1000);
-		List<ElasticsearchTest> storedTests = ESUtils.getAllByQuery(Common.ELASTIC_INDEX, "test",
-				ElasticsearchTest.class, "executionId:" + executionId);
+		
+//		@formatter:off
+		List<ElasticsearchTest> storedTests = escontroller
+				.client
+				.index(Common.ELASTIC_INDEX)
+				.document("test")
+				.query()
+				.byTerm("executionId", executionId +"" ).asClass(ElasticsearchTest.class);
+//		@formatter:on
 		Assert.assertEquals(tests.size(), storedTests.size());
 		storedTests.removeAll(tests);
 		Assert.assertTrue(storedTests.size() == 0);
@@ -58,14 +63,22 @@ public class EsControllerElasticIntegrationIT {
 		ExecutionEndedEvent event = new ExecutionEndedEvent(metaData);
 		escontroller.onExecutionEndedEvent(event);
 		Thread.sleep(1000);
-		List<ElasticsearchTest> storedTests = ESUtils.getAllByQuery(Common.ELASTIC_INDEX, "test",
-				ElasticsearchTest.class, "executionId:" + metaData.getId());
+//		@formatter:off
+		List<ElasticsearchTest> storedTests = escontroller
+				.client
+				.index(Common.ELASTIC_INDEX)
+				.document("test")
+				.query()
+				.byTerm("executionId", metaData.getId() +"" )
+				.asClass(ElasticsearchTest.class);
+//		@formatter:on
+
 		Assert.assertEquals(20, storedTests.size());
 	}
 
 	@AfterClass
 	public static void teardown() throws IOException {
-		Application.stopElastic();
+		escontroller.client.close();
 		FileUtils.deleteDirectory(new File("data"));
 	}
 

@@ -1,5 +1,7 @@
 package il.co.topq.report.business.elastic;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -12,9 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
-import org.elasticsearch.action.DocWriteResponse.Result;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.delete.DeleteResponse;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -28,6 +28,7 @@ import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.StopWatch;
+import il.co.topq.report.business.elastic.client.ESClient;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionDeletedEvent;
 import il.co.topq.report.events.ExecutionEndedEvent;
@@ -41,6 +42,8 @@ import il.co.topq.report.events.MachineCreatedEvent;
 @Component
 public class ESController {
 
+	private static final String INDEX_SETTINGS_FILE = "mapping.json";
+
 	private static final String TEST_TYPE = "test";
 
 	private final Logger log = LoggerFactory.getLogger(ESController.class);
@@ -53,12 +56,57 @@ public class ESController {
 
 	private static boolean storeOnlyAtEnd;
 
+	ESClient client;
+
 	public ESController() {
 		enabled = Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED);
 		log.debug("Elasticsearch is set to: enabled=" + enabled);
+		if (!enabled) {
+			return;
+		}
 		savedTestsPerExecution = Collections.synchronizedMap(new HashMap<Integer, Set<TestNode>>());
 		storeOnlyAtEnd = Configuration.INSTANCE.readBoolean(ConfigProps.STORE_IN_ELASTIC_ONLY_AT_EXECUTION_END);
 		log.debug("Store only at end of execution is set to: enabled=" + storeOnlyAtEnd);
+		final String host = Configuration.INSTANCE.readString(ConfigProps.ELASTIC_HOST);
+		final int port = Configuration.INSTANCE.readInt(ConfigProps.ELASTIC_HTTP_PORT);
+		client = new ESClient(host, port);
+		configureReportsIndex();
+
+	}
+
+	private void configureReportsIndex() {
+		if (!Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED)) {
+			return;
+		}
+		try {
+			if (client.index(Common.ELASTIC_INDEX).isExists()) {
+				return;
+			}
+
+			// We are reading the mapping from external file and not using the
+			// Java API since it seems that it is not possible to do a dynamic
+			// mapping using the API
+			final File settingsFile = new File(Common.CONFIUGRATION_FOLDER_NAME, INDEX_SETTINGS_FILE);
+			if (!settingsFile.exists()) {
+				log.error("Failed to find elastic mapping file in " + settingsFile.getAbsolutePath()
+						+ ". Will not be able to configure Elastic");
+				return;
+			}
+
+			String settings = null;
+			try {
+				settings = FileUtils.readFileToString(settingsFile);
+			} catch (IOException e) {
+				log.error("Failed to read mapping file. No index mapping will be set to the Elasticsearch", e);
+				return;
+			}
+
+			client.index(Common.ELASTIC_INDEX).create(settings);
+
+		} catch (IOException e) {
+			log.error("Failed to connect to Elasticsearc or to create index");
+			enabled = false;
+		}
 	}
 
 	@EventListener
@@ -76,8 +124,19 @@ public class ESController {
 		// using the id of each one.
 		List<ElasticsearchTest> testsToDelete = null;
 		try {
-			testsToDelete = ESUtils.getAllByTerm(Common.ELASTIC_INDEX, TEST_TYPE, ElasticsearchTest.class,
-					"executionId", String.valueOf(executionDeletedEvent.getExecutionId()));
+//			@formatter:off
+			testsToDelete = client
+					.index(Common.ELASTIC_INDEX)
+					.document(TEST_TYPE)
+					.query()
+					.byTerm("executionId", String.valueOf(executionDeletedEvent.getExecutionId()))
+					.asClass(ElasticsearchTest.class);
+//			@formatter:on
+
+			// testsToDelete = ESUtils.getAllByTerm(Common.ELASTIC_INDEX,
+			// TEST_TYPE, ElasticsearchTest.class,
+			// "executionId",
+			// String.valueOf(executionDeletedEvent.getExecutionId()));
 
 		} catch (Exception e) {
 			log.error("Failed to get tests to delete for execution " + executionDeletedEvent.getExecutionId(), e);
@@ -85,11 +144,34 @@ public class ESController {
 		}
 		log.debug("Found " + testsToDelete.size() + " tests to delete");
 		for (ElasticsearchTest test : testsToDelete) {
-			DeleteResponse response = ESUtils.delete(Common.ELASTIC_INDEX, TEST_TYPE, test.getUid());
-			if (response.getResult() == Result.NOT_FOUND) {
+			Map<String, Object> response = null;
+			try {
+//			@formatter:off
+				response = client
+						.index(Common.ELASTIC_INDEX)
+						.document(TEST_TYPE)
+						.delete()
+						.single(test.getUid());
+//			@formatter:on
+
+			} catch (IOException e) {
+				log.warn("Failed to delete test with id: " + test.getUid());
+				continue;
+			}
+
+			// DeleteResponse response = ESUtils.delete(Common.ELASTIC_INDEX,
+			// TEST_TYPE, test.getUid());
+			if (!response.get("result").equals("found")) {
 				log.warn("Test of execution " + executionDeletedEvent.getExecutionId() + " with id " + test.getUid()
 						+ " was not found for deletion");
+
 			}
+			// if (response.getResult() == Result.NOT_FOUND) {
+			// log.warn("Test of execution " +
+			// executionDeletedEvent.getExecutionId() + " with id " +
+			// test.getUid()
+			// + " was not found for deletion");
+			// }
 		}
 		log.debug("Finished deleting tests of execution " + executionDeletedEvent.getExecutionId()
 				+ " from the Elasticsearch");
@@ -184,9 +266,13 @@ public class ESController {
 			ids[i] = esTests.get(i).getUid();
 		}
 		try {
-			BulkResponse response = ESUtils.addBulk(Common.ELASTIC_INDEX, TEST_TYPE, ids, esTests);
-			if (response.hasFailures()) {
-				log.error("Failed updating tests in Elastic due to: " + response.buildFailureMessage());
+			Map<String, Object> response = client.index(Common.ELASTIC_INDEX).document(TEST_TYPE).add().bulk(ids,
+					esTests);
+
+			// BulkResponse response = ESUtils.addBulk(Common.ELASTIC_INDEX,
+			// TEST_TYPE, ids, esTests);
+			if (!response.get("errors").equals("false")) {
+				log.error("Failed updating tests in Elastic due to: " + response);
 			}
 		} catch (Exception e) {
 			log.error("Failed to add tests to Elastic due to " + e.getMessage());

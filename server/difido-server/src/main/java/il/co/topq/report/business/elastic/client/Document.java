@@ -1,16 +1,14 @@
 package il.co.topq.report.business.elastic.client;
 
-import org.elasticsearch.client.RestClient;
-
 public class Document {
 
-	private final RestClient client;
+	private final ESRest client;
 
 	private final String indexName;
 
 	private final String documentName;
 
-	public Document(RestClient client, String indexName, String documentName) {
+	public Document(ESRest client, String indexName, String documentName) {
 		super();
 		this.client = client;
 		this.indexName = indexName;

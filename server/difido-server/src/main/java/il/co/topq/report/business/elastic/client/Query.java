@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.elasticsearch.client.RestClient;
-
 import il.co.topq.report.business.elastic.client.response.QueryResponse;
 
-public class Query extends AbstractSender {
+public class Query {
 
+	private final ESRest client;
+	
 	private final String indexName;
 
 	private final String documentName;
@@ -18,8 +18,8 @@ public class Query extends AbstractSender {
 
 	private final boolean scroll;
 
-	public Query(RestClient client, String indexName, String documentName, int size, boolean scroll) {
-		super(client);
+	public Query(ESRest client, String indexName, String documentName, int size, boolean scroll) {
+		this.client = client;
 		this.indexName = indexName;
 		this.documentName = documentName;
 		this.size = size;
@@ -34,7 +34,7 @@ public class Query extends AbstractSender {
 		String requestBody = String.format("{\"size\":%d,\"query\": {\"term\" : { \"%s\" : \"%s\" }  } }", size,
 				filterTermKey, filterTermValue);
 		
-		QueryResponse response = post("/" + indexName + "/" + documentName + "/_search?scroll=1m", requestBody,
+		QueryResponse response = client.post("/" + indexName + "/" + documentName + "/_search?scroll=1m", requestBody,
 				QueryResponse.class, true);
 
 		final List<QueryResponse> responses = new ArrayList<QueryResponse>();
@@ -46,7 +46,7 @@ public class Query extends AbstractSender {
 	}
 
 	private QueryResponse scroll(String scrollId) throws IOException {
-		return post("/_search/scroll", String.format("{\"scroll\":\"1m\",\"scroll_id\":\"%s\"}", scrollId),
+		return client.post("/_search/scroll", String.format("{\"scroll\":\"1m\",\"scroll_id\":\"%s\"}", scrollId),
 				QueryResponse.class, true);
 	}
 

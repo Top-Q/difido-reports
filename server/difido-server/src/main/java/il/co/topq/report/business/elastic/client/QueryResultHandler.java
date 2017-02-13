@@ -1,5 +1,7 @@
 package il.co.topq.report.business.elastic.client;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +34,12 @@ public class QueryResultHandler {
 	}
 
 	public <T> List<T> asClass(Class<T> clazz) {
-		List<T> response = new ArrayList<T>();
-		asMap().stream().map(hit -> mapper.convertValue(hit, clazz)).forEach(response::add);
-		return response;
-
+//		@formatter:off
+		return asMap()
+				.stream()
+				.map(hit -> mapper.convertValue(hit, clazz))
+				.collect(toList());
+//		@formatter:on
 	}
 
 }

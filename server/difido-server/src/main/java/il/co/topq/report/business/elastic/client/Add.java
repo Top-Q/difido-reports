@@ -4,15 +4,20 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.elasticsearch.client.RestClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class Add extends AbstractSender {
+public class Add {
 
+	protected static final ObjectMapper mapper = new ObjectMapper();
+	
+	private final ESRest client;
+	
 	private String indexName;
+	
 	private String documentName;
 
-	public Add(RestClient client, String indexName, String documentName) {
-		super(client);
+	public Add(ESRest client, String indexName, String documentName) {
+		this.client = client;
 		this.indexName = indexName;
 		this.documentName = documentName;
 	}
@@ -27,7 +32,7 @@ public class Add extends AbstractSender {
 			sb.append(String.format("{ \"create\": {\"_id\":\"%s\"}\n", ids[i]));
 			sb.append(mapper.writeValueAsString(objects.get(i))).append("\n");
 		}
-		return post(String.format("/%s/%s/_bulk", indexName,documentName),sb.toString(),Map.class,true);
+		return client.post(String.format("/%s/%s/_bulk", indexName,documentName),sb.toString(),Map.class,true);
 	}
 
 }
