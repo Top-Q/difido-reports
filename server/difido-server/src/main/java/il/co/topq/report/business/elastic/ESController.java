@@ -133,11 +133,6 @@ public class ESController {
 					.asClass(ElasticsearchTest.class);
 //			@formatter:on
 
-			// testsToDelete = ESUtils.getAllByTerm(Common.ELASTIC_INDEX,
-			// TEST_TYPE, ElasticsearchTest.class,
-			// "executionId",
-			// String.valueOf(executionDeletedEvent.getExecutionId()));
-
 		} catch (Exception e) {
 			log.error("Failed to get tests to delete for execution " + executionDeletedEvent.getExecutionId(), e);
 			return;
@@ -166,12 +161,6 @@ public class ESController {
 						+ " was not found for deletion");
 
 			}
-			// if (response.getResult() == Result.NOT_FOUND) {
-			// log.warn("Test of execution " +
-			// executionDeletedEvent.getExecutionId() + " with id " +
-			// test.getUid()
-			// + " was not found for deletion");
-			// }
 		}
 		log.debug("Finished deleting tests of execution " + executionDeletedEvent.getExecutionId()
 				+ " from the Elasticsearch");
@@ -269,8 +258,6 @@ public class ESController {
 			Map<String, Object> response = client.index(Common.ELASTIC_INDEX).document(TEST_TYPE).add().bulk(ids,
 					esTests);
 
-			// BulkResponse response = ESUtils.addBulk(Common.ELASTIC_INDEX,
-			// TEST_TYPE, ids, esTests);
 			if (!response.get("errors").equals("false")) {
 				log.error("Failed updating tests in Elastic due to: " + response);
 			}

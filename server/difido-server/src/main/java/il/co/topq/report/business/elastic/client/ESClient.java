@@ -28,11 +28,4 @@ public class ESClient implements Closeable {
 		return new Index(rest, name);
 	}
 
-	public static void main(String[] args) throws Exception {
-		ESClient c = new ESClient("localhost", 9200);
-		c.index("report").document("test").query().byTerm("executionId", "4")
-				.asClass(ElasticsearchTest.class).stream().forEach(System.out::println);
-		c.close();
-	}
-
 }
