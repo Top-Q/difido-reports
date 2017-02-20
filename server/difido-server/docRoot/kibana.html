@@ -105,7 +105,7 @@
 					contentType: 'application/json',
 					url : url,
 					type: "POST",
-					data: '{ "size": 0, "aggs": {"field_value": {"terms": { "field": "' + term +'", "size": 0 } } } }'
+					data: '{ "size": 0, "aggs": {"field_value": {"terms": { "field": "' + term +'"} } } }'
 				}).done(function(response){
 					fulfill(getKeysFromAggregrasionResponse(response));
 				});

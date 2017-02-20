@@ -1,107 +1,114 @@
 {
-  "test": {
-    "properties": {
-      "name": {
-        "type": "string",
-        "index": "not_analyzed"
-      },
-      "uid": {
-        "type": "string",
-        "index": "not_analyzed"
-      },
-      "parent": {
-        "type": "string",
-        "index": "not_analyzed"
-      },
-      "status": {
-        "type": "string",
-        "index": "not_analyzed"
-      },
-      "url": {
-        "type": "string",
-        "index": "not_analyzed"
-      },
-      "description": {
-        "type": "string",
-        "index": "not_analyzed"
-      },
-      "execution": {
-        "type": "string",
-        "index": "not_analyzed"
-      },
-      "executionId": {
-        "type": "long"
-      },
-      "machine": {
-        "type": "string",
-        "index": "not_analyzed"
-      },
-      "timestamp": {
-        "type": "date",
-        "format": "yyyy/MM/dd HH:mm:ss"
-      },
-      "executionTimestamp": {
-        "type": "date",
-        "format": "yyyy/MM/dd HH:mm:ss"
-      },
-      "duration": {
-        "type": "long"
-      }
-    },
-    "dynamic_templates": [
-      {
-        "long_prop": {
-          "match": "long_*",
-          "match_mapping_type": "string",
-          "mapping": {
-            "type": "long",
-            "index": "not_analyzed"
-          }
-        }
-      },
-      {
-        "int_prop": {
-          "match": "int_*",
-          "match_mapping_type": "string",
-          "mapping": {
-            "type": "integer",
-            "index": "not_analyzed"
-          }
-        }
-      },
-      {
-        "double_prop": {
-          "match": "double_*",
-          "match_mapping_type": "string",
-          "mapping": {
-            "type": "double",
-            "index": "not_analyzed"
-          }
-        }
-      },
-      {
-        "date_prop": {
-          "match": "date_*",
-          "match_mapping_type": "string",
-          "mapping": {
-            "type": "date",
-            "index": "not_analyzed",
-            "format": "yyyy/MM/dd HH:mm:ss"
-          }
-        }
-      },
-
-      {
-        "notanalyzed": {
-          "match": "*",
-          "unmatch": "^(long_|int_|double_|date_)$",
-          "match_mapping_type": "string",
-          "mapping": {
-            "type": "string",
-            "index": "not_analyzed"
-          }
-        }
-      }
-    ]
-  }
+	"settings": {
+		"index": {
+			"number_of_shards": 3,
+			"number_of_replicas": 1
+		}
+	},
+	"mappings": {
+		"test": {
+			"properties": {
+				"name": {
+					"type": "string",
+					"index": "not_analyzed"
+				},
+				"uid": {
+					"type": "string",
+					"index": "not_analyzed"
+				},
+				"parent": {
+					"type": "string",
+					"index": "not_analyzed"
+				},
+				"status": {
+					"type": "string",
+					"index": "not_analyzed"
+				},
+				"url": {
+					"type": "string",
+					"index": "not_analyzed"
+				},
+				"description": {
+					"type": "string",
+					"index": "not_analyzed"
+				},
+				"execution": {
+					"type": "string",
+					"index": "not_analyzed"
+				},
+				"executionId": {
+					"type": "long"
+				},
+				"machine": {
+					"type": "string",
+					"index": "not_analyzed"
+				},
+				"timestamp": {
+					"type": "date",
+					"format": "yyyy/MM/dd HH:mm:ss"
+				},
+				"executionTimestamp": {
+					"type": "date",
+					"format": "yyyy/MM/dd HH:mm:ss"
+				},
+				"duration": {
+					"type": "long"
+				}
+			},
+			"dynamic_templates": [
+				{
+					"long_prop": {
+						"match": "long_*",
+						"match_mapping_type": "string",
+						"mapping": {
+							"type": "long",
+							"index": "not_analyzed"
+						}
+					}
+				},
+				{
+					"int_prop": {
+						"match": "int_*",
+						"match_mapping_type": "string",
+						"mapping": {
+							"type": "integer",
+							"index": "not_analyzed"
+						}
+					}
+				},
+				{
+					"double_prop": {
+						"match": "double_*",
+						"match_mapping_type": "string",
+						"mapping": {
+							"type": "double",
+							"index": "not_analyzed"
+						}
+					}
+				},
+				{
+					"date_prop": {
+						"match": "date_*",
+						"match_mapping_type": "string",
+						"mapping": {
+							"type": "date",
+							"index": "not_analyzed",
+							"format": "yyyy/MM/dd HH:mm:ss"
+						}
+					}
+				},
+				{
+					"notanalyzed": {
+						"match": "*",
+						"unmatch": "^(long_|int_|double_|date_)$",
+						"match_mapping_type": "string",
+						"mapping": {
+							"type": "string",
+							"index": "not_analyzed"
+						}
+					}
+				}
+			]
+		}
+	}
 }

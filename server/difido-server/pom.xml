@@ -51,9 +51,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.elasticsearch</groupId>
-			<artifactId>elasticsearch</artifactId>
-			<version>2.3.1</version>
+			<groupId>il.co.topq.elastic</groupId>
+			<artifactId>elasticseach-client</artifactId>
+			<version>1.0.00</version>
 		</dependency>
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>

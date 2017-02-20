@@ -24,30 +24,17 @@ public class ElasticResource {
 
 	private static final Logger log = LoggerFactory.getLogger(ElasticResource.class);
 
-	private static final int DEFAULT_ELASTIC_PORT = 9200;
-
 	private RestTemplate template;
 
 	private URL base;
 
-	private boolean enabled;
+	private boolean enabled = true;
 
 	public ElasticResource() {
-		enabled = Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_ELASTIC_SEARCH);
-		if (!enabled) {
-			log.debug("Elastic is disabled. aborting");
-			return;
-		}
-
 		String elasticHost = null;
 		int elasticPort = 0;
-		if (Configuration.INSTANCE.readBoolean(ConfigProps.EXTERNAL_ELASTIC)) {
-			elasticHost = Configuration.INSTANCE.readString(ConfigProps.EXTERNAL_ELASTIC_HOST);
-			elasticPort = Configuration.INSTANCE.readInt(ConfigProps.EXTERNAL_ELASTIC_PORT);
-		} else {
-			elasticHost = "localhost";
-			elasticPort = DEFAULT_ELASTIC_PORT;
-		}
+		elasticHost = Configuration.INSTANCE.readString(ConfigProps.ELASTIC_HOST);
+		elasticPort = Configuration.INSTANCE.readInt(ConfigProps.ELASTIC_HTTP_PORT);
 		try {
 			base = new URL("http://" + elasticHost + ":" + elasticPort + "/");
 		} catch (MalformedURLException e) {
