@@ -104,7 +104,7 @@ public class ESController {
 			client.index(Common.ELASTIC_INDEX).create(settings);
 
 		} catch (IOException e) {
-			log.error("Failed to connect to Elasticsearc or to create index");
+			log.error("Failed to connect to Elasticsearch or to create index");
 			enabled = false;
 		}
 	}
@@ -258,7 +258,8 @@ public class ESController {
 			Map<String, Object> response = client.index(Common.ELASTIC_INDEX).document(TEST_TYPE).add().bulk(ids,
 					esTests);
 
-			if (!response.get("errors").equals("false")) {
+			if (!"false".equals(response.get("errors").toString())){
+				log.debug("Response: " + response.get("errors"));
 				log.error("Failed updating tests in Elastic due to: " + response);
 			}
 		} catch (Exception e) {
@@ -266,7 +267,7 @@ public class ESController {
 		}
 
 	}
-
+	
 	private List<ElasticsearchTest> convertToElasticTests(ExecutionMetadata metadata, MachineNode machineNode,
 			Set<TestNode> executionTests) {
 		final List<ElasticsearchTest> elasticTests = new ArrayList<ElasticsearchTest>();
