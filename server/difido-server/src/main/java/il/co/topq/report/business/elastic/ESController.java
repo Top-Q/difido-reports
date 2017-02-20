@@ -70,12 +70,12 @@ public class ESController {
 		final String host = Configuration.INSTANCE.readString(ConfigProps.ELASTIC_HOST);
 		final int port = Configuration.INSTANCE.readInt(ConfigProps.ELASTIC_HTTP_PORT);
 		client = new ESClient(host, port);
-		configureReportsIndex();
+		createIndexIfNoneExists();
 
 	}
 
-	private void configureReportsIndex() {
-		if (!Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED)) {
+	private void createIndexIfNoneExists() {
+		if (!enabled) {
 			return;
 		}
 		try {
@@ -153,10 +153,7 @@ public class ESController {
 				log.warn("Failed to delete test with id: " + test.getUid());
 				continue;
 			}
-
-			// DeleteResponse response = ESUtils.delete(Common.ELASTIC_INDEX,
-			// TEST_TYPE, test.getUid());
-			if (!response.get("result").equals("found")) {
+			if (!"deleted".equals(response.get("result").toString())) {
 				log.warn("Test of execution " + executionDeletedEvent.getExecutionId() + " with id " + test.getUid()
 						+ " was not found for deletion");
 
@@ -258,7 +255,7 @@ public class ESController {
 			Map<String, Object> response = client.index(Common.ELASTIC_INDEX).document(TEST_TYPE).add().bulk(ids,
 					esTests);
 
-			if (!"false".equals(response.get("errors").toString())){
+			if (!"false".equals(response.get("errors").toString())) {
 				log.debug("Response: " + response.get("errors"));
 				log.error("Failed updating tests in Elastic due to: " + response);
 			}
@@ -267,7 +264,7 @@ public class ESController {
 		}
 
 	}
-	
+
 	private List<ElasticsearchTest> convertToElasticTests(ExecutionMetadata metadata, MachineNode machineNode,
 			Set<TestNode> executionTests) {
 		final List<ElasticsearchTest> elasticTests = new ArrayList<ElasticsearchTest>();
