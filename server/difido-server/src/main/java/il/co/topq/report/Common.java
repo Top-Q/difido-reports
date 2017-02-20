@@ -2,8 +2,6 @@ package il.co.topq.report;
 
 import java.text.SimpleDateFormat;
 
-import org.elasticsearch.client.Client;
-
 public class Common {
 
 	public static final String EXECUTION_REPORT_FOLDER_PREFIX = "exec";
@@ -19,8 +17,6 @@ public class Common {
 			"yyyy/MM/dd HH:mm:ss");
 
 	public static final String REPORTS_FOLDER_NAME = "reports";
-
-	public static Client elasticsearchClient;
 
 	public static final String ELASTIC_INDEX = "report";
 
