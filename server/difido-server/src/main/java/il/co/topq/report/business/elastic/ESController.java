@@ -104,7 +104,7 @@ public class ESController {
 			client.index(Common.ELASTIC_INDEX).create(settings);
 
 		} catch (IOException e) {
-			log.error("Failed to connect to Elasticsearch or to create index");
+			log.error("Failed to connect to Elasticsearch or to create index due to " + e.getMessage());
 			enabled = false;
 		}
 	}
