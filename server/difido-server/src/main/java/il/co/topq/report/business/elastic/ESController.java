@@ -71,6 +71,32 @@ public class ESController {
 		final int port = Configuration.INSTANCE.readInt(ConfigProps.ELASTIC_HTTP_PORT);
 		client = new ESClient(host, port);
 		createIndexIfNoneExists();
+		validateElasticStatus();
+
+	}
+
+	@SuppressWarnings("unchecked")
+	private void validateElasticStatus() {
+		if (!enabled) {
+			return;
+		}
+		Map<String, Object> response = null;
+		try {
+			response = client.index(Common.ELASTIC_INDEX).stats().asMap();
+		} catch (IOException e) {
+			log.error("Failed to get the status of the Elatic index");
+		}
+		final Map<String, Object> shardsResponse = (Map<String, Object>) response.get("_shards");
+		int failedShards = (Integer) shardsResponse.get("failed");
+		if (failedShards > 0) {
+			log.error("There are " + failedShards + " failed shards in Elastic");
+		}
+		int totalShards = (Integer) shardsResponse.get("total");
+		int successfulShards = (Integer) shardsResponse.get("successful");
+		if (totalShards != successfulShards) {
+			log.warn("Total number of shards (" + totalShards + ") is not equal to the number of successful shards ("
+					+ successfulShards + "). Check that all nodes are available");
+		}
 
 	}
 
@@ -186,7 +212,10 @@ public class ESController {
 	}
 
 	private void saveDirtyTests(ExecutionMetadata metadata, MachineNode machineNode) {
-		StopWatch stopWatch = new StopWatch(log).start("Fetching all execution tests");
+		StopWatch stopWatch = new StopWatch(log).start("Validating the state of Elasticsearch");
+		validateElasticStatus();
+		stopWatch.stopAndLog();
+		stopWatch.start("Fetching all execution tests");
 		final Set<TestNode> executionTests = getExecutionTests(machineNode);
 		stopWatch.stopAndLog();
 		if (executionTests.isEmpty()) {
@@ -252,7 +281,8 @@ public class ESController {
 			ids[i] = esTests.get(i).getUid();
 		}
 		try {
-			Map<String, Object> response = client.index(Common.ELASTIC_INDEX).document(TEST_TYPE).add().bulk(ids,
+			client.index(Common.ELASTIC_INDEX).document(TEST_TYPE).add().bulk(ids, esTests);
+			Map<String, Object> response = client.index(Common.ELASTIC_INDEX).document(TEST_TYPE).update().bulk(ids,
 					esTests);
 
 			if (!"false".equals(response.get("errors").toString())) {
