@@ -36,7 +36,7 @@ public class PluginController {
 			try {
 				log.debug("Calling plugin " + plugin.getName());
 				plugin.onExecutionEnded(executionEndedEvent.getMetadata());
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "
 						+ plugin.getName());
 			}
@@ -79,7 +79,7 @@ public class PluginController {
 					log.debug("Calling plugin " + plugin.getName());
 					plugin.execute(metaDataList, params);
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "
 						+ plugin.getName() + " and params " + params);
 			}
