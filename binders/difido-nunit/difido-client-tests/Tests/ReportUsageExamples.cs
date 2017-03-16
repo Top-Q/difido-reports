@@ -51,6 +51,21 @@ namespace difido_client_tests
         }
 
         [Test]
+        public void ReportLevelsWithException()
+        {
+            report.Step("Let's play with levels");
+            report.StartLevel("Click on me to see more reports");
+            report.Report("Something");
+            report.Report("Something else");
+            report.Report("Additional something");
+            report.EndLevel();
+            report.StartLevel("Click on me to see more reports");
+            report.Report("Something");
+            report.Report("Something else");
+            throw new Exception("An exception");
+        }
+
+        [Test]
         public void TestWithError()
         {
             report.Report("About to fail the test with exception");

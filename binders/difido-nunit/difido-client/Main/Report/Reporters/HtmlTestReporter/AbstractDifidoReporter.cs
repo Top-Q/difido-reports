@@ -1,15 +1,7 @@
 ﻿using difido_client.Report.Html.Model;
-using difido_client.Utils;
-using System.IO.Compression;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 using System.Diagnostics;
-using System.Threading;
 
 namespace difido_client.Main.Report.Reporters.HtmlTestReporter
 {
@@ -68,15 +60,15 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             scenario.AddChild(currentTest);
             ExecutionWasAddedOrUpdated(execution);
             testDetails = new TestDetails(currentTest.uid);
-            
+
         }
 
         public void EndTest(ReporterTestInfo testInfo)
         {
             TestDetailsWereAdded(testDetails);
             currentTest.status = testInfo.Status.ToString();
-            currentTest.duration = testInfo.DurationTime;            
-            ExecutionWasAddedOrUpdated(execution);            
+            currentTest.duration = testInfo.DurationTime;
+            ExecutionWasAddedOrUpdated(execution);
             index++;
         }
 
@@ -89,13 +81,13 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
                 Console.WriteLine("HTML reporter was not initiliazed propertly. No reports would be created.");
                 return;
             }
-            testDetails.AddReportElement(element);
+
             element.title = title;
             element.message = message;
             element.time = DateTime.Now.ToString("HH:mm:ss");
             element.status = status.ToString();
             element.type = type.ToString();
-
+            testDetails.AddReportElement(element);
             if (type == ReportElementType.lnk || type == ReportElementType.img)
             {
                 if (File.Exists(message))
@@ -123,6 +115,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
                 }
             }
             stopwatch.Restart();
+
             TestDetailsWereAdded(testDetails);
 
         }
@@ -169,7 +162,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
 
         protected string ExecutionUid
         {
-            get {return executionUid;}
+            get { return executionUid; }
 
         }
 

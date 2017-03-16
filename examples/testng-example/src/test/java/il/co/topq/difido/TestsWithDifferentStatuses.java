@@ -10,7 +10,7 @@ public class TestsWithDifferentStatuses extends AbstractDifidoTestCase {
 	@Test(description = "Test with exception")
 	public void testWithException() throws Exception {
 		report.log("About to fail");
-		throw new Exception("This is my failure");
+//		throw new Exception("This is my failure");
 	}
 
 	@Test(description = "Test with failure")

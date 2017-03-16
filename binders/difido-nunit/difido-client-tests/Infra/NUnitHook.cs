@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace difido_client_tests
+namespace difido_client_infra
 {
     [NUnitAddin(Name= "NUnitHook", Description = "NUnit Hook")]
     public class NUnitHook : NunitRegistrar
