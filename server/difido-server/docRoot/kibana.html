@@ -98,6 +98,24 @@
 
 		}
 
+		function getDashboardNames() {
+			return new Promise(function (fullfill,reject) {
+				url = "/api/elastic/.kibana/dashboard";
+				$.ajax({
+					contentType: 'application/json',
+					url : url,
+					type: "POST",
+					data: '{"query": {"match_all": {}}}'
+				}).done(function(response){
+					var result = {};
+					response.hits.hits.forEach(function(hit){
+						result[hit._id] = hit._source.title 
+					});
+					fullfill(result)
+				});
+			});
+		}
+
 		function getAggregatedTermsFromElastic(index, document, term) {
 			return new Promise(function (fulfill, reject){
 				url = "/api/elastic/" + index + "/" + document;
@@ -136,13 +154,10 @@
 				alert("No dashboards found");
 				return;
 			}
-
 			var dashboardOptions = "";
-			dashboards.forEach(function(dashboard){
-				var formattedName = dashboard.replace("dashboard#","");
-				dashboardOptions += '<option value=' + formattedName +'>' + formattedName.replace("-"," ") +'</option>';
-
-			});
+			for (id in dashboards) {
+				dashboardOptions += '<option value=' + id +'>' + dashboards[id] +'</option>';
+			}
 			var fieldSections = "";
 			for (var i = 0 ; i < fieldNames.length ; i++) {
 				fieldSections += createFieldSection("field" + i,fieldNames[i],fieldValues[i])
@@ -231,7 +246,7 @@
 
 		}
 		$(document).ready(function() {
-			getAggregatedTermsFromElastic(".kibana","dashboard","_uid")
+			getDashboardNames()
 				.then(function(dashboards){
 					getElasticUrl()
 						.then(function(kibanaUrl) {
