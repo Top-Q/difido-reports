@@ -30,6 +30,7 @@ public enum Configuration {
 		ELASTIC_TRANSPORT_TCP_PORT("elastic.transport.tcp.port","9300"),
 		ENABLE_HTML_REPORTS("enable.html.reports", "true"), 
 		DAYS_TO_KEEP_HTML_REPORTS("days.to.keep.html.reports","0"),
+		EXTERNAL_LINKS("external.links",""),
 		ENABLE_MAIL("enable.mail", "false"), MAIL_USER_NAME("mail.user.name",""), 
 		MAIL_PASSWORD("mail.password", ""),
 		MAIL_SSL("mail.ssl","false"), 
