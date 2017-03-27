@@ -176,7 +176,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		if (!StringUtils.isEmpty(password)) {
 			sender.setPassword(password);
 		} else {
-			log.warn("SMTP User name is not configured.");
+			log.warn("SMTP Password is not configured.");
 		}
 
 		final boolean ssl = Configuration.INSTANCE.readBoolean(ConfigProps.MAIL_SSL);
