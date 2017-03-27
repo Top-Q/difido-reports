@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="description" content="Generic page for displaying various external systems">
     <meta name="author" content="Itai Agmon">
     <title id="title">Portal Page</title>
-
     <link href="css/bootstrap.min.css" rel="stylesheet">
-
 
     <style>
         body {
@@ -71,12 +70,13 @@
         }
 
         $(document).ready(function () {
-            populateNavBar();
-            var name = getParameterByName("name");
-            var link = getParameterByName("link");
-            setActiveOption(name);
-            setFrameSource(link);
-            setTitle(name);
+            populateNavBar().then(function () {
+                var name = getParameterByName("name");
+                var link = getParameterByName("link");
+                setFrameSource(link);
+                setTitle(name);
+                setActiveOption(name);
+            });
         });
     </script>
 </body>
