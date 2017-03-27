@@ -1,5 +1,6 @@
 package il.co.topq.report.front.rest;
 
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import il.co.topq.report.Configuration;
@@ -53,8 +55,16 @@ public class ElasticResource {
 			log.debug("Elastic is disabled. aborting");
 			return "";
 		}
-		ResponseEntity<String> response = template
-				.postForEntity(base.toString() + index + "/" + doc + "/_search?pretty=true", body, String.class);
+		ResponseEntity<String> response = null;
+		try {
+			response = template
+					.postForEntity(base.toString() + index + "/" + doc + "/_search?pretty=true", body, String.class);
+			
+		} catch (RestClientException e){
+			log.warn("Failed to connect to Kibana");
+			return "";
+		}
+		
 		return response.getBody();
 	}
 

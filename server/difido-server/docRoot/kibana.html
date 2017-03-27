@@ -34,7 +34,7 @@
 			<div class="navbar-header">
 				<a class="navbar-brand" href="index.html">Difido</a>
 			</div>
-			<ul class="nav navbar-nav">
+			<ul id="navbar" class="nav navbar-nav">
 				<li><a href="index.html">Execution Reports</a></li>
 				<li class="active"><a href="#">Kibana</a></li>
 			</ul>
@@ -44,7 +44,7 @@
 
 	<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/bootbox.js"></script>
+	<script type="text/javascript" src="js/bootbox.js"></script>	
 	<script src="js/common.js"></script>
 	<script>
 
@@ -113,6 +113,8 @@
 						result[hit._id] = hit._source.title 
 					});
 					fullfill(result)
+				}).fail(function(){
+					reject();
 				});
 			});
 		}
@@ -246,27 +248,40 @@
 				'   </div>';
 
 		}
-		$(document).ready(function() {
-			populateNavBar();
-			getDashboardNames()
-				.then(function(dashboards){
-					getElasticUrl()
-						.then(function(kibanaUrl) {
-							getElasticFields()
-								.then(function(fieldNames) {
-									var fieldsSection = "";
-									promises = [];
-									fieldNames.forEach(function(fieldName){
-										promises.push(getAggregatedTermsFromElastic("report","test",fieldName));
-									});
-									Promise.all(promises).then(fieldValues => {
-										displayForm(kibanaUrl,dashboards,fieldNames,fieldValues);
-									});
 
-								});
-						}, function(){
-							alert("Can't open display since Elastic URL is not configured in the server");
-						});
+		function displayFailedToConnect(){
+			bootbox.alert({
+				message: "There was a problem connecting to Kibana"
+				
+			});
+		}
+
+		$(document).ready(function() {
+			populateNavBar()
+				.then(function(){
+					getDashboardNames()
+						.then(function(dashboards){
+							getElasticUrl()
+								.then(function(kibanaUrl) {
+									getElasticFields()
+										.then(function(fieldNames) {
+											var fieldsSection = "";
+											promises = [];
+											fieldNames.forEach(function(fieldName){
+												promises.push(getAggregatedTermsFromElastic("report","test",fieldName));
+											});
+											Promise.all(promises).then(fieldValues => {
+												displayForm(kibanaUrl,dashboards,fieldNames,fieldValues);
+											});
+
+										});
+								}, function(){
+									alert("Can't open display since Elastic URL is not configured in the server");
+								})
+						}).catch(function() {
+							displayFailedToConnect();
+					});
+						
 				});
 		});
 
