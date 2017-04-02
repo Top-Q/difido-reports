@@ -48,7 +48,7 @@ public class EsControllerElasticIntegrationIT {
 				.client
 				.index(Common.ELASTIC_INDEX)
 				.document("test")
-				.query()
+				.search()
 				.byTerm("executionId", executionId +"" ).asClass(ElasticsearchTest.class);
 //		@formatter:on
 		Assert.assertEquals(tests.size(), storedTests.size());
@@ -68,7 +68,7 @@ public class EsControllerElasticIntegrationIT {
 				.client
 				.index(Common.ELASTIC_INDEX)
 				.document("test")
-				.query()
+				.search()
 				.byTerm("executionId", metaData.getId() +"" )
 				.asClass(ElasticsearchTest.class);
 //		@formatter:on

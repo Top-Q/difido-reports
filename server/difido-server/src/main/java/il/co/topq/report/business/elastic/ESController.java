@@ -154,7 +154,7 @@ public class ESController {
 			testsToDelete = client
 					.index(Common.ELASTIC_INDEX)
 					.document(TEST_TYPE)
-					.query()
+					.search()
 					.byTerm("executionId", String.valueOf(executionDeletedEvent.getExecutionId()))
 					.asClass(ElasticsearchTest.class);
 //			@formatter:on
