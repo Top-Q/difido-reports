@@ -31,7 +31,7 @@
 	    <div class="navbar-header">
 	      <a class="navbar-brand" href="#">Difido</a>
 	    </div>
-	    <ul class="nav navbar-nav">
+	    <ul id="navbar" class="nav navbar-nav">
 	      <li class="active"><a href="#">Execution Reports</a></li>
 	      <li><a href="kibana.html">Kibana</a></li>
 	    </ul>
@@ -57,6 +57,7 @@
 	<script type="text/javascript" src="js/vfs_fonts.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/bootbox.js"></script>
+	<script src="js/common.js"></script>
 
 	<script>
 		function lockUnlockSelected(table,locked){
@@ -190,7 +191,9 @@
 
 		}
 
-		$(document).ready(function() {
+
+		$(document).ready(function() {			
+			populateNavBar();
 			$.ajax('/api/reports').done(maketable);
 		});
 

@@ -34,7 +34,7 @@
 			<div class="navbar-header">
 				<a class="navbar-brand" href="index.html">Difido</a>
 			</div>
-			<ul class="nav navbar-nav">
+			<ul id="navbar" class="nav navbar-nav">
 				<li><a href="index.html">Execution Reports</a></li>
 				<li class="active"><a href="#">Kibana</a></li>
 			</ul>
@@ -45,86 +45,88 @@
 	<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/bootbox.js"></script>
+	<script src="js/common.js"></script>
 	<script>
-
 		function getKeysFromAggregrasionResponse(response) {
 			var buckets = response.aggregations.field_value.buckets;
 			var result = [];
-			buckets.forEach(function(bucket){
-				result.push(bucket.key);				
+			buckets.forEach(function (bucket) {
+				result.push(bucket.key);
 			});
 			return result;
 
 		}
 
-		function getElasticUrl(){
-			return new Promise(function (fulfill, reject){
+		function getElasticUrl() {
+			return new Promise(function (fulfill, reject) {
 				$.ajax({
-					url : '/api/settings',
-					type : 'GET',
-						}).done(function(settings) {
-								var regex = /kibana.url:(.+)/;
-								if (regex.test(settings)) {
-									var kibanaUrl = regex.exec(settings)[1].trim();
-									fulfill(kibanaUrl);
-								} else {
-									reject();
-								}
-						});
+					url: '/api/settings',
+					type: 'GET',
+				}).done(function (settings) {
+					var regex = /kibana.url:(.+)/;
+					if (regex.test(settings)) {
+						var kibanaUrl = regex.exec(settings)[1].trim();
+						fulfill(kibanaUrl);
+					} else {
+						reject();
+					}
+				});
 
 			});
 
 		}
 
-		function getElasticFields(){
-			return new Promise(function (fulfill, reject){
+		function getElasticFields() {
+			return new Promise(function (fulfill, reject) {
 				$.ajax({
-					url : '/api/settings',
-					type : 'GET',
-					error: function(xhr) {
-           					reject("Failed to get elastic fields");
-       					}
-					}).done(function(settings) {								
-								var regex = /kibana.fields:(.+)/;
-								if (regex.test(settings)){
-									var fields = regex.exec(settings)[1].trim().split(";");
-									fulfill(fields);
-								} else {
-									fulfill([]);
-								}
-						});
+					url: '/api/settings',
+					type: 'GET',
+					error: function (xhr) {
+						reject("Failed to get elastic fields");
+					}
+				}).done(function (settings) {
+					var regex = /kibana.fields:(.+)/;
+					if (regex.test(settings)) {
+						var fields = regex.exec(settings)[1].trim().split(";");
+						fulfill(fields);
+					} else {
+						fulfill([]);
+					}
+				});
 
 			});
 
 		}
 
 		function getDashboardNames() {
-			return new Promise(function (fullfill,reject) {
+			return new Promise(function (fullfill, reject) {
 				url = "/api/elastic/.kibana/dashboard";
 				$.ajax({
 					contentType: 'application/json',
-					url : url,
+					url: url,
 					type: "POST",
 					data: '{"query": {"match_all": {}}}'
-				}).done(function(response){
+				}).done(function (response) {
 					var result = {};
-					response.hits.hits.forEach(function(hit){
-						result[hit._id] = hit._source.title 
+					response.hits.hits.forEach(function (hit) {
+						result[hit._id] = hit._source.title
 					});
 					fullfill(result)
+				}).fail(function () {
+					reject();
 				});
 			});
 		}
 
 		function getAggregatedTermsFromElastic(index, document, term) {
-			return new Promise(function (fulfill, reject){
+			return new Promise(function (fulfill, reject) {
 				url = "/api/elastic/" + index + "/" + document;
 				$.ajax({
 					contentType: 'application/json',
-					url : url,
+					url: url,
 					type: "POST",
-					data: '{ "size": 0, "aggs": {"field_value": {"terms": { "field": "' + term +'"} } } }'
-				}).done(function(response){
+					data: '{ "size": 0, "aggs": {"field_value": {"terms": { "field": "' + term + '"} } } }'
+				}).done(function (response) {
 					fulfill(getKeysFromAggregrasionResponse(response));
 				});
 
@@ -133,19 +135,19 @@
 		}
 
 		function createAndOrSection() {
-			return 	' <div class="form-group">' +
-					'     <label class="col-md-4 control-label" for="name">AND/OR</label>' +
-					'         <div class="col-md-4">' +
-					'             <select id="andor" name="andor" class="form-control">' +
-					'                 <option selected="selected">AND</option>' +
-					'                 <option>OR</option>' +   
-					'              </select>' +
-					'         </div>' +
-					' </div>'; 
-			
+			return ' <div class="form-group">' +
+				'     <label class="col-md-4 control-label" for="name">AND/OR</label>' +
+				'         <div class="col-md-4">' +
+				'             <select id="andor" name="andor" class="form-control">' +
+				'                 <option selected="selected">AND</option>' +
+				'                 <option>OR</option>' +
+				'              </select>' +
+				'         </div>' +
+				' </div>';
+
 		}
 
-		function displayForm(kibanaUrl,dashboards,fieldNames, fieldValues) {
+		function displayForm(kibanaUrl, dashboards, fieldNames, fieldValues) {
 			if (!kibanaUrl) {
 				alert("Kibana URL was not configured in the server")
 				return;
@@ -156,11 +158,11 @@
 			}
 			var dashboardOptions = "";
 			for (id in dashboards) {
-				dashboardOptions += '<option value=' + id +'>' + dashboards[id] +'</option>';
+				dashboardOptions += '<option value=' + id + '>' + dashboards[id] + '</option>';
 			}
 			var fieldSections = "";
-			for (var i = 0 ; i < fieldNames.length ; i++) {
-				fieldSections += createFieldSection("field" + i,fieldNames[i],fieldValues[i])
+			for (var i = 0; i < fieldNames.length; i++) {
+				fieldSections += createFieldSection("field" + i, fieldNames[i], fieldValues[i])
 			}
 			var andOrSection = "";
 			if (fieldNames.length > 1) {
@@ -168,106 +170,116 @@
 			}
 
 			bootbox.dialog({
-					title: "Dashboard Parameters",
-					message:'   <form class="form-horizontal">' +
-							'       <div class="form-group">' +
-							'           <div class="form-group">' +
-							'               <label class="col-md-4 control-label" for="name">Dashboard</label>' +
-							'               <div class="col-md-4">' +
-							'                   <select id="dashboard" name="dashboard" class="form-control">' + dashboardOptions +
-							'                   </select>' +
-							'               </div>' +
-							'           </div>' +
-							'           <div class="form-group">' +
-							'               <label class="col-md-4 control-label" for="name">Time Range</label>' +
-							'               <div class="col-md-4">' +
-							'                   <select id="range" name="range" class="form-control">' +
-							'                   	<option value="now-15m">Last 15 minutes</option>' +
-							'                   	<option value="now-30m">Last 30 minutes</option>' +
-							'                   	<option value="now-12h">Last 12 hours</option>' +
-							'                   	<option value="now-7d">Last 7 days</option>' +
-							'                   	<option value="now-30d" selected="selected">Last 30 days</option>' +   
-							'                   	<option value="now-1y">Last year</option>' +
-							'                   </select>' +
-							'               </div>' +
-							'           </div>' +
-							         andOrSection +
-									 fieldSections +
-							'       </div>' +
-							'   </form>',
-					buttons: {
-							success: {
-									label: "Execute",
-									className: "btn-success",
-									callback: function () {										
-										var query = "";	
-										var andor = $('#andor').val();									
-										for (var i = 0; i < fieldNames.length ; i++) {
-											if ($('#field' + i +'').val() == 'undefined'){
-												continue;
-											}
-											if (query.length > 0){
-												query += " " + andor + " ";											
-											}
-											query += fieldNames[i] + ":" + $('#field' + i +'').val();
-										}
-										if (query.length == 0){
-											query = "*";
-										}
-										var range = $('#range').val();
-										$.ajax({
-												url : '/api/settings',
-												type : 'GET',
-										}).done(function(settings) {
-												document.getElementById('kibana').src = kibanaUrl + "/app/kibana?#/dashboard/" + $('#dashboard').val() + "?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:" + range + ",mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!f),query:(query_string:(analyze_wildcard:!t,query:'" + query + "')),title:main,uiState:())";
-										});
-										}
-									}
+				title: "Dashboard Parameters",
+				message: '   <form class="form-horizontal">' +
+				'       <div class="form-group">' +
+				'           <div class="form-group">' +
+				'               <label class="col-md-4 control-label" for="name">Dashboard</label>' +
+				'               <div class="col-md-4">' +
+				'                   <select id="dashboard" name="dashboard" class="form-control">' + dashboardOptions +
+				'                   </select>' +
+				'               </div>' +
+				'           </div>' +
+				'           <div class="form-group">' +
+				'               <label class="col-md-4 control-label" for="name">Time Range</label>' +
+				'               <div class="col-md-4">' +
+				'                   <select id="range" name="range" class="form-control">' +
+				'                   	<option value="now-15m">Last 15 minutes</option>' +
+				'                   	<option value="now-30m">Last 30 minutes</option>' +
+				'                   	<option value="now-12h">Last 12 hours</option>' +
+				'                   	<option value="now-7d">Last 7 days</option>' +
+				'                   	<option value="now-30d" selected="selected">Last 30 days</option>' +
+				'                   	<option value="now-1y">Last year</option>' +
+				'                   </select>' +
+				'               </div>' +
+				'           </div>' +
+				andOrSection +
+				fieldSections +
+				'       </div>' +
+				'   </form>',
+				buttons: {
+					success: {
+						label: "Execute",
+						className: "btn-success",
+						callback: function () {
+							var query = "";
+							var andor = $('#andor').val();
+							for (var i = 0; i < fieldNames.length; i++) {
+								if ($('#field' + i + '').val() == 'undefined') {
+									continue;
+								}
+								if (query.length > 0) {
+									query += " " + andor + " ";
+								}
+								query += fieldNames[i] + ":" + $('#field' + i + '').val();
 							}
+							if (query.length == 0) {
+								query = "*";
+							}
+							var range = $('#range').val();
+							$.ajax({
+								url: '/api/settings',
+								type: 'GET',
+							}).done(function (settings) {
+								document.getElementById('kibana').src = kibanaUrl + "/app/kibana?#/dashboard/" + $('#dashboard').val() + "?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:" + range + ",mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!f),query:(query_string:(analyze_wildcard:!t,query:'" + query + "')),title:main,uiState:())";
+							});
+						}
 					}
-				);
+				}
+			}
+			);
 		}
 
 		function createFieldSection(id, field, values) {
 			var options = "";
 			options += '<option>undefined</option>';
-			values.forEach(function(value){
-					options += '<option>' + value +'</option>';
+			values.forEach(function (value) {
+				options += '<option>' + value + '</option>';
 
 			});
 			return '<div class="form-group">' +
-				'   	<label class="col-md-4 control-label" for="'+ field +'">'+ field +'</label>' +
+				'   	<label class="col-md-4 control-label" for="' + field + '">' + field + '</label>' +
 				'       	<div class="col-md-4">' +
-				'           	<select id="'+ id +'" name="'+ id +'" placeholder="'+ field +'" class="form-control input-md">' +
-				                options +
+				'           	<select id="' + id + '" name="' + id + '" placeholder="' + field + '" class="form-control input-md">' +
+				options +
 				'               </select>' +
 				'           </div>' +
 				'   </div>';
 
 		}
-		$(document).ready(function() {
+
+		function displayFailedToConnect() {
+			bootbox.alert({
+				message: "There was a problem connecting to Kibana"
+
+			});
+		}
+
+		$(document).ready(function () {
+			populateNavBar();
 			getDashboardNames()
-				.then(function(dashboards){
+				.then(function (dashboards) {
 					getElasticUrl()
-						.then(function(kibanaUrl) {
+						.then(function (kibanaUrl) {
 							getElasticFields()
-								.then(function(fieldNames) {
+								.then(function (fieldNames) {
 									var fieldsSection = "";
 									promises = [];
-									fieldNames.forEach(function(fieldName){
-										promises.push(getAggregatedTermsFromElastic("report","test",fieldName));
+									fieldNames.forEach(function (fieldName) {
+										promises.push(getAggregatedTermsFromElastic("report", "test", fieldName));
 									});
 									Promise.all(promises).then(fieldValues => {
-										displayForm(kibanaUrl,dashboards,fieldNames,fieldValues);
+										displayForm(kibanaUrl, dashboards, fieldNames, fieldValues);
 									});
 
 								});
-						}, function(){
+						}, function () {
 							alert("Can't open display since Elastic URL is not configured in the server");
-						});
+						})
+				}).catch(function () {
+					displayFailedToConnect();
 				});
 		});
-
 	</script>
 
 </body>
