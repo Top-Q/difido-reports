@@ -21,6 +21,7 @@ public class ReportManager implements ReportDispatcher {
 		reporters = new ArrayList<Reporter>();
 		reporters.add(new LocalDifidoReporter());
 		reporters.add(new RemoteDifidoReporter());
+		reporters.add(new ConsoleReporter());
 	}
 
 	public static ReportManager getInstance() {
@@ -207,5 +208,7 @@ public class ReportManager implements ReportDispatcher {
 		
 	}
 
-
+	public void addReporter(Reporter reporter) {
+		reporters.add(reporter);
+	}
 }
