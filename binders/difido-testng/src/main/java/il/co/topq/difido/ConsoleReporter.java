@@ -104,10 +104,10 @@ public class ConsoleReporter implements Reporter {
 			sb.append("[HTML]: ");
 			break;
 		case img:
-			sb.append("[IMG]: ");
+			sb.append("[IMAGE]: ");
 			break;
 		case lnk:
-			sb.append("[LNK]: ");
+			sb.append("[LINK]: ");
 			break;
 		}
 		
