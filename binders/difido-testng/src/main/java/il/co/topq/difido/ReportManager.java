@@ -1,50 +1,34 @@
 package il.co.topq.difido;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+import java.util.logging.Logger;
 
 import org.testng.ISuite;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 
+import il.co.topq.difido.config.DifidoConfig;
+import il.co.topq.difido.config.DifidoConfig.DifidoOptions;
 import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.Enums.Status;
 
 public class ReportManager implements ReportDispatcher {
+
+	private static final Logger log = Logger.getLogger(ReportManager.class.getName());
 
 	private static ReportManager instance;
 
 	private List<Reporter> reporters;
 
 	private ReportManager() {
-		
-		File difidoPropertiesFile = new File("difido.properties");
-
-		if (difidoPropertiesFile.exists()) {
-			
-			try {
-				List<Reporter> reportersFromFile = loadReportersFromPropertiesFile(difidoPropertiesFile);
-				
-				if (reportersFromFile != null && reportersFromFile.size() > 0) {
-					reporters = reportersFromFile;
-				}
-				else {
-					print("WARNING: Error loading reporters from difido.properties file. Using default reporters.");
-					addDefaultReporters();
-				}
-			}
-			catch (Exception e) {
-				print("WARNING: Error loading reporters from difido.properties file. Using default reporters.");
-				addDefaultReporters();
-			}
-		}
-		else {
-			print("WARNING: difido.properties file wasn't found. Using default reporters.");
-			addDefaultReporters();
+		DifidoConfig config = new DifidoConfig();
+		try {
+			createReporterInstances(config.getPropertyAsList(DifidoOptions.REPORTER_CLASSES));
+		} catch (Exception e) {
+			log.severe("Failed to create reporters instances");
 		}
 	}
 
@@ -65,22 +49,23 @@ public class ReportManager implements ReportDispatcher {
 	@Override
 	public void logHtml(String title, Status status) {
 		log(title, null, status, ElementType.html);
-		
+
 	}
 
 	@Override
 	public void logHtml(String title, String message, Status status) {
-		log(title, message, status, ElementType.html);		
+		log(title, message, status, ElementType.html);
 	}
 
-	
 	public void log(String title, String message, Status status, ElementType type) {
 		for (Reporter reporter : reporters) {
 			reporter.log(title, message, status, type);
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see il.co.topq.difido.ReportDispatcher#log(java.lang.String)
 	 */
 	@Override
@@ -88,31 +73,42 @@ public class ReportManager implements ReportDispatcher {
 		log(title, null, Status.success, ElementType.regular);
 	}
 
-	/* (non-Javadoc)
-	 * @see il.co.topq.difido.ReportDispatcher#log(java.lang.String, il.co.topq.difido.model.Enums.Status)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see il.co.topq.difido.ReportDispatcher#log(java.lang.String,
+	 * il.co.topq.difido.model.Enums.Status)
 	 */
 	@Override
 	public void log(String title, Status status) {
 		log(title, null, status, ElementType.regular);
 	}
 
-	/* (non-Javadoc)
-	 * @see il.co.topq.difido.ReportDispatcher#log(java.lang.String, java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see il.co.topq.difido.ReportDispatcher#log(java.lang.String,
+	 * java.lang.String)
 	 */
 	@Override
 	public void log(String title, String message) {
 		log(title, message, Status.success, ElementType.regular);
 	}
 
-	/* (non-Javadoc)
-	 * @see il.co.topq.difido.ReportDispatcher#log(java.lang.String, java.lang.String, il.co.topq.difido.model.Enums.Status)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see il.co.topq.difido.ReportDispatcher#log(java.lang.String,
+	 * java.lang.String, il.co.topq.difido.model.Enums.Status)
 	 */
 	@Override
 	public void log(String title, String message, Status status) {
 		log(title, message, status, ElementType.regular);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see il.co.topq.difido.ReportDispatcher#startLevel(java.lang.String)
 	 */
 	@Override
@@ -120,7 +116,9 @@ public class ReportManager implements ReportDispatcher {
 		log(description, null, Status.success, ElementType.startLevel);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see il.co.topq.difido.ReportDispatcher#endLevel()
 	 */
 	@Override
@@ -128,7 +126,9 @@ public class ReportManager implements ReportDispatcher {
 		log(null, null, Status.success, ElementType.stopLevel);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see il.co.topq.difido.ReportDispatcher#step(java.lang.String)
 	 */
 	@Override
@@ -136,14 +136,17 @@ public class ReportManager implements ReportDispatcher {
 		log(description, null, Status.success, ElementType.step);
 	}
 
-	/* (non-Javadoc)
-	 * @see il.co.topq.difido.ReportDispatcher#addFile(java.io.File, java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see il.co.topq.difido.ReportDispatcher#addFile(java.io.File,
+	 * java.lang.String)
 	 */
 	@Override
 	public void addFile(File file, String description) {
 		for (Reporter reporter : reporters) {
 			reporter.addFile(file);
-			if (null == description){
+			if (null == description) {
 				reporter.log(file.getName(), file.getName(), Status.success, ElementType.lnk);
 			} else {
 				reporter.log(description, file.getName(), Status.success, ElementType.lnk);
@@ -151,8 +154,11 @@ public class ReportManager implements ReportDispatcher {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see il.co.topq.difido.ReportDispatcher#addImage(java.io.File, java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see il.co.topq.difido.ReportDispatcher#addImage(java.io.File,
+	 * java.lang.String)
 	 */
 	@Override
 	public void addImage(File file, String description) {
@@ -162,8 +168,11 @@ public class ReportManager implements ReportDispatcher {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see il.co.topq.difido.ReportDispatcher#addLink(java.lang.String, java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see il.co.topq.difido.ReportDispatcher#addLink(java.lang.String,
+	 * java.lang.String)
 	 */
 	@Override
 	public void addLink(String link, String description) {
@@ -220,62 +229,38 @@ public class ReportManager implements ReportDispatcher {
 	@Override
 	public void addTestProperty(String name, String value) {
 		for (Reporter reporter : reporters) {
-			reporter.addTestProperty(name,value);
+			reporter.addTestProperty(name, value);
 		}
 	}
 
 	@Override
 	public void addRunProperty(String name, String value) {
 		for (Reporter reporter : reporters) {
-			reporter.addRunProperty(name,value);
+			reporter.addRunProperty(name, value);
 		}
-		
+
 	}
 
-	private List<Reporter> loadReportersFromPropertiesFile(File difidoPropertiesFile) throws Exception {
-		
-		Properties prop = new Properties();
-		prop.load(new FileInputStream(difidoPropertiesFile));
-		String reporterClassNames = prop.getProperty("reporter.classes");
-		
-		if (reporterClassNames != null && !reporterClassNames.equals("")) {
-			
-			String[] reporterClasseNamesSplit = reporterClassNames.split(";");
-			ArrayList<Reporter> reporters = new ArrayList<>();
-			
-			for (String className : reporterClasseNamesSplit) {
-				
-				try {
-					Class<?> clazz = Class.forName(className);
-					Constructor<?> constructor = clazz.getConstructor();
-					Reporter reporter = (Reporter) constructor.newInstance();
-					reporters.add(reporter);
-					print("Added reporter: " + className);
-				}
-				catch (Exception e) {
-					print("WARNING: Error loading reporter class: " + className);
-				}
-			}
-			
-			return reporters;
-		}
-		else {
-			return null;
-		}
-	}
-	
-	private void addDefaultReporters() {
-		print("Adding default reporters: LocalDifidoReporter, RemoteDifidoReporter");
+	private void createReporterInstances(List<String> reportClasses) throws Exception {
 		reporters = new ArrayList<Reporter>();
-		reporters.add(new LocalDifidoReporter());
-		reporters.add(new RemoteDifidoReporter());
+		for (String className : reportClasses) {
+			try {
+				Class<?> clazz = Class.forName(className);
+				Constructor<?> constructor = clazz.getConstructor();
+				Reporter reporter = (Reporter) constructor.newInstance();
+				reporters.add(reporter);
+				log.fine("Added reporter: " + className);
+			} catch (Exception e) {
+				log.warning("Error loading reporter class: " + className);
+			}
+		}
 	}
-	
+
 	public void addReporter(Reporter reporter) {
 		reporters.add(reporter);
 	}
 	
-	private void print(String message) {
-		System.out.println("[Difido] " + message);
+	public static void main(String[] args) {
+		ReportManager.getInstance();
 	}
 }

@@ -39,6 +39,7 @@ server/difido-server/htmlTemplate
 server/difido-testng/remoteDifido.properties
 !binders/difido-nunit/difido-client/Resources/difido-reports-common.jar
 binders/difido-testng/remoteDifido.properties
+binders/difido-testng/difido.properties
 examples/testng-example/remoteDifido.properties
 examples/jsystem-example/tests-project/difido.properties
 examples/jsystem-example/tests-project/remoteDifido.properties
