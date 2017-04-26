@@ -10,8 +10,8 @@ public class RemoteDifidoConfig extends AbstractPropertiesConfigFile {
 	protected String getFileName() {
 		return "remoteDifido.properties";
 	}
-	
-	public enum RemoteDifidoOptions implements ConfigOptions{
+
+	public enum RemoteDifidoOptions implements ConfigOptions {
 		// @formatter:off
 		HOST("host", "localhost"),
 		PORT("port", "8080"),

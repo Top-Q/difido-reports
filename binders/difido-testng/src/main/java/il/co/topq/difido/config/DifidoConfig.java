@@ -1,5 +1,8 @@
 package il.co.topq.difido.config;
 
+import il.co.topq.difido.reporters.LocalDifidoReporter;
+import il.co.topq.difido.reporters.RemoteDifidoReporter;
+
 public class DifidoConfig extends AbstractPropertiesConfigFile {
 
 	public DifidoConfig() {
@@ -8,7 +11,7 @@ public class DifidoConfig extends AbstractPropertiesConfigFile {
 
 	public enum DifidoOptions implements ConfigOptions {
 		// @formatter:off
-		REPORTER_CLASSES("reporter.classes", "il.co.topq.difido.LocalDifidoReporter;il.co.topq.difido.RemoteDifidoReporter");
+		REPORTER_CLASSES("reporter.classes", LocalDifidoReporter.class.getName() +";" + RemoteDifidoReporter.class.getName());
 		// @formatter:on
 
 		private String property;

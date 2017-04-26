@@ -14,6 +14,7 @@ import il.co.topq.difido.config.DifidoConfig;
 import il.co.topq.difido.config.DifidoConfig.DifidoOptions;
 import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.Enums.Status;
+import il.co.topq.difido.reporters.Reporter;
 
 public class ReportManager implements ReportDispatcher {
 

@@ -1,4 +1,4 @@
-package il.co.topq.difido;
+package il.co.topq.difido.reporters;
 
 import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.Enums.Status;

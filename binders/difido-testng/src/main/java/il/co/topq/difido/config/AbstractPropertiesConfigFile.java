@@ -11,16 +11,15 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-
 public abstract class AbstractPropertiesConfigFile {
 
 	private static final Logger log = Logger.getLogger(AbstractPropertiesConfigFile.class.getName());
-	
+
 	private Properties properties;
 
 	private ConfigOptions[] options;
-	
-	public AbstractPropertiesConfigFile(ConfigOptions[] options){
+
+	public AbstractPropertiesConfigFile(ConfigOptions[] options) {
 		this.options = options;
 		properties = new Properties();
 		final File propertiesFile = new File(getFileName());
@@ -37,11 +36,11 @@ public abstract class AbstractPropertiesConfigFile {
 		}
 
 	}
-	
+
 	protected abstract String getFileName();
-	
+
 	private void initDefaultProperties() {
-		for (ConfigOptions option:options[0].getOptions()){
+		for (ConfigOptions option : options[0].getOptions()) {
 			properties.setProperty(option.getProperty(), option.getDefaultValue());
 		}
 		final File propertiesFile = new File(getFileName());
@@ -54,7 +53,7 @@ public abstract class AbstractPropertiesConfigFile {
 			log.warning("Failed to write Difido properties to file");
 		}
 	}
-	
+
 	public String getPropertyAsString(ConfigOptions option) {
 		return properties.getProperty(option.getProperty());
 	}
@@ -68,14 +67,14 @@ public abstract class AbstractPropertiesConfigFile {
 		final String value = getPropertyAsString(option);
 		return Integer.parseInt(value);
 	}
-	
+
 	public List<String> getPropertyAsList(ConfigOptions option) {
 		final String values = getPropertyAsString(option);
 		List<String> valueList = new ArrayList<String>();
-		if (values == null || values.isEmpty()){
+		if (values == null || values.isEmpty()) {
 			return valueList;
 		}
-		for (String singleValue : values.split(";")){
+		for (String singleValue : values.split(";")) {
 			valueList.add(singleValue);
 		}
 		return valueList;
@@ -98,5 +97,5 @@ public abstract class AbstractPropertiesConfigFile {
 		}
 		return valueMap;
 	}
-	
+
 }

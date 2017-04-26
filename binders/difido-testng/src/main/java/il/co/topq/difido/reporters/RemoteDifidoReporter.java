@@ -1,4 +1,4 @@
-package il.co.topq.difido;
+package il.co.topq.difido.reporters;
 
 import java.io.File;
 import java.util.Map;
