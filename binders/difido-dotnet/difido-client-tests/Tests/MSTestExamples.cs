@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Threading;
 using difido_client.MSTest;
@@ -15,10 +15,10 @@ namespace difido_mstest
         {
             RunTest(delegate ()
             {
-                int intVal1 = Convert.ToInt32(TestContext.DataRow[0]);
+                int intVal1 = Convert.ToInt32(TestContext.DataRow["int_val1"]);
                 int intVal2 = Convert.ToInt32(TestContext.DataRow[1]);
 
-                string strVal1 = TestContext.DataRow[2].ToString();
+                string strVal1 = TestContext.DataRow["str_val1"].ToString();
                 string strVal2 = TestContext.DataRow[3].ToString();
 
                 Report(intVal1 + ", " + intVal2 + ", " + strVal1 + ", " + strVal2);
@@ -50,6 +50,18 @@ namespace difido_mstest
 
                 Thread.Sleep(200);
                 Report("Outside levels");
+            });
+        }
+
+        [TestMethod]
+        public void TestWithSteps()
+        {
+            RunTest(delegate ()
+            {
+                ReportStep("This is a step message");
+                Report("This is the title", "this is the message");
+                ReportStep("This is another step message");
+                Report("Regular report...");
             });
         }
 

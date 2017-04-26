@@ -89,6 +89,7 @@
     <Compile Include="Main\MSTest\AbstractDifidoMSTest.cs" />
     <Compile Include="Main\NUnit\NunitRegistrar.cs" />
     <Compile Include="Main\NUnit\TestEventListener.cs" />
+    <Compile Include="Main\Report\Reporters\ConsoleReport\ConsoleReporter.cs" />
     <Compile Include="Main\Report\Reporters\HtmlTestReporter\AbstractDifidoReporter.cs" />
     <Compile Include="Main\Report\Reporters\HtmlTestReporter\DifidoClient.cs" />
     <Compile Include="Main\Report\Reporters\HtmlTestReporter\Model\Execution\ExecutionDetails.cs" />

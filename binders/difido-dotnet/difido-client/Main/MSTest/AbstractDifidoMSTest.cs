@@ -66,6 +66,16 @@ namespace difido_client.MSTest
             report.Report(message);
         }
 
+        protected static void Report(string title, string message)
+        {
+            report.Report(title, message);
+        }
+
+        protected static void ReportStep(string message)
+        {
+            report.Step(message);
+        }
+
         protected static void ReportWarning(string message)
         {
             report.Report(message, null, TestStatus.warning);
