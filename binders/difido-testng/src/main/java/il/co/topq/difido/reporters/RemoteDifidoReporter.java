@@ -1,16 +1,17 @@
-package il.co.topq.difido;
-
-import il.co.topq.difido.RemoteDifidoProperties.RemoteDifidoOptions;
-import il.co.topq.difido.model.execution.Execution;
-import il.co.topq.difido.model.execution.ScenarioNode;
-import il.co.topq.difido.model.remote.ExecutionDetails;
-import il.co.topq.difido.model.test.TestDetails;
+package il.co.topq.difido.reporters;
 
 import java.io.File;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import org.testng.ISuite;
+
+import il.co.topq.difido.config.RemoteDifidoConfig;
+import il.co.topq.difido.config.RemoteDifidoConfig.RemoteDifidoOptions;
+import il.co.topq.difido.model.execution.Execution;
+import il.co.topq.difido.model.execution.ScenarioNode;
+import il.co.topq.difido.model.remote.ExecutionDetails;
+import il.co.topq.difido.model.test.TestDetails;
 
 public class RemoteDifidoReporter extends AbstractDifidoReporter {
 
@@ -28,7 +29,7 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 
 	private int numOfFailures;
 
-	private RemoteDifidoProperties difidoProps;
+	private RemoteDifidoConfig difidoConfig;
 
 	private ExecutionDetails details;
 
@@ -36,7 +37,7 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 		super();
 		// We are doing it because we need that the file of the Difido
 		// properties to be created if it is not exists.
-		new RemoteDifidoProperties();
+		new RemoteDifidoConfig();
 
 	}
 
@@ -57,7 +58,7 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 		// We are not using shared execution, that means that we are the only
 		// one that are using it and we just ended with it, so let's set it to
 		// not active
-		if (executionId > 0 && !difidoProps.getPropertyAsBoolean(RemoteDifidoOptions.USE_SHARED_EXECUTION)) {
+		if (executionId > 0 && !difidoConfig.getPropertyAsBoolean(RemoteDifidoOptions.USE_SHARED_EXECUTION)) {
 			try {
 				client.endExecution(executionId);
 			} catch (Exception e) {
@@ -70,16 +71,16 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 
 	public void onStart(ISuite suite) {
 		super.onStart(suite);
-		difidoProps = new RemoteDifidoProperties();
+		difidoConfig = new RemoteDifidoConfig();
 		String host = null;
 		int port = 0;
 		try {
-			enabled = Boolean.parseBoolean(difidoProps.getPropertyAsString(RemoteDifidoOptions.ENABLED));
+			enabled = Boolean.parseBoolean(difidoConfig.getPropertyAsString(RemoteDifidoOptions.ENABLED));
 			if (!enabled) {
 				return;
 			}
-			host = difidoProps.getPropertyAsString(RemoteDifidoOptions.HOST);
-			port = Integer.parseInt(difidoProps.getPropertyAsString(RemoteDifidoOptions.PORT));
+			host = difidoConfig.getPropertyAsString(RemoteDifidoOptions.HOST);
+			port = Integer.parseInt(difidoConfig.getPropertyAsString(RemoteDifidoOptions.PORT));
 			client = new DifidoClient(host, port);
 			executionId = prepareExecution();
 			machineId = client.addMachine(executionId, getExecution().getLastMachine());
@@ -95,13 +96,13 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 
 	private int prepareExecution() throws Exception {
 		// Fetching properties
-		final boolean appendToExistingExecution = difidoProps
+		final boolean appendToExistingExecution = difidoConfig
 				.getPropertyAsBoolean(RemoteDifidoOptions.APPEND_TO_EXISTING_EXECUTION);
-		final boolean useSharedExecution = difidoProps.getPropertyAsBoolean(RemoteDifidoOptions.USE_SHARED_EXECUTION);
-		final String description = difidoProps.getPropertyAsString(RemoteDifidoOptions.DESCRIPTION);
-		final int id = difidoProps.getPropertyAsInt(RemoteDifidoOptions.EXISTING_EXECUTION_ID);
-		final boolean forceNewExecution = difidoProps.getPropertyAsBoolean(RemoteDifidoOptions.FORCE_NEW_EXECUTION);
-		final Map<String, String> properties = difidoProps.getPropertyAsMap(RemoteDifidoOptions.EXECUTION_PROPETIES);
+		final boolean useSharedExecution = difidoConfig.getPropertyAsBoolean(RemoteDifidoOptions.USE_SHARED_EXECUTION);
+		final String description = difidoConfig.getPropertyAsString(RemoteDifidoOptions.DESCRIPTION);
+		final int id = difidoConfig.getPropertyAsInt(RemoteDifidoOptions.EXISTING_EXECUTION_ID);
+		final boolean forceNewExecution = difidoConfig.getPropertyAsBoolean(RemoteDifidoOptions.FORCE_NEW_EXECUTION);
+		final Map<String, String> properties = difidoConfig.getPropertyAsMap(RemoteDifidoOptions.EXECUTION_PROPETIES);
 
 		if (appendToExistingExecution && !forceNewExecution) {
 			if (id >= 0) {
