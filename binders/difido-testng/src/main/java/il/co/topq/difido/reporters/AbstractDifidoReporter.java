@@ -1,5 +1,7 @@
 package il.co.topq.difido.reporters;
 
+import il.co.topq.difido.config.DifidoConfig;
+import il.co.topq.difido.config.DifidoConfig.DifidoOptions;
 import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.Enums.Status;
 import il.co.topq.difido.model.execution.Execution;
@@ -61,6 +63,12 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	private long lastWrite;
 
 	private int totalPlannedTests = 0;
+
+	private DifidoConfig config;
+
+	public AbstractDifidoReporter() {
+		config = new DifidoConfig();
+	}
 
 	protected void generateUid() {
 		executionUid = String.valueOf(new Random().nextInt(1000)) + String.valueOf(System.currentTimeMillis() / 1000);
@@ -338,7 +346,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		element.setType(type);
 		testDetails.addReportElement(element);
 		currentTest.setStatus(status);
-		if ((System.currentTimeMillis() - lastWrite) > 100) {
+		if ((System.currentTimeMillis() - lastWrite) > config.getPropertyAsInt(DifidoOptions.MIN_TIME_BETWEEN_WRITES)) {
 			lastWrite = System.currentTimeMillis();
 			writeTestDetails(testDetails);
 		}

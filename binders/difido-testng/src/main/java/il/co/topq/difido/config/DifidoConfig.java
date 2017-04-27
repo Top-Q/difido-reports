@@ -12,7 +12,8 @@ public class DifidoConfig extends AbstractPropertiesConfigFile {
 
 	public enum DifidoOptions implements ConfigOptions {
 		// @formatter:off
-		REPORTER_CLASSES("reporter.classes", LocalDifidoReporter.class.getName() +";" + RemoteDifidoReporter.class.getName() +";" +ConsoleReporter.class.getName());
+		REPORTER_CLASSES("reporter.classes", LocalDifidoReporter.class.getName() +";" + RemoteDifidoReporter.class.getName() +";" +ConsoleReporter.class.getName()),
+		MIN_TIME_BETWEEN_WRITES("min.time.between.writes","100");
 		// @formatter:on
 
 		private String property;
