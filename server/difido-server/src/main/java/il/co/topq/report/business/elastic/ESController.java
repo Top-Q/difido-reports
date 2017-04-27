@@ -84,7 +84,9 @@ public class ESController {
 		try {
 			response = client.index(Common.ELASTIC_INDEX).stats().asMap();
 		} catch (IOException e) {
-			log.error("Failed to get the status of the Elatic index");
+			log.error("Failed to get the status of the Elatic index due to " + e.getMessage() + ". Disabling Elastic");
+			enabled = false;
+			return;
 		}
 		final Map<String, Object> shardsResponse = (Map<String, Object>) response.get("_shards");
 		int failedShards = (Integer) shardsResponse.get("failed");
