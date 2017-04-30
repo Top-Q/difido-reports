@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
 using static difido_client.ReporterTestInfo;
+using System.Collections.Generic;
 
 namespace difido_client.MSTest
 
@@ -14,20 +15,34 @@ namespace difido_client.MSTest
         private static Stopwatch testStopwatch;
         private static ReporterTestInfo testInfo;
 
+        protected Dictionary<string, string> TestParameters;
+
         public TestContext TestContext { get; set; }
 
-        private void TestStarted()
+        private void TestStarted(Dictionary<string, string> paramsForTestName = null)
         {
-            testInfo = new ReporterTestInfo()
+            testInfo = new ReporterTestInfo();
+            testInfo.TestName = TestContext.TestName;
+
+            if (paramsForTestName != null)
             {
-                TestName = TestContext.TestName,
-                FullyQualifiedTestClassName = TestContext.FullyQualifiedTestClassName,
-                Status = TestStatus.success
-            };
+                testInfo.TestName += " ( ";
+                foreach (KeyValuePair<string, string> paramKeyValue in paramsForTestName)
+                {
+                    testInfo.TestName += paramKeyValue.Key + "=" + paramKeyValue.Value + "; ";
+                }
+                testInfo.TestName += " )";
+            }
+
+            testInfo.FullyQualifiedTestClassName = TestContext.FullyQualifiedTestClassName;
+            testInfo.Status = TestStatus.success;
             currentTestStatus = TestStatus.success;
             report.StartTest(testInfo);
             testStopwatch = new Stopwatch();
             testStopwatch.Start();
+
+            if (TestParameters != null)
+                AddTestProperties(TestParameters);
         }
 
         private void TestFinished()
@@ -43,11 +58,11 @@ namespace difido_client.MSTest
             }
         }
 
-        protected void RunTest(Action TestBody)
+        protected void RunTest(Action TestBody, Dictionary<string, string> paramsForTestName = null)
         {
             try
             {
-                TestStarted();
+                TestStarted(paramsForTestName);
                 TestBody();
             }
             catch(Exception ex)
@@ -61,62 +76,75 @@ namespace difido_client.MSTest
             }
         }
 
-        protected static void Report(string message)
+        public static void Report(string message)
         {
             report.Report(message);
         }
 
-        protected static void Report(string title, string message)
+        public static void Report(string title, string message)
         {
             report.Report(title, message);
         }
 
-        protected static void ReportStep(string message)
+        public static void ReportStep(string message)
         {
             report.Step(message);
         }
 
-        protected static void ReportWarning(string message)
+        public static void ReportWarning(string message)
         {
             report.Report(message, null, TestStatus.warning);
             UpdateCurrentTestStatus(TestStatus.warning);
         }
 
-        protected static void ReportWarning(string title, string message)
+        public static void ReportWarning(string title, string message)
         {
             report.Report(title, message, TestStatus.warning);
             UpdateCurrentTestStatus(TestStatus.warning);
         }
 
-        protected static void ReportFail(string message)
+        public static void ReportFail(string message)
         {
             report.Report(message, null, TestStatus.failure);
             UpdateCurrentTestStatus(TestStatus.failure);
         }
 
-        protected static void ReportFail(string title, string message)
+        public static void ReportFail(string title, string message)
         {
             report.Report(title, message, TestStatus.failure);
             UpdateCurrentTestStatus(TestStatus.failure);
         }
 
-        protected static void ReportError(string title, string message)
+        public static void ReportError(string title, string message)
         {
             report.Report(title, message, TestStatus.error);
             UpdateCurrentTestStatus(TestStatus.error);
         }
 
-        protected static void ReportStartLevel(string levelTitle)
+        public static void ReportStartLevel(string levelTitle)
         {
             report.StartLevel(levelTitle);
         }
 
-        protected static void ReportEndLevel()
+        public static void ReportEndLevel()
         {
             report.EndLevel();
         }
 
-        private static void UpdateCurrentTestStatus(TestStatus testStatus)
+        public static void AddTestProperty(string propertyName, string propertyValue)
+        {
+            report.AddTestProperty(propertyName, propertyValue);
+        }
+
+        public static void AddTestProperties(Dictionary<string, string> properties)
+        {
+            foreach (var keyValue in properties)
+            {
+                report.AddTestProperty(keyValue.Key, keyValue.Value);
+            }
+        }
+
+        public static void UpdateCurrentTestStatus(TestStatus testStatus)
         {
             if (testStatus == TestStatus.warning && currentTestStatus != TestStatus.failure && currentTestStatus != TestStatus.error)
             {
@@ -130,6 +158,18 @@ namespace difido_client.MSTest
             {
                 currentTestStatus = TestStatus.error;
             }
+        }
+
+        public Dictionary<string, string> GetParamsFromDataSource(params string[] paramNames)
+        {
+            Dictionary<string, string> paramsFromDataSource = new Dictionary<string, string>();
+
+            foreach(string paramName in paramNames)
+            {
+                paramsFromDataSource[paramName] = TestContext.DataRow[paramName].ToString();
+            }
+
+            return paramsFromDataSource;
         }
     }
 }
