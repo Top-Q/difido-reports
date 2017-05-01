@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import org.testng.ISuite;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
+import org.testng.asserts.SoftAssert;
 
 import il.co.topq.difido.config.DifidoConfig;
 import il.co.topq.difido.config.DifidoConfig.DifidoOptions;
@@ -23,6 +24,8 @@ public class ReportManager implements ReportDispatcher {
 	private static ReportManager instance;
 
 	private List<Reporter> reporters;
+	
+	private SoftAssert softAssert; // used to cause tests to fail after logging with Status.failure
 
 	private ReportManager() {
 		DifidoConfig config = new DifidoConfig();
@@ -41,10 +44,12 @@ public class ReportManager implements ReportDispatcher {
 	}
 
 	void onTestStart(ITestResult result) {
+		
+		softAssert = new SoftAssert();
+		
 		for (Reporter reporter : reporters) {
 			reporter.onTestStart(result);
 		}
-
 	}
 
 	@Override
@@ -59,6 +64,11 @@ public class ReportManager implements ReportDispatcher {
 	}
 
 	public void log(String title, String message, Status status, ElementType type) {
+		
+		if (status == Status.failure) {
+			softAssert.fail("Failure was reported during the test: " + title);
+		}
+		
 		for (Reporter reporter : reporters) {
 			reporter.log(title, message, status, type);
 		}
@@ -183,13 +193,16 @@ public class ReportManager implements ReportDispatcher {
 	}
 
 	void onTestSuccess(ITestResult result) {
+		
+		softAssert.assertAll();
+		
 		for (Reporter reporter : reporters) {
 			reporter.onTestSuccess(result);
 		}
-
 	}
 
 	void onTestFailure(ITestResult result) {
+
 		for (Reporter reporter : reporters) {
 			reporter.onTestFailure(result);
 		}

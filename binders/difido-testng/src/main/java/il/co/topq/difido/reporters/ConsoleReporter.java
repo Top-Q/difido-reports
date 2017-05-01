@@ -72,7 +72,7 @@ public class ConsoleReporter implements Reporter {
 
 	@Override
 	public void addFile(File file) {
-		print("adding fle: " +  file.getName());
+		print("Adding file: " +  file.getName());
 	}
 
 	@Override
