@@ -1,8 +1,6 @@
 package il.co.topq.difido;
 
-import static java.nio.file.StandardCopyOption.*;
-import il.co.topq.difido.model.execution.Execution;
-import il.co.topq.difido.model.test.TestDetails;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -15,6 +13,9 @@ import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import il.co.topq.difido.model.execution.Execution;
+import il.co.topq.difido.model.test.TestDetails;
 
 public class PersistenceUtils {
 
@@ -205,9 +206,11 @@ public class PersistenceUtils {
 			String json = mapper.writeValueAsString(testDetails);
 			json = "var test = " + json + ";";
 			FileUtils.write(tempFile, json);
+			log.fine("Test details was written to file " + tempFile.getAbsolutePath());
 			Files.move(tempFile.toPath(), finalFile.toPath(), REPLACE_EXISTING);
+			log.fine("Test details was moved to file " + finalFile.getAbsolutePath());
 		} catch (Exception e) {
-			log.warning("Failed to write test details due to " + e.getMessage());
+			log.severe("Failed to write test details due to " + e.getMessage());
 		}
 
 	}

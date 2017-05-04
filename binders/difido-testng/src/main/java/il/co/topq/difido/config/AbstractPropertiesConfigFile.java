@@ -55,7 +55,11 @@ public abstract class AbstractPropertiesConfigFile {
 	}
 
 	public String getPropertyAsString(ConfigOptions option) {
-		return properties.getProperty(option.getProperty());
+		String value = properties.getProperty(option.getProperty());
+		if (value == null || value.isEmpty()){
+			return "";
+		}
+		return value.trim();
 	}
 
 	public boolean getPropertyAsBoolean(ConfigOptions option) {

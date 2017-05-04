@@ -24,14 +24,17 @@ public class ReportManager implements ReportDispatcher {
 
 	private List<Reporter> reporters;
 
+	private DifidoConfig config;
+
 	private ReportManager() {
-		DifidoConfig config = new DifidoConfig();
+		config = new DifidoConfig();
 		try {
 			createReporterInstances(config.getPropertyAsList(DifidoOptions.REPORTER_CLASSES));
 		} catch (Exception e) {
 			log.severe("Failed to create reporters instances");
 		}
 	}
+
 
 	public static ReportManager getInstance() {
 		if (null == instance) {
@@ -260,8 +263,5 @@ public class ReportManager implements ReportDispatcher {
 	public void addReporter(Reporter reporter) {
 		reporters.add(reporter);
 	}
-	
-	public static void main(String[] args) {
-		ReportManager.getInstance();
-	}
+
 }
