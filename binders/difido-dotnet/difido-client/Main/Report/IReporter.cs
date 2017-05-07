@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-
-namespace difido_client
+﻿namespace difido_client
 {
     public interface IReporter
     {
-      
-
         void Init(string outputFolder);
 
         void StartTest(ReporterTestInfo testInfo);
@@ -22,10 +14,14 @@ namespace difido_client
 
         void EndSuite(string suiteName);
 
-        void Report(string title, string message, ReporterTestInfo.TestStatus status, ReportElementType type);
+        void Report(string title, string message, TestStatus status, ReportElementType type);
 
         void AddTestProperty(string propertyName, string propertyValue);
+    }
 
+    public enum TestStatus
+    {
+        success, failure, error, warning
     }
 
     public enum ReportElementType
@@ -35,17 +31,11 @@ namespace difido_client
 
     public struct ReporterTestInfo
     {
-        public enum TestStatus
-        {
-            success, failure, error, warning
-        }
         private string testName;
         private string fullyQualifiedTestClassName;
         private TestStatus status;
         private string suiteName;
         private long durationTime;
-
-
 
         public string TestName
         {

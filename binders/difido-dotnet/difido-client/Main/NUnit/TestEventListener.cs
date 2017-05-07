@@ -29,7 +29,7 @@ namespace difido_client.Nunit
             testInfo = new ReporterTestInfo();
             testInfo.TestName = testName.Name;
             testInfo.FullyQualifiedTestClassName = testName.FullName;
-            testInfo.Status = ReporterTestInfo.TestStatus.success;
+            testInfo.Status = TestStatus.success;
             report.StartTest(testInfo);
             testStopwatch = new Stopwatch();
             testStopwatch.Start();
@@ -42,24 +42,24 @@ namespace difido_client.Nunit
             {
                 case ResultState.Error:
                     {
-                        testInfo.Status = ReporterTestInfo.TestStatus.error;
-                        report.Report(result.Message, result.StackTrace, ReporterTestInfo.TestStatus.error);
+                        testInfo.Status = TestStatus.error;
+                        report.Report(result.Message, result.StackTrace, TestStatus.error);
                         break;
                     }
                 case ResultState.Success:
                     {
-                        testInfo.Status = ReporterTestInfo.TestStatus.success;
+                        testInfo.Status = TestStatus.success;
                         break;
                     }
                 case ResultState.Failure:
                     {
-                        testInfo.Status = ReporterTestInfo.TestStatus.failure;
-                        report.Report(result.Message, result.StackTrace, ReporterTestInfo.TestStatus.failure);
+                        testInfo.Status = TestStatus.failure;
+                        report.Report(result.Message, result.StackTrace, TestStatus.failure);
                         break;
                     }
                 default:
                     {
-                        testInfo.Status = ReporterTestInfo.TestStatus.warning;
+                        testInfo.Status = TestStatus.warning;
                         break;
                     }
             }

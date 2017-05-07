@@ -9,7 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-
 namespace difido_client
 {
     public sealed class ReportManager : IReportDispatcher
@@ -29,7 +28,7 @@ namespace difido_client
             outputFolder = Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.Parent.FullName + @"/TestResults/Report";
             try
             {
-                System.IO.Directory.CreateDirectory(outputFolder);
+                Directory.CreateDirectory(outputFolder);
             }
             catch (Exception e)
             {
@@ -57,9 +56,6 @@ namespace difido_client
                 return instance;
             }
         }
-
-  
-
   
         public void Init(string outputFolder)
         {
@@ -71,9 +67,7 @@ namespace difido_client
                 }
 
             }
-
         }
-
 
         public void StartTest(ReporterTestInfo testInfo)
         {
@@ -85,8 +79,6 @@ namespace difido_client
                 }
             }
             errorsList.Clear();
-            
-
         }
 
         public void EndTest(ReporterTestInfo testInfo)
@@ -102,13 +94,8 @@ namespace difido_client
 
                     reporter.EndTest(testInfo);
                 }
-
             }
-
         }
-
-
-
 
         public void StartSuite(string suiteName, int testCount)
         {
@@ -119,8 +106,6 @@ namespace difido_client
                     reporter.StartSuite(suiteName, testCount);
                 }
             }
-
-            
         }
 
         public void EndSuite(string suiteName)
@@ -132,7 +117,6 @@ namespace difido_client
                     reporter.EndSuite(suiteName);
 
                 }
-
             }            
         }
 
@@ -145,7 +129,6 @@ namespace difido_client
                     reporter.EndRun();
 
                 }
-
             }
         }
 
@@ -171,21 +154,21 @@ namespace difido_client
 
         public void Report(string title, string message)
         {
-            Report(title, message, ReporterTestInfo.TestStatus.success, ReportElementType.regular);
+            Report(title, message, TestStatus.success, ReportElementType.regular);
         }
 
         public void Report(string title, string message, bool success)
         {
-            Report(title, message, success ? ReporterTestInfo.TestStatus.success : ReporterTestInfo.TestStatus.failure);
+            Report(title, message, success ? TestStatus.success : TestStatus.failure);
             
         }
 
-        public void Report(string title, string message, ReporterTestInfo.TestStatus status)
+        public void Report(string title, string message, TestStatus status)
         {
             Report(title, message, status, ReportElementType.regular);
         }
 
-        public void Report(string title, string message, ReporterTestInfo.TestStatus status, ReportElementType type)
+        public void Report(string title, string message, TestStatus status, ReportElementType type)
         {
             foreach (IReporter reporter in reporters)
             {
@@ -199,27 +182,27 @@ namespace difido_client
 
         public void ReportFile(string title, string filePath)
         {
-            Report(title, filePath, ReporterTestInfo.TestStatus.success, ReportElementType.lnk);
+            Report(title, filePath, TestStatus.success, ReportElementType.lnk);
             
         }
 
         public void Step(string title)
         {
-            Report(title, null, ReporterTestInfo.TestStatus.success, ReportElementType.step);
+            Report(title, null, TestStatus.success, ReportElementType.step);
         }
 
         public void ReportImage(string title, string filePath)
         {
-            Report(title, filePath, ReporterTestInfo.TestStatus.success, ReportElementType.img);
+            Report(title, filePath, TestStatus.success, ReportElementType.img);
         }
         
         public void StartLevel(string description)
         {
-            Report(description, null, ReporterTestInfo.TestStatus.success, ReportElementType.startLevel);
+            Report(description, null, TestStatus.success, ReportElementType.startLevel);
         }
         public void EndLevel()
         {
-            Report(null, null, ReporterTestInfo.TestStatus.success, ReportElementType.stopLevel);
+            Report(null, null, TestStatus.success, ReportElementType.stopLevel);
         }
 
         public void AddTestProperty(string propertyName, string propertyValue)

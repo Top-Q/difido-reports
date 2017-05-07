@@ -1,8 +1,11 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
-using static difido_client.ReporterTestInfo;
 using System.Collections.Generic;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 
 namespace difido_client.MSTest
 
@@ -16,13 +19,18 @@ namespace difido_client.MSTest
         private static ReporterTestInfo testInfo;
 
         protected Dictionary<string, string> TestParameters;
+        protected string NiceTestName = null;
 
         public TestContext TestContext { get; set; }
 
         private void TestStarted(Dictionary<string, string> paramsForTestName = null)
         {
             testInfo = new ReporterTestInfo();
-            testInfo.TestName = TestContext.TestName;
+            if (NiceTestName != null)
+                testInfo.TestName = NiceTestName;
+            else
+                testInfo.TestName = TestContext.TestName;
+
 
             if (paramsForTestName != null)
             {
@@ -67,6 +75,7 @@ namespace difido_client.MSTest
             }
             catch(Exception ex)
             {
+                TakeScreenshot(ex.Message);
                 ReportError(ex.Message, ex.StackTrace);
                 throw (ex);
             }
@@ -170,6 +179,40 @@ namespace difido_client.MSTest
             }
 
             return paramsFromDataSource;
+        }
+
+        protected void TakeScreenshot()
+        {
+            TakeScreenshot("screenshot_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"), "screenshot");
+        }
+
+        protected void TakeScreenshot(string message)
+        {
+            TakeScreenshot("screenshot_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"), message);
+        }
+
+        protected void TakeScreenshot(string fileName, string message)
+        {
+            var bmpScreenshot = new Bitmap(Screen.PrimaryScreen.Bounds.Width,
+                               Screen.PrimaryScreen.Bounds.Height,
+                               PixelFormat.Format32bppArgb);
+
+            // Create a graphics object from the bitmap.
+            var gfxScreenshot = Graphics.FromImage(bmpScreenshot);
+
+            // Take the screenshot from the upper left corner to the right bottom corner.
+            gfxScreenshot.CopyFromScreen(Screen.PrimaryScreen.Bounds.X,
+                                        Screen.PrimaryScreen.Bounds.Y,
+                                        0,
+                                        0,
+                                        Screen.PrimaryScreen.Bounds.Size,
+                                        CopyPixelOperation.SourceCopy);
+
+            // Save the screenshot to the specified path that the user has chosen.
+            fileName = System.IO.Path.GetTempPath() + fileName + ".png";
+            bmpScreenshot.Save(fileName, ImageFormat.Png);
+            report.ReportImage(message, fileName);
+            File.Delete(fileName);
         }
     }
 }

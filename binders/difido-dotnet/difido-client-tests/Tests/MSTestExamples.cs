@@ -2,7 +2,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Threading;
 using difido_client.MSTest;
-using System.Collections.Generic;
 
 namespace difido_mstest
 {

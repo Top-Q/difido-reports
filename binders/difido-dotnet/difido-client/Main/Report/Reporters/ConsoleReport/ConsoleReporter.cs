@@ -33,7 +33,7 @@ namespace difido_client.Main.Report.Reporters.ConsoleReport
         {
         }
 
-        public void Report(string title, string message, ReporterTestInfo.TestStatus status, ReportElementType type)
+        public void Report(string title, string message, TestStatus status, ReportElementType type)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -60,15 +60,15 @@ namespace difido_client.Main.Report.Reporters.ConsoleReport
 
             switch (status)
             {
-                case ReporterTestInfo.TestStatus.success:
+                case TestStatus.success:
                     break;
-                case ReporterTestInfo.TestStatus.warning:
+                case TestStatus.warning:
                     sb.Append("[WARNING]: ");
                     break;
-                case ReporterTestInfo.TestStatus.error:
+                case TestStatus.error:
                     sb.Append("[ERROR]: ");
                     break;
-                case ReporterTestInfo.TestStatus.failure:
+                case TestStatus.failure:
                     sb.Append("[FAILURE]: ");
                     break;
             }
