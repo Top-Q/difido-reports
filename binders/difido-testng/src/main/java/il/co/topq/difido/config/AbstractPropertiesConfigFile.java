@@ -1,57 +1,28 @@
-package il.co.topq.difido;
+package il.co.topq.difido.config;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public class RemoteDifidoProperties {
+public abstract class AbstractPropertiesConfigFile {
 
-	private static final Logger log = Logger.getLogger(RemoteDifidoProperties.class.getName());
-
-	public static final String FILE_NAME = "remoteDifido.properties";
+	private static final Logger log = Logger.getLogger(AbstractPropertiesConfigFile.class.getName());
 
 	private Properties properties;
 
-	enum RemoteDifidoOptions {
-		// @formatter:off
-		HOST("host", "localhost"),
-		PORT("port", "8080"),
-		ENABLED("enabled", "true"),
-		DESCRIPTION("execution.description", ""),
-		EXECUTION_PROPETIES("execution.properties", ""),
-		USE_SHARED_EXECUTION("use.shared.execution", "false"),
-		EXISTING_EXECUTION_ID("existing.execution.id", "-1"),
-		FORCE_NEW_EXECUTION("force.new.execution", "false"),
-		APPEND_TO_EXISTING_EXECUTION("append.to.existing.execution", "false");
-		// @formatter:on
+	private ConfigOptions[] options;
 
-		private String property;
-
-		private String defaultValue;
-
-		private RemoteDifidoOptions(final String property, final String defaultValue) {
-			this.property = property;
-			this.defaultValue = defaultValue;
-		}
-
-		public String getProperty() {
-			return property;
-		}
-
-		public String getDefaultValue() {
-			return defaultValue;
-		}
-
-	}
-
-	public RemoteDifidoProperties() {
+	public AbstractPropertiesConfigFile(ConfigOptions[] options) {
+		this.options = options;
 		properties = new Properties();
-		final File propertiesFile = new File(FILE_NAME);
+		final File propertiesFile = new File(getFileName());
 		if (!propertiesFile.exists()) {
 			initDefaultProperties();
 		}
@@ -63,13 +34,16 @@ public class RemoteDifidoProperties {
 		} catch (IOException e) {
 			initDefaultProperties();
 		}
+
 	}
 
+	protected abstract String getFileName();
+
 	private void initDefaultProperties() {
-		for (RemoteDifidoOptions option:RemoteDifidoOptions.values()){
+		for (ConfigOptions option : options[0].getOptions()) {
 			properties.setProperty(option.getProperty(), option.getDefaultValue());
 		}
-		final File propertiesFile = new File(FILE_NAME);
+		final File propertiesFile = new File(getFileName());
 		if (propertiesFile.exists()) {
 			propertiesFile.delete();
 		}
@@ -80,21 +54,33 @@ public class RemoteDifidoProperties {
 		}
 	}
 
-	public String getPropertyAsString(RemoteDifidoOptions option) {
+	public String getPropertyAsString(ConfigOptions option) {
 		return properties.getProperty(option.getProperty());
 	}
 
-	public boolean getPropertyAsBoolean(RemoteDifidoOptions option) {
+	public boolean getPropertyAsBoolean(ConfigOptions option) {
 		final String value = getPropertyAsString(option);
 		return Boolean.parseBoolean(value);
 	}
 
-	public int getPropertyAsInt(RemoteDifidoOptions option) {
+	public int getPropertyAsInt(ConfigOptions option) {
 		final String value = getPropertyAsString(option);
 		return Integer.parseInt(value);
 	}
 
-	public Map<String, String> getPropertyAsMap(RemoteDifidoOptions option) {
+	public List<String> getPropertyAsList(ConfigOptions option) {
+		final String values = getPropertyAsString(option);
+		List<String> valueList = new ArrayList<String>();
+		if (values == null || values.isEmpty()) {
+			return valueList;
+		}
+		for (String singleValue : values.split(";")) {
+			valueList.add(singleValue);
+		}
+		return valueList;
+	}
+
+	public Map<String, String> getPropertyAsMap(ConfigOptions option) {
 		final String value = getPropertyAsString(option);
 		Map<String, String> valueMap = new HashMap<String, String>();
 		if (value == null || value.isEmpty()) {

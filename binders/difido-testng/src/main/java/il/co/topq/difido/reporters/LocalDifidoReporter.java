@@ -1,5 +1,6 @@
-package il.co.topq.difido;
+package il.co.topq.difido.reporters;
 
+import il.co.topq.difido.PersistenceUtils;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.test.TestDetails;
