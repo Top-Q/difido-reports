@@ -24,8 +24,9 @@ public class ReportManager implements ReportDispatcher {
 	private static ReportManager instance;
 
 	private List<Reporter> reporters;
-	
-	private SoftAssert softAssert; // used to cause tests to fail after logging with Status.failure
+
+	private SoftAssert softAssert; // used to cause tests to fail after logging
+									// with Status.failure
 
 	private DifidoConfig config;
 
@@ -38,7 +39,6 @@ public class ReportManager implements ReportDispatcher {
 		}
 	}
 
-
 	public static ReportManager getInstance() {
 		if (null == instance) {
 			instance = new ReportManager();
@@ -47,9 +47,9 @@ public class ReportManager implements ReportDispatcher {
 	}
 
 	void onTestStart(ITestResult result) {
-		
+
 		softAssert = new SoftAssert();
-		
+
 		for (Reporter reporter : reporters) {
 			reporter.onTestStart(result);
 		}
@@ -67,11 +67,10 @@ public class ReportManager implements ReportDispatcher {
 	}
 
 	public void log(String title, String message, Status status, ElementType type) {
-		
-		if (status == Status.failure) {
-			softAssert.fail("Failure was reported during the test: " + title);
+		if (Status.failure == status || Status.error == status) {
+			softAssert.fail("Status " + status + " was reported during the test: " + title);
 		}
-		
+
 		for (Reporter reporter : reporters) {
 			reporter.log(title, message, status, type);
 		}
@@ -196,9 +195,9 @@ public class ReportManager implements ReportDispatcher {
 	}
 
 	void onTestSuccess(ITestResult result) {
-		
+
 		softAssert.assertAll();
-		
+
 		for (Reporter reporter : reporters) {
 			reporter.onTestSuccess(result);
 		}
