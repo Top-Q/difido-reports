@@ -1,12 +1,19 @@
 package il.co.topq.difido;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import il.co.topq.difido.model.Enums.Status;
 
 public class TestsWithDifferentStatuses extends AbstractDifidoTestCase {
-
+	
+	@BeforeMethod
+	public void setup(){
+		System.out.println("In the setup phase");
+	}
+	
 	@Test(description = "Test with exception")
 	public void testWithException() throws Exception {
 		report.log("About to fail");
@@ -35,6 +42,13 @@ public class TestsWithDifferentStatuses extends AbstractDifidoTestCase {
 	public void testWithErrorMessage() throws Exception {
 		report.log("Message with error", "Error message", Status.error);
 	}
+	
+	@Test(description = "Test with failure messages")
+	public void testWithFailureMessages() {
+		report.log("Title without message",Status.failure);
+		report.log("Error title 0","Error message 0",Status.failure);
+		report.log("Error title 1","Error message 1",Status.failure);
+	}
 
 	@Test(description = "Test with warning")
 	public void testWithWarning() throws Exception {
@@ -44,6 +58,11 @@ public class TestsWithDifferentStatuses extends AbstractDifidoTestCase {
 	@Test(description = "Test that simply ends with success")
 	public void testSuccess() {
 		report.log("Everything's is A-OK");
+	}
+	
+	@AfterMethod
+	public void tearDown(){
+		System.out.println("In the teardown phase");
 	}
 
 }

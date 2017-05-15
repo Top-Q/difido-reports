@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 import org.testng.ISuite;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
-import org.testng.asserts.SoftAssert;
 
 import il.co.topq.difido.config.DifidoConfig;
 import il.co.topq.difido.config.DifidoConfig.DifidoOptions;
@@ -25,8 +24,9 @@ public class ReportManager implements ReportDispatcher {
 
 	private List<Reporter> reporters;
 
-	private SoftAssert softAssert; // used to cause tests to fail after logging
-									// with Status.failure
+	// For keeping all the error and failure message that are logged and using
+	// it as the end of the test to make sure the test is marked as failure
+	private List<String> failureMessages;
 
 	private DifidoConfig config;
 
@@ -47,9 +47,7 @@ public class ReportManager implements ReportDispatcher {
 	}
 
 	void onTestStart(ITestResult result) {
-
-		softAssert = new SoftAssert();
-
+		failureMessages = new ArrayList<String>();
 		for (Reporter reporter : reporters) {
 			reporter.onTestStart(result);
 		}
@@ -58,7 +56,6 @@ public class ReportManager implements ReportDispatcher {
 	@Override
 	public void logHtml(String title, Status status) {
 		log(title, null, status, ElementType.html);
-
 	}
 
 	@Override
@@ -68,7 +65,7 @@ public class ReportManager implements ReportDispatcher {
 
 	public void log(String title, String message, Status status, ElementType type) {
 		if (Status.failure == status || Status.error == status) {
-			softAssert.fail("Status " + status + " was reported during the test: " + title);
+			failureMessages.add(message != null ? title + " : " + message : title);
 		}
 
 		for (Reporter reporter : reporters) {
@@ -195,16 +192,31 @@ public class ReportManager implements ReportDispatcher {
 	}
 
 	void onTestSuccess(ITestResult result) {
-
-		softAssert.assertAll();
+		if (!failureMessages.isEmpty()) {
+			StringBuilder sb = new StringBuilder();
+			boolean first = true;
+			for (String message : failureMessages) {
+				if (first) {
+					first = false;
+				} else {
+					sb.append(",\n");
+				}
+				sb.append(message);
+			}
+			failureMessages.clear();
+			result.setStatus(2);
+			result.setThrowable(new AssertionError(sb.toString()));
+			onTestFailure(result);
+			return;
+		}
 
 		for (Reporter reporter : reporters) {
 			reporter.onTestSuccess(result);
 		}
+
 	}
 
 	void onTestFailure(ITestResult result) {
-
 		for (Reporter reporter : reporters) {
 			reporter.onTestFailure(result);
 		}
