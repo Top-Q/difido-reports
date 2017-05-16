@@ -4,6 +4,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
 
+import org.testng.IInvokedMethod;
 import org.testng.ISuite;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
@@ -160,4 +161,21 @@ public class ConsoleReporter implements Reporter {
 	private void print(String message) {
 		System.out.println(TIME_FORMAT.format(System.currentTimeMillis()) + " " + message);
 	}
+
+	@Override
+	public void beforeTeardown(IInvokedMethod method, ITestResult testResult) {
+	}
+
+	@Override
+	public void beforeSetup(IInvokedMethod method, ITestResult testResult) {
+	}
+
+	@Override
+	public void afterTeardown(IInvokedMethod method, ITestResult testResult) {
+	}
+
+	@Override
+	public void afterSetup(IInvokedMethod method, ITestResult testResult) {
+	}
+
 }

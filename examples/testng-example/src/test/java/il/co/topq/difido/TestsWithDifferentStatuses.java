@@ -11,7 +11,9 @@ public class TestsWithDifferentStatuses extends AbstractDifidoTestCase {
 	
 	@BeforeMethod
 	public void setup(){
-		System.out.println("In the setup phase");
+		report.log("In the setup phase");
+		report.log("Something bad",Status.error);
+//		throw new AssertionError("My error");
 	}
 	
 	@Test(description = "Test with exception")
@@ -43,7 +45,7 @@ public class TestsWithDifferentStatuses extends AbstractDifidoTestCase {
 		report.log("Message with error", "Error message", Status.error);
 	}
 	
-	@Test(description = "Test with failure messages")
+	@Test(testName = "Test with failure messages",description = "Test with failure messages")
 	public void testWithFailureMessages() {
 		report.log("Title without message",Status.failure);
 		report.log("Error title 0","Error message 0",Status.failure);
@@ -61,8 +63,8 @@ public class TestsWithDifferentStatuses extends AbstractDifidoTestCase {
 	}
 	
 	@AfterMethod
-	public void tearDown(){
-		System.out.println("In the teardown phase");
+	public void teardown(){
+		report.log("In the teardown phase");
 	}
 
 }

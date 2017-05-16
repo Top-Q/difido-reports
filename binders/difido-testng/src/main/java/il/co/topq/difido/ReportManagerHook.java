@@ -1,12 +1,14 @@
 package il.co.topq.difido;
 
+import org.testng.IInvokedMethod;
+import org.testng.IInvokedMethodListener;
 import org.testng.ISuite;
 import org.testng.ISuiteListener;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.internal.IResultListener2;
 
-public class ReportManagerHook implements IResultListener2, ISuiteListener {
+public class ReportManagerHook implements IResultListener2, ISuiteListener, IInvokedMethodListener  {
 
 	/**
 	 * From some reason, TestNG is calling the suite events number of times.
@@ -76,6 +78,22 @@ public class ReportManagerHook implements IResultListener2, ISuiteListener {
 
 	}
 
+	private void beforeTeardown(IInvokedMethod method, ITestResult testResult) {
+		ReportManager.getInstance().beforeTeardown(method, testResult);
+	}
+
+	private void beforeSetup(IInvokedMethod method, ITestResult testResult) {
+		ReportManager.getInstance().beforeSetup(method, testResult);
+	}
+
+	private void afterTeardown(IInvokedMethod method, ITestResult testResult) {
+		ReportManager.getInstance().afterTeardown(method, testResult);
+	}
+
+	private void afterSetup(IInvokedMethod method, ITestResult testResult) {
+		ReportManager.getInstance().afterSetup(method, testResult);
+	}
+
 	@Override
 	public void onStart(ISuite suite) {
 		if (0 != numOfSuites++) {
@@ -93,4 +111,41 @@ public class ReportManagerHook implements IResultListener2, ISuiteListener {
 		ReportManager.getInstance().onFinish(suite);
 
 	}
+	
+	@Override
+	public void afterInvocation(IInvokedMethod method, ITestResult testResult) {
+		if (method.getTestMethod().isBeforeClassConfiguration() 
+				| method.getTestMethod().isBeforeGroupsConfiguration()
+				| method.getTestMethod().isBeforeMethodConfiguration()
+				| method.getTestMethod().isBeforeSuiteConfiguration()
+				| method.getTestMethod().isBeforeTestConfiguration()) {
+			afterSetup(method, testResult);
+		} else if (method.getTestMethod().isAfterClassConfiguration() 
+				| method.getTestMethod().isAfterGroupsConfiguration()
+				| method.getTestMethod().isAfterMethodConfiguration()
+				| method.getTestMethod().isAfterSuiteConfiguration()
+				| method.getTestMethod().isAfterTestConfiguration()) {
+			afterTeardown(method, testResult);
+		}
+	}
+	
+	@Override
+	public void beforeInvocation(IInvokedMethod method, ITestResult testResult) {
+		if (method.getTestMethod().isBeforeClassConfiguration() 
+				| method.getTestMethod().isBeforeGroupsConfiguration()
+				| method.getTestMethod().isBeforeMethodConfiguration()
+				| method.getTestMethod().isBeforeSuiteConfiguration()
+				| method.getTestMethod().isBeforeTestConfiguration()) {
+			beforeSetup(method, testResult);
+		} else if (method.getTestMethod().isAfterClassConfiguration() 
+				| method.getTestMethod().isAfterGroupsConfiguration()
+				| method.getTestMethod().isAfterMethodConfiguration()
+				| method.getTestMethod().isAfterSuiteConfiguration()
+				| method.getTestMethod().isAfterTestConfiguration()) {
+			beforeTeardown(method, testResult);
+		}
+
+	}
+
+
 }
