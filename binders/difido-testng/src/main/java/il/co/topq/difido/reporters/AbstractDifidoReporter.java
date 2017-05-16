@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import org.testng.IInvokedMethod;
 import org.testng.ISuite;
 import org.testng.ITestContext;
 import org.testng.ITestNGMethod;
@@ -66,8 +67,13 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	private DifidoConfig config;
 
+	private List<ReportElement> bufferedElements;
+
+	private boolean inSetup;
+
 	public AbstractDifidoReporter() {
 		config = new DifidoConfig();
+		bufferedElements = new ArrayList<ReportElement>();
 	}
 
 	protected void generateUid() {
@@ -190,8 +196,27 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		}
 		updateTestDirectory();
 		writeExecution(execution);
+		flushBufferedElements("Setup");
 		writeTestDetails(testDetails);
 
+	}
+
+	/**
+	 * Writing all the buffered elements that was stored in the configuration
+	 * stages
+	 * 
+	 * @param elementsDescription
+	 *            The description of the phase. e.g. 'setup'
+	 */
+	private void flushBufferedElements(String elementsDescription) {
+		if (!bufferedElements.isEmpty()) {
+			log(elementsDescription, null, Status.success, ElementType.startLevel);
+			for (ReportElement element : bufferedElements) {
+				log(element);
+			}
+			bufferedElements.clear();
+			log(null, null, Status.success, ElementType.stopLevel);
+		}
 	}
 
 	private List<String> getTestParameters(ITestResult result) {
@@ -257,6 +282,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	@Override
 	public void onTestSkipped(ITestResult result) {
+		onTestStart(result);
 		currentTest.setStatus(Status.warning);
 		onTestEnd(result);
 
@@ -332,10 +358,49 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	}
 
 	@Override
-	public void log(String title, String message, Status status, ElementType type) {
-		if (null == testDetails) {
-			return;
+	public void beforeTeardown(IInvokedMethod method, ITestResult testResult) {
+
+	}
+
+	@Override
+	public void beforeSetup(IInvokedMethod method, ITestResult testResult) {
+		inSetup = true;
+	}
+
+	@Override
+	public void afterTeardown(IInvokedMethod method, ITestResult testResult) {
+
+	}
+
+	@Override
+	public void afterSetup(IInvokedMethod method, ITestResult testResult) {
+		if (!testResult.isSuccess()) {
+			if (testResult.getThrowable() != null) {
+				log(testResult.getThrowable().getMessage(), Arrays.toString(testResult.getThrowable().getStackTrace()),
+						Status.warning, ElementType.regular);
+			}
 		}
+		inSetup = false;
+	}
+
+	private void log(ReportElement element) {
+		if (inSetup) {
+			// We are in setup phase. We will store the elements and add it to
+			// the test details when the actual test will start
+			bufferedElements.add(element);
+		} else {
+			testDetails.addReportElement(element);
+			currentTest.setStatus(element.getStatus());
+			if ((System.currentTimeMillis() - lastWrite) > config
+					.getPropertyAsInt(DifidoOptions.MIN_TIME_BETWEEN_WRITES)) {
+				lastWrite = System.currentTimeMillis();
+				writeTestDetails(testDetails);
+			}
+		}
+	}
+
+	@Override
+	public void log(String title, String message, Status status, ElementType type) {
 		ReportElement element = new ReportElement();
 		element = updateTimestampAndTitle(element, title);
 		element.setMessage(message);
@@ -344,12 +409,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 			type = ElementType.regular;
 		}
 		element.setType(type);
-		testDetails.addReportElement(element);
-		currentTest.setStatus(status);
-		if ((System.currentTimeMillis() - lastWrite) > config.getPropertyAsInt(DifidoOptions.MIN_TIME_BETWEEN_WRITES)) {
-			lastWrite = System.currentTimeMillis();
-			writeTestDetails(testDetails);
-		}
+		log(element);
 	}
 
 	private ReportElement updateTimestampAndTitle(ReportElement element, String title) {

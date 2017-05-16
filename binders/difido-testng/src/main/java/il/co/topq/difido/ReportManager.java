@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.testng.IInvokedMethod;
 import org.testng.ISuite;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
@@ -32,6 +33,7 @@ public class ReportManager implements ReportDispatcher {
 
 	private ReportManager() {
 		config = new DifidoConfig();
+		failureMessages = new ArrayList<String>();
 		try {
 			createReporterInstances(config.getPropertyAsList(DifidoOptions.REPORTER_CLASSES));
 		} catch (Exception e) {
@@ -47,7 +49,7 @@ public class ReportManager implements ReportDispatcher {
 	}
 
 	void onTestStart(ITestResult result) {
-		failureMessages = new ArrayList<String>();
+		failureMessages.clear();
 		for (Reporter reporter : reporters) {
 			reporter.onTestStart(result);
 		}
@@ -203,7 +205,6 @@ public class ReportManager implements ReportDispatcher {
 				}
 				sb.append(message);
 			}
-			failureMessages.clear();
 			result.setStatus(2);
 			result.setThrowable(new AssertionError(sb.toString()));
 			onTestFailure(result);
@@ -253,6 +254,36 @@ public class ReportManager implements ReportDispatcher {
 			reporter.onFinish(suite);
 		}
 	}
+	
+	@Override
+	public void beforeTeardown(IInvokedMethod method, ITestResult testResult) {
+		for (Reporter reporter : reporters) {
+			reporter.beforeTeardown(method, testResult);
+		}
+	}
+
+	@Override
+	public void beforeSetup(IInvokedMethod method, ITestResult testResult) {
+		for (Reporter reporter : reporters) {
+			reporter.beforeSetup(method, testResult);
+		}
+		
+	}
+
+	@Override
+	public void afterTeardown(IInvokedMethod method, ITestResult testResult) {
+		for (Reporter reporter : reporters) {
+			reporter.afterTeardown(method, testResult);
+		}
+		
+	}
+
+	@Override
+	public void afterSetup(IInvokedMethod method, ITestResult testResult) {
+		for (Reporter reporter : reporters) {
+			reporter.afterSetup(method, testResult);
+		}
+	}
 
 	@Override
 	public void addTestProperty(String name, String value) {
@@ -287,5 +318,6 @@ public class ReportManager implements ReportDispatcher {
 	public void addReporter(Reporter reporter) {
 		reporters.add(reporter);
 	}
+
 
 }
