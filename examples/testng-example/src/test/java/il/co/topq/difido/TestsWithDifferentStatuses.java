@@ -1,20 +1,11 @@
 package il.co.topq.difido;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import il.co.topq.difido.model.Enums.Status;
 
 public class TestsWithDifferentStatuses extends AbstractDifidoTestCase {
-	
-	@BeforeMethod
-	public void setup(){
-		report.log("In the setup phase");
-		report.log("Something bad",Status.error);
-//		throw new AssertionError("My error");
-	}
 	
 	@Test(description = "Test with exception")
 	public void testWithException() throws Exception {
@@ -60,11 +51,6 @@ public class TestsWithDifferentStatuses extends AbstractDifidoTestCase {
 	@Test(description = "Test that simply ends with success")
 	public void testSuccess() {
 		report.log("Everything's is A-OK");
-	}
-	
-	@AfterMethod
-	public void teardown(){
-		report.log("In the teardown phase");
 	}
 
 }
