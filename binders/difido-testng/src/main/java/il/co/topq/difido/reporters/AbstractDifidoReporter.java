@@ -65,7 +65,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	private int totalPlannedTests = 0;
 
 	private DifidoConfig config;
-
+	
 	public AbstractDifidoReporter() {
 		config = new DifidoConfig();
 	}
@@ -149,24 +149,37 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	protected abstract void writeExecution(Execution execution);
 
+	
+	
 	@Override
 	public void onTestStart(ITestResult result) {
+		
 		if (!result.getTestClass().getName().equals(testClassName)) {
 			testClassName = result.getTestClass().getName();
 			startClassScenario(result);
 		}
-		String testName = result.getName();
+		
+		String prettyTestName = extractPrettyTestNameFromTestParameters(result);
 		List<String> testParameters = getTestParameters(result);
-		if (!testParameters.isEmpty()) {
-			StringBuilder sb = new StringBuilder();
-			sb.append(testName);
-			sb.append("(");
-			String tempString = testParameters.toString().replaceFirst("\\[", "");
-			sb.append(tempString.substring(0, tempString.length() - 1));
-			sb.append(")");
-			testName = sb.toString();
+		
+		String testName;
+		if (prettyTestName != null) {
+			testName = prettyTestName;
 		}
-
+		else {
+			testName = result.getName();
+			
+			if (!testParameters.isEmpty()) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(testName);
+				sb.append("(");
+				String tempString = testParameters.toString().replaceFirst("\\[", "");
+				sb.append(tempString.substring(0, tempString.length() - 1));
+				sb.append(")");
+				testName = sb.toString();
+			}
+		}
+		
 		currentTest = new TestNode(index++, testName, executionUid + "-" + index);
 		currentTest.setClassName(testClassName);
 		final Date date = new Date(result.getStartMillis());
@@ -206,6 +219,21 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		return testParameters;
 	}
 
+	private String extractPrettyTestNameFromTestParameters(ITestResult result) {
+		
+		Object[] params = result.getParameters();
+		
+		if (params != null) {
+			for (Object param : params) {
+				if (param.toString().contains("prettyTestName=")) {
+					return param.toString().replaceAll("\"", "").replaceAll("prettyTestName=", "");
+				}
+			}
+		}
+		
+		return null;
+	}
+	
 	private void startClassScenario(ITestResult result) {
 		ScenarioNode scenario = new ScenarioNode(testClassName);
 		currentTestScenario.addChild(scenario);
@@ -313,6 +341,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	 */
 	@Override
 	public void onStart(ISuite suite) {
+		
 		execution = null;
 		totalPlannedTests = getAllPlannedTestsCount(suite);
 		updateIndex();
@@ -455,5 +484,4 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	protected Execution getExecution() {
 		return execution;
 	}
-
 }

@@ -18,12 +18,22 @@ public class ConsoleReporter implements Reporter {
 
 	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss:");
 	private boolean testStarted = false;
-
+	private String testName;
+	
 	@Override
 	public void onTestStart(ITestResult result) {
 		if (!testStarted) {
+
+			String prettyTestName = extractPrettyTestNameFromTestParameters(result);
+			if (prettyTestName != null) {
+				testName = prettyTestName + " (" + result.getName() + ")";
+			}
+			else {
+				testName = result.getName();
+			}
+			
 			print("------------------------------------------------------------------------");
-			print("[TEST START]: " +  result.getName());
+			print("[TEST START]: " +  testName);
 			print("------------------------------------------------------------------------");
 			testStarted = true;
 		}
@@ -34,9 +44,9 @@ public class ConsoleReporter implements Reporter {
 		if (testStarted) {
 			long testDuration = result.getEndMillis() - result.getStartMillis();
 			print("------------------------------------------------------------------------");
-			print("[TEST END]: " + result.getName()); 
-			print("duration: " + TimeUnit.MILLISECONDS.toSeconds(testDuration) + " seconds");
-			print("status: success");
+			print("[TEST END]: " + testName); 
+			print("Duration: " + TimeUnit.MILLISECONDS.toSeconds(testDuration) + " seconds");
+			print("Status: SUCCESS");
 			print("------------------------------------------------------------------------");
 			testStarted = false;
 		}
@@ -47,9 +57,9 @@ public class ConsoleReporter implements Reporter {
 		if (testStarted) {
 			long testDuration = result.getEndMillis() - result.getStartMillis();
 			print("------------------------------------------------------------------------");
-			print("[TEST END]: " + result.getName()); 
-			print("duration: " + TimeUnit.MILLISECONDS.toSeconds(testDuration) + " seconds");
-			print("status: failure");
+			print("[TEST END]: " + testName); 
+			print("Duration: " + TimeUnit.MILLISECONDS.toSeconds(testDuration) + " seconds");
+			print("Status: FAILURE");
 			print("------------------------------------------------------------------------");
 			testStarted = false;
 		}
@@ -58,7 +68,7 @@ public class ConsoleReporter implements Reporter {
 	@Override
 	public void onTestSkipped(ITestResult result) {
 		print("------------------------------------------------------------------------");
-		print("[TEST SKIPPED]: " +  result.getName());
+		print("[TEST SKIPPED]: " +  testName);
 		print("------------------------------------------------------------------------");
 	}
 
@@ -157,6 +167,21 @@ public class ConsoleReporter implements Reporter {
 		return null;
 	}
 
+	private String extractPrettyTestNameFromTestParameters(ITestResult result) {
+		
+		Object[] params = result.getParameters();
+		
+		if (params != null) {
+			for (Object param : params) {
+				if (param.toString().contains("prettyTestName=")) {
+					return param.toString().replaceAll("\"", "").replaceAll("prettyTestName=", "");
+				}
+			}
+		}
+		
+		return null;
+	}
+	
 	private void print(String message) {
 		System.out.println(TIME_FORMAT.format(System.currentTimeMillis()) + " " + message);
 	}
