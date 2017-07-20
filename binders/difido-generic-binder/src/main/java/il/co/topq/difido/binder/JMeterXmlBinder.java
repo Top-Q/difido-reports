@@ -1,7 +1,6 @@
-package il.co.topq.difido.binders;
+package il.co.topq.difido.binder;
 
 import java.io.File;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,11 +64,6 @@ public class JMeterXmlBinder extends DefaultHandler implements Binder {
 	}
 
 	@Override
-	public void endDocument() throws SAXException {
-		System.out.println("End document");
-	}
-
-	@Override
 	public void characters(char ch[], int start, int length) throws SAXException {
 		if (null == currentTestDetails) {
 			return;
@@ -114,10 +108,15 @@ public class JMeterXmlBinder extends DefaultHandler implements Binder {
 
 	private void startTest(String qName, Attributes attributes) {
 		currentTest = new TestNode(qName, ++id + "");
+		currentTest.setIndex(id);
 		final Map<String,String> properties = attributesToMap(attributes);
-		timeStamp = new Date(Long.parseLong(properties.get("ts")));
-		currentTest.setDate(DATE_FORMAT.format(timeStamp));
-		currentTest.setTimestamp(TIME_FORMAT.format(timeStamp));
+		if (null != properties.get("ts")){
+			timeStamp = new Date(Long.parseLong(properties.get("ts")));
+			currentTest.setDate(DATE_FORMAT.format(timeStamp));
+			currentTest.setTimestamp(TIME_FORMAT.format(timeStamp));
+		} else {
+			timeStamp = null;
+		}
 		currentTest.setProperties(properties);
 		execution.getLastMachine().getChildren().get(0).addChild(currentTest);
 		currentTestDetails = new TestDetails(id + "");

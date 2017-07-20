@@ -1,6 +1,6 @@
 package il.co.topq.difido.engine;
 
-import il.co.topq.difido.binders.Binder;
+import il.co.topq.difido.binder.Binder;
 
 public class RemoteReportEngine implements ReportEngine{
 

@@ -4,14 +4,18 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import il.co.topq.difido.PersistenceUtils;
-import il.co.topq.difido.binders.Binder;
+import il.co.topq.difido.binder.Binder;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.test.TestDetails;
 
 public class LocalReportEngine implements ReportEngine {
 
+	private Logger log = LoggerFactory.getLogger(LocalReportEngine.class);
+	
 	private Binder binder;
 
 	private final File source;
@@ -34,7 +38,7 @@ public class LocalReportEngine implements ReportEngine {
 			try {
 				FileUtils.deleteDirectory(currentLogFolder);
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error("Failed to delete current folder due to " + e.getMessage());
 			}
 		}
 		final File templateFolder = new File(destination, "template");
@@ -47,7 +51,7 @@ public class LocalReportEngine implements ReportEngine {
 			try {
 				FileUtils.copyDirectory(templateFolder, currentLogFolder);
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error("Failed to copy template folder due to " + e.getMessage());
 			}
 		}
 	}
@@ -63,9 +67,15 @@ public class LocalReportEngine implements ReportEngine {
 		binder.process(source);
 		Execution execution = binder.getExecution();
 		PersistenceUtils.writeExecution(execution, currentLogFolder);
+		if (binder.getTestDetails() == null) {
+			log.warn("Test details list is null");
+			return;
+			
+		}
 		for (TestDetails details : binder.getTestDetails()) {
 			if (null == details) {
-				System.out.println("Null empty details");
+				log.warn("Recieved null test details");
+				continue;
 			}
 			PersistenceUtils.writeTest(details, currentLogFolder,
 					new File(currentLogFolder, "tests" + File.separator + "test_" + details.getUid()));

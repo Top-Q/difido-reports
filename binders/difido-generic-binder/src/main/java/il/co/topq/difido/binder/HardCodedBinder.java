@@ -1,4 +1,4 @@
-package il.co.topq.difido.binders;
+package il.co.topq.difido.binder;
 
 import java.io.File;
 import java.util.ArrayList;
