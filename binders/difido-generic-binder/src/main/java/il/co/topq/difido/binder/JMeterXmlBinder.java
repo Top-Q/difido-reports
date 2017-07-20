@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -17,7 +16,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.Enums.Status;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
@@ -27,11 +25,11 @@ import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 
 public class JMeterXmlBinder extends DefaultHandler implements Binder {
-	
+
 	private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd");
-	
+
 	private final static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
-	
+
 	private Execution execution;
 
 	private List<TestDetails> testDetailsList = new ArrayList<TestDetails>();
@@ -40,12 +38,15 @@ public class JMeterXmlBinder extends DefaultHandler implements Binder {
 
 	private TestDetails currentTestDetails;
 
-	private Stack<String> levelStack = new Stack<String>();
+	private ReportElement currentReportElement;
 	
+	private String currentTestName;
+	
+	private StringBuilder currentContent;
+
 	private Date timeStamp;
-	
+
 	private int id;
-	
 
 	@Override
 	public void process(File source) throws Exception {
@@ -65,52 +66,62 @@ public class JMeterXmlBinder extends DefaultHandler implements Binder {
 
 	@Override
 	public void characters(char ch[], int start, int length) throws SAXException {
-		if (null == currentTestDetails) {
-			return;
-		}
-		ReportElement element = new ReportElement();
-		element.setTime(TIME_FORMAT.format(timeStamp));
 		String content = new String(Arrays.copyOfRange(ch, start, start + length));
-		if (content.replace("\n","").trim().isEmpty()) {
+		if (null == currentTestDetails || null == currentContent) {
 			return;
 		}
-		element.setTitle(content);
-		currentTestDetails.addReportElement(element);
+		if (content.replace("\n", "").trim().isEmpty()) {
+			return;
+		}
+		currentContent.append(content);
 	}
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		if (qName.equals("testResults")) {
-			addRootScenario("Test Results: " + attributes.getValue("version"));
+			startScenario("Test Results: " + attributes.getValue("version"));
 			return;
 		}
-		if (execution.getMachines().isEmpty() || execution.getLastMachine().getAllScenarios().isEmpty()) {
-			// Before the test results
+		if (null == currentTestName){
+			currentTestName = qName;
+			startTest(qName,attributes);
 			return;
 		}
-		if (null == currentTest) {
-			startTest(qName, attributes);
-		} else {
-			levelStack.add(qName);
-			startLevel(qName, attributes);
+		startReportElement(qName);
+		
+	}
+
+
+	public void endElement(String uri, String localName, String qName) throws SAXException {
+		if (qName.equals("testResults")) {
+			return;
 		}
+		if (qName.equals(currentTestName)){
+			currentTestName = null;
+			endTest();
+			return;
+		}
+		endReportElement();
+	}
+	
+	private void endReportElement() {
+		currentReportElement.setMessage(currentContent.toString());
+		currentTestDetails.addReportElement(currentReportElement);
+		currentReportElement = null;
 	}
 
-	private void startLevel(String qName, Attributes attributes) {
-		levelStack.add(qName);
-		ReportElement element = new ReportElement();
-		element.setTime(TIME_FORMAT.format(timeStamp));
-		element.setType(ElementType.startLevel);
-		element.setTitle(qName);
-		currentTestDetails.addReportElement(element);
-
+	private void startReportElement(String qName) {
+		currentReportElement = new ReportElement();
+		currentReportElement.setTitle(qName);
+		currentReportElement.setTime(TIME_FORMAT.format(timeStamp));
+		currentContent = new StringBuilder();
 	}
-
+	
 	private void startTest(String qName, Attributes attributes) {
 		currentTest = new TestNode(qName, ++id + "");
 		currentTest.setIndex(id);
-		final Map<String,String> properties = attributesToMap(attributes);
-		if (null != properties.get("ts")){
+		final Map<String, String> properties = attributesToMap(attributes);
+		if (null != properties.get("ts")) {
 			timeStamp = new Date(Long.parseLong(properties.get("ts")));
 			currentTest.setDate(DATE_FORMAT.format(timeStamp));
 			currentTest.setTimestamp(TIME_FORMAT.format(timeStamp));
@@ -123,47 +134,19 @@ public class JMeterXmlBinder extends DefaultHandler implements Binder {
 
 	}
 
-	private Map<String, String> attributesToMap(Attributes attributes) {
-		final Map<String, String> map = new HashMap<String, String>();
-		for (int i = 0; i < attributes.getLength(); i++) {
-			map.put(attributes.getQName(i), attributes.getValue(i));
-		}
-		return map;
-	}
 
-	private void addRootScenario(String name) {
+	private void startScenario(String name) {
 		ScenarioNode testResults = new ScenarioNode(name);
 		execution.getLastMachine().addChild(testResults);
-
 	}
 
-	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if (currentTest == null || qName.equals(currentTest.getName())) {
-			endTest();
-			return;
-		}
-		if (!levelStack.isEmpty()) {
-			levelStack.pop();
-			endLevel();
-		}
-		
-	}
 
 	private void endTest() {
 		testDetailsList.add(currentTestDetails);
 		currentTest = null;
 		currentTestDetails = null;
-		levelStack.clear();
 	}
 
-	private void endLevel() {
-		ReportElement element = new ReportElement();
-		element.setTime(TIME_FORMAT.format(timeStamp));
-		element = new ReportElement();
-		element.setType(ElementType.stopLevel);
-		currentTestDetails.addReportElement(element);
-	}
 
 	@Override
 	public Execution getExecution() {
@@ -174,5 +157,14 @@ public class JMeterXmlBinder extends DefaultHandler implements Binder {
 	public List<TestDetails> getTestDetails() {
 		return testDetailsList;
 	}
+	
+	private static Map<String, String> attributesToMap(Attributes attributes) {
+		final Map<String, String> map = new HashMap<String, String>();
+		for (int i = 0; i < attributes.getLength(); i++) {
+			map.put(attributes.getQName(i), attributes.getValue(i));
+		}
+		return map;
+	}
+
 
 }

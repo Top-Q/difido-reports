@@ -30,6 +30,7 @@ public class HardCodedBinder implements Binder {
 		machine.addChild(scenario);
 
 		TestNode test = new TestNode("myTest", "1");
+		test.setIndex(1);
 		scenario.addChild(test);
 
 		TestDetails testDetails = new TestDetails("1");
