@@ -15,6 +15,7 @@ import il.co.topq.difido.binder.Binder;
 import il.co.topq.difido.config.GenericBinderConfig;
 import il.co.topq.difido.config.GenericBinderConfig.BinderOptions;
 import il.co.topq.difido.engine.LocalReportEngine;
+import il.co.topq.difido.engine.RemoteReportEngine;
 import il.co.topq.difido.engine.ReportEngine;
 
 public class Main {
@@ -48,7 +49,10 @@ public class Main {
 		}
 		if (config.getPropertyAsBoolean(BinderOptions.REMOTE_DIFIDO_ENABLED)) {
 			log.info("Running remote engine");
-			runRemoteRngine(binder);
+			final String host = config.getPropertyAsString(BinderOptions.REMOTE_DIFIDO_HOST);
+			final int port = config.getPropertyAsInt(BinderOptions.REMOTE_DIFIDO_PORT);
+			final String description = config.getPropertyAsString(BinderOptions.REMOTE_EXECUTION_DESCRIPTION);
+			runRemoteRngine(binder,source,host,port, description);
 		}
 
 	}
@@ -80,14 +84,19 @@ public class Main {
 		}
 	}
 
-	private void runRemoteRngine(Binder binder) {
-		// TODO Auto-generated method stub
-
+	private void runRemoteRngine(Binder binder, File source, String host, int port, String description) {
+		ReportEngine engine = new RemoteReportEngine(host,port,description);
+		engine.init(source, binder);
+		try {
+			engine.run();
+		} catch (Exception e) {
+			log.error("Failed to run local remote engine due to " + e.getMessage());
+		}
 	}
 
 	private void runLocalEngine(Binder binder, final File source, final File destinationFolder) {
-		ReportEngine engine = new LocalReportEngine(source, destinationFolder);
-		engine.init(binder);
+		ReportEngine engine = new LocalReportEngine(destinationFolder);
+		engine.init(source, binder);
 		try {
 			engine.run();
 		} catch (Exception e) {

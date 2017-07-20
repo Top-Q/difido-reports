@@ -18,14 +18,13 @@ public class LocalReportEngine implements ReportEngine {
 	
 	private Binder binder;
 
-	private final File source;
+	private File source;
 	
 	private final File destination;
 	
 	private File currentLogFolder;
 	
-	public LocalReportEngine(File source, File destination) {
-		this.source = source;
+	public LocalReportEngine(File destination) {
 		this.destination = destination;
 	}
 
@@ -57,7 +56,8 @@ public class LocalReportEngine implements ReportEngine {
 	}
 
 	@Override
-	public void init(Binder binder) {
+	public void init(File source, Binder binder) {
+		this.source = source;
 		this.binder = binder;
 		copyFiles();
 	}
