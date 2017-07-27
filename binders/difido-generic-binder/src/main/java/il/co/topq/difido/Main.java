@@ -52,7 +52,7 @@ public class Main {
 			final String host = config.getPropertyAsString(BinderOptions.REMOTE_DIFIDO_HOST);
 			final int port = config.getPropertyAsInt(BinderOptions.REMOTE_DIFIDO_PORT);
 			final String description = config.getPropertyAsString(BinderOptions.REMOTE_EXECUTION_DESCRIPTION);
-			runRemoteRngine(binder,source,host,port, description);
+			runRemoteRngine(binder, source, host, port, description);
 		}
 
 	}
@@ -67,16 +67,16 @@ public class Main {
 		}
 		try {
 			File[] jarFiles = pluginFolder.listFiles(new FilenameFilter() {
-				
+
 				@Override
 				public boolean accept(File dir, String name) {
-					if (name.endsWith(".jar")){
+					if (name.endsWith(".jar")) {
 						return true;
 					}
 					return false;
 				}
 			});
-			for (File jar : jarFiles){
+			for (File jar : jarFiles) {
 				addPath(jar.getAbsolutePath());
 			}
 		} catch (Exception e) {
@@ -85,12 +85,12 @@ public class Main {
 	}
 
 	private void runRemoteRngine(Binder binder, File source, String host, int port, String description) {
-		ReportEngine engine = new RemoteReportEngine(host,port,description);
+		ReportEngine engine = new RemoteReportEngine(host, port, description);
 		engine.init(source, binder);
 		try {
 			engine.run();
 		} catch (Exception e) {
-			log.error("Failed to run local remote engine due to " + e.getMessage());
+			log.error("Failed to run remote engine", e);
 		}
 	}
 
@@ -100,7 +100,7 @@ public class Main {
 		try {
 			engine.run();
 		} catch (Exception e) {
-			log.error("Failed to run local report engine due to " + e.getMessage());
+			log.error("Failed to run local report engine ", e);
 		}
 	}
 
