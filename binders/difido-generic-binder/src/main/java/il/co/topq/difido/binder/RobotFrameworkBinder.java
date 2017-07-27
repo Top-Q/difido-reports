@@ -6,9 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 import javax.xml.parsers.SAXParser;
@@ -38,16 +36,16 @@ public class RobotFrameworkBinder extends DefaultHandler implements Binder {
 
 	private static final boolean SKIP_FIRST_SCENARIO = true;
 
+	private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd");
+	
+	private final static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
+	
+	// 20170726 17:02:33.917
+	private final static SimpleDateFormat ROBOT_TIMESTAMP = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
+
 	private boolean firstScenario = true;
 
 	private boolean finished;
-
-	private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd");
-
-	private final static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
-
-	// 20170726 17:02:33.917
-	private final static SimpleDateFormat ROBOT_TIMESTAMP = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
 
 	private Execution execution;
 
@@ -119,10 +117,6 @@ public class RobotFrameworkBinder extends DefaultHandler implements Binder {
 			startKeyword(attributes.getValue("name"));
 			return;
 		}
-		if (qName.equals("arguments")) {
-			startArguments();
-			return;
-		}
 		if (qName.equals("arg")) {
 			startArgument();
 			return;
@@ -153,7 +147,6 @@ public class RobotFrameworkBinder extends DefaultHandler implements Binder {
 			finished = true;
 			return;
 		}
-
 	}
 
 	private void startTimeout(String timeout) {
@@ -196,9 +189,6 @@ public class RobotFrameworkBinder extends DefaultHandler implements Binder {
 		} catch (ParseException e) {
 			log.error("Failed to parse date");
 		}
-	}
-
-	private void startArguments() {
 	}
 
 	private void startKeyword(String name) {
@@ -400,88 +390,8 @@ public class RobotFrameworkBinder extends DefaultHandler implements Binder {
 		test.setTimestamp(TIME_FORMAT.format(lastStatus.getStartTime()));
 		test.setStatus(parseStatus(lastStatus.getStatus()));
 		propId = 0;
-
 	}
 
-	// private void startFailure(Attributes attributes) {
-	// currentContent = new StringBuilder();
-	// currentTest.setStatus(Status.failure);
-	// currentElement = new ReportElement();
-	// currentElement.setStatus(Status.failure);
-	// currentElement.setTitle(attributes.getValue("message"));
-	// currentElement.setTime(TIME_FORMAT.format(currentTime));
-	// currentTestDetails.addReportElement(currentElement);
-	//
-	// }
-	//
-	// private void startSystemOut() {
-	// currentContent = new StringBuilder();
-	// currentElement = new ReportElement();
-	// currentElement.setTitle("System out");
-	// currentElement.setTime(TIME_FORMAT.format(currentTime));
-	// currentTestDetails.addReportElement(currentElement);
-	// }
-	//
-	// private void startScenarioProperty(Attributes attributes) {
-	// scenarioStack.peek().addScenarioProperty(attributes.getValue("name"),
-	// attributes.getValue("value"));
-	// }
-	//
-	// private void startScenario(String name) {
-	// ScenarioNode scenario = new ScenarioNode(name);
-	// if (scenarioStack.isEmpty()) {
-	// execution.getLastMachine().addChild(scenario);
-	// scenarioStack.push(scenario);
-	// } else {// private void endSystemOut() {
-	// currentElement.setMessage(currentContent.toString());
-	// currentElement = null;
-	// }
-	//
-	// private void endFailure() {
-	// currentElement.setMessage(currentContent.toString());
-	// currentElement = null;
-	// }
-	//
-	// private void endScenario(String qName) {
-	// scenarioStack.pop();
-	// }
-
-	// scenarioStack.peek().addChild(scenario);
-	// }
-	//
-	// }
-
-	// private void startTest(String qName, Attributes attributes) {
-	// currentTest = new TestNode(attributes.getValue("name"), ++id + "");
-	// final Map<String, String> properties = attributesToMap(attributes);
-	// if (null != properties.get("time")) {
-	// currentTime = baseTime + (long) (1000 *
-	// Double.parseDouble(properties.get("time")));
-	// Date timeStamp = new Date(currentTime);
-	// currentTest.setDate(DATE_FORMAT.format(timeStamp));
-	// currentTest.setTimestamp(TIME_FORMAT.format(timeStamp));
-	// }
-	// currentTest.setIndex(id);
-	// currentTest.setProperties(properties);
-	// execution.getLastMachine().getChildren().get(0).addChild(currentTest);
-	// currentTestDetails = new TestDetails(id + "");
-	// testDetailsList.add(currentTestDetails);
-	//
-	// }
-
-	// private void endSystemOut() {
-	// currentElement.setMessage(currentContent.toString());
-	// currentElement = null;
-	// }
-	//
-	// private void endFailure() {
-	// currentElement.setMessage(currentContent.toString());
-	// currentElement = null;
-	// }
-	//
-	// private void endScenario(String qName) {
-	// scenarioStack.pop();
-	// }
 
 	@Override
 	public Execution getExecution() {
@@ -493,15 +403,7 @@ public class RobotFrameworkBinder extends DefaultHandler implements Binder {
 		return testDetailsList;
 	}
 
-	private static Map<String, String> attributesToMap(Attributes attributes) {
-		final Map<String, String> map = new HashMap<String, String>();
-		for (int i = 0; i < attributes.getLength(); i++) {
-			map.put(attributes.getQName(i), attributes.getValue(i));
-		}
-		return map;
-	}
-
-	public class RobotStatus {
+	class RobotStatus {
 
 		private String status;
 
