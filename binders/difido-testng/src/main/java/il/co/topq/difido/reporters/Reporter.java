@@ -2,6 +2,7 @@ package il.co.topq.difido.reporters;
 
 import java.io.File;
 
+import org.testng.IInvokedMethod;
 import org.testng.ISuite;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
@@ -22,6 +23,14 @@ public interface Reporter {
 	void onStart(ITestContext context);
 
 	void onFinish(ITestContext context);
+	
+	void beforeTeardown(IInvokedMethod method, ITestResult testResult);
+
+	void beforeSetup(IInvokedMethod method, ITestResult testResult);
+
+	void afterTeardown(IInvokedMethod method, ITestResult testResult);
+
+	void afterSetup(IInvokedMethod method, ITestResult testResult);
 
 	void addFile(File file);
 
