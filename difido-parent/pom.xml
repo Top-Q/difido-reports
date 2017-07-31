@@ -87,6 +87,7 @@
 		<module>../difido-reports-common</module>
 		<module>../server/difido-server</module>
 		<module>../binders/difido-testng</module>
+		<module>../binders/difido-generic-binder</module>
 		<module>../examples/jsystem-example/so-project</module>
 		<module>../examples/testng-example</module>
 		<module>../examples/jsystem-example/tests-project</module>
