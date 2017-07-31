@@ -213,7 +213,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	 * @param elementsDescription
 	 *            The description of the phase. e.g. 'setup'
 	 */
-	private void flushBufferedElements(String elementsDescription) {
+	protected void flushBufferedElements(String elementsDescription) {
 		log.fine("About to flush buffered elements");
 		if (!bufferedElements.isEmpty()) {
 			log.fine("Found "+ bufferedElements.size() +" buffered elements");
@@ -533,5 +533,15 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	protected Execution getExecution() {
 		return execution;
 	}
+
+	protected boolean isInSetup() {
+		return inSetup;
+	}
+
+	protected boolean isInTeardown() {
+		return inTeardown;
+	}
+	
+	
 
 }

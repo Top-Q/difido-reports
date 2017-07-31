@@ -1,6 +1,8 @@
 package il.co.topq.difido.reporters;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -32,6 +34,13 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 	private RemoteDifidoConfig difidoConfig;
 
 	private ExecutionDetails details;
+
+	/**
+	 * When files are added in the setup phase, there is no test context and no
+	 * test folder that they can be copied to. In those cases we keep the files
+	 * in list so we could send it to the server later on
+	 */
+	private List<File> bufferedFiles = new ArrayList<File>();
 
 	public RemoteDifidoReporter() {
 		super();
@@ -88,8 +97,8 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 			log.fine(RemoteDifidoReporter.class.getName() + " was initialized successfully");
 		} catch (Throwable t) {
 			enabled = false;
-			log.warning("Failed to init " + RemoteDifidoReporter.class.getName() + "connection with host '" + host
-					+ ":" + port + "' due to " + t.getMessage());
+			log.warning("Failed to init " + RemoteDifidoReporter.class.getName() + "connection with host '" + host + ":"
+					+ port + "' due to " + t.getMessage());
 		}
 
 	}
@@ -119,7 +128,6 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 		return client.addExecution(details);
 	}
 
-	
 	/**
 	 * We want to add all the execution properties for each scenario. This will
 	 * eventually appear in the ElasticSearch
@@ -135,9 +143,8 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 				scenario.addScenarioProperty(key, details.getExecutionProperties().get(key));
 			}
 		}
-		
-	}
 
+	}
 
 	@Override
 	protected void writeTestDetails(TestDetails testDetails) {
@@ -184,10 +191,35 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 		if (file == null || !file.exists()) {
 			return;
 		}
+		if (isInSetup()) {
+			bufferedFiles.add(file);
+		} else {
+			sendFileToServer(file);
+		}
+	}
+
+	private void sendFileToServer(File file) {
 		try {
 			client.addFile(executionId, getTestDetails().getUid(), file);
 		} catch (Exception e) {
 			log.warning("Failed uploading file " + file.getName() + " to remote server due to " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Elements that are created in setup phases, before test context is created
+	 * are stored and flushed in the beginning of the test. <br>
+	 * We use this to send files that were also added in the setup phase to the
+	 * server.
+	 */
+	@Override
+	protected void flushBufferedElements(String elementsDescription) {
+		super.flushBufferedElements(elementsDescription);
+		if (!bufferedFiles.isEmpty()) {
+			for (File file : bufferedFiles) {
+				sendFileToServer(file);
+			}
+			bufferedFiles.clear();
 		}
 	}
 
@@ -205,8 +237,5 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 	protected int getExecutionId() {
 		return executionId;
 	}
-
-	
-	
 
 }
