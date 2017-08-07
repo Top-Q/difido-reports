@@ -30,6 +30,12 @@ test-output/
 #NetBeans files
 nbproject
 
+#Python
+.pydevproject
+.cache/
+__pycache__/
+*.pyc
+
 #Project files
 server/difido-server/docRoot/reports
 server/difido-server/docRoot/meta.json
