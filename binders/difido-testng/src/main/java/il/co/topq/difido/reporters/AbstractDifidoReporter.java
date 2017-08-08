@@ -74,8 +74,8 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	private DifidoConfig config;
 
 	private List<ReportElement> bufferedElements;
-	
-	private final Map<String, String> bufferedRunProperties;
+
+  private final Map<String, String> bufferedRunProperties;
 
 	private boolean inSetup;
 
@@ -84,7 +84,6 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	public AbstractDifidoReporter() {
 		config = new DifidoConfig();
 		bufferedElements = new ArrayList<ReportElement>();
-		bufferedRunProperties = new LinkedHashMap<>();
 	}
 
 	protected void generateUid() {
@@ -248,6 +247,28 @@ public abstract class AbstractDifidoReporter implements Reporter {
 			}
 			bufferedRunProperties.clear();
 		}
+		writeTestDetails(testDetails);
+	}
+
+	/**
+	 * Writing all the buffered elements that was stored in the configuration
+	 * stages
+	 * 
+	 * @param elementsDescription
+	 *            The description of the phase. e.g. 'setup'
+	 */
+	protected void flushBufferedElements(String elementsDescription) {
+		log.fine("About to flush buffered elements");
+		if (!bufferedElements.isEmpty()) {
+			log.fine("Found "+ bufferedElements.size() +" buffered elements");
+			log(elementsDescription, null, Status.success, ElementType.startLevel);
+			for (ReportElement element : bufferedElements) {
+				log(element);
+			}
+			bufferedElements.clear();
+			log(null, null, Status.success, ElementType.stopLevel);
+		}
+		// We need to make sure that the report messages are written.
 		writeTestDetails(testDetails);
 	}
 
@@ -560,5 +581,15 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	protected Execution getExecution() {
 		return execution;
 	}
+
+	protected boolean isInSetup() {
+		return inSetup;
+	}
+
+	protected boolean isInTeardown() {
+		return inTeardown;
+	}
+	
+	
 
 }

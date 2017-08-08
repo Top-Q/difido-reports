@@ -196,7 +196,9 @@ public class HtmlReportsController {
 			final File file = new File(destinationFolder, fileAddedToTestEvent.getFileName());
 			try {
 				if (!file.createNewFile()) {
-					log.warn("Failed to create new file " + file.getAbsolutePath());
+					log.warn("Failed to create new file " + file.getAbsolutePath()
+							+ ", probably because file with the same name is already exists in the folder "
+							+ destinationFolder);
 					return;
 				}
 			} catch (IOException e) {

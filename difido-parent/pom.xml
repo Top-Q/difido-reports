@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>il.co.topq.difido</groupId>
 	<artifactId>difido-parent</artifactId>
-	<version>2.1.01-SNAPSHOT</version>
+	<version>2.1.02-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<organization>
 		<name>Top-Q</name>
@@ -87,6 +87,7 @@
 		<module>../difido-reports-common</module>
 		<module>../server/difido-server</module>
 		<module>../binders/difido-testng</module>
+		<module>../binders/difido-generic-binder</module>
 		<module>../examples/jsystem-example/so-project</module>
 		<module>../examples/testng-example</module>
 		<module>../examples/jsystem-example/tests-project</module>
