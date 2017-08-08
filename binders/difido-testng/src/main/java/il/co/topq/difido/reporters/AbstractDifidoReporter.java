@@ -11,7 +11,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -71,6 +74,8 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	private DifidoConfig config;
 
 	private List<ReportElement> bufferedElements;
+	
+	private final Map<String, String> bufferedRunProperties;
 
 	private boolean inSetup;
 
@@ -79,6 +84,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	public AbstractDifidoReporter() {
 		config = new DifidoConfig();
 		bufferedElements = new ArrayList<ReportElement>();
+		bufferedRunProperties = new LinkedHashMap<>();
 	}
 
 	protected void generateUid() {
@@ -203,7 +209,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		writeExecution(execution);
 		flushBufferedElements("Setup");
 		writeTestDetails(testDetails);
-
+		flushBufferedRunProperties();
 	}
 
 	/**
@@ -225,6 +231,23 @@ public abstract class AbstractDifidoReporter implements Reporter {
 			log(null, null, Status.success, ElementType.stopLevel);
 		}
 		// We need to make sure that the report messages are written.
+		writeTestDetails(testDetails);
+	}
+	
+	/**
+	 * Writing all the buffered run properties that was stored in the configuration
+	 * stages
+	 * 
+	 */
+	private void flushBufferedRunProperties() {
+		log.fine("About to flush buffered run properties");
+		if (!bufferedRunProperties.isEmpty()) {
+			log.fine("Found "+ bufferedRunProperties.size() +" buffered properties");
+			for (Entry<String, String> property : bufferedRunProperties.entrySet()) {
+				addRunProperty(property.getKey(), property.getValue());
+			}
+			bufferedRunProperties.clear();
+		}
 		writeTestDetails(testDetails);
 	}
 
@@ -510,6 +533,10 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	 * @param value
 	 */
 	public void addRunProperty(String name, String value) {
+		if (inSetup) {
+			bufferedRunProperties.put(name, value);
+			return;
+		}
 		if (null == currentClassScenario) {
 			return;
 		}
