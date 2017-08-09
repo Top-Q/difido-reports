@@ -1,7 +1,6 @@
 package il.co.topq.difido.binder;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +55,7 @@ public class JMeterXmlTreeResultsBinder extends DefaultHandler implements Binder
 	private int id;
 
 	private int sampleLevel;
-
+	
 	@Override
 	public void process(File source) throws Exception {
 		SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -141,20 +140,7 @@ public class JMeterXmlTreeResultsBinder extends DefaultHandler implements Binder
 		log.debug("Ending report element with message");
 		ReportElement element = elementsStack.pop();
 		String content = contentStack.pop().toString();
-		if (element.getTitle().equals("responseData")) {
-//			int max = 67;
-//			if (content.length() > max) {
-//				log.debug("***" + content.substring(max - 1, max +1));
-//				content = content.substring(0, max);
-//			}
-	//			content = content.replace("[","\\[");
-	//			content = content.replace("]","\\]");
-	//			content = content.replace("{","\\{");
-	//			content = content.replace("}","\\}");
-	//			content = content.replace("\"","\\\"");
-//			log.debug("*** " + content +" ***");
-			content = "";	
-		} 
+		content = content.replace("<", "&lt;").replace(">", "&gt;");
 		element.setMessage(content);
 		currentTestDetails.addReportElement(element);
 	}

@@ -43,16 +43,21 @@ public class Main {
 			return;
 		}
 		if (config.getPropertyAsBoolean(BinderOptions.LOCAL_DIFIDO_ENABLED)) {
+			long startTime = System.currentTimeMillis();
 			log.info("Running local engine");
 			final File destinationFolder = new File(config.getPropertyAsString(BinderOptions.DESTINATION_FOLDER));
 			runLocalEngine(binder, source, destinationFolder);
+			log.info("Finished running local engine in " + (System.currentTimeMillis() - startTime) / 1000d + " seconds");
+			
 		}
 		if (config.getPropertyAsBoolean(BinderOptions.REMOTE_DIFIDO_ENABLED)) {
+			long startTime = System.currentTimeMillis();
 			log.info("Running remote engine");
 			final String host = config.getPropertyAsString(BinderOptions.REMOTE_DIFIDO_HOST);
 			final int port = config.getPropertyAsInt(BinderOptions.REMOTE_DIFIDO_PORT);
 			final String description = config.getPropertyAsString(BinderOptions.REMOTE_EXECUTION_DESCRIPTION);
 			runRemoteRngine(binder, source, host, port, description);
+			log.info("Finished running remote engine in " + (System.currentTimeMillis() - startTime) / 1000d + " seconds");
 		}
 
 	}
