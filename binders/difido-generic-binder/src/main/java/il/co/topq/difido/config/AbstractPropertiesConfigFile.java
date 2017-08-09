@@ -1,15 +1,18 @@
 package il.co.topq.difido.config;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.commons.io.FileUtils;
 
 public abstract class AbstractPropertiesConfigFile {
 
@@ -26,15 +29,19 @@ public abstract class AbstractPropertiesConfigFile {
 		if (!propertiesFile.exists()) {
 			initDefaultProperties();
 		}
-		try (final FileReader reader = new FileReader(propertiesFile)) {
-			properties.load(reader);
+		try {
+			String content = FileUtils.readFileToString(propertiesFile);
+			// In case we are reading file locations we replace the backslash with double
+			// backslash
+			properties.load(new StringReader(content.replace("\\", "\\\\")));
 			if (properties.isEmpty()) {
 				initDefaultProperties();
 			}
+
 		} catch (IOException e) {
+			log.log(Level.WARNING, "Failed to read config file", e);
 			initDefaultProperties();
 		}
-
 	}
 
 	protected abstract String getFileName();
@@ -60,7 +67,7 @@ public abstract class AbstractPropertiesConfigFile {
 			return value.trim();
 		}
 		value = properties.getProperty(option.getProperty());
-		if (value == null || value.isEmpty()){
+		if (value == null || value.isEmpty()) {
 			return "";
 		}
 		return value.trim();
