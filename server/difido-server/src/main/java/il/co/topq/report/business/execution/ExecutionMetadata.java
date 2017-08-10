@@ -22,6 +22,11 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	 * it
 	 */
 	private String description;
+	
+	/**
+	 * A comment for the execution that might be added later (after the execution ended)
+	 */
+	private String comment;
 
 	/**
 	 * Free list of properties that can be specified by the user
@@ -142,6 +147,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 			this.folderName = metaData.folderName;
 			this.id = metaData.id;
 			this.description = metaData.description;
+			this.comment = metaData.comment;
 			this.shared = metaData.shared;
 			this.properties = metaData.properties;
 			this.lastAccessedTime = metaData.lastAccessedTime;
@@ -209,7 +215,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).append("id", id).append("description", description)
+		return new ToStringBuilder(this).append("id", id).append("description", description).append("comment", comment)
 				.append("properties", properties).append("shared", shared).append("folderName", folderName)
 				.append("uri", uri).append("date", date).append("time", time).append("active", active)
 				.append("locked", locked).append("htmlExists", htmlExists).append("lastAccessedTime", lastAccessedTime)
@@ -370,6 +376,14 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setNumOfMachines(int numOfMachines) {
 		this.numOfMachines = numOfMachines;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 
 }

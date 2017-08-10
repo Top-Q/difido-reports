@@ -2,6 +2,7 @@ package il.co.topq.report.front.rest;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -17,6 +18,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RestController;
 
 import il.co.topq.difido.model.remote.ExecutionDetails;
+import il.co.topq.difido.model.remote.ExecutionMetadataUpdateRequest;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.business.execution.MetadataCreator;
 import il.co.topq.report.business.execution.MetadataProvider;
@@ -65,6 +67,30 @@ public class ExecutionResource {
 
 	}
 
+	@POST
+	@Path("/update")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String updateExecutionMetadata(ExecutionMetadataUpdateRequest updateRequest) {
+
+		ExecutionMetadata metadata = metadataProvider.getMetadata(updateRequest.getExecutionId());
+		metadata.setDescription(updateRequest.getExecutionDescription());
+		metadata.setComment(updateRequest.getExecutionComment());
+		publisher.publishEvent(new ExecutionUpdatedEvent(metadata));
+		return "Successfully updated exection #" + updateRequest.getExecutionId();
+	}
+	
+	@GET
+	@Path("/{executionId}/comment")
+	public String getExecutionComment(@PathParam("executionId") int executionId) {
+
+		ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
+		
+		String comment = metadata.getComment();
+		
+		return comment;
+	}
+	
 	/**
 	 * Used to update that a single execution should not be active any more.
 	 * This is Irreversible.
