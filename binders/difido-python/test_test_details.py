@@ -1,8 +1,9 @@
 '''
-Created on Aug 3, 2017
+Created on Aug 10, 2017
 
-@author: itai
+@author: Itai Agmon
 '''
+
 from execution import Execution, Machine, Test, Scenario
 from test_details import TestDetails, ReportElement
 import unittest

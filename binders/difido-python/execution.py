@@ -1,7 +1,7 @@
 '''
-Created on Aug 3, 2017
+Created on Aug 10, 2017
 
-@author: itai
+@author: Itai Agmon
 '''
 
 

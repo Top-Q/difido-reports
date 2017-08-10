@@ -1,3 +1,10 @@
+'''
+Created on Aug 10, 2017
+
+@author: Itai Agmon
+'''
+
+
 class ReportElement(object):
     
     def __init__(self):
@@ -6,10 +13,10 @@ class ReportElement(object):
         self.message = ""
         self.status = "success"
         self.time = ""
-        self.element_type = ""
+        self.element_type = "regular"
     
     
-    def set_status(self,status):
+    def set_status(self, status):
         if status != "error" and status != "failure" and status != "warning" and status != "success":
             raise ValueError("Illegal status %s" % status)
         if status == "error":
