@@ -22,6 +22,36 @@
 		div.dt-buttons {			
 			text-align: center;
 		}
+		
+		#execution_edit_container {
+			float: left;
+		}
+		
+		#execution_comment_reader_container {
+			float: left;
+			margin-left: 50px;
+		}
+		
+		#sub_table_area {
+			margin-left: 50px;
+		}
+		
+		#sub_table_area div {
+			border: 1px solid #CCCCCC;
+			width: 400px;
+			padding: 20px;
+		}
+		
+		#sub_table_area h3 {
+			color: #666;
+			margin-top: 0px;
+			margin-bottom: 20px;
+		}
+		
+		#sub_table_area label {
+			margin-top: 10px;
+		}
+		
 	</style>
 </head>
 
@@ -47,6 +77,34 @@
 
 			<hr>
 		</div>
+	</div>
+
+	<div id="sub_table_area">
+		<div id="execution_edit_container">
+			<h3>Edit Excution</h3>
+			
+			<form id="execution_edit_form">
+				<label for="executionId">Execution ID: </label> <input type="text" name="executionId" id="executionId"><br>
+				<label for="executionDescription">Execution Description: </label> <input type="text" name="executionDescription" id="executionDescription"><br>
+				<label for="executionComment">Execution Comment: </label><br>
+				<textarea rows="8" cols="40" name="executionComment" id="executionComment" form="execution_edit_form"></textarea>
+				<br><br>
+				<input type="submit" value="Update execution description and/or comment">
+			</form>
+		</div>
+		
+		<div id="execution_comment_reader_container">
+			<h3>Get Excution Comment</h3>
+			
+			<form id="execution_comment_reader_form">
+				<label for="executionId">Execution ID: </label> <input type="text" name="executionId" id="executionId"><br>
+				<label for="executionComment">Execution Comment: </label><br>
+				<textarea rows="9" cols="40" name="executionComment" id="executionComment" form="execution_edit_form"></textarea>
+				<br><br>
+				<input type="submit" value="Get execution comment">
+			</form>
+		</div>
+		
 	</div>
 
 	<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
@@ -195,12 +253,52 @@
 		$(document).ready(function() {			
 			populateNavBar();
 			$.ajax('/api/reports').done(maketable);
+			
+			
+			$("#execution_edit_form").submit(function(){
+                
+				var executionEditRequestJson = {
+					"executionId": $('#execution_edit_form [name="executionId"]').val(),
+					"executionDescription": $('#execution_edit_form [name="executionDescription"]').val(),
+					"executionComment": $('#execution_edit_form [name="executionComment"]').val()
+				};
+				
+				$.ajax({
+							url : 'api/executions/update',
+							type : 'POST',
+							data: JSON.stringify(executionEditRequestJson),
+							contentType: "application/json;charset=utf-8"
+						})
+						.done(function(text) {
+							alert(text);
+							location.reload();							
+						});
+				
+				//console.log(executionEditRequestJson);
+				
+				return false;
+            });
+			
+			
+			$("#execution_comment_reader_form").submit(function(){
+                
+				$.ajax({
+							url : 'api/executions/' + $('#execution_comment_reader_form [name="executionId"]').val() + '/comment',
+							type : 'GET',
+						})
+						.done(function(text) {
+							$('#execution_comment_reader_form [name="executionComment"]').val(text);
+						});
+				
+				return false;
+            });
 		});
 
 		function maketable(json) {
 			var data = json.data;
 			var column_names = json.headers;
 			var columns = []
+				
 			for (var i = 0; i < column_names.length; i++) {
 				columns[i] = {
 					'title' : column_names[i],

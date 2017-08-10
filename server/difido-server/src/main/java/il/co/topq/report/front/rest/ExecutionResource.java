@@ -74,8 +74,13 @@ public class ExecutionResource {
 	public String updateExecutionMetadata(ExecutionMetadataUpdateRequest updateRequest) {
 
 		ExecutionMetadata metadata = metadataProvider.getMetadata(updateRequest.getExecutionId());
-		metadata.setDescription(updateRequest.getExecutionDescription());
+		
+		if (!updateRequest.getExecutionDescription().trim().equals("")) {
+			metadata.setDescription(updateRequest.getExecutionDescription());
+		}
+		
 		metadata.setComment(updateRequest.getExecutionComment());
+		
 		publisher.publishEvent(new ExecutionUpdatedEvent(metadata));
 		return "Successfully updated exection #" + updateRequest.getExecutionId();
 	}
