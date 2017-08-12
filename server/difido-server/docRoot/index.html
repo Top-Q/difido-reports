@@ -1,58 +1,15 @@
 <!DOCTYPE html>
-
 <html>
-
 
 <head>
 	<meta charset="UTF-8">
 	<meta name="description" content="Main view of the Difido report server">
 	<meta name="author" content="Itai Agmon">
 	<title>List of Reports</title>
-
 	<link href="css/bootstrap.min.css" rel="stylesheet">
 	<link href="css/buttons.dataTables.min.css" rel="stylesheet">
 	<link href="css/jquery.dataTables.min.css" rel="stylesheet">
-
-	<style>
-		h2 {
-			color: #CCCCCC;
-			text-align: center;
-		}
-		
-		div.dt-buttons {			
-			text-align: center;
-		}
-		
-		#execution_edit_container {
-			float: left;
-		}
-		
-		#execution_comment_reader_container {
-			float: left;
-			margin-left: 50px;
-		}
-		
-		#sub_table_area {
-			margin-left: 50px;
-		}
-		
-		#sub_table_area div {
-			border: 1px solid #CCCCCC;
-			width: 400px;
-			padding: 20px;
-		}
-		
-		#sub_table_area h3 {
-			color: #666;
-			margin-top: 0px;
-			margin-bottom: 20px;
-		}
-		
-		#sub_table_area label {
-			margin-top: 10px;
-		}
-		
-	</style>
+	<link href="css/indexPageStyle.css" rel="stylesheet">
 </head>
 
 <body>
@@ -79,34 +36,20 @@
 		</div>
 	</div>
 
-	<div id="sub_table_area">
-		<div id="execution_edit_container">
-			<h3>Edit Excution</h3>
-			
-			<form id="execution_edit_form">
-				<label for="executionId">Execution ID: </label> <input type="text" name="executionId" id="executionId"><br>
-				<label for="executionDescription">Execution Description: </label> <input type="text" name="executionDescription" id="executionDescription"><br>
-				<label for="executionComment">Execution Comment: </label><br>
-				<textarea rows="8" cols="40" name="executionComment" id="executionComment" form="execution_edit_form"></textarea>
-				<br><br>
-				<input type="submit" value="Update execution description and/or comment">
-			</form>
-		</div>
+	<div id="execution_edit_container" class="modal">
+		<span id="edit_exec_title">Edit Execution</span> <span class="close">&times;</span>
 		
-		<div id="execution_comment_reader_container">
-			<h3>Get Excution Comment</h3>
+		<form id="execution_edit_form">
+			<label for="executionDescription">Description: </label><br>
+			<input type="text" name="executionDescription" id="executionDescription"><br>
 			
-			<form id="execution_comment_reader_form">
-				<label for="executionId">Execution ID: </label> <input type="text" name="executionId" id="executionId"><br>
-				<label for="executionComment">Execution Comment: </label><br>
-				<textarea rows="9" cols="40" name="executionComment" id="executionComment" form="execution_edit_form"></textarea>
-				<br><br>
-				<input type="submit" value="Get execution comment">
-			</form>
-		</div>
-		
+			<label for="executionComment">Comment: </label><br>
+			<textarea rows="5" cols="45" name="executionComment" id="executionComment" form="execution_edit_form"></textarea>
+			<br><br>
+			<input type="submit" value="Update execution description and/or comment">
+		</form>
 	</div>
-
+		
 	<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
 	<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 	<script type="text/javascript" src="js/dataTables.buttons.min.js"></script>
@@ -116,260 +59,8 @@
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/bootbox.js"></script>
 	<script src="js/common.js"></script>
+	<script src="js/indexPageScript.js"></script>
 
-	<script>
-		function lockUnlockSelected(table,locked){
-			var numOfSelected = table.rows('.selected').data().length;
-			if (numOfSelected == 0) {
-				return;
-			}
-			var numOfChanged = 0;
-			for (var i = 0; i < numOfSelected; i++) {
-				var id = table.rows('.selected').data()[i].Id;
-				$.ajax({
-					url : 'api/executions/' + id + '?locked=' + locked,
-					type : 'PUT',
-				}).done(function() {
-					if (++numOfChanged != numOfSelected) {
-						return;
-					}
-					// Everything was locked, we can refresh the table.
-					location.reload();
-				});
-			}
-
-
-		}
-
-		function deleteSelected(table) {
-			var numOfSelected = table.rows('.selected').data().length;
-			if (numOfSelected == 0) {
-				return;
-			}
-			bootbox
-					.confirm(
-							"Are you sure you want to delete all selected execution reports?",
-							function(result) {
-								if (!result) {
-									return;
-								}
-
-								var numOfDeleted = 0;
-								for (var i = 0; i < numOfSelected; i++) {
-									var id = table.rows('.selected').data()[i].Id;
-									$.ajax({
-										url : 'api/executions/' + id,
-										type : 'DELETE',
-									}).done(function() {
-										if (++numOfDeleted != numOfSelected) {
-											return;
-										}
-										// Everything was deleted, we can refresh the table.
-										location.reload();
-									});
-								}
-
-							});
-		}
-
-		function executePlugin(table) {
-			var numOfSelected = table.rows('.selected').data().length;
-			if (numOfSelected == 0) {
-				console.log("No executions were selected. aborting");
-				return;
-			}
-			var selected = "";
-			for (var i = 0; i < numOfSelected; i++) {
-				if (i != 0){
-					selected += ","
-				}
-				selected += table.rows('.selected').data()[i].Id;
-			}
-			$.ajax({
-				url : 'api/plugins/',
-				type : 'GET',
-			}).done(function(plugins) {
-				if (plugins.length == 0) {
-					console.log("No plugins were defined. aborting");
-					return;
-				}
-				var options = "";
-				for (var i = 0; i < plugins.length ; i++){
-					options += '<option>' + plugins[i] +'</option>';
-				}
-				bootbox.dialog({
-                title: "Execute Plugin",
-                message: '   <form class="form-horizontal">' +
-'       <div class="form-group">' +
-'           <div class="form-group">' +
-'               <label class="col-md-4 control-label" for="name">Plugin Name</label>' +
-'               <div class="col-md-4">' +
-'                   <select id="name" name="name" class="form-control">' + options +
-'                   </select>' +
-'               </div>' +
-'           </div>' +
-'           <div class="form-group">' +
-'               <label class="col-md-4 control-label" for="Parameters">Parameters</label>' +
-'               <div class="col-md-4">' +
-'                   <input id="parameter" name="parameter" type="text" placeholder="Free string parameter" class="form-control input-md">' +
-'               </div>' +
-'           </div>' +
-'           <div class="form-group">' +
-'               <label class="col-md-4 control-label" for="executions">Selected Executions</label>' +
-'               <div class="col-md-4">' +
-'                   <input id="executions" name="executions" type="text" placeholder="Selected Executions" class="form-control input-md" value='+selected+'' +
-'                       readonly/>' +
-'               </div>' +
-'           </div>' +
-'       </div>' +
-'   </form>',
-	                buttons: {
-	                    success: {
-	                        label: "Execute",
-	                        className: "btn-success",
-	                        callback: function () {
-	                            var name = $('#name').val();
-	                            var parameter = $('#parameter').val();
-								var executions = "";
-								for (var i = 0; i < numOfSelected; i++) {
-									executions += '&executions=' + table.rows('.selected').data()[i].Id;
-								}
-								$.ajax({
-									url : 'api/plugins/' + name + '?params=' + parameter + executions,
-									type : 'POST',
-								}).done(function() {
-									
-								});
-	                        }
-	                    }
-	                }
-            	}
-       		);
-			});
-
-		}
-
-
-		$(document).ready(function() {			
-			populateNavBar();
-			$.ajax('/api/reports').done(maketable);
-			
-			
-			$("#execution_edit_form").submit(function(){
-                
-				var executionEditRequestJson = {
-					"executionId": $('#execution_edit_form [name="executionId"]').val(),
-					"executionDescription": $('#execution_edit_form [name="executionDescription"]').val(),
-					"executionComment": $('#execution_edit_form [name="executionComment"]').val()
-				};
-				
-				$.ajax({
-							url : 'api/executions/update',
-							type : 'POST',
-							data: JSON.stringify(executionEditRequestJson),
-							contentType: "application/json;charset=utf-8"
-						})
-						.done(function(text) {
-							alert(text);
-							location.reload();							
-						});
-				
-				//console.log(executionEditRequestJson);
-				
-				return false;
-            });
-			
-			
-			$("#execution_comment_reader_form").submit(function(){
-                
-				$.ajax({
-							url : 'api/executions/' + $('#execution_comment_reader_form [name="executionId"]').val() + '/comment',
-							type : 'GET',
-						})
-						.done(function(text) {
-							$('#execution_comment_reader_form [name="executionComment"]').val(text);
-						});
-				
-				return false;
-            });
-		});
-
-		function maketable(json) {
-			var data = json.data;
-			var column_names = json.headers;
-			var columns = []
-				
-			for (var i = 0; i < column_names.length; i++) {
-				columns[i] = {
-					'title' : column_names[i],
-					'data' : column_names[i]
-				}
-			}
-
-			var table = $('#etable')
-					.DataTable(
-							{
-								dom : 'lBfrtip',
-								buttons : [ {
-									text : 'Delete',
-									action : function(e, dt, node, config) {
-										deleteSelected(table);
-									}
-								}, {
-									text : 'Lock',
-									action : function(e, dt, node, config) {
-										lockUnlockSelected(table,"true");
-									}
-								}, {
-									text : 'Unlock',
-									action : function(e, dt, node, config) {
-										lockUnlockSelected(table,"false");
-									}
-								}, {
-									text : 'Execute Plugin',
-									action : function(e, dt, node, config) {
-										executePlugin(table);
-									}
-								},
-								'copyHtml5', 'csvHtml5', 'pdfHtml5' ],
-								columns : columns,
-								data : data,
-								aaSorting : [],
-								deferRender : true,
-								sPaginationType : "full_numbers",
-								iDisplayLength : 25,
-								columnDefs : [
-										{
-											// Alows missing values. Important for execution properties in which not all of the execution must have all the properties.
-											targets : "_all",
-											sDefaultContent : ""
-										},
-										{
-											// The description column will be rendered as link using the value in the link column
-											targets : 1,
-											// We don't want that a click on the link will make the row selectable
-											className : "unselectable",
-											data : null,
-											"render" : function(data, type, row) {
-												return '<a target="_blank" href="'+row.Link+'">'
-														+ data + '</a>';
-											}
-										}, {
-											// The link column is no longer needed since we are using the value in the description column
-											targets : 2,
-											visible : false
-										} ]
-							})
-			$('#etable tbody').on('click', 'td', function() {
-				if ($(this).hasClass("unselectable")) {
-					// This is probably the link column.
-					return;
-				}
-				$(this).parent().toggleClass('selected');
-			});
-
-		}
-	</script>
-</body>
+	</body>
 
 </html>
