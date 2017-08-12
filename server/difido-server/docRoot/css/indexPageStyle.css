@@ -39,6 +39,10 @@ div.modal input {
 	width: 340px;
 }
 
+div.modal textarea {
+	width: 340px;
+}
+
 div.modal label {
 	margin-top: 10px;
 }
@@ -49,10 +53,11 @@ div.modal span {
 }
 
 div.modal .close {
-    color: black;
+    color: #AA0000;
     float: right;
-    font-size: 28px;
+    font-size: 25px;
     font-weight: bold;
+	opacity:.8;
 }
 
 button {

@@ -6,7 +6,7 @@ $(document).ready(function() {
 	
 	$("#execution_edit_form").submit(function(){
 		
-		if(confirm('Update execution #' + executionId + ' description/comment?')) {
+		if(confirm('Update execution #' + executionId + ' description / comment?')) {
 			
 			var executionEditRequestJson = {
 				"executionId": executionId,
@@ -22,13 +22,17 @@ $(document).ready(function() {
 					})
 					.done(function(text) {
 						//alert(text);
-						location.reload();							
+						location.reload();
 					})
 					.fail(function() {
 						alert("Error updating execution #" + executionEditRequestJson.executionId);
 						location.reload();							
 					});
 			
+			return false;
+		}
+			
+		else {
 			return false;
 		}
 	});
