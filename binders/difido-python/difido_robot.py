@@ -13,6 +13,7 @@ import socket
 import local_utils, remote_utils
 from datetime import datetime
 from configuration import Conf
+import os
 
 class AbstractReport(object):
     
@@ -23,14 +24,15 @@ class AbstractReport(object):
     ROBOT_FORMAT = '%Y%m%d %H:%M:%S.%f'
     
     def __init__(self):
+        self.general_conf = Conf("general")
         self.init_model()
         self.start()
-        conf = Conf("general")
-        self.num_of_suites_to_ignore = conf.get_int("num.of.suites.to.ignore") 
+        self.num_of_suites_to_ignore = self.general_conf.get_int("num.of.suites.to.ignore")
     
     def init_model(self):
         self.execution = Execution()
         machine = Machine(socket.gethostname())
+        machine.planned_tests = self.general_conf.get_int("planned.tests")
 
         self.execution.add_machine(machine)
         self.uid = str(randint(1000,9999) + time.time() / 1000).replace(".","")
@@ -38,7 +40,6 @@ class AbstractReport(object):
         self.scenario_stack = []
         self.buffered_elements = []
         self.testDetails = None
-
     
     def start_suite(self, name, attr):
         if self.num_of_suites_to_ignore > 0:
@@ -46,6 +47,8 @@ class AbstractReport(object):
             return 
         self.num_of_suites_to_ignore -= 1
         self.scenario = Scenario(name)
+        
+        self.scenario.scenarioProperties = self.get_additional_execution_properties()
         if len(self.scenario_stack) is not 0:
             self.scenario_stack[-1].add_child(self.scenario)
         else:
@@ -153,6 +156,12 @@ class AbstractReport(object):
     def write_execution(self):
         pass
     
+    def get_additional_execution_properties(self):
+        '''
+        return dictionary that will be added as properties to the execution
+        '''
+        return {}
+    
     def add_report_element(self, element):
         if self.testDetails is None:
             self.buffered_elements.append(element)
@@ -166,17 +175,23 @@ class LocalReport(AbstractReport):
     ROBOT_LISTENER_API_VERSION = 2
     
     def start(self):
-        local_utils.prepare_template()
-        local_utils.prepare_current_log_folder()
+        local_conf = Conf("local")
+        self.log_folder = local_conf.get_string("report.folder")
+        if not self.log_folder:
+            self.log_folder = os.getcwd() + "/log/"
+        if not self.log_folder.endswith("/"):
+            self.log_folder += "/"
+        local_utils.prepare_template(self.log_folder)
+        local_utils.prepare_current_log_folder(self.log_folder)
         
     
     def write_test_details(self):
-        local_utils.prepare_test_folder(self.testDetails.uid)
-        local_utils.write_test_details_to_file(self.testDetails)
+        local_utils.prepare_test_folder(self.log_folder, self.testDetails.uid)
+        local_utils.write_test_details_to_file(self.log_folder, self.testDetails)
 
     
     def write_execution(self):
-        local_utils.write_execution_to_file(self.execution)
+        local_utils.write_execution_to_file(self.log_folder, self.execution)
 
 
     
@@ -186,9 +201,10 @@ class RemoteReport(AbstractReport):
     
     def start(self):
         conf = Conf("remote")
+        self.execution_properties = conf.get_dict("execution properties")
         details = ExecutionDetails()
         details.description = conf.get_string("description")
-        details.execution_properties = conf.get_dict("execution properties")
+        details.execution_properties = self.execution_properties
         try: 
             self.execution_id = remote_utils.prepare_remote_execution(details)
             self.enabled = True
@@ -204,7 +220,8 @@ class RemoteReport(AbstractReport):
             return
         self.retries = 10
         
-        
+    def get_additional_execution_properties(self):
+        return self.execution_properties
         
     def write_execution(self):
         if not self.enabled:
