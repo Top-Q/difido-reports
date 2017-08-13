@@ -32,5 +32,19 @@ class Conf(object):
 
     def get_float(self, option):
         return self.parser.getboolean(self.section, option)
+    
+    def get_list(self, option):
+        return self.get_string(option).split(';')
+    
+    def get_dict(self, option):
+        value = self.get_string(option)
+        if value is None:
+            return {}
+        d = {}
+        for keyval in value.split(";"):
+            d[keyval.split('=')[0]] = keyval.split('=')[1]
+        return d
+        
+        
 
 

@@ -30,8 +30,9 @@ class Execution(object):
         if len(self._machines) is 0:
             return None
         return self._machines[-1]
-        
-
+    
+    
+    
 class Node(object):
     
     def __init__(self, name, node_type):
