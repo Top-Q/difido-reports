@@ -36,7 +36,9 @@ class AbstractReport(object):
         self.uid = str(randint(1000,9999) + time.time() / 1000).replace(".","")
         self.index = 0
         self.scenario_stack = []
-    
+        self.buffered_elements = []
+        self.testDetails = None
+
     
     def start_suite(self, name, attr):
         if self.num_of_suites_to_ignore > 0:
@@ -51,7 +53,7 @@ class AbstractReport(object):
             
         self.scenario_stack.append(self.scenario)
         self.write_execution()
-        
+    
     def start_keyword(self, name, attrs):
         if len(self.scenario_stack) is 0:
             return
@@ -63,19 +65,14 @@ class AbstractReport(object):
             for att in attrs['args']:
                 element.title += " " + str(att) 
         element.set_type("startLevel")
-        self.testDetails.add_element(element)
-        self.write_test_details()
-        pass
-    
+        self.add_report_element(element)
+            
     def end_keyword(self, name, attrs):
         if len(self.scenario_stack) is 0:
             return
         element = ReportElement()
         element.set_type("stopLevel")
-        self.testDetails.add_element(element)
-        self.write_test_details()
-        pass
-
+        self.add_report_element(element)
     
     def end_suite(self,name,attrs):
         self.num_of_suites_to_ignore += 1
@@ -116,6 +113,11 @@ class AbstractReport(object):
             tagIndex += 1
         self.scenario.add_child(self.test)
         
+        if len(self.buffered_elements) > 0:
+            for element in self.buffered_elements:
+                self.testDetails.add_element(element)
+            self.buffered_elements = []
+        
         self.write_execution()
         self.write_test_details()
         
@@ -131,8 +133,8 @@ class AbstractReport(object):
         if message["level"] == "FAIL":
             element.set_status("failure")
             self.test.set_status("failure")
-        self.testDetails.add_element(element)
-        self.write_test_details()
+
+        self.add_report_element(element)
 
     def message(self, message):
         pass
@@ -141,7 +143,8 @@ class AbstractReport(object):
         pass
     
     def close(self):
-        self.write_test_details()
+        if self.testDetails is not None:
+            self.write_test_details()
         self.write_execution()
 
     def write_test_details(self):
@@ -149,7 +152,14 @@ class AbstractReport(object):
     
     def write_execution(self):
         pass
-            
+    
+    def add_report_element(self, element):
+        if self.testDetails is None:
+            self.buffered_elements.append(element)
+        else:
+            self.testDetails.add_element(element)
+            self.write_test_details()
+
 
 class LocalReport(AbstractReport):
     
@@ -178,6 +188,7 @@ class RemoteReport(AbstractReport):
         conf = Conf("remote")
         details = ExecutionDetails()
         details.description = conf.get_string("description")
+        details.execution_properties = conf.get_dict("execution properties")
         try: 
             self.execution_id = remote_utils.prepare_remote_execution(details)
             self.enabled = True
