@@ -11,36 +11,34 @@ import shutil
 import json
 import sys
 
-LOG_FOLDER = os.getcwd() + "/log/"
-
 JAR_FILE = 'difido.jar'
 
-def prepare_template():
-    if os.path.isfile(LOG_FOLDER + "/template/index.html"):
+def prepare_template(log_folder):
+    if os.path.isfile(log_folder + "/template/index.html"):
         return
     archive = ZipFile(os.path.dirname(sys.modules[__name__].__file__) + "/resources/" + JAR_FILE, 'r')
     try:
         for zfile in archive.namelist():
             if zfile.startswith('il.co.topq.difido.view/'):
-                archive.extract(zfile, LOG_FOLDER)
+                archive.extract(zfile, log_folder)
     finally:
         archive.close()
-    os.rename(LOG_FOLDER + "il.co.topq.difido.view/", LOG_FOLDER + "template")
+    os.rename(log_folder + "il.co.topq.difido.view/", log_folder + "template")
 
 
-def prepare_current_log_folder():
-    if os.path.isdir(LOG_FOLDER + "current/"):
-        shutil.rmtree(LOG_FOLDER + "current/")
-    shutil.copytree(LOG_FOLDER + "template/", LOG_FOLDER + "current/")
+def prepare_current_log_folder(log_folder):
+    if os.path.isdir(log_folder + "current/"):
+        shutil.rmtree(log_folder + "current/")
+    shutil.copytree(log_folder + "template/", log_folder + "current/")
 
-def prepare_test_folder(uid):
-    testfolder = LOG_FOLDER + 'current/tests/test_' + uid
+def prepare_test_folder(log_folder, uid):
+    testfolder = log_folder + 'current/tests/test_' + uid
     if not os.path.exists(testfolder):
         os.makedirs(testfolder)
-        shutil.copyfile(LOG_FOLDER + "current/test.html", testfolder + "/test.html")
+        shutil.copyfile(log_folder + "current/test.html", testfolder + "/test.html")
 
-def write_test_details_to_file(test_details):
-    testfolder = LOG_FOLDER + 'current/tests/test_' + test_details.uid
+def write_test_details_to_file(log_folder, test_details):
+    testfolder = log_folder + 'current/tests/test_' + test_details.uid
     try:
         os.remove(testfolder + "/test.js")
     except OSError:
@@ -49,12 +47,12 @@ def write_test_details_to_file(test_details):
     with open(testfolder + '/test.js', "w+") as ex_file:
         ex_file.write("var test = " + json.dumps(test_details.dict()) + ";")
 
-def write_execution_to_file(execution):
+def write_execution_to_file(log_folder, execution):
     try:
-        os.remove(LOG_FOLDER + 'current/execution.js')
+        os.remove(log_folder + 'current/execution.js')
     except OSError:
         pass
-    with open(LOG_FOLDER + '/current/execution.js', "w+") as ex_file:
+    with open(log_folder + '/current/execution.js', "w+") as ex_file:
         ex_file.write("var execution = " + json.dumps(execution.dict()) + ";")
 
 

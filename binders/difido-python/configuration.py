@@ -61,9 +61,7 @@ class Conf(object):
         if len(value.split(";")) == 0:
             return d
         for keyval in value.split(";"):
-            if type(keyval) is not list:
-                continue
-            if len(keyval("=") < 2):
+            if len(keyval.split("=")) < 2:
                 continue
             d[keyval.split('=')[0]] = keyval.split('=')[1]
         return d

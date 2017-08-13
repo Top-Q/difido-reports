@@ -99,9 +99,11 @@ class Machine(NodeWithChildren):
     
     def __init__(self, name):
         super(Machine, self).__init__(name, "machine")
+        self.planned_tests = 0
     
     def dict(self):
         d = {}
+        d["plannedTests"] = self.planned_tests
         d.update(super(Machine, self).dict())
         return d
     
@@ -109,16 +111,16 @@ class Machine(NodeWithChildren):
 class Scenario(NodeWithChildren):
     def __init__(self, name):
         NodeWithChildren.__init__(self, name, "scenario")
-        self._scenarioProperties = {}
+        self.scenarioProperties = {}
     
     def add_scenario_property(self, key, value):
         if key is None:
             raise ValueError("Key can not be none")
-        self._scenarioProperties[key] = value
+        self.scenarioProperties[key] = value
     
     def dict(self):
         d = {}
-        d["scenarioProperties"] = self._scenarioProperties
+        d["scenarioProperties"] = self.scenarioProperties
         d.update(super(Scenario, self).dict())
         return d
     
