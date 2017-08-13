@@ -6,7 +6,7 @@ https://github.com/pypa/sampleproject
 """
 
 # Always prefer setuptools over distutils
-from setuptools import setup, find_packages
+from setuptools import setup
 # To use a consistent encoding
 from codecs import open
 from os import path
@@ -56,10 +56,10 @@ setup(
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
+#         'Programming Language :: Python :: 3',
+#         'Programming Language :: Python :: 3.3',
+#         'Programming Language :: Python :: 3.4',
+#         'Programming Language :: Python :: 3.5',
     ],
 
     # What does your project relate to?
@@ -67,7 +67,7 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=['.'],
+    packages=['difido-python'],
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
@@ -89,7 +89,7 @@ setup(
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
-    package_data={'.' : ['resources/*cfg','resources/*jar']
+    package_data={'difido-python' : ['resources/*cfg','resources/*jar']
     },
 
     # Although 'package_data' is the preferred approach, in some case you may
