@@ -202,6 +202,11 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		if (!StringUtils.isEmpty(cc)) {
 			sender.setSendCc(cc.split(";"));
 		}
+		
+		final String[] attachments = getAttachments();
+		if (null != attachments && attachments.length != 0) {
+			sender.setAttachments(attachments);
+		}
 	}
 
 	protected String getCcAddresses() {
@@ -214,6 +219,10 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 
 	protected String getFromAddress() {
 		return Configuration.INSTANCE.readString(ConfigProps.MAIL_FROM_ADDRESS);
+	}
+	
+	protected String[] getAttachments() {
+		return new String[]{};
 	}
 
 	protected boolean isEnabled() {
