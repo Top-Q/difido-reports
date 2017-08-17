@@ -201,7 +201,7 @@ class RemoteReport(AbstractReport):
     
     def start(self):
         conf = Conf("remote")
-        self.execution_properties = conf.get_dict("execution properties")
+        self.execution_properties = conf.get_dict("execution.properties")
         details = ExecutionDetails()
         details.description = conf.get_string("description")
         details.execution_properties = self.execution_properties
