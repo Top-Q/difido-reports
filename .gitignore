@@ -35,6 +35,9 @@ nbproject
 .cache/
 __pycache__/
 *.pyc
+build/
+dist/
+*.egg-info/
 
 #Project files
 server/difido-server/docRoot/reports
