@@ -112,7 +112,7 @@ function maketable(json) {
 									className : "unselectable",
 									data : null,
 									"render" : function(data, type, row) {
-										return '<button type="button" onClick="executionDetails(' + row.ID + ',\'' + row.Description + '\')">Description & Comment</button>';
+										return '<button type="button" onClick="executionDetails(' + row.ID + ')">Description & Comment</button>';
 									}
 								},
 								{
@@ -132,20 +132,17 @@ function maketable(json) {
 
 }
 
-function executionDetails(execId, execDescription) {
-	
-	executionId = execId;
+function executionDetails(execId) {
 	
 	$('#edit_exec_title').html("Execution #" + execId);
-	$('#execution_edit_form [name="executionDescription"]').val(execDescription);
 	
-	// get the current comment
 	$.ajax({
-		url : 'api/executions/' + execId + '/comment',
+		url : 'api/executions/' + execId,
 		type : 'GET',
 	})
-	.done(function(text) {
-		$('#execution_edit_form [name="executionComment"]').val(text);
+	.done(function(metadataObj) {
+		$('#execution_edit_form [name="executionDescription"]').val(metadataObj.description);
+		$('#execution_edit_form [name="executionComment"]').val(metadataObj.comment);
 	});
 	
 	$('#execution_edit_container').css("display", "block");

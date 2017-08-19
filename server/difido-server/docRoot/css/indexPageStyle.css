@@ -53,9 +53,9 @@ div.modal span {
 }
 
 div.modal .close {
-    color: #AA0000;
+    color: #CC0000;
     float: right;
-    font-size: 25px;
+    font-size: 28px;
     font-weight: bold;
 	opacity:.8;
 }

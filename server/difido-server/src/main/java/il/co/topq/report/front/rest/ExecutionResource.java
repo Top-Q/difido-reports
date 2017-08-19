@@ -47,6 +47,13 @@ public class ExecutionResource {
 		this.metadataProvider = metadataProvider;
 	}
 
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/{execution: [0-9]+}")
+	public ExecutionMetadata getMetadata(@PathParam("execution") int execution) {
+		return metadataProvider.getMetadata(execution);
+	}
+	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
@@ -83,17 +90,6 @@ public class ExecutionResource {
 		
 		publisher.publishEvent(new ExecutionUpdatedEvent(metadata));
 		return "Successfully updated exection #" + updateRequest.getExecutionId();
-	}
-	
-	@GET
-	@Path("/{executionId}/comment")
-	public String getExecutionComment(@PathParam("executionId") int executionId) {
-
-		ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
-		
-		String comment = metadata.getComment();
-		
-		return comment;
 	}
 	
 	/**
