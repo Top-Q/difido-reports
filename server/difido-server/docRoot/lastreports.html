@@ -49,14 +49,8 @@
     <script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
     <script src="js/common.js"></script>
     <script>
+        var executions = [];
         var index = 0;
-
-        function displaySingleReport(executions) {
-            if (executions.length === 0) {
-                return;
-            }
-            $("#frame").attr("src", executions[index++ % executions.length].Link);
-        }
 
         function getNumberOfExecutions() {
             return new Promise(function (fulfill, reject) {
@@ -109,15 +103,20 @@
 
         }
 
-        function showReports(json, numOfExecutions, interval) {
-            var executions = []
-            json.data.forEach(function (execution) {
-                if (numOfExecutions-- > 0) {
-                    executions.push(execution)
+        function showReports(numOfExecutions) {
+            getReportsTable().then(function (json) {
+                executions = [];
+                json.data.forEach(function (execution) {
+                    if (numOfExecutions-- > 0) {
+                        executions.push(execution)
+                    }
+                });
+                if (executions.length === 0) {
+                    return;
                 }
+                $("#frame").attr("src", executions[index++ % executions.length].Link);
             });
-            displaySingleReport(executions);
-            setInterval(displaySingleReport, interval * 1000, executions)
+
         }
 
         function autoHideNavbar() {
@@ -137,30 +136,20 @@
                 .then(function (numOfExecutions) {
                     getInterval()
                         .then(function (interval) {
-                            getReportsTable()
-                                .then(function (reportsTable) {
-                                    showReports(reportsTable, numOfExecutions, interval);
-                                });
+                            showReports(numOfExecutions);
+                            setInterval(showReports, interval * 1000, numOfExecutions);
                         }).catch(function () {
-                            getReportsTable()
-                                .then(function (reportsTable) {
-                                    showReports(reportsTable, numOfExecutions, 10);
-                                });
-
+                            showReports(numOfExecutions);
+                            setInterval(showReports, 10000, numOfExecutions);
                         });
                 }).catch(function () {
                     getInterval()
                         .then(function (interval) {
-                            getReportsTable()
-                                .then(function (reportsTable) {
-                                    showReports(reportsTable, 1, interval);
-                                });
+                            showReports(1);
+                            setInterval(showReports, interval * 1000, 1);
                         }).catch(function () {
-                            getReportsTable()
-                                .then(function (reportsTable) {
-                                    showReports(reportsTable, 1, 10);
-                                });
-
+                            showReports(1);
+                            setInterval(showReports, 10000, 1);
                         });
                 });
         });
