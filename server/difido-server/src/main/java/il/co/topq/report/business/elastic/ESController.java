@@ -200,9 +200,49 @@ public class ESController {
 		for (MachineNode machineNode : executionEndedEvent.getMetadata().getExecution().getMachines()) {
 			saveDirtyTests(executionEndedEvent.getMetadata(), machineNode);
 		}
+		updateExecutionDuration(executionEndedEvent.getMetadata().getId(),
+				executionEndedEvent.getMetadata().getDuration());
+
 		log.debug("Removing all saved test for execution " + executionEndedEvent.getExecutionId() + " from the cache");
 		savedTestsPerExecution.remove(executionEndedEvent.getExecutionId());
 
+	}
+
+	/**
+	 * Updating all the tests that are included in the execution with the
+	 * specified <code>executionId</code> with the specified
+	 * <code>duration</code> in milli
+	 * 
+	 * @param executionId
+	 *            The id of the execution with the tests to update
+	 * @param duration
+	 *            The execution duration in millis
+	 */
+	private void updateExecutionDuration(int executionId, long duration) {
+		StopWatch stopWatch = new StopWatch(log)
+				.start("Updating all test tests of execution " + executionId + " with duration " + duration);
+		try {
+//			@formatter:off
+			final List<ElasticsearchTest> tests = client
+					.index(Common.ELASTIC_INDEX)
+					.document(TEST_TYPE)
+					.search()
+					.byQuery("executionId:" + executionId)
+					.asClass(ElasticsearchTest.class);
+//			@formatter:on
+			tests.stream().forEach(test -> test.setExecutionDuration(duration));
+			String[] ids = tests.stream().map(test -> test.getUid()).toArray(String[]::new);
+//			@formatter:off
+			client
+			.index(Common.ELASTIC_INDEX)
+			.document(TEST_TYPE)
+			.update()
+			.bulk(ids, tests);
+//			@formatter:on
+		} catch (IOException e) {
+			log.warn("Failed to retrieve tests for execution with id " + executionId);
+		}
+		stopWatch.stopAndLog();
 	}
 
 	@EventListener

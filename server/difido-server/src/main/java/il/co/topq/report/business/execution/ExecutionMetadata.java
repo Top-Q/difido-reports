@@ -76,7 +76,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	private boolean htmlExists = true;
 
 	/**
-	 * The last time in absolute nanoseconds that this execution was changed.
+	 * The last time in absolute milliseconds that this execution was changed.
 	 * This is used for calculating if the max idle time is over
 	 */
 	private long lastAccessedTime;
@@ -111,6 +111,11 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	 * 18:17:49
 	 */
 	private String timestamp;
+
+	/**
+	 * The duration of the execution in milliseconds.
+	 */
+	private long duration;
 
 	@JsonIgnore
 	private Execution execution;
@@ -147,6 +152,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 			this.lastAccessedTime = metaData.lastAccessedTime;
 			this.time = metaData.time;
 			this.timestamp = metaData.timestamp;
+			this.duration = metaData.duration;
 			this.uri = metaData.uri;
 			this.numOfTests = metaData.numOfTests;
 			this.numOfSuccessfulTests = metaData.numOfSuccessfulTests;
@@ -209,13 +215,29 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).append("id", id).append("description", description)
-				.append("properties", properties).append("shared", shared).append("folderName", folderName)
-				.append("uri", uri).append("date", date).append("time", time).append("active", active)
-				.append("locked", locked).append("htmlExists", htmlExists).append("lastAccessedTime", lastAccessedTime)
-				.append("numOfTests", numOfTests).append("numOfSuccessfulTests", numOfSuccessfulTests)
-				.append("numOfFailedTests", numOfFailedTests).append("numOfTestsWithWarnings", numOfTestsWithWarnings)
-				.append("numOfMachines", numOfMachines).append("timestamp", timestamp).toString();
+		// @formatter:off
+		return new ToStringBuilder(this)
+				.append("id", id)
+				.append("description", description)
+				.append("properties", properties)
+				.append("shared", shared)
+				.append("folderName", folderName)
+				.append("uri", uri)
+				.append("date", date)
+				.append("time", time)
+				.append("duration", duration)
+				.append("active", active)
+				.append("locked", locked)
+				.append("htmlExists", htmlExists)
+				.append("lastAccessedTime", lastAccessedTime)
+				.append("numOfTests", numOfTests)
+				.append("numOfSuccessfulTests", numOfSuccessfulTests)
+				.append("numOfFailedTests", numOfFailedTests)
+				.append("numOfTestsWithWarnings", numOfTestsWithWarnings)
+				.append("numOfMachines", numOfMachines)
+				.append("timestamp", timestamp)
+				.toString();
+		// @formatter:on
 	}
 
 	public String getTimestamp() {
@@ -226,7 +248,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	public Execution getExecution() {
 		return execution;
 	}
-
+	
 	public boolean isActive() {
 		return active;
 	}
@@ -370,6 +392,14 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setNumOfMachines(int numOfMachines) {
 		this.numOfMachines = numOfMachines;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
 	}
 
 }
