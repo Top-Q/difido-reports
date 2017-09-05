@@ -2,10 +2,8 @@ package il.co.topq.report.business.report;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,17 +63,21 @@ public class ExecutionTableService {
 				if (null == meta.getProperties()) {
 					continue;
 				}
-				headers.addAll(meta.getProperties().keySet());
+				for (String header: meta.getProperties().keySet()) {
+					if (!headers.contains(header)) {
+						headers.add(header);
+					}
+				}
 			}
 		}
 
 		for (String header : headers) {
-			table.headers.add(header.trim());
+			table.columns.add(header.trim());
 		}
 
 		StopWatch stopWatch = new StopWatch(log).start("Populating rows");
 		for (ExecutionMetadata meta : metaData) {
-			final Map<String, Object> row = new HashMap<String, Object>();
+			final List<String> row = new ArrayList<>();
 			for (String header : headers) {
 				populateRow(table, row, header, meta);
 			}
@@ -85,67 +87,67 @@ public class ExecutionTableService {
 		return table;
 	}
 
-	private void populateRow(DataTable table, Map<String, Object> row, String header, ExecutionMetadata meta) {
-		if (!table.headers.contains(header)) {
-			table.headers.add(header);
+	private void populateRow(DataTable table, List<String> row, String header, ExecutionMetadata meta) {
+		if (!table.columns.contains(header)) {
+			table.columns.add(header);
 		}
 		if (header.equalsIgnoreCase(ID)) {
-			row.put(ID, meta.getId());
+			row.add(""+meta.getId());
 			return;
 		}
 		if (header.equalsIgnoreCase(DESCRIPTION)) {
 			if (meta.getDescription() != null && !meta.getDescription().isEmpty()) {
-				row.put(DESCRIPTION, meta.getDescription());
+				row.add(meta.getDescription());
 			} else {
-				row.put(DESCRIPTION, meta.getFolderName());
+				row.add(meta.getFolderName());
 			}
 			return;
 		}
 		if (header.equalsIgnoreCase(LINK)) {
-			row.put(LINK, meta.getUri());
+			row.add(meta.getUri());
 			return;
 		}
 		if (header.equalsIgnoreCase(DATE)) {
-			row.put(DATE, meta.getDate());
+			row.add(meta.getDate());
 			return;
 		}
 		if (header.equalsIgnoreCase(TIME)) {
-			row.put(TIME, meta.getTime());
+			row.add(meta.getTime());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_TESTS)) {
-			row.put(NUM_OF_TESTS, meta.getNumOfTests());
+			row.add(""+meta.getNumOfTests());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_SUCCESSFUL)) {
-			row.put(NUM_OF_SUCCESSFUL, meta.getNumOfSuccessfulTests());
+			row.add(""+meta.getNumOfSuccessfulTests());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_WARNINGS)) {
-			row.put(NUM_OF_WARNINGS, meta.getNumOfTestsWithWarnings());
+			row.add(""+meta.getNumOfTestsWithWarnings());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_FAILS)) {
-			row.put(NUM_OF_FAILS, meta.getNumOfFailedTests());
+			row.add(""+meta.getNumOfFailedTests());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_MACHINES)) {
-			row.put(NUM_OF_MACHINES, meta.getNumOfMachines());
+			row.add(""+meta.getNumOfMachines());
 			return;
 		}
 		if (header.equalsIgnoreCase(ACTIVE)) {
-			row.put(ACTIVE, meta.isActive());
+			row.add(""+ meta.isActive());
 			return;
 		}
 		if (header.equalsIgnoreCase(LOCKED)) {
-			row.put(LOCKED, meta.isLocked());
+			row.add(""+meta.isLocked());
 			return;
 		}
 		if (meta == null || meta.getProperties() == null) {
 			return;
 		}
 		String value = meta.getProperties().get(header);
-		row.put(header, value != null ? value : "");
+		row.add(value != null ? value : "");
 	}
 
 }

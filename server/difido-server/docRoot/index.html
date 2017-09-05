@@ -44,6 +44,12 @@
 			<h2>Execution Reports</h2>
 			<hr>
 			<table id="etable" class="display">
+				<thead>
+					<tr></tr>
+				</thead>
+				<tfoot>
+					<tr></tr>
+				</tfoot>
 			</table>
 
 			<hr>
@@ -191,27 +197,28 @@
 			});
 
 		}
-
+		
+		function refreshTable(){
+			$.ajax('/api/reports').done(maketable);
+		}
 
 		$(document).ready(function() {			
 			populateNavBar();
-			$.ajax('/api/reports').done(maketable);
+			$.ajax('/api/reports').done(createTable);
 		});
+		function createTable(json) {
+			var trHead = $("#etable thead tr");
+			json.columns.forEach(function(column) {
+				trHead.append($('<th>').text(column));
+			}, this);
+			populateTable();
+		}
 
-		function maketable(json) {
-			var data = json.data;
-			var column_names = json.headers;
-			var columns = []
-			for (var i = 0; i < column_names.length; i++) {
-				columns[i] = {
-					'title' : column_names[i],
-					'data' : column_names[i]
-				}
-			}
-
+		function populateTable() {
 			var table = $('#etable')
 					.DataTable(
 							{
+								ajax: '/api/reports',
 								dom : 'lBfrtip',
 								buttons : [ {
 									text : 'Delete',
@@ -235,8 +242,6 @@
 									}
 								},
 								'copyHtml5', 'csvHtml5', 'pdfHtml5' ],
-								columns : columns,
-								data : data,
 								aaSorting : [],
 								deferRender : true,
 								sPaginationType : "full_numbers",
@@ -254,8 +259,8 @@
 											className : "unselectable",
 											data : null,
 											"render" : function(data, type, row) {
-												return '<a target="_blank" href="'+row.Link+'">'
-														+ data + '</a>';
+												return '<a target="_blank" href="'+row[2]+'">'
+														+ data[1] + '</a>';
 											}
 										}, {
 											// The link column is no longer needed since we are using the value in the description column
@@ -270,6 +275,9 @@
 				}
 				$(this).parent().toggleClass('selected');
 			});
+			setInterval( function () {
+    			table.ajax.reload( null, false ); // user paging is not reset on reload
+			}, 15000 );
 
 		}
 	</script>
