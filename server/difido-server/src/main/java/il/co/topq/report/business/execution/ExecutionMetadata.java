@@ -12,6 +12,13 @@ import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.report.Common;
 
 public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
+	
+	/**
+	 * Is the meta data was saved to the persistency.
+	 */
+	@JsonIgnore
+	private boolean dirty;
+	
 	/**
 	 * The id of the execution
 	 */
@@ -130,6 +137,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 			properties = new HashMap<String, String>();
 		}
 		properties.put(key, value);
+		setDirty(true);
 	}
 
 	/**
@@ -159,6 +167,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 			this.numOfFailedTests = metaData.numOfFailedTests;
 			this.numOfTestsWithWarnings = metaData.numOfTestsWithWarnings;
 			this.numOfMachines = metaData.numOfMachines;
+			this.dirty = metaData.dirty;
 		}
 	}
 
@@ -255,6 +264,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setActive(boolean active) {
 		this.active = active;
+		setDirty(true);
 	}
 
 	public boolean isLocked() {
@@ -263,6 +273,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setLocked(boolean locked) {
 		this.locked = locked;
+		setActive(true);
 	}
 
 	public boolean isHtmlExists() {
@@ -271,6 +282,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setHtmlExists(boolean htmlExists) {
 		this.htmlExists = htmlExists;
+		setDirty(true);
 	}
 
 	public long getLastAccessedTime() {
@@ -287,6 +299,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setId(int id) {
 		this.id = id;
+		setDirty(true);
 	}
 
 	public String getDescription() {
@@ -295,6 +308,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setDescription(String description) {
 		this.description = description;
+		setDirty(true);
 	}
 
 	public Map<String, String> getProperties() {
@@ -303,6 +317,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setProperties(Map<String, String> properties) {
 		this.properties = properties;
+		setDirty(true);
 	}
 
 	public boolean isShared() {
@@ -311,6 +326,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setShared(boolean shared) {
 		this.shared = shared;
+		setDirty(true);
 	}
 
 	public String getFolderName() {
@@ -318,6 +334,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	public void setFolderName(String folderName) {
+		setDirty(true);
 		this.folderName = folderName;
 	}
 
@@ -326,6 +343,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	public void setUri(String uri) {
+		setDirty(true);
 		this.uri = uri;
 	}
 
@@ -334,6 +352,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	public void setDate(String date) {
+		setDirty(true);
 		this.date = date;
 	}
 
@@ -342,6 +361,10 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	public void setTime(String time) {
+		if (time == null || time.equals(this.time)) {
+			return;
+		}
+		setDirty(true);
 		this.time = time;
 	}
 
@@ -351,6 +374,10 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	public void setTimestamp(String timestamp) {
+		if (this.timestamp == timestamp) {
+			return;
+		}
+		setDirty(true);
 		this.timestamp = timestamp;
 	}
 
@@ -359,6 +386,10 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	public void setNumOfTests(int numOfTests) {
+		if (this.numOfTests == numOfTests) {
+			return;
+		}
+		setDirty(true);
 		this.numOfTests = numOfTests;
 	}
 
@@ -367,7 +398,12 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	public void setNumOfSuccessfulTests(int numOfSuccessfulTests) {
+		if (this.numOfSuccessfulTests == numOfSuccessfulTests) {
+			return;
+		}
+		setDirty(true);
 		this.numOfSuccessfulTests = numOfSuccessfulTests;
+		
 	}
 
 	public int getNumOfFailedTests() {
@@ -375,6 +411,10 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	public void setNumOfFailedTests(int numOfFailedTests) {
+		if (numOfFailedTests == this.numOfFailedTests) {
+			return;
+		}
+		setDirty(true);
 		this.numOfFailedTests = numOfFailedTests;
 	}
 
@@ -383,6 +423,10 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	public void setNumOfTestsWithWarnings(int numOfTestsWithWarnings) {
+		if (this.numOfTestsWithWarnings == numOfTestsWithWarnings) {
+			return;
+		}
+		setDirty(true);
 		this.numOfTestsWithWarnings = numOfTestsWithWarnings;
 	}
 
@@ -391,6 +435,10 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	public void setNumOfMachines(int numOfMachines) {
+		if (this.numOfMachines == numOfMachines) {
+			return;
+		}
+		setDirty(true);
 		this.numOfMachines = numOfMachines;
 	}
 
@@ -401,5 +449,17 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	public void setDuration(long duration) {
 		this.duration = duration;
 	}
+
+	@JsonIgnore
+	public boolean isDirty() {
+		return dirty;
+	}
+
+	@JsonIgnore
+	public void setDirty(boolean dirty) {
+		this.dirty = dirty;
+	}
+	
+	
 
 }

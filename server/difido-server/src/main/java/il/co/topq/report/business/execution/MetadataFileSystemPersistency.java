@@ -22,7 +22,7 @@ import il.co.topq.report.business.AsyncActionQueue;
 @Component
 class MetadataFileSystemPersistency extends AbstactMetadataPersistency {
 
-	private final Logger log = LoggerFactory.getLogger(MetadataFileSystemPersistency.class);
+	private static final Logger log = LoggerFactory.getLogger(MetadataFileSystemPersistency.class);
 
 	private static final String EXECUTION_FILE_NAME = "reports/meta.json";
 
@@ -68,7 +68,17 @@ class MetadataFileSystemPersistency extends AbstactMetadataPersistency {
 				// will move it to be the actual file.
 				final File executionTempMetaFile = new File(executionMetaFile.getParent(),
 						executionMetaFile.getName() + ".tmp");
+				if (executionTempMetaFile.exists()) {
+					if (!executionTempMetaFile.delete()) {
+						log.warn("Failed to delete temp execution file " + executionTempMetaFile.getAbsolutePath());
+					}
+				}
 				new ObjectMapper().writeValue(executionTempMetaFile, getExecutionsCache());
+				if (executionTempMetaFile.length() == 0) {
+					log.warn("Execution meta file '" + executionTempMetaFile.getAbsolutePath()
+							+ "' length is 0 after serialiaztion. Aborting write");
+					return;
+				}
 				Files.move(executionTempMetaFile.toPath(), executionMetaFile.toPath(), REPLACE_EXISTING);
 			} catch (IOException e) {
 				log.error("Failed writing execution meta data", e);
@@ -83,17 +93,41 @@ class MetadataFileSystemPersistency extends AbstactMetadataPersistency {
 			return;
 		}
 		final File metaFile = getExecutionMetaFile();
+		final File tempMetaFile = new File(metaFile.getParent(), metaFile.getName() + ".tmp");
+
+		if (tempMetaFile.exists()) {
+			// This means that the server was shutdown before it had the chance
+			// to move the temp file to the final file.
+			log.warn("Found temporary file " + tempMetaFile.getAbsolutePath());
+			if ((!metaFile.exists() || metaFile.length() == 0) && tempMetaFile.length() != 0) {
+				// Very rare. but we can recover from temp file.
+				try {
+					Files.move(tempMetaFile.toPath(), metaFile.toPath(), REPLACE_EXISTING);
+				} catch (IOException e) {
+					log.error(
+							"Found temp meta file with content and empty meta file but failed to copy the temp to final",
+							e);
+				}
+			}
+		}
+		if (metaFile.length() == 0) {
+			log.warn("Found meta file but it is empty. Deleting the file");
+			metaFile.delete();
+		}
+
 		if (!metaFile.exists()) {
 			initCache();
 			return;
 		}
+
 		try {
 			Map<Integer, ExecutionMetadata> data = new ObjectMapper().readValue(metaFile,
 					new TypeReference<Map<Integer, ExecutionMetadata>>() {
 					});
 			populateCache(data);
 		} catch (IOException e) {
-			log.error("Failed reading execution meta data file.", e);
+			log.error("Failed reading execution meta data file '" + metaFile.getAbsolutePath()
+					+ "'. It seems to be corrupted. Check if meta.json.tmp file exists", e);
 			initCache();
 			return;
 		}
