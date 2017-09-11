@@ -27,6 +27,7 @@ public class ExecutionTableService {
 	private static final String LINK = "Link";
 	private static final String DATE = "Date";
 	private static final String TIME = "Time";
+	private static final String DURATION = "Duration";
 	private static final String NUM_OF_TESTS = "# Tests";
 	private static final String NUM_OF_SUCCESSFUL = "# Successful";
 	private static final String NUM_OF_WARNINGS = "# Warnings";
@@ -34,8 +35,8 @@ public class ExecutionTableService {
 	private static final String NUM_OF_MACHINES = "# Machines";
 	private static final String ACTIVE = "Active";
 	private static final String LOCKED = "Locked";
-	private static final String[] DEFAULT_HEADERS = new String[] { ID, DESCRIPTION, LINK, DATE, TIME, NUM_OF_TESTS,
-			NUM_OF_SUCCESSFUL, NUM_OF_WARNINGS, NUM_OF_FAILS, NUM_OF_MACHINES, ACTIVE, LOCKED };
+	private static final String[] DEFAULT_HEADERS = new String[] { ID, DESCRIPTION, LINK, DATE, TIME, DURATION,
+			NUM_OF_TESTS, NUM_OF_SUCCESSFUL, NUM_OF_WARNINGS, NUM_OF_FAILS, NUM_OF_MACHINES, ACTIVE, LOCKED };
 
 	public DataTable initTable(ExecutionMetadata[] metaData) {
 		DataTable table = new DataTable();
@@ -131,6 +132,18 @@ public class ExecutionTableService {
 		}
 		if (header.equalsIgnoreCase(NUM_OF_MACHINES)) {
 			row.put(NUM_OF_MACHINES, meta.getNumOfMachines());
+			return;
+		}
+		if (header.equalsIgnoreCase(DURATION)) {
+			if (meta.getDuration() == 0) {
+				row.put(DURATION, "");
+				return;
+			}
+			long durInSec = Math.round(meta.getDuration() / 1000);
+			long durationHour = (long) Math.floor(((durInSec % 31536000) % 86400) / 3600);
+			long durationMin = (long) Math.floor((((durInSec % 31536000) % 86400) % 3600) / 60);
+			long durationSec = (((durInSec % 31536000) % 86400) % 3600) % 60;
+			row.put(DURATION, durationHour + "h" + durationMin + "m" + durationSec + "s");
 			return;
 		}
 		if (header.equalsIgnoreCase(ACTIVE)) {
