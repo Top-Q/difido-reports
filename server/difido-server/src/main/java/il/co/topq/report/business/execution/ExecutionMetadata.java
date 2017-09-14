@@ -7,18 +7,20 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.report.Common;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
-	
+
 	/**
 	 * Is the meta data was saved to the persistency.
 	 */
 	@JsonIgnore
 	private boolean dirty;
-	
+
 	/**
 	 * The id of the execution
 	 */
@@ -84,8 +86,11 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	/**
 	 * The last time in absolute milliseconds that this execution was changed.
-	 * This is used for calculating if the max idle time is over
+	 * This is used for calculating if the max idle time is over. <br>
+	 * Marked as @jsonIgnore since there is no need to save it to the file
+	 * because when reading from the file the sessions are always none active
 	 */
+	@JsonIgnore
 	private long lastAccessedTime;
 
 	/**
@@ -257,7 +262,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	public Execution getExecution() {
 		return execution;
 	}
-	
+
 	public boolean isActive() {
 		return active;
 	}
@@ -285,10 +290,12 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		setDirty(true);
 	}
 
+	@JsonIgnore
 	public long getLastAccessedTime() {
 		return lastAccessedTime;
 	}
 
+	@JsonIgnore
 	public void setLastAccessedTime(long lastAccessedTime) {
 		this.lastAccessedTime = lastAccessedTime;
 	}
@@ -403,7 +410,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		}
 		setDirty(true);
 		this.numOfSuccessfulTests = numOfSuccessfulTests;
-		
+
 	}
 
 	public int getNumOfFailedTests() {
@@ -459,7 +466,5 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	public void setDirty(boolean dirty) {
 		this.dirty = dirty;
 	}
-	
-	
 
 }
