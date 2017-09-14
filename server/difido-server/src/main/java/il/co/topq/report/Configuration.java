@@ -36,7 +36,6 @@ public enum Configuration {
 		MAIL_SSL("mail.ssl","false"), 
 		MAIL_SMTP_HOST("mail.smtp.host", ""),
 		MAIL_SMTP_PORT("mail.smtp.port", ""),
-		MAIL_SUBJECT("mail.subject",""), 
 		MAIL_FROM_ADDRESS("mail.from.address",""), 
 		MAIL_TO_ADDRESS("mail.to.address",""),
 		MAIL_CC_ADDRESS("mail.cc.address", ""),

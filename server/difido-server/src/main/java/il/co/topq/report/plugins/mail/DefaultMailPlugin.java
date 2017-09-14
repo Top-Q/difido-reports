@@ -20,8 +20,6 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 
 	private final Logger log = LoggerFactory.getLogger(DefaultMailPlugin.class);
 
-	private static final String DEFAULT_SUBJECT = "Execution ended ";
-
 	private MailSender sender;
 
 	private boolean enabled = true;
@@ -108,27 +106,17 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 	}
 
 	protected String getMailBody() {
-		return populateTemplate();
+		return populateTemplate(getMailBodyTemplateName());
 	}
 
 	protected String getMailSubject() {
-		String subject = StringUtils.isEmpty(Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT))
-				? DEFAULT_SUBJECT
-				: Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT);
-		if (getMetadata().getNumOfFailedTests() > 0) {
-			subject += getMetadata().getNumOfFailedTests() + " failures out of " + getMetadata().getNumOfTests();
-		} else if (getMetadata().getNumOfTestsWithWarnings() > 0) {
-			subject += getMetadata().getNumOfTestsWithWarnings() + " warnings out of " + getMetadata().getNumOfTests();
-		} else {
-			subject += getMetadata().getNumOfTests() + " successful tests";
-		}
-		return subject;
+		return populateTemplate(getMailSubjectTemplateName());
 	}
 
-	private String populateTemplate() {
+	private String populateTemplate(String templateName) {
 		VelocityEngine ve = new VelocityEngine();
 		ve.init();
-		Template t = ve.getTemplate(getTemplateName());
+		Template t = ve.getTemplate(templateName);
 		/* create a context and add data */
 		VelocityContext context = new VelocityContext();
 		String host = System.getProperty("server.address");
@@ -139,16 +127,20 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		if (null == port) {
 			port = "8080";
 		}
-		context.put("host",host);
-		context.put("port",port);
+		context.put("host", host);
+		context.put("port", port);
 		context.put("meta", getMetadata());
 		final StringWriter writer = new StringWriter();
 		t.merge(context, writer);
 		return writer.toString();
 	}
 
-	protected String getTemplateName() {
-		return Common.CONFIUGRATION_FOLDER_NAME + "/mail.vm";
+	protected String getMailBodyTemplateName() {
+		return Common.CONFIUGRATION_FOLDER_NAME + "/mail_body.vm";
+	}
+
+	protected String getMailSubjectTemplateName() {
+		return Common.CONFIUGRATION_FOLDER_NAME + "/mail_subject.vm";
 	}
 
 	protected void configureMailSender() {
