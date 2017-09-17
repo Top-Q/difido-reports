@@ -3,7 +3,6 @@ package il.co.topq.report.front.rest;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.GET;
@@ -61,8 +60,8 @@ public class ReportsResource {
 	public static class DataTable {
 		// Holds the headers of the table. The data structure has to be ordered
 		// and not to allow duplications.
-		final public Set<String> headers = new LinkedHashSet<String>();
-		final public List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+		final public Set<String> columns = new LinkedHashSet<>();
+		final public List<List<String>> data = new ArrayList<>();
 	}
 
 }

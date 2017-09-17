@@ -18,8 +18,8 @@
 			color: #CCCCCC;
 			text-align: center;
 		}
-		
-		div.dt-buttons {			
+
+		div.dt-buttons {
 			text-align: center;
 		}
 	</style>
@@ -27,16 +27,16 @@
 
 <body>
 	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-	  <div class="container-fluid">
-	    <div class="navbar-header">
-	      <a class="navbar-brand" href="#">Difido</a>
-	    </div>
-	    <ul id="navbar" class="nav navbar-nav">
-	      <li class="active"><a href="#">Execution Reports</a></li>
-		  <li><a href="kibana.html">Kibana</a></li>
-		  <li><a href="lastreports.html">Last Reports</a></li>
-	    </ul>
-	  </div>
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">Difido</a>
+			</div>
+			<ul id="navbar" class="nav navbar-nav">
+				<li class="active"><a href="#">Execution Reports</a></li>
+				<li><a href="kibana.html">Kibana</a></li>
+				<li><a href="lastreports.html">Last Reports</a></li>
+			</ul>
+		</div>
 	</nav>
 	<div class="container-fluid">
 		<!--<div class="row">-->
@@ -44,6 +44,12 @@
 			<h2>Execution Reports</h2>
 			<hr>
 			<table id="etable" class="display">
+				<thead>
+					<tr></tr>
+				</thead>
+				<tfoot>
+					<tr></tr>
+				</tfoot>
 			</table>
 
 			<hr>
@@ -61,18 +67,18 @@
 	<script src="js/common.js"></script>
 
 	<script>
-		function lockUnlockSelected(table,locked){
+		function lockUnlockSelected(table, locked) {
 			var numOfSelected = table.rows('.selected').data().length;
 			if (numOfSelected == 0) {
 				return;
 			}
 			var numOfChanged = 0;
 			for (var i = 0; i < numOfSelected; i++) {
-				var id = table.rows('.selected').data()[i].Id;
+				var id = table.rows('.selected').data()[i][0];
 				$.ajax({
-					url : 'api/executions/' + id + '?locked=' + locked,
-					type : 'PUT',
-				}).done(function() {
+					url: 'api/executions/' + id + '?locked=' + locked,
+					type: 'PUT',
+				}).done(function () {
 					if (++numOfChanged != numOfSelected) {
 						return;
 					}
@@ -90,29 +96,29 @@
 				return;
 			}
 			bootbox
-					.confirm(
-							"Are you sure you want to delete all selected execution reports?",
-							function(result) {
-								if (!result) {
-									return;
-								}
+				.confirm(
+				"Are you sure you want to delete all selected execution reports?",
+				function (result) {
+					if (!result) {
+						return;
+					}
 
-								var numOfDeleted = 0;
-								for (var i = 0; i < numOfSelected; i++) {
-									var id = table.rows('.selected').data()[i].Id;
-									$.ajax({
-										url : 'api/executions/' + id,
-										type : 'DELETE',
-									}).done(function() {
-										if (++numOfDeleted != numOfSelected) {
-											return;
-										}
-										// Everything was deleted, we can refresh the table.
-										location.reload();
-									});
-								}
+					var numOfDeleted = 0;
+					for (var i = 0; i < numOfSelected; i++) {
+						var id = table.rows('.selected').data()[i][0];
+						$.ajax({
+							url: 'api/executions/' + id,
+							type: 'DELETE',
+						}).done(function () {
+							if (++numOfDeleted != numOfSelected) {
+								return;
+							}
+							// Everything was deleted, we can refresh the table.
+							location.reload();
+						});
+					}
 
-							});
+				});
 		}
 
 		function executePlugin(table) {
@@ -123,153 +129,181 @@
 			}
 			var selected = "";
 			for (var i = 0; i < numOfSelected; i++) {
-				if (i != 0){
+				if (i != 0) {
 					selected += ","
 				}
-				selected += table.rows('.selected').data()[i].Id;
+				selected += table.rows('.selected').data()[i][0];
 			}
 			$.ajax({
-				url : 'api/plugins/',
-				type : 'GET',
-			}).done(function(plugins) {
+				url: 'api/plugins/',
+				type: 'GET',
+			}).done(function (plugins) {
 				if (plugins.length == 0) {
 					console.log("No plugins were defined. aborting");
 					return;
 				}
 				var options = "";
-				for (var i = 0; i < plugins.length ; i++){
-					options += '<option>' + plugins[i] +'</option>';
+				for (var i = 0; i < plugins.length; i++) {
+					options += '<option>' + plugins[i] + '</option>';
 				}
 				bootbox.dialog({
-                title: "Execute Plugin",
-                message: '   <form class="form-horizontal">' +
-'       <div class="form-group">' +
-'           <div class="form-group">' +
-'               <label class="col-md-4 control-label" for="name">Plugin Name</label>' +
-'               <div class="col-md-4">' +
-'                   <select id="name" name="name" class="form-control">' + options +
-'                   </select>' +
-'               </div>' +
-'           </div>' +
-'           <div class="form-group">' +
-'               <label class="col-md-4 control-label" for="Parameters">Parameters</label>' +
-'               <div class="col-md-4">' +
-'                   <input id="parameter" name="parameter" type="text" placeholder="Free string parameter" class="form-control input-md">' +
-'               </div>' +
-'           </div>' +
-'           <div class="form-group">' +
-'               <label class="col-md-4 control-label" for="executions">Selected Executions</label>' +
-'               <div class="col-md-4">' +
-'                   <input id="executions" name="executions" type="text" placeholder="Selected Executions" class="form-control input-md" value='+selected+'' +
-'                       readonly/>' +
-'               </div>' +
-'           </div>' +
-'       </div>' +
-'   </form>',
-	                buttons: {
-	                    success: {
-	                        label: "Execute",
-	                        className: "btn-success",
-	                        callback: function () {
-	                            var name = $('#name').val();
-	                            var parameter = $('#parameter').val();
+					title: "Execute Plugin",
+					message: '   <form class="form-horizontal">' +
+					'       <div class="form-group">' +
+					'           <div class="form-group">' +
+					'               <label class="col-md-4 control-label" for="name">Plugin Name</label>' +
+					'               <div class="col-md-4">' +
+					'                   <select id="name" name="name" class="form-control">' + options +
+					'                   </select>' +
+					'               </div>' +
+					'           </div>' +
+					'           <div class="form-group">' +
+					'               <label class="col-md-4 control-label" for="Parameters">Parameters</label>' +
+					'               <div class="col-md-4">' +
+					'                   <input id="parameter" name="parameter" type="text" placeholder="Free string parameter" class="form-control input-md">' +
+					'               </div>' +
+					'           </div>' +
+					'           <div class="form-group">' +
+					'               <label class="col-md-4 control-label" for="executions">Selected Executions</label>' +
+					'               <div class="col-md-4">' +
+					'                   <input id="executions" name="executions" type="text" placeholder="Selected Executions" class="form-control input-md" value=' + selected + '' +
+					'                       readonly/>' +
+					'               </div>' +
+					'           </div>' +
+					'       </div>' +
+					'   </form>',
+					buttons: {
+						success: {
+							label: "Execute",
+							className: "btn-success",
+							callback: function () {
+								var name = $('#name').val();
+								var parameter = $('#parameter').val();
 								var executions = "";
 								for (var i = 0; i < numOfSelected; i++) {
-									executions += '&executions=' + table.rows('.selected').data()[i].Id;
+									executions += '&executions=' + table.rows('.selected').data()[i][0];
 								}
 								$.ajax({
-									url : 'api/plugins/' + name + '?params=' + parameter + executions,
-									type : 'POST',
-								}).done(function() {
-									
+									url: 'api/plugins/' + name + '?params=' + parameter + executions,
+									type: 'POST',
+								}).done(function () {
+
 								});
-	                        }
-	                    }
-	                }
-            	}
-       		);
+							}
+						}
+					}
+				}
+				);
 			});
 
 		}
 
-
-		$(document).ready(function() {			
+		$(document).ready(function () {
 			populateNavBar();
-			$.ajax('/api/reports').done(maketable);
+			$.ajax('/api/reports').done(createTable);
 		});
+		function createTable(json) {
+			var trHead = $("#etable thead tr");
+			json.columns.forEach(function (column) {
+				trHead.append($('<th>').text(column));
+			}, this);
+			populateTable();
+		}
 
-		function maketable(json) {
-			var data = json.data;
-			var column_names = json.headers;
-			var columns = []
-			for (var i = 0; i < column_names.length; i++) {
-				columns[i] = {
-					'title' : column_names[i],
-					'data' : column_names[i]
-				}
-			}
-
+		function populateTable() {
+			// Array for keeping the ids of the selected rows. Will be read after refresh
+			var selectedIds = Array();
 			var table = $('#etable')
-					.DataTable(
-							{
-								dom : 'lBfrtip',
-								buttons : [ {
-									text : 'Delete',
-									action : function(e, dt, node, config) {
-										deleteSelected(table);
-									}
-								}, {
-									text : 'Lock',
-									action : function(e, dt, node, config) {
-										lockUnlockSelected(table,"true");
-									}
-								}, {
-									text : 'Unlock',
-									action : function(e, dt, node, config) {
-										lockUnlockSelected(table,"false");
-									}
-								}, {
-									text : 'Execute Plugin',
-									action : function(e, dt, node, config) {
-										executePlugin(table);
-									}
-								},
-								'copyHtml5', 'csvHtml5', 'pdfHtml5' ],
-								columns : columns,
-								data : data,
-								aaSorting : [],
-								deferRender : true,
-								sPaginationType : "full_numbers",
-								iDisplayLength : 25,
-								columnDefs : [
-										{
-											// Alows missing values. Important for execution properties in which not all of the execution must have all the properties.
-											targets : "_all",
-											sDefaultContent : ""
-										},
-										{
-											// The description column will be rendered as link using the value in the link column
-											targets : 1,
-											// We don't want that a click on the link will make the row selectable
-											className : "unselectable",
-											data : null,
-											"render" : function(data, type, row) {
-												return '<a target="_blank" href="'+row.Link+'">'
-														+ data + '</a>';
-											}
-										}, {
-											// The link column is no longer needed since we are using the value in the description column
-											targets : 2,
-											visible : false
-										} ]
-							})
-			$('#etable tbody').on('click', 'td', function() {
+				.on('preXhr.dt', function (e, settings, data) {
+					// This happens before the Ajax call and it is 
+					// used for keeping the ids of the selected rows in array for resoring them later on
+					selectedIds = Array();
+					var selectedRows = $("tr[role='row'].selected");
+					for (var i = 0; i < selectedRows.length; i++) {
+						selectedIds.push(selectedRows[i].getAttribute('exeid'));
+					}
+				})
+				.DataTable(
+				{
+					ajax: '/api/reports',
+					dom: 'lBfrtip',
+					buttons: [{
+						text: 'Delete',
+						action: function (e, dt, node, config) {
+							deleteSelected(table);
+						}
+					}, {
+						text: 'Lock',
+						action: function (e, dt, node, config) {
+							lockUnlockSelected(table, "true");
+						}
+					}, {
+						text: 'Unlock',
+						action: function (e, dt, node, config) {
+							lockUnlockSelected(table, "false");
+						}
+					}, {
+						text: 'Execute Plugin',
+						action: function (e, dt, node, config) {
+							executePlugin(table);
+						}
+					},
+					{
+						text: 'Reload',
+						action: function () {
+							table.ajax.reload(null, false);
+						}
+					},
+						'copyHtml5', 'csvHtml5', 'pdfHtml5'],
+					aaSorting: [],
+					deferRender: true,
+					sPaginationType: "full_numbers",
+					iDisplayLength: 25,
+					select: true,
+					columnDefs: [
+						{
+							// Alows missing values. Important for execution properties in which not all of the execution must have all the properties.
+							targets: "_all",
+							sDefaultContent: ""
+						},
+						{
+							// The description column will be rendered as link using the value in the link column
+							targets: 1,
+							// We don't want that a click on the link will make the row selectable
+							className: "unselectable",
+							data: null,
+							"render": function (data, type, row) {
+								return '<a target="_blank" href="' + row[2] + '">'
+									+ data[1] + '</a>';
+							}
+						}, {
+							// The link column is no longer needed since we are using the value in the description column
+							targets: 2,
+							visible: false
+						}],
+					"fnCreatedRow": function (nRow, aData, iDataIndex) {
+						// Adding attributes to the row. Especially useful for keeping the selected rows after refresh.
+						$(nRow).attr('id', 'exe' + aData[0]);
+						$(nRow).attr('exeid', aData[0]);
+					},
+					"drawCallback": function (settings) {
+						// After drawing the table, reselecting all the previously selected rows.
+						selectedIds.forEach(function (id) {
+							$('#exe' + id).toggleClass('selected');
+						});
+					}
+				})
+			$('#etable tbody').on('click', 'td', function () {
 				if ($(this).hasClass("unselectable")) {
 					// This is probably the link column.
 					return;
 				}
 				$(this).parent().toggleClass('selected');
 			});
+			setInterval(function () {
+				// user paging is not reset on reload
+				table.ajax.reload(null, false);
+			}, 30000);
 
 		}
 	</script>
