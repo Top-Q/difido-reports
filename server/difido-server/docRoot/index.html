@@ -74,7 +74,7 @@
 			}
 			var numOfChanged = 0;
 			for (var i = 0; i < numOfSelected; i++) {
-				var id = table.rows('.selected').data()[i].Id;
+				var id = table.rows('.selected').data()[i][0];
 				$.ajax({
 					url : 'api/executions/' + id + '?locked=' + locked,
 					type : 'PUT',
@@ -105,7 +105,7 @@
 
 								var numOfDeleted = 0;
 								for (var i = 0; i < numOfSelected; i++) {
-									var id = table.rows('.selected').data()[i].Id;
+									var id = table.rows('.selected').data()[i][0];
 									$.ajax({
 										url : 'api/executions/' + id,
 										type : 'DELETE',
@@ -132,7 +132,7 @@
 				if (i != 0){
 					selected += ","
 				}
-				selected += table.rows('.selected').data()[i].Id;
+				selected += table.rows('.selected').data()[i][0];
 			}
 			$.ajax({
 				url : 'api/plugins/',
@@ -181,7 +181,7 @@
 	                            var parameter = $('#parameter').val();
 								var executions = "";
 								for (var i = 0; i < numOfSelected; i++) {
-									executions += '&executions=' + table.rows('.selected').data()[i].Id;
+									executions += '&executions=' + table.rows('.selected').data()[i][0];
 								}
 								$.ajax({
 									url : 'api/plugins/' + name + '?params=' + parameter + executions,
