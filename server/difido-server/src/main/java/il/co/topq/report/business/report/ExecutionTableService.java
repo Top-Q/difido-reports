@@ -138,14 +138,14 @@ public class ExecutionTableService {
 		}
 		if (header.equalsIgnoreCase(DURATION)) {
 			if (meta.getDuration() == 0) {
-				row.put(DURATION, "");
+				row.add("");
 				return;
 			}
 			long durInSec = Math.round(meta.getDuration() / 1000);
 			long durationHour = (long) Math.floor(((durInSec % 31536000) % 86400) / 3600);
 			long durationMin = (long) Math.floor((((durInSec % 31536000) % 86400) % 3600) / 60);
 			long durationSec = (((durInSec % 31536000) % 86400) % 3600) % 60;
-			row.put(DURATION, durationHour + "h" + durationMin + "m" + durationSec + "s");
+			row.add(durationHour + "h" + durationMin + "m" + durationSec + "s");
 			return;
 		}
 		if (header.equalsIgnoreCase(ACTIVE)) {
