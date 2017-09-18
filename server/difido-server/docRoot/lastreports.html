@@ -114,7 +114,7 @@
                 if (executions.length === 0) {
                     return;
                 }
-                $("#frame").attr("src", executions[index++ % executions.length].Link);
+                $("#frame").attr("src", executions[index++ % executions.length][2]);
             });
 
         }
@@ -131,6 +131,7 @@
         }
 
         $(document).ready(function () {
+            populateNavBar();
             autoHideNavbar();
             getNumberOfExecutions()
                 .then(function (numOfExecutions) {
