@@ -127,17 +127,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 
 	private void updateSingleExecutionMeta(int executionId) {
 		ExecutionMetadata executionMetaData = persistency.get(executionId);
-
-		try {
-			String timestamp = executionMetaData.getTimestamp();
-			if (!StringUtils.isEmpty(timestamp)) {
-				final Date startTime = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER
-						.parse(executionMetaData.getTimestamp());
-				executionMetaData.setDuration(new Date().getTime() - startTime.getTime());
-			}
-		} catch (ParseException e) {
-			log.warn("Failed to parse start time of execution: " + executionMetaData.getTimestamp());
-		}
+		updateDuration(executionMetaData);
 
 		if (executionMetaData.getExecution() == null || executionMetaData.getExecution().getLastMachine() == null) {
 			return;
@@ -184,6 +174,23 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		}
 		persistency.update(executionMetaData);
 
+	}
+
+	/**
+	 * Updates the duration of the execution according to the start time.
+	 *  
+	 * @param executionMetaData
+	 */
+	private synchronized void updateDuration(final ExecutionMetadata executionMetaData) {
+		final String timestamp = executionMetaData.getTimestamp();
+		try {
+			if (!StringUtils.isEmpty(timestamp)) {
+				final Date startTime = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.parse(timestamp);
+				executionMetaData.setDuration(new Date().getTime() - startTime.getTime());
+			}
+		} catch (ParseException | NumberFormatException e) {
+			log.warn("Failed to parse start time of execution '" + timestamp + "' due to '" + e.getMessage() + "'", e);
+		}
 	}
 
 	@Override
