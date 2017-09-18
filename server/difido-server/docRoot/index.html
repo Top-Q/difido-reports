@@ -12,6 +12,7 @@
 	<link href="css/bootstrap.min.css" rel="stylesheet">
 	<link href="css/buttons.dataTables.min.css" rel="stylesheet">
 	<link href="css/jquery.dataTables.min.css" rel="stylesheet">
+	<link href="css/font-awesome.css" rel="stylesheet">
 
 	<style>
 		h2 {
@@ -228,33 +229,65 @@
 					ajax: '/api/reports',
 					dom: 'lBfrtip',
 					buttons: [{
-						text: 'Delete',
-						action: function (e, dt, node, config) {
-							deleteSelected(table);
-						}
-					}, {
+						text: 'Reload',
+						action: function () {
+							table.ajax.reload(null, false);
+						},
+						text: '<i class="fa fa-refresh"></i>',
+						titleAttr: 'Reload'
+					},
+					{
 						text: 'Lock',
 						action: function (e, dt, node, config) {
 							lockUnlockSelected(table, "true");
-						}
+						},
+						text: '<i class="fa fa-lock"></i>',
+						titleAttr: 'Lock Execution'
+
 					}, {
 						text: 'Unlock',
 						action: function (e, dt, node, config) {
 							lockUnlockSelected(table, "false");
-						}
+						},
+						text: '<i class="fa fa-unlock"></i>',
+						titleAttr: 'Unlock Execution'
+
+					}, {
+						text: 'Delete',
+						action: function (e, dt, node, config) {
+							deleteSelected(table);
+						},
+						text: '<i class="fa fa-times"></i>',
+						titleAttr: 'Delete Execution'
+
 					}, {
 						text: 'Execute Plugin',
 						action: function (e, dt, node, config) {
 							executePlugin(table);
-						}
+						},
+						text: '<i class="fa fa-plug"></i>',
+						titleAttr: 'Execute Plugin'
 					},
 					{
-						text: 'Reload',
-						action: function () {
-							table.ajax.reload(null, false);
-						}
+						extend: 'copyHtml5',
+						text: '<i class="fa fa-files-o"></i>',
+						titleAttr: 'Copy to Clipboard'
 					},
-						'copyHtml5', 'csvHtml5', 'pdfHtml5'],
+					{
+						extend: 'excelHtml5',
+						text: '<i class="fa fa-file-excel-o"></i>',
+						titleAttr: 'Export to Excel'
+					},
+					{
+						extend: 'csvHtml5',
+						text: '<i class="fa fa-file-text-o"></i>',
+						titleAttr: 'Export to CSV'
+					},
+					{
+						extend: 'pdfHtml5',
+						text: '<i class="fa fa-file-pdf-o"></i>',
+						titleAttr: 'Export to PDF'
+					}],
 					aaSorting: [],
 					deferRender: true,
 					sPaginationType: "full_numbers",
