@@ -278,7 +278,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setLocked(boolean locked) {
 		this.locked = locked;
-		setActive(true);
+		setDirty(true);
 	}
 
 	public boolean isHtmlExists() {

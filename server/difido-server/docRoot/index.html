@@ -74,8 +74,9 @@
 				return;
 			}
 			var numOfChanged = 0;
+			var data = table.rows('.selected').data();
 			for (var i = 0; i < numOfSelected; i++) {
-				var id = table.rows('.selected').data()[i][0];
+				var id = data[i][0];
 				$.ajax({
 					url: 'api/executions/' + id + '?locked=' + locked,
 					type: 'PUT',
@@ -83,8 +84,10 @@
 					if (++numOfChanged != numOfSelected) {
 						return;
 					}
-					// Everything was locked, we can refresh the table.
-					location.reload();
+					// Unselecting all elements
+					$(".selected").removeClass("selected");
+					// Everything was locked, we can reload the table.
+					table.ajax.reload(null, false);
 				});
 			}
 
@@ -105,8 +108,9 @@
 					}
 
 					var numOfDeleted = 0;
+					var data = table.rows('.selected').data();
 					for (var i = 0; i < numOfSelected; i++) {
-						var id = table.rows('.selected').data()[i][0];
+						var id = data[i][0];
 						$.ajax({
 							url: 'api/executions/' + id,
 							type: 'DELETE',
@@ -114,8 +118,11 @@
 							if (++numOfDeleted != numOfSelected) {
 								return;
 							}
-							// Everything was deleted, we can refresh the table.
-							location.reload();
+							// Unselecting all elements
+							$(".selected").removeClass("selected");
+							// Everything was deleted, we can reload the table.
+							table.ajax.reload(null, false);
+
 						});
 					}
 
