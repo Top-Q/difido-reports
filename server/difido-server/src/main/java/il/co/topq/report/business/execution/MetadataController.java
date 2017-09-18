@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,9 +129,12 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		ExecutionMetadata executionMetaData = persistency.get(executionId);
 
 		try {
-			final Date startTime = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER
-					.parse(executionMetaData.getTimestamp());
-			executionMetaData.setDuration(new Date().getTime() - startTime.getTime());
+			String timestamp = executionMetaData.getTimestamp();
+			if (!StringUtils.isEmpty(timestamp)) {
+				final Date startTime = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER
+						.parse(executionMetaData.getTimestamp());
+				executionMetaData.setDuration(new Date().getTime() - startTime.getTime());
+			}
 		} catch (ParseException e) {
 			log.warn("Failed to parse start time of execution: " + executionMetaData.getTimestamp());
 		}

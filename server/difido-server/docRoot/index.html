@@ -16,44 +16,64 @@
 
 	<style>
 		h2 {
-			color: #CCCCCC;
+			color: #888585;
 			text-align: center;
 		}
 
 		div.dt-buttons {
 			text-align: center;
 		}
+
+		.top-buffer {
+			margin-top: 20px;
+		}
+
+		.header-row {
+			margin-top: 40px;
+		}
 	</style>
 </head>
 
 <body>
 	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-		<div class="container-fluid">
-			<div class="navbar-header">
-				<a class="navbar-brand" href="#">Difido</a>
-			</div>
-			<ul id="navbar" class="nav navbar-nav">
-				<li class="active"><a href="#">Execution Reports</a></li>
-				<li><a href="kibana.html">Kibana</a></li>
-				<li><a href="lastreports.html">Last Reports</a></li>
-			</ul>
+		<div class="navbar-header">
+			<a class="navbar-brand" href="#">Difido</a>
 		</div>
+		<ul id="navbar" class="nav navbar-nav">
+			<li class="active"><a href="#">Execution Reports</a></li>
+			<li><a href="kibana.html">Kibana</a></li>
+			<li><a href="lastreports.html">Last Reports</a></li>
+		</ul>
 	</nav>
+	<div></div>
 	<div class="container-fluid">
-		<!--<div class="row">-->
-		<div class="col-md-12 main">
-			<h2>Execution Reports</h2>
-			<hr>
-			<table id="etable" class="display">
-				<thead>
-					<tr></tr>
-				</thead>
-				<tfoot>
-					<tr></tr>
-				</tfoot>
-			</table>
+		<div class="row header-row">
+			<div class="col-sm-12">
+				<h2>Difido Execution Reports</h2>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-0">
+			</div>
+			<div class="col-sm-12">
+				<div id="btn-container">
+				</div>
+				<br>
+			</div>
+		</div>
+		<div class="row top-buffer">
+			<div class="col-sm-12 main">
+				<table id="etable" class="display">
+					<thead>
+						<tr></tr>
+					</thead>
+					<tfoot>
+						<tr></tr>
+					</tfoot>
+				</table>
 
-			<hr>
+				<hr>
+			</div>
 		</div>
 	</div>
 
@@ -90,8 +110,6 @@
 					table.ajax.reload(null, false);
 				});
 			}
-
-
 		}
 
 		function deleteSelected(table) {
@@ -332,10 +350,16 @@
 							$('#exe' + id).toggleClass('selected');
 						});
 					}
-				})
+				});
+
+			// Adding the buttons to the buttons container
+			table.buttons(0, null).containers().appendTo('#btn-container');
+
+			// Adding the select unselect functionality to the table
 			$('#etable tbody').on('click', 'td', function () {
 				if ($(this).hasClass("unselectable")) {
-					// This is probably the link column.
+					// This is probably the link column and the click should open the link and 
+					// not select the row
 					return;
 				}
 				$(this).parent().toggleClass('selected');
@@ -343,7 +367,7 @@
 			setInterval(function () {
 				// user paging is not reset on reload
 				table.ajax.reload(null, false);
-			}, 30000);
+			}, 30000); // Change this number to change the deload interval
 
 		}
 	</script>
