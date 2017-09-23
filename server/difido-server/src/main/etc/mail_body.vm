@@ -1,0 +1,90 @@
+#set ($s_color = "#43A047")
+#set ($f_color = "#E53935")
+#set ($e_color = "#D32F2F")
+#set ($w_color = "#FFEB3B")
+
+<h2>
+#if ($meta.numOfFailedTests > 0)
+<font color=$f_color>
+Execution that started in $meta.timestamp has finished with failures
+</font>
+#else
+<font color=$s_color>
+Execution that started in $meta.timestamp has finished with no failures
+</font>
+#end
+</h2>
+<br>
+<h3>Summary</h3>
+<hr>
+<table border="0" style="width:60%">
+	<tr>
+		<td>Total Tests</td>
+		<td>$meta.numOfTests</td>
+	</tr>
+	<tr>
+		<td>Successful Tests</td>
+		<td>$meta.numOfSuccessfulTests</td>
+	</tr>
+	<tr>
+		<td>Failed Tests</td>
+		<td>$meta.numOfFailedTests</td>
+	</tr>
+	<tr>
+		<td>Tests with Warnings</td>
+		<td>$meta.numOfTestsWithWarnings</td>
+	</tr>
+	<tr>
+		<td>Machines</td>
+		<td>$meta.numOfMachines</td>
+	</tr>
+</table>
+<br><br>
+<h3>Tests</h3>
+<hr>
+#foreach( $machine in $meta.execution.machines)
+	<p><b>Machine:</b> $machine.name</p>
+	<table border="0" style="width:100%">
+	#foreach ($child in $machine.getChildren(true))
+		#if ($child.class.simpleName == "TestNode")
+			<tr>
+				<td>  </td>
+				<td> <a href="http://$host:$port/$meta.uri.replace("index.html","tests/test_$child.uid/test.html")">$child.name</a></td>
+				#if ($child.status == "success")
+					<td bgcolor=$s_color><font color="white"> $child.status </font></td>
+				#elseif ($child.status == "error")
+					<td bgcolor=$e_color><font color="white"> $child.status </font></td>
+				#elseif ($child.status == "failure")
+					<td bgcolor=$f_color><font color="white"> $child.status </font></td>
+				#elseif ($child.status == "warning")
+					<td bgcolor=$w_color><font color="white"> $child.status </font></td>
+				#else 
+					<td> $child.status</td>
+				#end
+			</tr>
+		#else
+			<tr>
+				<td colspan="3"> <b>$child.name</b> </td>
+			</tr>
+			
+		#end
+	#end
+	</table>
+#end
+<p>
+<br><br>
+#if ($meta.properties && $meta.properties.size() > 0)
+	<h3>Properties</h3>
+	<hr>
+	<table border="0" style="width:70%">
+		#foreach( $key in $meta.properties.keySet())
+			<tr>
+				<td>$key</td>
+				<td>$meta.properties[$key]</td>
+			</tr>
+		#end
+	</table>
+#end
+<br><br>
+Full report can be found in this <a href="http://$host:$port/$meta.uri">link</a> 
+</p>

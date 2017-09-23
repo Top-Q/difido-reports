@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Show the dashboards of the last executions">
+    <meta name="author" content="Itai Agmon">
+    <title id="title">Last Reports</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #333;
+            margin: 0;
+        }
+
+        #frame {
+            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 5px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            border: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Difido</a>
+            </div>
+            <ul id="navbar" class="nav navbar-nav">
+                <li><a href="index.html">Execution Reports</a></li>
+                <li><a href="kibana.html">Kibana</a></li>
+                <li class="active"><a href="#">Last Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+    <iframe id="frame"></iframe>
+
+    <script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        var executions = [];
+        var index = 0;
+
+        function getNumberOfExecutions() {
+            return new Promise(function (fulfill, reject) {
+                $.ajax({
+                    url: '/api/settings',
+                    type: 'GET',
+                }).done(function (settings) {
+                    var regex = /last.reports.num.of.executions:(.+)/;
+                    if (regex.test(settings)) {
+                        var numOfExecutions = regex.exec(settings)[1].trim();
+                        fulfill(numOfExecutions);
+                    } else {
+                        reject();
+                    }
+                });
+
+            });
+
+        }
+
+        function getInterval() {
+            return new Promise(function (fulfill, reject) {
+                $.ajax({
+                    url: '/api/settings',
+                    type: 'GET',
+                }).done(function (settings) {
+                    var regex = /last.reports.interval.in.sec:(.+)/;
+                    if (regex.test(settings)) {
+                        var numOfExecutions = regex.exec(settings)[1].trim();
+                        fulfill(numOfExecutions);
+                    } else {
+                        reject();
+                    }
+                });
+
+            });
+
+        }
+
+        function getReportsTable() {
+            return new Promise(function (fulfill, reject) {
+                $.ajax({
+                    url: '/api/reports',
+                    type: 'GET',
+                }).done(function (reportsTable) {
+                    fulfill(reportsTable);
+                });
+
+            });
+
+        }
+
+        function showReports(numOfExecutions) {
+            getReportsTable().then(function (json) {
+                executions = [];
+                json.data.forEach(function (execution) {
+                    if (numOfExecutions-- > 0) {
+                        executions.push(execution)
+                    }
+                });
+                if (executions.length === 0) {
+                    return;
+                }
+                $("#frame").attr("src", executions[index++ % executions.length][2]);
+            });
+
+        }
+
+        function autoHideNavbar() {
+            onmousemove = function (e) {
+                if (e.clientY < 30) {
+                    $('.navbar').fadeIn();
+                } else {
+                    $('.navbar').fadeOut();
+                }
+            };
+
+        }
+
+        $(document).ready(function () {
+            populateNavBar();
+            autoHideNavbar();
+            getNumberOfExecutions()
+                .then(function (numOfExecutions) {
+                    getInterval()
+                        .then(function (interval) {
+                            showReports(numOfExecutions);
+                            setInterval(showReports, interval * 1000, numOfExecutions);
+                        }).catch(function () {
+                            showReports(numOfExecutions);
+                            setInterval(showReports, 10000, numOfExecutions);
+                        });
+                }).catch(function () {
+                    getInterval()
+                        .then(function (interval) {
+                            showReports(1);
+                            setInterval(showReports, interval * 1000, 1);
+                        }).catch(function () {
+                            showReports(1);
+                            setInterval(showReports, 10000, 1);
+                        });
+                });
+        });
+    </script>
+</body>
+
+</html>

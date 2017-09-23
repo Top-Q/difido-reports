@@ -74,20 +74,6 @@ public class ExecutionResource {
 	}
 
 	/**
-	 * Used to update that a single execution should not be active any more.
-	 * This is Irreversible.
-	 * 
-	 * @param executionIndex
-	 *            the id of the execution
-	 * @param active
-	 *            - Set to not active
-	 * @param locked
-	 *            - Set the execution to locked. Will no be deleted
-	 * 
-	 */
-	
-	
-	/**
 	 * Used to update that a single execution should not be active any more. This is Irreversible.
 	 * Also allows updating the execution description & comment through the metadata parameter
 	 * 
@@ -127,11 +113,21 @@ public class ExecutionResource {
 			for (String keyValuePair : keyValuePairs) {
 				String[] keyValueSplit = keyValuePair.split("=");
 				
-				if (keyValueSplit[0].equalsIgnoreCase("description") && !keyValueSplit[1].trim().equals("")) {
-					executionMetadata.setDescription(keyValueSplit[1]);
+				if (keyValueSplit[0].equalsIgnoreCase("description")) {
+					if (keyValueSplit.length > 1 && !keyValueSplit[1].trim().equals("")) {
+						executionMetadata.setDescription(keyValueSplit[1]);
+					}
+					else {
+						executionMetadata.setDescription("");
+					}
 				}
-				else if (keyValueSplit[0].equalsIgnoreCase("comment") && !keyValueSplit[1].trim().equals("")) {
-					executionMetadata.setComment(keyValueSplit[1]);
+				else if (keyValueSplit[0].equalsIgnoreCase("comment") ) {
+					if (keyValueSplit.length > 1 && !keyValueSplit[1].trim().equals("")) {
+						executionMetadata.setComment(keyValueSplit[1]);
+					}
+					else {
+						executionMetadata.setComment("");
+					}
 				}
 			}
 			

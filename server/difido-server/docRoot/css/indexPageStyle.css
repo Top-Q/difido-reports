@@ -1,16 +1,35 @@
 h2 {
-	color: #CCCCCC;
+	color: #888585;
 	text-align: center;
 }
 
-div.dt-buttons {			
+div.dt-buttons {
 	text-align: center;
 }
 
-button {
-	font-size: 12px;
-	font-weight: bold;
+.top-buffer {
+	margin-top: 20px;
 }
+
+.header-row {
+	margin-top: 40px;
+}
+
+.a_button, .a_button:hover {
+	text-decoration: none;
+	color: black;
+	/*float: right;
+	margin-right: 5px;*/
+}
+
+.span_button {
+      appearance: button; /* CSS3 */
+      -webkit-appearance: button; /* Safari and Chrome */
+      -moz-appearance: button; /* Firefox */
+      -ms-appearance: button; /* Internet Explorer */
+      -o-appearance: button; /* Opera */
+      padding: 2px 10px 2px 10px;
+} 
 
 #execution_edit_modal {
 	display: none;

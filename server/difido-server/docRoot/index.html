@@ -1,38 +1,65 @@
 <!DOCTYPE html>
+
 <html>
+
 
 <head>
 	<meta charset="UTF-8">
 	<meta name="description" content="Main view of the Difido report server">
 	<meta name="author" content="Itai Agmon">
 	<title>List of Reports</title>
+
 	<link href="css/bootstrap.min.css" rel="stylesheet">
 	<link href="css/buttons.dataTables.min.css" rel="stylesheet">
 	<link href="css/jquery.dataTables.min.css" rel="stylesheet">
+	<link href="css/font-awesome.css" rel="stylesheet">
 	<link href="css/indexPageStyle.css" rel="stylesheet">
+
+	<style>
+
+	</style>
 </head>
 
 <body>
 	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-	  <div class="container-fluid">
-	    <div class="navbar-header">
-	      <a class="navbar-brand" href="#">Difido</a>
-	    </div>
-	    <ul id="navbar" class="nav navbar-nav">
-	      <li class="active"><a href="#">Execution Reports</a></li>
-	      <li><a href="kibana.html">Kibana</a></li>
-	    </ul>
-	  </div>
+		<div class="navbar-header">
+			<a class="navbar-brand" href="#">Difido</a>
+		</div>
+		<ul id="navbar" class="nav navbar-nav">
+			<li class="active"><a href="#">Execution Reports</a></li>
+			<li><a href="kibana.html">Kibana</a></li>
+			<li><a href="lastreports.html">Last Reports</a></li>
+		</ul>
 	</nav>
+	<div></div>
 	<div class="container-fluid">
-		<!--<div class="row">-->
-		<div class="col-md-12 main">
-			<h2>Execution Reports</h2>
-			<hr>
-			<table id="etable" class="display">
-			</table>
+		<div class="row header-row">
+			<div class="col-sm-12">
+				<h2>Difido Execution Reports</h2>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-0">
+			</div>
+			<div class="col-sm-12">
+				<div id="btn-container">
+				</div>
+				<br>
+			</div>
+		</div>
+		<div class="row top-buffer">
+			<div class="col-sm-12 main">
+				<table id="etable" class="display">
+					<thead>
+						<tr></tr>
+					</thead>
+					<tfoot>
+						<tr></tr>
+					</tfoot>
+				</table>
 
-			<hr>
+				<hr>
+			</div>
 		</div>
 	</div>
 
@@ -63,6 +90,6 @@
 	<script src="js/common.js"></script>
 	<script src="js/indexPageScript.js"></script>
 
-	</body>
+</body>
 
 </html>
