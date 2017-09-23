@@ -6,18 +6,11 @@ $(document).ready(function() {
 	
 	$("#execution_edit_form").submit(function(){
 		
-		if(confirm('Update execution #' + executionId + ' description / comment?')) {
+		if(confirm('Update Execution #' + executionId + ' description / comment?')) {
 			
-			var executionEditRequestJson = {
-				"executionId": executionId,
-				"executionDescription": $('#execution_edit_form [name="executionDescription"]').val(),
-				"executionComment": $('#execution_edit_form [name="executionComment"]').val()
-			};
-		
 			$.ajax({
-						url : 'api/executions/update',
-						type : 'POST',
-						data: JSON.stringify(executionEditRequestJson),
+						url : 'api/executions/' + executionId + '?metadata=description=' + $('#execution_edit_form [name="executionDescription"]').val() + ';comment=' + $('#execution_edit_form [name="executionComment"]').val(),
+						type : 'PUT',		
 						contentType: "application/json;charset=utf-8"
 					})
 					.done(function(text) {
@@ -25,7 +18,7 @@ $(document).ready(function() {
 						location.reload();
 					})
 					.fail(function() {
-						alert("Error updating execution #" + executionEditRequestJson.executionId);
+						alert("Error updating execution #" + executionId);
 						location.reload();							
 					});
 			
@@ -129,10 +122,11 @@ function maketable(json) {
 		}
 		$(this).parent().toggleClass('selected');
 	});
-
 }
 
 function executionDetails(execId) {
+	
+	executionId = execId;
 	
 	$('#edit_exec_title').html("Execution #" + execId);
 	
@@ -145,10 +139,16 @@ function executionDetails(execId) {
 		$('#execution_edit_form [name="executionComment"]').val(metadataObj.comment);
 	});
 	
-	$('#execution_edit_container').css("display", "block");
+	$('#execution_edit_modal').css("display", "block");
 	
 	$('.close').click(function() {
-		$('#execution_edit_container').css("display", "none");
+		$('#execution_edit_modal').css("display", "none");
+	});
+	
+	$("#execution_edit_modal").click(function(e) {
+		if (e.target.getAttribute("id") === "execution_edit_modal" ) {
+			$('#execution_edit_modal').css("display", "none");
+		}
 	});
 }
 

@@ -36,20 +36,22 @@
 		</div>
 	</div>
 
-	<div id="execution_edit_container" class="modal">
-		<span id="edit_exec_title">Edit Execution</span> <span class="close">&times;</span>
-		
-		<form id="execution_edit_form">
-			<label for="executionDescription">Description: </label><br>
-			<input type="text" name="executionDescription" id="executionDescription"><br>
+	<div id="execution_edit_modal" >
+		<div id="execution_edit">
+			<span id="edit_exec_title">Edit Execution</span> <span class="close">&times;</span>
 			
-			<label for="executionComment">Comment: </label><br>
-			<textarea rows="5" cols="45" name="executionComment" id="executionComment" form="execution_edit_form"></textarea>
-			<br><br>
-			<input type="submit" value="Update execution description / comment">
-		</form>
+			<form id="execution_edit_form">
+				<label for="executionDescription">Description: </label><br>
+				<input type="text" name="executionDescription" id="executionDescription"><br>
+				
+				<label for="executionComment">Comment: </label><br>
+				<textarea rows="5" cols="45" name="executionComment" id="executionComment" form="execution_edit_form"></textarea>
+				<br><br>
+				<input type="submit" value="Update execution description / comment">
+			</form>
+		</div>
 	</div>
-		
+
 	<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
 	<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 	<script type="text/javascript" src="js/dataTables.buttons.min.js"></script>
