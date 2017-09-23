@@ -72,11 +72,12 @@ div.dt-buttons {
 }
 
 #execution_edit input {
-	width: 340px;
+	width: 355px;
 }
 
 #execution_edit textarea {
-	width: 340px;
+	width: 355px;
+	height: 120px;
 }
 
 #execution_edit label {
