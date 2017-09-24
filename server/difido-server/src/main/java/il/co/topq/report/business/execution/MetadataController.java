@@ -59,6 +59,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		metaData.setId(persistency.advanceId());
 		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + metaData.getId());
 		metaData.setUri(Common.REPORTS_FOLDER_NAME + "/" + metaData.getFolderName() + "/index.html");
+		metaData.setComment("");
 		metaData.setActive(true);
 		if (executionDetails != null) {
 			metaData.setDescription(executionDetails.getDescription());

@@ -33,6 +33,11 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	private String description;
 
 	/**
+	 * A comment for the execution that might be added later (after the execution ended)
+	 */
+	private String comment;
+	
+	/**
 	 * Free list of properties that can be specified by the user
 	 */
 	private Map<String, String> properties;
@@ -160,6 +165,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 			this.folderName = metaData.folderName;
 			this.id = metaData.id;
 			this.description = metaData.description;
+			this.comment = metaData.comment;
 			this.shared = metaData.shared;
 			this.properties = metaData.properties;
 			this.lastAccessedTime = metaData.lastAccessedTime;
@@ -233,6 +239,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		return new ToStringBuilder(this)
 				.append("id", id)
 				.append("description", description)
+				.append("comment", comment)
 				.append("properties", properties)
 				.append("shared", shared)
 				.append("folderName", folderName)
@@ -457,6 +464,14 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		this.duration = duration;
 	}
 
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+	
 	@JsonIgnore
 	public boolean isDirty() {
 		return dirty;
@@ -466,5 +481,4 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	public void setDirty(boolean dirty) {
 		this.dirty = dirty;
 	}
-
 }
