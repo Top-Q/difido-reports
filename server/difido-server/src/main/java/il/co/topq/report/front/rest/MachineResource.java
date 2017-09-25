@@ -63,11 +63,28 @@ public class MachineResource {
 			MachineNode machine) {
 		log.debug("PUT - Update machine to execution with id " + executionId);
 		if (null == machine) {
+			log.error("Trying to update machine with null machine");
 			throw new WebApplicationException("Machine can't be null");
 		}
 		final ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
 		if (null == metadata) {
+			log.error("Execution with id " + executionId + " is not exist");
 			throw new WebApplicationException("Execution with id " + executionId + " is not exist");
+		}
+		if (null == metadata.getExecution()) {
+			log.error("Metadata of execution with id " + executionId + " exists but the execution is null");
+			throw new WebApplicationException(
+					"Metadata of execution with id " + executionId + " exists but the execution is null");
+		}
+		if (null == metadata.getExecution().getMachines()) {
+			log.error("Trying to update machines in execution " + executionId + "while no machines were added");
+			throw new WebApplicationException(
+					"Trying to update machines in execution " + executionId + "while no machines were added");
+		}
+		if (null == metadata.getExecution().getMachines().get(machineId)) {
+			log.error("Trying to update none existing machine with id " + machineId + " in execution " + executionId);
+			throw new WebApplicationException(
+					"Trying to update none existing machine with id " + machineId + " in execution " + executionId);
 		}
 		metadata.getExecution().getMachines().set(machineId, machine);
 		publisher.publishEvent(new MachineCreatedEvent(metadata, machine));
@@ -80,11 +97,11 @@ public class MachineResource {
 		log.debug("GET - Get machine from execution with id " + execution + " and machine id " + machine);
 		return metadataProvider.getMetadata(execution).getExecution().getMachines().get(machine);
 	}
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<MachineNode> getMachines(@PathParam("execution") int execution) {
-		log.debug("GET - Get machines from execution with id " + execution );
+		log.debug("GET - Get machines from execution with id " + execution);
 		return metadataProvider.getMetadata(execution).getExecution().getMachines();
 	}
 
