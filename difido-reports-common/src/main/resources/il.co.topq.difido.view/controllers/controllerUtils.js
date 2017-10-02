@@ -6,10 +6,10 @@
 
 function getTestColors(){
     var colors = new Object();
-    colors.success = "#81C784";
-    colors.error = "#FF8A65";
-    colors.failure = "#E57373";
-    colors.warning = "#FFD54F";
+    colors.success = "#26ce7a";
+    colors.error = "#cc4040";
+    colors.failure = "#ff4242";
+    colors.warning = "#ffcc00";
     return colors;
 }
 
