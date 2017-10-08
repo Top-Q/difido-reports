@@ -49,7 +49,8 @@ public enum Configuration {
 		CUSTOM_EXECUTION_PROPERTIES("custom.execution.properties", ""),
 		PLUGIN_CLASSES("plugin.classes", "il.co.topq.report.plugins.mail.DefaultMailPlugin"),
 		LAST_REPORTS_INTERVAL_IN_SEC("last.reports.interval.in.sec", "10"),
-		LAST_REPORTS_NUM_OF_EXECUTIONS("last.reports.num.of.executions", "4");
+		LAST_REPORTS_NUM_OF_EXECUTIONS("last.reports.num.of.executions", "4"),
+		LAST_REPORTS_FILTER("last.reports.filter","");
 		// @formatter:off
 
 		private final String propName;

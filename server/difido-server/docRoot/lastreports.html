@@ -52,38 +52,32 @@
         var executions = [];
         var index = 0;
 
-        function getNumberOfExecutions() {
+        function getSettings() {
             return new Promise(function (fulfill, reject) {
                 $.ajax({
                     url: '/api/settings',
                     type: 'GET',
                 }).done(function (settings) {
+                    var result = {};
                     var regex = /last.reports.num.of.executions:(.+)/;
                     if (regex.test(settings)) {
-                        var numOfExecutions = regex.exec(settings)[1].trim();
-                        fulfill(numOfExecutions);
+                        result['numOfExecs'] = parseInt(regex.exec(settings)[1].trim());
                     } else {
-                        reject();
+                        result['numOfExecs'] = 4;
                     }
-                });
-
-            });
-
-        }
-
-        function getInterval() {
-            return new Promise(function (fulfill, reject) {
-                $.ajax({
-                    url: '/api/settings',
-                    type: 'GET',
-                }).done(function (settings) {
-                    var regex = /last.reports.interval.in.sec:(.+)/;
+                    regex = /last.reports.interval.in.sec:(.+)/;
                     if (regex.test(settings)) {
-                        var numOfExecutions = regex.exec(settings)[1].trim();
-                        fulfill(numOfExecutions);
+                        result['interval'] = parseInt(regex.exec(settings)[1].trim());
                     } else {
-                        reject();
+                        result['interval'] = 10;
                     }
+                    regex = /last.reports.filter:(.+)/;
+                    if (regex.test(settings)) {
+                        result['filter'] = regex.exec(settings)[1].trim();
+                    } else {
+                        result['filter'] = "";
+                    }
+                    fulfill(result);
                 });
 
             });
@@ -103,12 +97,40 @@
 
         }
 
-        function showReports(numOfExecutions) {
+        function showReports(numOfExecutions, filter) {
             getReportsTable().then(function (json) {
-                executions = [];
+                var executions = [];
+                
+                // Create filter objects from the filter
+                var filterObjects = [];
+                if (filter !== "") {
+                    filter.split(";").forEach(function (keyValuePair) {
+                        var filterObj = {};
+                        filterObj["key"] = keyValuePair.split("=")[0];
+                        filterObj["value"] = keyValuePair.split("=")[1];
+                        for (var i = 0; i < json.columns.length; i++) {
+                            if (json.columns[i] === filterObj["key"]) {
+                                filterObj["index"] = i;
+                            }
+                        }
+                        filterObjects.push(filterObj);
+                    });
+                }
+
+                // Select the executions to show in the last report
                 json.data.forEach(function (execution) {
-                    if (numOfExecutions-- > 0) {
-                        executions.push(execution)
+                    if (numOfExecutions > 0) {
+                        var toReport = true;
+                        for (var i = 0; i < filterObjects.length; i++) {
+                            if (execution[filterObjects[i].index] === undefined || execution[filterObjects[i].index] !== filterObjects[i].value) {
+                                toReport = false;
+                            }
+                        }
+                        if (toReport) {
+                            executions.push(execution)
+                            numOfExecutions--;
+
+                        }
                     }
                 });
                 if (executions.length === 0) {
@@ -133,25 +155,12 @@
         $(document).ready(function () {
             populateNavBar();
             autoHideNavbar();
-            getNumberOfExecutions()
-                .then(function (numOfExecutions) {
-                    getInterval()
-                        .then(function (interval) {
-                            showReports(numOfExecutions);
-                            setInterval(showReports, interval * 1000, numOfExecutions);
-                        }).catch(function () {
-                            showReports(numOfExecutions);
-                            setInterval(showReports, 10000, numOfExecutions);
-                        });
+            getSettings()
+                .then(function (settings) {
+                    showReports(settings['numOfExecs'], settings['filter']);
+                    setInterval(showReports, settings['interval'] * 1000, settings['numOfExecs'], settings['filter']);
                 }).catch(function () {
-                    getInterval()
-                        .then(function (interval) {
-                            showReports(1);
-                            setInterval(showReports, interval * 1000, 1);
-                        }).catch(function () {
-                            showReports(1);
-                            setInterval(showReports, 10000, 1);
-                        });
+                    console.log("Failed showing reports");
                 });
         });
     </script>
