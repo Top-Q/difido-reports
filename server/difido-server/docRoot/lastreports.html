@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Show the dashboards of the last executions">
+    <meta name="author" content="Itai Agmon">
+    <title id="title">Last Reports</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #333;
+            margin: 0;
+        }
+
+        #frame {
+            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 5px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            border: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Difido</a>
+            </div>
+            <ul id="navbar" class="nav navbar-nav">
+                <li><a href="index.html">Execution Reports</a></li>
+                <li><a href="kibana.html">Kibana</a></li>
+                <li class="active"><a href="#">Last Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+    <iframe id="frame"></iframe>
+
+    <script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        var executions = [];
+        var index = 0;
+
+        function getSettings() {
+            return new Promise(function (fulfill, reject) {
+                $.ajax({
+                    url: '/api/settings',
+                    type: 'GET',
+                }).done(function (settings) {
+                    var result = {};
+                    var regex = /last.reports.num.of.executions:(.+)/;
+                    if (regex.test(settings)) {
+                        result['numOfExecs'] = parseInt(regex.exec(settings)[1].trim());
+                    } else {
+                        result['numOfExecs'] = 4;
+                    }
+                    regex = /last.reports.interval.in.sec:(.+)/;
+                    if (regex.test(settings)) {
+                        result['interval'] = parseInt(regex.exec(settings)[1].trim());
+                    } else {
+                        result['interval'] = 10;
+                    }
+                    regex = /last.reports.filter:(.+)/;
+                    if (regex.test(settings)) {
+                        result['filter'] = regex.exec(settings)[1].trim();
+                    } else {
+                        result['filter'] = "";
+                    }
+                    fulfill(result);
+                });
+
+            });
+
+        }
+
+        function getReportsTable() {
+            return new Promise(function (fulfill, reject) {
+                $.ajax({
+                    url: '/api/reports',
+                    type: 'GET',
+                }).done(function (reportsTable) {
+                    fulfill(reportsTable);
+                });
+
+            });
+
+        }
+
+        function showReports(numOfExecutions, filter) {
+            getReportsTable().then(function (json) {
+                var executions = [];
+                
+                // Create filter objects from the filter
+                var filterObjects = [];
+                if (filter !== "") {
+                    filter.split(";").forEach(function (keyValuePair) {
+                        var filterObj = {};
+                        filterObj["key"] = keyValuePair.split("=")[0];
+                        filterObj["value"] = keyValuePair.split("=")[1];
+                        for (var i = 0; i < json.columns.length; i++) {
+                            if (json.columns[i] === filterObj["key"]) {
+                                filterObj["index"] = i;
+                            }
+                        }
+                        filterObjects.push(filterObj);
+                    });
+                }
+
+                // Select the executions to show in the last report
+                json.data.forEach(function (execution) {
+                    if (numOfExecutions > 0) {
+                        var toReport = true;
+                        for (var i = 0; i < filterObjects.length; i++) {
+                            if (execution[filterObjects[i].index] === undefined || execution[filterObjects[i].index] !== filterObjects[i].value) {
+                                toReport = false;
+                            }
+                        }
+                        if (toReport) {
+                            executions.push(execution)
+                            numOfExecutions--;
+
+                        }
+                    }
+                });
+                if (executions.length === 0) {
+                    return;
+                }
+                $("#frame").attr("src", executions[index++ % executions.length][2]);
+            });
+
+        }
+
+        function autoHideNavbar() {
+            onmousemove = function (e) {
+                if (e.clientY < 30) {
+                    $('.navbar').fadeIn();
+                } else {
+                    $('.navbar').fadeOut();
+                }
+            };
+
+        }
+
+        $(document).ready(function () {
+            populateNavBar();
+            autoHideNavbar();
+            getSettings()
+                .then(function (settings) {
+                    showReports(settings['numOfExecs'], settings['filter']);
+                    setInterval(showReports, settings['interval'] * 1000, settings['numOfExecs'], settings['filter']);
+                }).catch(function () {
+                    console.log("Failed showing reports");
+                });
+        });
+    </script>
+</body>
+
+</html>

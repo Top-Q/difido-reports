@@ -2,10 +2,8 @@ package il.co.topq.report.business.report;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +20,12 @@ public class ExecutionTableService {
 
 	private static final Logger log = LoggerFactory.getLogger(ExecutionTableService.class);
 
-	private static final String ID = "Id";
+	private static final String ID = "ID";
 	private static final String DESCRIPTION = "Description";
 	private static final String LINK = "Link";
 	private static final String DATE = "Date";
 	private static final String TIME = "Time";
+	private static final String DURATION = "Duration";
 	private static final String NUM_OF_TESTS = "# Tests";
 	private static final String NUM_OF_SUCCESSFUL = "# Successful";
 	private static final String NUM_OF_WARNINGS = "# Warnings";
@@ -34,8 +33,8 @@ public class ExecutionTableService {
 	private static final String NUM_OF_MACHINES = "# Machines";
 	private static final String ACTIVE = "Active";
 	private static final String LOCKED = "Locked";
-	private static final String[] DEFAULT_HEADERS = new String[] { ID, DESCRIPTION, LINK, DATE, TIME, NUM_OF_TESTS,
-			NUM_OF_SUCCESSFUL, NUM_OF_WARNINGS, NUM_OF_FAILS, NUM_OF_MACHINES, ACTIVE, LOCKED };
+	private static final String[] DEFAULT_HEADERS = new String[] { ID, DESCRIPTION, LINK, DATE, TIME, DURATION,
+			NUM_OF_TESTS, NUM_OF_SUCCESSFUL, NUM_OF_WARNINGS, NUM_OF_FAILS, NUM_OF_MACHINES, ACTIVE, LOCKED };
 
 	public DataTable initTable(ExecutionMetadata[] metaData) {
 		DataTable table = new DataTable();
@@ -65,17 +64,21 @@ public class ExecutionTableService {
 				if (null == meta.getProperties()) {
 					continue;
 				}
-				headers.addAll(meta.getProperties().keySet());
+				for (String header: meta.getProperties().keySet()) {
+					if (!headers.contains(header)) {
+						headers.add(header);
+					}
+				}
 			}
 		}
 
 		for (String header : headers) {
-			table.headers.add(header.trim());
+			table.columns.add(header.trim());
 		}
 
 		StopWatch stopWatch = new StopWatch(log).start("Populating rows");
 		for (ExecutionMetadata meta : metaData) {
-			final Map<String, Object> row = new HashMap<String, Object>();
+			final List<String> row = new ArrayList<>();
 			for (String header : headers) {
 				populateRow(table, row, header, meta);
 			}
@@ -85,67 +88,79 @@ public class ExecutionTableService {
 		return table;
 	}
 
-	private void populateRow(DataTable table, Map<String, Object> row, String header, ExecutionMetadata meta) {
-		if (!table.headers.contains(header)) {
-			table.headers.add(header);
+	private void populateRow(DataTable table, List<String> row, String header, ExecutionMetadata meta) {
+		if (!table.columns.contains(header)) {
+			table.columns.add(header);
 		}
 		if (header.equalsIgnoreCase(ID)) {
-			row.put(ID, meta.getId());
+			row.add(""+meta.getId());
 			return;
 		}
 		if (header.equalsIgnoreCase(DESCRIPTION)) {
 			if (meta.getDescription() != null && !meta.getDescription().isEmpty()) {
-				row.put(DESCRIPTION, meta.getDescription());
+				row.add(meta.getDescription());
 			} else {
-				row.put(DESCRIPTION, meta.getFolderName());
+				row.add(meta.getFolderName());
 			}
 			return;
 		}
 		if (header.equalsIgnoreCase(LINK)) {
-			row.put(LINK, meta.getUri());
+			row.add(meta.getUri());
 			return;
 		}
 		if (header.equalsIgnoreCase(DATE)) {
-			row.put(DATE, meta.getDate());
+			row.add(meta.getDate());
 			return;
 		}
 		if (header.equalsIgnoreCase(TIME)) {
-			row.put(TIME, meta.getTime());
+			row.add(meta.getTime());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_TESTS)) {
-			row.put(NUM_OF_TESTS, meta.getNumOfTests());
+			row.add(""+meta.getNumOfTests());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_SUCCESSFUL)) {
-			row.put(NUM_OF_SUCCESSFUL, meta.getNumOfSuccessfulTests());
+			row.add(""+meta.getNumOfSuccessfulTests());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_WARNINGS)) {
-			row.put(NUM_OF_WARNINGS, meta.getNumOfTestsWithWarnings());
+			row.add(""+meta.getNumOfTestsWithWarnings());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_FAILS)) {
-			row.put(NUM_OF_FAILS, meta.getNumOfFailedTests());
+			row.add(""+meta.getNumOfFailedTests());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_MACHINES)) {
-			row.put(NUM_OF_MACHINES, meta.getNumOfMachines());
+			row.add(""+meta.getNumOfMachines());
+			return;
+		}
+		if (header.equalsIgnoreCase(DURATION)) {
+			if (meta.getDuration() == 0) {
+				row.add("");
+				return;
+			}
+			long durInSec = Math.round(meta.getDuration() / 1000);
+			long durationHour = (long) Math.floor(((durInSec % 31536000) % 86400) / 3600);
+			long durationMin = (long) Math.floor((((durInSec % 31536000) % 86400) % 3600) / 60);
+			long durationSec = (((durInSec % 31536000) % 86400) % 3600) % 60;
+			row.add(durationHour + "h" + durationMin + "m" + durationSec + "s");
 			return;
 		}
 		if (header.equalsIgnoreCase(ACTIVE)) {
-			row.put(ACTIVE, meta.isActive());
+			row.add(""+ meta.isActive());
 			return;
 		}
 		if (header.equalsIgnoreCase(LOCKED)) {
-			row.put(LOCKED, meta.isLocked());
+			row.add(""+meta.isLocked());
 			return;
 		}
 		if (meta == null || meta.getProperties() == null) {
 			return;
 		}
 		String value = meta.getProperties().get(header);
-		row.put(header, value != null ? value : "");
+		row.add(value != null ? value : "");
 	}
 
 }

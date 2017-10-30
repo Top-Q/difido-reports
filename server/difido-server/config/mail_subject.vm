@@ -1,0 +1,7 @@
+#if ($meta.numOfFailedTests > 0)
+	Execution $meta.id has finished with $meta.numOfFailedTests failures out of $meta.numOfTests tests 
+#elseif ($meta.numOfTestsWithWarnings > 0)
+	Execution $meta.id has finished with $meta.numOfTestsWithWarnings warnings out of $meta.numOfTests tests 
+#else
+	Execution $meta.id has finished with $meta.numOfTests successful tests 
+#end

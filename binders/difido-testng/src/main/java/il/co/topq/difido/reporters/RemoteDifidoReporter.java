@@ -1,16 +1,19 @@
-package il.co.topq.difido;
-
-import il.co.topq.difido.RemoteDifidoProperties.RemoteDifidoOptions;
-import il.co.topq.difido.model.execution.Execution;
-import il.co.topq.difido.model.execution.ScenarioNode;
-import il.co.topq.difido.model.remote.ExecutionDetails;
-import il.co.topq.difido.model.test.TestDetails;
+package il.co.topq.difido.reporters;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import org.testng.ISuite;
+
+import il.co.topq.difido.config.RemoteDifidoConfig;
+import il.co.topq.difido.config.RemoteDifidoConfig.RemoteDifidoOptions;
+import il.co.topq.difido.model.execution.Execution;
+import il.co.topq.difido.model.execution.ScenarioNode;
+import il.co.topq.difido.model.remote.ExecutionDetails;
+import il.co.topq.difido.model.test.TestDetails;
 
 public class RemoteDifidoReporter extends AbstractDifidoReporter {
 
@@ -28,15 +31,22 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 
 	private int numOfFailures;
 
-	private RemoteDifidoProperties difidoProps;
+	private RemoteDifidoConfig difidoConfig;
 
 	private ExecutionDetails details;
+
+	/**
+	 * When files are added in the setup phase, there is no test context and no
+	 * test folder that they can be copied to. In those cases we keep the files
+	 * in list so we could send it to the server later on
+	 */
+	private List<File> bufferedFiles = new ArrayList<File>();
 
 	public RemoteDifidoReporter() {
 		super();
 		// We are doing it because we need that the file of the Difido
 		// properties to be created if it is not exists.
-		new RemoteDifidoProperties();
+		new RemoteDifidoConfig();
 
 	}
 
@@ -57,7 +67,7 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 		// We are not using shared execution, that means that we are the only
 		// one that are using it and we just ended with it, so let's set it to
 		// not active
-		if (executionId > 0 && !difidoProps.getPropertyAsBoolean(RemoteDifidoOptions.USE_SHARED_EXECUTION)) {
+		if (executionId > 0 && !difidoConfig.getPropertyAsBoolean(RemoteDifidoOptions.USE_SHARED_EXECUTION)) {
 			try {
 				client.endExecution(executionId);
 			} catch (Exception e) {
@@ -70,16 +80,16 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 
 	public void onStart(ISuite suite) {
 		super.onStart(suite);
-		difidoProps = new RemoteDifidoProperties();
+		difidoConfig = new RemoteDifidoConfig();
 		String host = null;
 		int port = 0;
 		try {
-			enabled = Boolean.parseBoolean(difidoProps.getPropertyAsString(RemoteDifidoOptions.ENABLED));
+			enabled = Boolean.parseBoolean(difidoConfig.getPropertyAsString(RemoteDifidoOptions.ENABLED));
 			if (!enabled) {
 				return;
 			}
-			host = difidoProps.getPropertyAsString(RemoteDifidoOptions.HOST);
-			port = Integer.parseInt(difidoProps.getPropertyAsString(RemoteDifidoOptions.PORT));
+			host = difidoConfig.getPropertyAsString(RemoteDifidoOptions.HOST);
+			port = Integer.parseInt(difidoConfig.getPropertyAsString(RemoteDifidoOptions.PORT));
 			client = new DifidoClient(host, port);
 			executionId = prepareExecution();
 			machineId = client.addMachine(executionId, getExecution().getLastMachine());
@@ -87,21 +97,21 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 			log.fine(RemoteDifidoReporter.class.getName() + " was initialized successfully");
 		} catch (Throwable t) {
 			enabled = false;
-			log.warning("Failed to init " + RemoteDifidoReporter.class.getName() + "connection with host '" + host
-					+ ":" + port + "' due to " + t.getMessage());
+			log.warning("Failed to init " + RemoteDifidoReporter.class.getName() + "connection with host '" + host + ":"
+					+ port + "' due to " + t.getMessage());
 		}
 
 	}
 
 	private int prepareExecution() throws Exception {
 		// Fetching properties
-		final boolean appendToExistingExecution = difidoProps
+		final boolean appendToExistingExecution = difidoConfig
 				.getPropertyAsBoolean(RemoteDifidoOptions.APPEND_TO_EXISTING_EXECUTION);
-		final boolean useSharedExecution = difidoProps.getPropertyAsBoolean(RemoteDifidoOptions.USE_SHARED_EXECUTION);
-		final String description = difidoProps.getPropertyAsString(RemoteDifidoOptions.DESCRIPTION);
-		final int id = difidoProps.getPropertyAsInt(RemoteDifidoOptions.EXISTING_EXECUTION_ID);
-		final boolean forceNewExecution = difidoProps.getPropertyAsBoolean(RemoteDifidoOptions.FORCE_NEW_EXECUTION);
-		final Map<String, String> properties = difidoProps.getPropertyAsMap(RemoteDifidoOptions.EXECUTION_PROPETIES);
+		final boolean useSharedExecution = difidoConfig.getPropertyAsBoolean(RemoteDifidoOptions.USE_SHARED_EXECUTION);
+		final String description = difidoConfig.getPropertyAsString(RemoteDifidoOptions.DESCRIPTION);
+		final int id = difidoConfig.getPropertyAsInt(RemoteDifidoOptions.EXISTING_EXECUTION_ID);
+		final boolean forceNewExecution = difidoConfig.getPropertyAsBoolean(RemoteDifidoOptions.FORCE_NEW_EXECUTION);
+		final Map<String, String> properties = difidoConfig.getPropertyAsMap(RemoteDifidoOptions.EXECUTION_PROPETIES);
 
 		if (appendToExistingExecution && !forceNewExecution) {
 			if (id >= 0) {
@@ -118,7 +128,6 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 		return client.addExecution(details);
 	}
 
-	
 	/**
 	 * We want to add all the execution properties for each scenario. This will
 	 * eventually appear in the ElasticSearch
@@ -134,9 +143,8 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 				scenario.addScenarioProperty(key, details.getExecutionProperties().get(key));
 			}
 		}
-		
-	}
 
+	}
 
 	@Override
 	protected void writeTestDetails(TestDetails testDetails) {
@@ -183,10 +191,35 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 		if (file == null || !file.exists()) {
 			return;
 		}
+		if (isInSetup()) {
+			bufferedFiles.add(file);
+		} else {
+			sendFileToServer(file);
+		}
+	}
+
+	private void sendFileToServer(File file) {
 		try {
 			client.addFile(executionId, getTestDetails().getUid(), file);
 		} catch (Exception e) {
 			log.warning("Failed uploading file " + file.getName() + " to remote server due to " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Elements that are created in setup phases, before test context is created
+	 * are stored and flushed in the beginning of the test. <br>
+	 * We use this to send files that were also added in the setup phase to the
+	 * server.
+	 */
+	@Override
+	protected void flushBufferedElements(String elementsDescription) {
+		super.flushBufferedElements(elementsDescription);
+		if (!bufferedFiles.isEmpty()) {
+			for (File file : bufferedFiles) {
+				sendFileToServer(file);
+			}
+			bufferedFiles.clear();
 		}
 	}
 
@@ -204,8 +237,5 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 	protected int getExecutionId() {
 		return executionId;
 	}
-
-	
-	
 
 }

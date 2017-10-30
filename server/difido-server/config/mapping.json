@@ -39,6 +39,9 @@
 				"executionId": {
 					"type": "long"
 				},
+				"executionDuration": {
+					"type": "long"
+				},
 				"machine": {
 					"type": "string",
 					"index": "not_analyzed"

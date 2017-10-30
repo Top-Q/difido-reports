@@ -12,40 +12,70 @@
 	<link href="css/bootstrap.min.css" rel="stylesheet">
 	<link href="css/buttons.dataTables.min.css" rel="stylesheet">
 	<link href="css/jquery.dataTables.min.css" rel="stylesheet">
+	<link href="css/font-awesome.css" rel="stylesheet">
+	<link href="css/indexPageStyle.css" rel="stylesheet">
 
 	<style>
-		h2 {
-			color: #CCCCCC;
-			text-align: center;
-		}
-		
-		div.dt-buttons {			
-			text-align: center;
-		}
+
 	</style>
 </head>
 
 <body>
 	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-	  <div class="container-fluid">
-	    <div class="navbar-header">
-	      <a class="navbar-brand" href="#">Difido</a>
-	    </div>
-	    <ul id="navbar" class="nav navbar-nav">
-	      <li class="active"><a href="#">Execution Reports</a></li>
-	      <li><a href="kibana.html">Kibana</a></li>
-	    </ul>
-	  </div>
+		<div class="navbar-header">
+			<a class="navbar-brand" href="#">Difido</a>
+		</div>
+		<ul id="navbar" class="nav navbar-nav">
+			<li class="active"><a href="#">Execution Reports</a></li>
+			<li><a href="kibana.html">Kibana</a></li>
+			<li><a href="lastreports.html">Last Reports</a></li>
+		</ul>
 	</nav>
+	<div></div>
 	<div class="container-fluid">
-		<!--<div class="row">-->
-		<div class="col-md-12 main">
-			<h2>Execution Reports</h2>
-			<hr>
-			<table id="etable" class="display">
-			</table>
+		<div class="row header-row">
+			<div class="col-sm-12">
+				<h2>Difido Execution Reports</h2>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-0">
+			</div>
+			<div class="col-sm-12">
+				<div id="btn-container">
+				</div>
+				<br>
+			</div>
+		</div>
+		<div class="row top-buffer">
+			<div class="col-sm-12 main">
+				<table id="etable" class="display">
+					<thead>
+						<tr></tr>
+					</thead>
+					<tfoot>
+						<tr></tr>
+					</tfoot>
+				</table>
 
-			<hr>
+				<hr>
+			</div>
+		</div>
+	</div>
+
+	<div id="execution_edit_modal" >
+		<div id="execution_edit">
+			<span id="edit_exec_title">Edit Execution</span> <span class="close">&times;</span>
+			
+			<form id="execution_edit_form">
+				<label for="executionDescription">Description: </label><br>
+				<input type="text" name="executionDescription" id="executionDescription"><br>
+				
+				<label for="executionComment">Comment: </label><br>
+				<textarea name="executionComment" id="executionComment" form="execution_edit_form"></textarea>
+				<br><br>
+				<input type="submit" value="Update execution description / comment">
+			</form>
 		</div>
 	</div>
 
@@ -58,220 +88,8 @@
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/bootbox.js"></script>
 	<script src="js/common.js"></script>
+	<script src="js/indexPageScript.js"></script>
 
-	<script>
-		function lockUnlockSelected(table,locked){
-			var numOfSelected = table.rows('.selected').data().length;
-			if (numOfSelected == 0) {
-				return;
-			}
-			var numOfChanged = 0;
-			for (var i = 0; i < numOfSelected; i++) {
-				var id = table.rows('.selected').data()[i].Id;
-				$.ajax({
-					url : 'api/executions/' + id + '?locked=' + locked,
-					type : 'PUT',
-				}).done(function() {
-					if (++numOfChanged != numOfSelected) {
-						return;
-					}
-					// Everything was locked, we can refresh the table.
-					location.reload();
-				});
-			}
-
-
-		}
-
-		function deleteSelected(table) {
-			var numOfSelected = table.rows('.selected').data().length;
-			if (numOfSelected == 0) {
-				return;
-			}
-			bootbox
-					.confirm(
-							"Are you sure you want to delete all selected execution reports?",
-							function(result) {
-								if (!result) {
-									return;
-								}
-
-								var numOfDeleted = 0;
-								for (var i = 0; i < numOfSelected; i++) {
-									var id = table.rows('.selected').data()[i].Id;
-									$.ajax({
-										url : 'api/executions/' + id,
-										type : 'DELETE',
-									}).done(function() {
-										if (++numOfDeleted != numOfSelected) {
-											return;
-										}
-										// Everything was deleted, we can refresh the table.
-										location.reload();
-									});
-								}
-
-							});
-		}
-
-		function executePlugin(table) {
-			var numOfSelected = table.rows('.selected').data().length;
-			if (numOfSelected == 0) {
-				console.log("No executions were selected. aborting");
-				return;
-			}
-			var selected = "";
-			for (var i = 0; i < numOfSelected; i++) {
-				if (i != 0){
-					selected += ","
-				}
-				selected += table.rows('.selected').data()[i].Id;
-			}
-			$.ajax({
-				url : 'api/plugins/',
-				type : 'GET',
-			}).done(function(plugins) {
-				if (plugins.length == 0) {
-					console.log("No plugins were defined. aborting");
-					return;
-				}
-				var options = "";
-				for (var i = 0; i < plugins.length ; i++){
-					options += '<option>' + plugins[i] +'</option>';
-				}
-				bootbox.dialog({
-                title: "Execute Plugin",
-                message: '   <form class="form-horizontal">' +
-'       <div class="form-group">' +
-'           <div class="form-group">' +
-'               <label class="col-md-4 control-label" for="name">Plugin Name</label>' +
-'               <div class="col-md-4">' +
-'                   <select id="name" name="name" class="form-control">' + options +
-'                   </select>' +
-'               </div>' +
-'           </div>' +
-'           <div class="form-group">' +
-'               <label class="col-md-4 control-label" for="Parameters">Parameters</label>' +
-'               <div class="col-md-4">' +
-'                   <input id="parameter" name="parameter" type="text" placeholder="Free string parameter" class="form-control input-md">' +
-'               </div>' +
-'           </div>' +
-'           <div class="form-group">' +
-'               <label class="col-md-4 control-label" for="executions">Selected Executions</label>' +
-'               <div class="col-md-4">' +
-'                   <input id="executions" name="executions" type="text" placeholder="Selected Executions" class="form-control input-md" value='+selected+'' +
-'                       readonly/>' +
-'               </div>' +
-'           </div>' +
-'       </div>' +
-'   </form>',
-	                buttons: {
-	                    success: {
-	                        label: "Execute",
-	                        className: "btn-success",
-	                        callback: function () {
-	                            var name = $('#name').val();
-	                            var parameter = $('#parameter').val();
-								var executions = "";
-								for (var i = 0; i < numOfSelected; i++) {
-									executions += '&executions=' + table.rows('.selected').data()[i].Id;
-								}
-								$.ajax({
-									url : 'api/plugins/' + name + '?params=' + parameter + executions,
-									type : 'POST',
-								}).done(function() {
-									
-								});
-	                        }
-	                    }
-	                }
-            	}
-       		);
-			});
-
-		}
-
-
-		$(document).ready(function() {			
-			populateNavBar();
-			$.ajax('/api/reports').done(maketable);
-		});
-
-		function maketable(json) {
-			var data = json.data;
-			var column_names = json.headers;
-			var columns = []
-			for (var i = 0; i < column_names.length; i++) {
-				columns[i] = {
-					'title' : column_names[i],
-					'data' : column_names[i]
-				}
-			}
-
-			var table = $('#etable')
-					.DataTable(
-							{
-								dom : 'lBfrtip',
-								buttons : [ {
-									text : 'Delete',
-									action : function(e, dt, node, config) {
-										deleteSelected(table);
-									}
-								}, {
-									text : 'Lock',
-									action : function(e, dt, node, config) {
-										lockUnlockSelected(table,"true");
-									}
-								}, {
-									text : 'Unlock',
-									action : function(e, dt, node, config) {
-										lockUnlockSelected(table,"false");
-									}
-								}, {
-									text : 'Execute Plugin',
-									action : function(e, dt, node, config) {
-										executePlugin(table);
-									}
-								},
-								'copyHtml5', 'csvHtml5', 'pdfHtml5' ],
-								columns : columns,
-								data : data,
-								aaSorting : [],
-								deferRender : true,
-								sPaginationType : "full_numbers",
-								iDisplayLength : 25,
-								columnDefs : [
-										{
-											// Alows missing values. Important for execution properties in which not all of the execution must have all the properties.
-											targets : "_all",
-											sDefaultContent : ""
-										},
-										{
-											// The description column will be rendered as link using the value in the link column
-											targets : 1,
-											// We don't want that a click on the link will make the row selectable
-											className : "unselectable",
-											data : null,
-											"render" : function(data, type, row) {
-												return '<a target="_blank" href="'+row.Link+'">'
-														+ data + '</a>';
-											}
-										}, {
-											// The link column is no longer needed since we are using the value in the description column
-											targets : 2,
-											visible : false
-										} ]
-							})
-			$('#etable tbody').on('click', 'td', function() {
-				if ($(this).hasClass("unselectable")) {
-					// This is probably the link column.
-					return;
-				}
-				$(this).parent().toggleClass('selected');
-			});
-
-		}
-	</script>
 </body>
 
 </html>

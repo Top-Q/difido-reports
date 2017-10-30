@@ -2,6 +2,7 @@ package il.co.topq.report.front.rest;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -45,6 +46,13 @@ public class ExecutionResource {
 		this.metadataProvider = metadataProvider;
 	}
 
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/{execution: [0-9]+}")
+	public ExecutionMetadata getMetadata(@PathParam("execution") int execution) {
+		return metadataProvider.getMetadata(execution);
+	}
+	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
@@ -66,37 +74,64 @@ public class ExecutionResource {
 	}
 
 	/**
-	 * Used to update that a single execution should not be active any more.
-	 * This is Irreversible.
+	 * Used to update that a single execution should not be active any more. This is Irreversible.
+	 * Also allows updating the execution description & comment through the metadata parameter
 	 * 
-	 * @param executionIndex
-	 *            the id of the execution
-	 * @param active
-	 *            - Set to not active
-	 * @param locked
-	 *            - Set the execution to locked. Will no be deleted
-	 * 
+	 * @param executionIndex - the id of the execution
+	 * @param active - Set to not active
+	 * @param locked - Set the execution to locked. Will no be deleted
+	 * @param metadataStr - String of key-value pairs to allow updating execution description, comment and possibly other parameters in the future, 
 	 */
 	@PUT
 	@Path("/{execution: [0-9]+}")
-	public void put(@PathParam("execution") int executionIndex, @QueryParam("active") Boolean active,
-			@QueryParam("locked") Boolean locked) {
-		log.debug("PUT - Upating execution with id " + executionIndex + ". to active: " + active + " and locked: "
-				+ locked);
-		final ExecutionMetadata metadata = metadataProvider.getMetadata(executionIndex);
-		if (null == metadata) {
-			log.warn("Trying to update state of execution with id " + executionIndex +" which is not exist");
+	public void put(@PathParam("execution") int executionIndex, @QueryParam("active") Boolean active, @QueryParam("locked") Boolean locked, @QueryParam("metadata") String metadataStr) {
+		
+		log.debug("PUT - Upating execution with id " + executionIndex + ". to active: " + active + ", locked: " + locked + ", metadata: " + metadataStr);
+
+		final ExecutionMetadata executionMetadata = metadataProvider.getMetadata(executionIndex);
+		
+		if (null == executionMetadata) {
+			log.warn("Trying to update state of execution with id " + executionIndex + " which is not exist");
 			return;
 		}
 
 		if (active != null && !active) {
 			// TODO: This should be changed to use the executionUpdatedEvent for
 			// consistency
-			publisher.publishEvent(new ExecutionEndedEvent(metadata));
+			publisher.publishEvent(new ExecutionEndedEvent(executionMetadata));
 		}
+		
 		if (locked != null) {
-			metadata.setLocked(locked);
-			publisher.publishEvent(new ExecutionUpdatedEvent(metadata));
+			executionMetadata.setLocked(locked);
+			publisher.publishEvent(new ExecutionUpdatedEvent(executionMetadata));
+		}
+		
+		if (metadataStr != null) {
+			
+			String[] keyValuePairs = metadataStr.split(";");
+
+			for (String keyValuePair : keyValuePairs) {
+				String[] keyValueSplit = keyValuePair.split("=");
+				
+				if (keyValueSplit[0].equalsIgnoreCase("description")) {
+					if (keyValueSplit.length > 1 && !keyValueSplit[1].trim().equals("")) {
+						executionMetadata.setDescription(keyValueSplit[1]);
+					}
+					else {
+						executionMetadata.setDescription("");
+					}
+				}
+				else if (keyValueSplit[0].equalsIgnoreCase("comment") ) {
+					if (keyValueSplit.length > 1 && !keyValueSplit[1].trim().equals("")) {
+						executionMetadata.setComment(keyValueSplit[1]);
+					}
+					else {
+						executionMetadata.setComment("");
+					}
+				}
+			}
+			
+			publisher.publishEvent(new ExecutionUpdatedEvent(executionMetadata));
 		}
 	}
 

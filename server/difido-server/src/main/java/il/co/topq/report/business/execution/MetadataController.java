@@ -1,8 +1,10 @@
 package il.co.topq.report.business.execution;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +59,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		metaData.setId(persistency.advanceId());
 		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + metaData.getId());
 		metaData.setUri(Common.REPORTS_FOLDER_NAME + "/" + metaData.getFolderName() + "/index.html");
+		metaData.setComment("");
 		metaData.setActive(true);
 		if (executionDetails != null) {
 			metaData.setDescription(executionDetails.getDescription());
@@ -125,6 +128,8 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 
 	private void updateSingleExecutionMeta(int executionId) {
 		ExecutionMetadata executionMetaData = persistency.get(executionId);
+		updateDuration(executionMetaData);
+
 		if (executionMetaData.getExecution() == null || executionMetaData.getExecution().getLastMachine() == null) {
 			return;
 		}
@@ -172,6 +177,23 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 
 	}
 
+	/**
+	 * Updates the duration of the execution according to the start time.
+	 *  
+	 * @param executionMetaData
+	 */
+	private synchronized void updateDuration(final ExecutionMetadata executionMetaData) {
+		final String timestamp = executionMetaData.getTimestamp();
+		try {
+			if (!StringUtils.isEmpty(timestamp)) {
+				final Date startTime = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.parse(timestamp);
+				executionMetaData.setDuration(new Date().getTime() - startTime.getTime());
+			}
+		} catch (ParseException | NumberFormatException e) {
+			log.warn("Failed to parse start time of execution '" + timestamp + "' due to '" + e.getMessage() + "'", e);
+		}
+	}
+
 	@Override
 	public ExecutionMetadata[] getAllMetaData() {
 		final List<ExecutionMetadata> result = persistency.getAll();
@@ -183,20 +205,21 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		}
 		return result.toArray(new ExecutionMetadata[] {});
 	}
-	
+
 	/**
 	 * Get the first, active shared execution
+	 * 
 	 * @return shared execution metadata or null if none was found
 	 */
 	@Override
-	public ExecutionMetadata getShared(){
+	public ExecutionMetadata getShared() {
 		for (ExecutionMetadata meta : persistency.getAll()) {
 			if (meta.isActive() && meta.isShared()) {
 				return meta;
 			}
 		}
 		return null;
-		
+
 	}
 
 	@EventListener
@@ -249,7 +272,5 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		updateExecutionLastUpdateTime(fileAddedToTestEvent.getExecutionId());
 
 	}
-	
-	
 
 }

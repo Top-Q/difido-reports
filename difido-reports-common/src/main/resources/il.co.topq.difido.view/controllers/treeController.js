@@ -51,7 +51,7 @@ function suiteIcon(status) {
 
 function treeController(element) {
     var json = execution;
-    var tree = {'text': 'JSystem', 'icon': 'images/jsystem_ico.gif', 'children': []};
+    var tree = {'text': 'Execution', 'icon': 'images/play_icon.png', 'children': []};
     $(json.machines).each(function(machineIndex) {
         tree.children.push({'text': this.name, icon: 'images/machine.png', 'children': [], 'state': {'opened': true, 'selected': true}});
         $(this.children).each(function(scenarioIndex) {

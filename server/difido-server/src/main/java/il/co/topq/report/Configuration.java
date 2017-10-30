@@ -36,7 +36,6 @@ public enum Configuration {
 		MAIL_SSL("mail.ssl","false"), 
 		MAIL_SMTP_HOST("mail.smtp.host", ""),
 		MAIL_SMTP_PORT("mail.smtp.port", ""),
-		MAIL_SUBJECT("mail.subject",""), 
 		MAIL_FROM_ADDRESS("mail.from.address",""), 
 		MAIL_TO_ADDRESS("mail.to.address",""),
 		MAIL_CC_ADDRESS("mail.cc.address", ""),
@@ -48,7 +47,10 @@ public enum Configuration {
 		 * clients could add any property
 		 */
 		CUSTOM_EXECUTION_PROPERTIES("custom.execution.properties", ""),
-		PLUGIN_CLASSES("plugin.classes", "il.co.topq.report.plugins.mail.DefaultMailPlugin");
+		PLUGIN_CLASSES("plugin.classes", "il.co.topq.report.plugins.mail.DefaultMailPlugin"),
+		LAST_REPORTS_INTERVAL_IN_SEC("last.reports.interval.in.sec", "10"),
+		LAST_REPORTS_NUM_OF_EXECUTIONS("last.reports.num.of.executions", "4"),
+		LAST_REPORTS_FILTER("last.reports.filter","");
 		// @formatter:off
 
 		private final String propName;

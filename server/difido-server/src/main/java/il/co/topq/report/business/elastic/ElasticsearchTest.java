@@ -43,6 +43,9 @@ public class ElasticsearchTest {
 
 	@JsonProperty("timestamp")
 	private String timeStamp;
+	
+	@JsonProperty("executionDuration")
+	private long executionDuration;
 
 	@JsonProperty("url")
 	private String url;
@@ -76,6 +79,7 @@ public class ElasticsearchTest {
 		this.uid = other.getUid();
 		this.executionTimeStamp = other.executionTimeStamp;
 		this.timeStamp = other.timeStamp;
+		this.executionDuration = other.executionDuration;
 		this.description = other.description;
 		this.duration = other.duration;
 		this.machine = other.machine;
@@ -131,6 +135,9 @@ public class ElasticsearchTest {
 		if (executionTimeStamp != null) {
 			result = 31 * result + executionTimeStamp.hashCode();
 		}
+
+		result = 31 * result + new Long(executionDuration).intValue();
+
 		if (machine != null) {
 			result = 31 * result + machine.hashCode();
 		}
@@ -275,6 +282,14 @@ public class ElasticsearchTest {
 
 	public void setScenarioProperties(Map<String, String> scenarioProperties) {
 		this.scenarioProperties = scenarioProperties;
+	}
+	
+	public long getExecutionDuration() {
+		return executionDuration;
+	}
+
+	public void setExecutionDuration(long executionDuration) {
+		this.executionDuration = executionDuration;
 	}
 
 	@Override

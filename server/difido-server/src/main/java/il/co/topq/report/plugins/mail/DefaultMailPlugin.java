@@ -20,8 +20,6 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 
 	private final Logger log = LoggerFactory.getLogger(DefaultMailPlugin.class);
 
-	private static final String DEFAULT_SUBJECT = "Test execution ended";
-
 	private MailSender sender;
 
 	private boolean enabled = true;
@@ -68,7 +66,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 			log.error("Can't find meta data for ended execution. Will not send mail");
 			return;
 		}
-		
+
 		setMetadata(metadata);
 		String body = getMailBody();
 		String subject = getMailSubject();
@@ -108,38 +106,41 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 	}
 
 	protected String getMailBody() {
-		return populateTemplate();
+		return populateTemplate(getMailBodyTemplateName());
 	}
 
 	protected String getMailSubject() {
-		String subject = StringUtils.isEmpty(Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT))
-				? DEFAULT_SUBJECT : Configuration.INSTANCE.readString(ConfigProps.MAIL_SUBJECT);
-		if (getMetadata().getNumOfFailedTests() > 0) {
-			subject += " - Ended with " + getMetadata().getNumOfFailedTests() + " failures out of "
-					+ getMetadata().getNumOfTests();
-		} else if (getMetadata().getNumOfTestsWithWarnings() > 0) {
-			subject += " - Ended with " + getMetadata().getNumOfTestsWithWarnings() + " warnings out of "
-					+ getMetadata().getNumOfTests();
-		} else {
-			subject += " - Ended with " + getMetadata().getNumOfTests() + " successful tests";
-		}
-		return subject;
+		return populateTemplate(getMailSubjectTemplateName());
 	}
 
-	private String populateTemplate() {
+	private String populateTemplate(String templateName) {
 		VelocityEngine ve = new VelocityEngine();
 		ve.init();
-		Template t = ve.getTemplate(getTemplateName());
+		Template t = ve.getTemplate(templateName);
 		/* create a context and add data */
 		VelocityContext context = new VelocityContext();
+		String host = System.getProperty("server.address");
+		if (null == host) {
+			host = "localhost";
+		}
+		String port = System.getProperty("server.port");
+		if (null == port) {
+			port = "8080";
+		}
+		context.put("host", host);
+		context.put("port", port);
 		context.put("meta", getMetadata());
 		final StringWriter writer = new StringWriter();
 		t.merge(context, writer);
 		return writer.toString();
 	}
 
-	protected String getTemplateName() {
-		return Common.CONFIUGRATION_FOLDER_NAME + "/mail.vm";
+	protected String getMailBodyTemplateName() {
+		return Common.CONFIUGRATION_FOLDER_NAME + "/mail_body.vm";
+	}
+
+	protected String getMailSubjectTemplateName() {
+		return Common.CONFIUGRATION_FOLDER_NAME + "/mail_subject.vm";
 	}
 
 	protected void configureMailSender() {
@@ -176,7 +177,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		if (!StringUtils.isEmpty(password)) {
 			sender.setPassword(password);
 		} else {
-			log.warn("SMTP User name is not configured.");
+			log.warn("SMTP Password is not configured.");
 		}
 
 		final boolean ssl = Configuration.INSTANCE.readBoolean(ConfigProps.MAIL_SSL);
@@ -202,6 +203,11 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		if (!StringUtils.isEmpty(cc)) {
 			sender.setSendCc(cc.split(";"));
 		}
+
+		final String[] attachments = getAttachments();
+		if (null != attachments && attachments.length != 0) {
+			sender.setAttachments(attachments);
+		}
 	}
 
 	protected String getCcAddresses() {
@@ -214,6 +220,10 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 
 	protected String getFromAddress() {
 		return Configuration.INSTANCE.readString(ConfigProps.MAIL_FROM_ADDRESS);
+	}
+
+	protected String[] getAttachments() {
+		return new String[] {};
 	}
 
 	protected boolean isEnabled() {

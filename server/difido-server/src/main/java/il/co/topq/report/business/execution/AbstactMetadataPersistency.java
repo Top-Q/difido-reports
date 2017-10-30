@@ -54,10 +54,12 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 
 	public synchronized void add(ExecutionMetadata metadata) {
 		readFromPersistency();
-		
 		executionsCache.put(metadata.getId(), metadata);
 		StopWatch stopWatch = new StopWatch(logger).start("Writing to persistency");
-		writeToPersistency();
+		if (metadata.isDirty()) {
+			writeToPersistency();
+			metadata.setDirty(false);
+		}
 		stopWatch.stopAndLog();
 	}
 

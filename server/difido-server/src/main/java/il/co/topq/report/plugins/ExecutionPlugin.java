@@ -10,6 +10,4 @@ public interface ExecutionPlugin extends Plugin {
 	 * @param metadata
 	 */
 	void onExecutionEnded(ExecutionMetadata metadata);
-
-
 }

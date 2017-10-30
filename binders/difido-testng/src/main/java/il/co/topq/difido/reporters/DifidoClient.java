@@ -1,4 +1,4 @@
-package il.co.topq.difido;
+package il.co.topq.difido.reporters;
 
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.remote.ExecutionDetails;

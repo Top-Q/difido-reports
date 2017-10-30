@@ -1,8 +1,6 @@
 package il.co.topq.difido;
 
-import static java.nio.file.StandardCopyOption.*;
-import il.co.topq.difido.model.execution.Execution;
-import il.co.topq.difido.model.test.TestDetails;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -14,7 +12,11 @@ import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import il.co.topq.difido.model.execution.Execution;
+import il.co.topq.difido.model.test.TestDetails;
 
 public class PersistenceUtils {
 
@@ -199,15 +201,38 @@ public class PersistenceUtils {
 
 		final File tempFile = new File(testDestinationFolder, TEST_DETAILS_MODEL_FILE + "~");
 		final File finalFile = new File(testDestinationFolder, TEST_DETAILS_MODEL_FILE);
+		String json = null;
+		try {
+			json = mapper.writeValueAsString(testDetails);
+			json = "var test = " + json + ";";
+		} catch (JsonProcessingException e) {
+			log.severe("Failed to serialize test details json of test with uid " + testDetails.getUid() + " due to "
+					+ e.getMessage() + ". Aborting operation");
+			return;
+		}
+
+		try {
+			FileUtils.write(tempFile, json);
+			log.fine("Test details was written to file " + tempFile.getAbsolutePath());
+		} catch (IOException e) {
+			log.severe("Failed writing test details of test with uid " + testDetails.getUid() + " to temp file due to "
+					+ e.getMessage() + ". Aborting operation");
+			return;
+		}
+
 		try {
 			// We use temporary file and then we move it to the final to avoid
 			// situations in which we try to read a file that is not completed
-			String json = mapper.writeValueAsString(testDetails);
-			json = "var test = " + json + ";";
-			FileUtils.write(tempFile, json);
 			Files.move(tempFile.toPath(), finalFile.toPath(), REPLACE_EXISTING);
+			log.fine("Test details was moved to file " + finalFile.getAbsolutePath());
 		} catch (Exception e) {
-			log.warning("Failed to write test details due to " + e.getMessage());
+			log.warning("Failed to write test details due to " + e.getMessage() + ". Retrying");
+			try {
+				Thread.sleep(50);
+				Files.move(tempFile.toPath(), finalFile.toPath(), REPLACE_EXISTING);
+			} catch (IOException | InterruptedException e1) {
+				log.severe("Failed to write test details due to " + e1.getMessage() + ". Aborting operation");
+			}
 		}
 
 	}

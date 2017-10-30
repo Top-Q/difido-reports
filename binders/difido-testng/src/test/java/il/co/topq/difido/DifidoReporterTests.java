@@ -1,7 +1,5 @@
 package il.co.topq.difido;
 
-import il.co.topq.difido.model.Enums.Status;
-
 import java.awt.AWTException;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -13,13 +11,11 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-@Listeners(il.co.topq.difido.ReportManagerHook.class)
-public class DifidoReporterTests {
+import il.co.topq.difido.model.Enums.Status;
 
-	ReportDispatcher report = ReportManager.getInstance();
+public class DifidoReporterTests extends AbstractTestCase {
 
 	@Test(description = "This is my custom description", groups = { "sanity", "regression" })
 	public void simpleReportCall0() {
@@ -32,7 +28,6 @@ public class DifidoReporterTests {
 		throw new Exception("This is my failure");
 	}
 
-	
 	@Test
 	public void testWithFailure() throws Exception {
 		report.log("About to fail");
@@ -43,15 +38,22 @@ public class DifidoReporterTests {
 	public void testWithError() throws Exception {
 		report.log("Message with error", "Error message", Status.error);
 	}
-	
+
 	@Test
-	public void testWithEncoding(){
+	public void testWithEncoding() {
 		report.log("Japanease Yen: \u00A5");
 	}
 
 	@Test
 	public void testWithWarning() throws Exception {
 		report.log("Message with warning", "Warning message", Status.warning);
+	}
+
+	@Test(testName = "Test with failure messages", description = "Test with failure messages")
+	public void testWithFailureMessages() {
+		report.log("Title without message", Status.failure);
+		report.log("Error title 0", "Error message 0", Status.failure);
+		report.log("Error title 1", "Error message 1", Status.failure);
 	}
 
 	@Test
