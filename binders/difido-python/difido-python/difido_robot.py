@@ -83,6 +83,7 @@ class AbstractReport(object):
             return
         if len(self.scenario_stack) is not 0:
             self.scenario_stack.pop()
+        self.testDetails = None
     
     def end_test(self,name, attrs):
         if len(self.scenario_stack) is 0:

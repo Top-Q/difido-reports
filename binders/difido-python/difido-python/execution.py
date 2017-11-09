@@ -63,7 +63,7 @@ class Node(object):
             if self.status != "error" and self.status != "failure":
                 self.status = status
         
-        if self._parent is not None:
+        if self._parent is not None and issubclass(type(self._parent), Node):
             self._parent.set_status(status)
                 
     
@@ -88,6 +88,7 @@ class NodeWithChildren(Node):
         if not issubclass(type(child), Node):
             raise TypeError("Can only add children from type Node")
         self._children.append(child)
+        child.add_parent(self)
     
     def count_children(self):
         return len(self._children)
