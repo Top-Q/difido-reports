@@ -53,7 +53,8 @@ public class PluginResource {
 	 */
 	@POST
 	@Path("{plugin}")
-	public void post(@PathParam("plugin") String plugin, @QueryParam("executions") List<Integer> executions,
+	@Produces(MediaType.TEXT_HTML)
+	public String post(@PathParam("plugin") String plugin, @QueryParam("executions") List<Integer> executions,
 			@QueryParam("params") String params) {
 		log.debug("POST - Execute plugin " + plugin + "(" + params + ") on " + executions.size() + " execution(s)");
 		final List<ExecutionMetadata> metaDataList = new ArrayList<ExecutionMetadata>();
@@ -66,7 +67,7 @@ public class PluginResource {
 				}
 			}
 		}
-		pluginController.executePlugin(plugin, metaDataList, params);
+		return pluginController.executeInteractivePlugin(plugin, metaDataList, params);
 	}
 
 	/**
