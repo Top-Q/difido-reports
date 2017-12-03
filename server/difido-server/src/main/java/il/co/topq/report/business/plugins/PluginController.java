@@ -39,7 +39,7 @@ public class PluginController {
 				plugin.onExecutionEnded(executionEndedEvent.getMetadata());
 			} catch (Throwable e) {
 				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "
-						+ plugin.getName());
+						+ plugin.getName(), e);
 			}
 
 		}
@@ -69,7 +69,8 @@ public class PluginController {
 	 * @param params
 	 *            Free parameter for the plugin
 	 */
-	public void executePlugin(final String pluginName, final List<ExecutionMetadata> metaDataList, final String params) {
+	public void executePlugin(final String pluginName, final List<ExecutionMetadata> metaDataList,
+			final String params) {
 		if (StringUtils.isEmpty(pluginName)) {
 			log.warn("Trying to call plugin with empty name");
 			return;
@@ -82,14 +83,15 @@ public class PluginController {
 				}
 			} catch (Throwable e) {
 				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "
-						+ plugin.getName() + " and params " + params);
+						+ plugin.getName() + " and params " + params, e);
 			}
 
 		}
 
 	}
-	
-	public String executeInteractivePlugin(final String pluginName, final List<ExecutionMetadata> metaDataList, final String params) {
+
+	public String executeInteractivePlugin(final String pluginName, final List<ExecutionMetadata> metaDataList,
+			final String params) {
 		if (StringUtils.isEmpty(pluginName)) {
 			log.warn("Trying to call plugin with empty name");
 			return "";
@@ -102,11 +104,11 @@ public class PluginController {
 				}
 			} catch (Throwable e) {
 				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "
-						+ plugin.getName() + " and params " + params);
+						+ plugin.getName() + " and params " + params, e);
 			}
 
 		}
 		return "";
-		
+
 	}
 }

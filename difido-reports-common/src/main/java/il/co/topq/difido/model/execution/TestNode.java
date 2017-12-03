@@ -72,11 +72,11 @@ public class TestNode extends Node {
 		date = testNode.date;
 		timestamp = testNode.timestamp;
 		className = testNode.className;
-		if (testNode.properties != null){
-			properties = new HashMap<String,String>(testNode.properties);
+		if (testNode.properties != null) {
+			properties = new HashMap<String, String>(testNode.properties);
 		}
-		if (testNode.parameters != null){
-			parameters= new HashMap<String,String>(testNode.parameters);
+		if (testNode.parameters != null) {
+			parameters = new HashMap<String, String>(testNode.parameters);
 		}
 	}
 
@@ -162,6 +162,14 @@ public class TestNode extends Node {
 			result = 31 * result + properties.hashCode();
 		}
 		return result;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Index: ").append(index).append(",Uid: ").append(uid).append(",Class name: ").append(className)
+				.append(", Name: ").append(getName()).append(", StatusL ").append(getStatus().name());
+		return sb.toString();
 	}
 
 	public int getIndex() {

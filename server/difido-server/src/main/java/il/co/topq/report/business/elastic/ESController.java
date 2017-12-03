@@ -301,6 +301,7 @@ public class ESController {
 		// Remove the updated tests from all the tests
 		final Set<TestNode> testsToUpdate = new HashSet<TestNode>(executionTests);
 		testsToUpdate.removeAll(updatedExecutionTests);
+		log.trace("Found tests to update: " + testsToUpdate);
 		return testsToUpdate;
 	}
 
@@ -343,6 +344,7 @@ public class ESController {
 		for (TestNode testNode : executionTests) {
 			elasticTests.add(testNodeToElasticTest(metadata, machineNode, testNode));
 		}
+		log.trace("Converted tests to update to Elasticsearch tests " + elasticTests);
 		return elasticTests;
 	}
 
