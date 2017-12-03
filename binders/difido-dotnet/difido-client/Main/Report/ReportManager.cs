@@ -1,4 +1,4 @@
-﻿using difido_client.Main.Report.Reporters.ConsoleReport;
+﻿using difido_client.Main.Report.Reporters.ConsoleReporter;
 using difido_client.Main.Report.Reporters.HtmlTestReporter;
 using difido_client.Report.Excel;
 using difido_client.Report.Html;
@@ -154,21 +154,21 @@ namespace difido_client
 
         public void Report(string title, string message)
         {
-            Report(title, message, TestStatus.success, ReportElementType.regular);
+            Report(title, message, DifidoTestStatus.success, ReportElementType.regular);
         }
 
         public void Report(string title, string message, bool success)
         {
-            Report(title, message, success ? TestStatus.success : TestStatus.failure);
+            Report(title, message, success ? DifidoTestStatus.success : DifidoTestStatus.failure);
             
         }
 
-        public void Report(string title, string message, TestStatus status)
+        public void Report(string title, string message, DifidoTestStatus status)
         {
             Report(title, message, status, ReportElementType.regular);
         }
 
-        public void Report(string title, string message, TestStatus status, ReportElementType type)
+        public void Report(string title, string message, DifidoTestStatus status, ReportElementType type)
         {
             foreach (IReporter reporter in reporters)
             {
@@ -182,27 +182,27 @@ namespace difido_client
 
         public void ReportFile(string title, string filePath)
         {
-            Report(title, filePath, TestStatus.success, ReportElementType.lnk);
+            Report(title, filePath, DifidoTestStatus.success, ReportElementType.lnk);
             
         }
 
         public void Step(string title)
         {
-            Report(title, null, TestStatus.success, ReportElementType.step);
+            Report(title, null, DifidoTestStatus.success, ReportElementType.step);
         }
 
         public void ReportImage(string title, string filePath)
         {
-            Report(title, filePath, TestStatus.success, ReportElementType.img);
+            Report(title, filePath, DifidoTestStatus.success, ReportElementType.img);
         }
         
         public void StartLevel(string description)
         {
-            Report(description, null, TestStatus.success, ReportElementType.startLevel);
+            Report(description, null, DifidoTestStatus.success, ReportElementType.startLevel);
         }
         public void EndLevel()
         {
-            Report(null, null, TestStatus.success, ReportElementType.stopLevel);
+            Report(null, null, DifidoTestStatus.success, ReportElementType.stopLevel);
         }
 
         public void AddTestProperty(string propertyName, string propertyValue)

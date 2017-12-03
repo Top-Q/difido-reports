@@ -49,7 +49,7 @@ namespace difido_client.Report.Excel
         {
 
             //Add one row to the excel report with the test info.
-            if (testInfo.Status != TestStatus.success)
+            if (testInfo.Status != DifidoTestStatus.success)
             {
                 AppendTestExcel(testInfo);
                 currRow++;
@@ -103,7 +103,7 @@ namespace difido_client.Report.Excel
 
         }
 
-        public void Report(string title, string message, TestStatus status, ReportElementType type)
+        public void Report(string title, string message, DifidoTestStatus status, ReportElementType type)
         {
             failureReason = title;
         }

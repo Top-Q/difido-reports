@@ -48,15 +48,15 @@ namespace difido_client.Report.Html.Model
             {
                 return;
             }
-            if (element.status.Equals(TestStatus.success.ToString()))
+            if (element.status.Equals(DifidoTestStatus.success.ToString()))
             {
                 // Nothing to do
             }
 
-            TestStatus elementStatus = (TestStatus)Enum.Parse(typeof(TestStatus), element.status);
+            DifidoTestStatus elementStatus = (DifidoTestStatus)Enum.Parse(typeof(DifidoTestStatus), element.status);
             foreach (ReportElement currElement in levelElementBuffer)
             {
-                TestStatus currElementStatus = (TestStatus)Enum.Parse(typeof(TestStatus), currElement.status);
+                DifidoTestStatus currElementStatus = (DifidoTestStatus)Enum.Parse(typeof(DifidoTestStatus), currElement.status);
                 if (elementStatus > currElementStatus)
                 {
                     currElement.status = elementStatus.ToString();

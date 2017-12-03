@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace difido_client.Main.Report.Reporters.ConsoleReport
+namespace difido_client.Main.Report.Reporters.ConsoleReporter
 {
     public class ConsoleReporter : IReporter
     {
@@ -33,7 +33,7 @@ namespace difido_client.Main.Report.Reporters.ConsoleReport
         {
         }
 
-        public void Report(string title, string message, TestStatus status, ReportElementType type)
+        public void Report(string title, string message, DifidoTestStatus status, ReportElementType type)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -60,15 +60,15 @@ namespace difido_client.Main.Report.Reporters.ConsoleReport
 
             switch (status)
             {
-                case TestStatus.success:
+                case DifidoTestStatus.success:
                     break;
-                case TestStatus.warning:
+                case DifidoTestStatus.warning:
                     sb.Append("[WARNING]: ");
                     break;
-                case TestStatus.error:
+                case DifidoTestStatus.error:
                     sb.Append("[ERROR]: ");
                     break;
-                case TestStatus.failure:
+                case DifidoTestStatus.failure:
                     sb.Append("[FAILURE]: ");
                     break;
             }
