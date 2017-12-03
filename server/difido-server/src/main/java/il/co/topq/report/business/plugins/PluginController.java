@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.plugins.ExecutionPlugin;
+import il.co.topq.report.plugins.InteractivePlugin;
 import il.co.topq.report.plugins.Plugin;
 import il.co.topq.report.plugins.PluginManager;
 
@@ -38,7 +39,7 @@ public class PluginController {
 				plugin.onExecutionEnded(executionEndedEvent.getMetadata());
 			} catch (Throwable e) {
 				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "
-						+ plugin.getName());
+						+ plugin.getName(), e);
 			}
 
 		}
@@ -68,7 +69,8 @@ public class PluginController {
 	 * @param params
 	 *            Free parameter for the plugin
 	 */
-	public void executePlugin(final String pluginName, final List<ExecutionMetadata> metaDataList, final String params) {
+	public void executePlugin(final String pluginName, final List<ExecutionMetadata> metaDataList,
+			final String params) {
 		if (StringUtils.isEmpty(pluginName)) {
 			log.warn("Trying to call plugin with empty name");
 			return;
@@ -81,10 +83,32 @@ public class PluginController {
 				}
 			} catch (Throwable e) {
 				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "
-						+ plugin.getName() + " and params " + params);
+						+ plugin.getName() + " and params " + params, e);
 			}
 
 		}
+
+	}
+
+	public String executeInteractivePlugin(final String pluginName, final List<ExecutionMetadata> metaDataList,
+			final String params) {
+		if (StringUtils.isEmpty(pluginName)) {
+			log.warn("Trying to call plugin with empty name");
+			return "";
+		}
+		for (InteractivePlugin plugin : pluginManager.getPlugins(InteractivePlugin.class)) {
+			try {
+				if (pluginName.trim().equals(plugin.getName().trim())) {
+					log.debug("Calling plugin " + plugin.getName());
+					return plugin.executeInteractively(metaDataList, params);
+				}
+			} catch (Throwable e) {
+				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "
+						+ plugin.getName() + " and params " + params, e);
+			}
+
+		}
+		return "";
 
 	}
 }

@@ -30,6 +30,15 @@ test-output/
 #NetBeans files
 nbproject
 
+#Python
+.pydevproject
+.cache/
+__pycache__/
+*.pyc
+build/
+dist/
+*.egg-info/
+
 #Project files
 server/difido-server/docRoot/reports
 server/difido-server/docRoot/meta.json
@@ -45,6 +54,7 @@ examples/testng-example/difido.properties
 examples/jsystem-example/tests-project/difido.properties
 examples/jsystem-example/tests-project/remoteDifido.properties
 examples/jsystem-example/tests-project/jsystem0.log.lck
+!binders/difido-python/difido-python/resources/difido.jar
 !server.log
 .metadata/
 .recommenders/
