@@ -334,8 +334,11 @@ function executePlugin(table) {
 						$.ajax({
 							url: 'api/plugins/' + name + '?params=' + parameter + executions,
 							type: 'POST',
-						}).done(function () {
-
+						}).done(function (response) {
+							bootbox.dialog({
+								title:"Plugin Response",
+								message: response
+							});
 						});
 					}
 				}
