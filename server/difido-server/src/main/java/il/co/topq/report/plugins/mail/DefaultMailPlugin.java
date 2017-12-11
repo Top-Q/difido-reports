@@ -18,6 +18,12 @@ import il.co.topq.report.plugins.ExecutionPlugin;
 
 public class DefaultMailPlugin implements ExecutionPlugin {
 
+	private static final String MAIL_SEND_TO = "mail.sendTo";
+
+	private static final String MAIL_FROM = "mail.from";
+
+	private static final String MAIL_SUBJECT = "mail.subject";
+
 	private final Logger log = LoggerFactory.getLogger(DefaultMailPlugin.class);
 
 	private MailSender sender;
@@ -69,8 +75,9 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 
 		setMetadata(metadata);
 		String body = getMailBody();
-		String subject = getMailSubject();
-		configureMailSender();
+		String clientSubject = metadata.getProperties().get(MAIL_SUBJECT);
+		String subject = clientSubject != null ? clientSubject : getMailSubject();
+		configureMailSender(metadata);
 		sendMail(subject, body);
 	}
 
@@ -143,7 +150,11 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		return Common.CONFIUGRATION_FOLDER_NAME + "/mail_subject.vm";
 	}
 
-	protected void configureMailSender() {
+	protected void configureMailSender(){
+		configureMailSender(null);
+		
+	}
+	protected void configureMailSender(ExecutionMetadata metadata) {
 		if (!isEnabled() || null != sender) {
 			return;
 		}
@@ -181,9 +192,10 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		}
 
 		final boolean ssl = Configuration.INSTANCE.readBoolean(ConfigProps.MAIL_SSL);
-		sender.setSsl(ssl);
-
-		final String from = getFromAddress();
+		sender.setSsl(ssl);		
+				
+		String clientMailFrom = metadata.getProperties().get(MAIL_FROM);
+		final String from = clientMailFrom != null ? clientMailFrom : getFromAddress();
 		if (StringUtils.isEmpty(from)) {
 			log.warn("Mail from address is not configured. Can't send mail");
 			setEnabled(false);
@@ -191,13 +203,14 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		}
 		sender.setFromAddress(from);
 
-		final String to = getToAddress();
+		String clientRecipient = metadata.getProperties().get(MAIL_SEND_TO);
+		final String to = clientRecipient != null ? clientRecipient : getToAddress();
 		if (StringUtils.isEmpty(to)) {
 			log.warn("Mail to address is not configured. Can't send mail");
 			setEnabled(false);
 			return;
 		}
-		sender.setSendTo(to.split(";"));
+		sender.setSendTo(to.split(","));
 
 		final String cc = getCcAddresses();
 		if (!StringUtils.isEmpty(cc)) {
