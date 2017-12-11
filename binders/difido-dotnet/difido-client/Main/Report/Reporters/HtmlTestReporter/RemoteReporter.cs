@@ -19,6 +19,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
         private int executionId;
         private int machineId;
         private int numOfFailures;
+        private int existingExecutionId = -1;
         // A flag that allows us to execute the init only once.
         private bool first = true;
 
@@ -54,6 +55,17 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
                 }
                 host = Configuration.Instance.GetProperty(CONFIGURATION_SECTION, "host");
                 port = Configuration.Instance.GetProperty(CONFIGURATION_SECTION, "port");
+
+                try
+                {
+                    existingExecutionId = Int32.Parse(Configuration.Instance.GetProperty(CONFIGURATION_SECTION, "existingExecutionId"));
+                }
+                catch
+                {
+                    existingExecutionId = -1;
+                }
+                
+
                 ExecutionDetails executionDetails = new ExecutionDetails();
                 if (Configuration.Instance.IsPropertyExists(CONFIGURATION_SECTION, "executionDescription"))
                 {
@@ -74,7 +86,16 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
                 }
 
                 client = new DifidoClient(host, Int32.Parse(port));
-                executionId = client.AddExecution(executionDetails);
+
+                if (existingExecutionId != -1)
+                {
+                    executionId = existingExecutionId;
+                }
+                else
+                {
+                    executionId = client.AddExecution(executionDetails);
+                }
+                
                 machineId = client.AddMachine(executionId, CurrentExecution.GetLastMachine());
                 enabled = true;
 
@@ -168,13 +189,12 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
 
         public override void EndSuite(string suiteName)
         {
-            if (!enabled)
+            if (!enabled || existingExecutionId != -1)
             {
                 return;
             }
             client.endExecution(executionId);
         }
-
 
     }
 }
