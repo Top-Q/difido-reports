@@ -177,7 +177,8 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		}
 		sender.setSmtpPort(port);
 
-		final String userName = Configuration.INSTANCE.readString(ConfigProps.MAIL_USER_NAME);
+		String clientMailFrom = metadata.getProperties().get(MAIL_FROM);
+		final String userName = clientMailFrom != null ? clientMailFrom : Configuration.INSTANCE.readString(ConfigProps.MAIL_USER_NAME);
 		if (!StringUtils.isEmpty(userName)) {
 			sender.setUserName(userName);
 		} else {
@@ -194,8 +195,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		final boolean ssl = Configuration.INSTANCE.readBoolean(ConfigProps.MAIL_SSL);
 		sender.setSsl(ssl);		
 				
-		String clientMailFrom = metadata.getProperties().get(MAIL_FROM);
-		final String from = clientMailFrom != null ? clientMailFrom : getFromAddress();
+		final String from = getFromAddress();
 		if (StringUtils.isEmpty(from)) {
 			log.warn("Mail from address is not configured. Can't send mail");
 			setEnabled(false);
