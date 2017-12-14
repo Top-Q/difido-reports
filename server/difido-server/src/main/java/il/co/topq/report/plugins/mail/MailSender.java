@@ -170,7 +170,7 @@ public class MailSender {
 		InternetAddress addressFrom = null;
 		if (userName != null) {
 			log.info("Sending mail from " + fromAddress + " with user " + userName);
-			addressFrom = new InternetAddress(/* from */userName, fromAddress);
+			addressFrom = new InternetAddress(/* from */fromAddress, userName);
 		} else {
 			log.info("Sending mail from " + fromAddress);
 			addressFrom = new InternetAddress(/* from */fromAddress);

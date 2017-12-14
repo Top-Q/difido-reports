@@ -1,4 +1,4 @@
-package il.co.topq.report.plugins.mail.elastic;
+package il.co.topq.report.plugins;
 
 import java.io.File;
 import java.io.IOException;

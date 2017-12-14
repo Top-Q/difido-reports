@@ -1,4 +1,4 @@
-package il.co.topq.report.plugins.mail.elastic;
+package il.co.topq.report.plugins.elastic;
 
 import java.io.File;
 import java.util.List;
@@ -6,12 +6,12 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import il.co.topq.difido.PersistenceUtils;
-import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.execution.Node;
 import il.co.topq.difido.model.execution.NodeWithChildren;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.business.execution.ExecutionMetadata;
+import il.co.topq.report.plugins.ElasticPluginController;
 import il.co.topq.report.plugins.ExecutionPlugin;
 
 /**
@@ -38,7 +38,7 @@ public class ElasticSplitSubTestsPlugin implements ExecutionPlugin {
 	}
 	@Override
 	public String getName() {
-		return "ElasticPlugin";
+		return "ElasticSplitSubTestsPlugin";
 	}
 
 	@Override

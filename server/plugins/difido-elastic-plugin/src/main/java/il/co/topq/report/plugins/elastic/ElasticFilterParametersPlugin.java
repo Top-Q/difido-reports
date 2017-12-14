@@ -1,10 +1,8 @@
-package il.co.topq.report.plugins.mail.elastic;
+package il.co.topq.report.plugins.elastic;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.log4j.Logger;
 
 import il.co.topq.difido.model.execution.Node;
 import il.co.topq.difido.model.execution.NodeWithChildren;
@@ -12,6 +10,7 @@ import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionEndedEvent;
+import il.co.topq.report.plugins.ElasticPluginController;
 import il.co.topq.report.plugins.ExecutionPlugin;
 
 /**
@@ -24,7 +23,6 @@ import il.co.topq.report.plugins.ExecutionPlugin;
  *
  */
 public class ElasticFilterParametersPlugin implements ExecutionPlugin {
-	private static final Logger logger = Logger.getLogger(ElasticFilterParametersPlugin.class);
 	private ElasticPluginController esController;
 	static {
 		//private void addPropWithDefaultValue(ConfigProps configProp) {}
@@ -36,7 +34,7 @@ public class ElasticFilterParametersPlugin implements ExecutionPlugin {
 	}
 	@Override
 	public String getName() {
-		return "ElasticPlugin";
+		return "ElasticFilterParamsPlugin";
 	}
 
 	@Override
@@ -50,45 +48,38 @@ public class ElasticFilterParametersPlugin implements ExecutionPlugin {
 		if (metadata == null || metadata.getExecution() == null) return;
 		metadata.getExecution().getMachines().forEach(machine -> {
 			if (machine.getChildren() == null) return;
-			machine.getChildren(true).forEach(scenarioNode -> {
-				handleScenario(scenarioNode);
-			});
+			machine.getChildren(true).forEach(child -> handleNode(child));
 		});
-		logger.info("onExecutionEnded");
-		//TODO:minupulate the metadata and do with it whatever we need to do
 		
 		ExecutionEndedEvent executionEndedEvent = new ExecutionEndedEvent(metadata);
-		logger.info("ExecutionEndedEvent: " + executionEndedEvent);
-		logger.info("esController: " + esController);
-		esController.onExecutionEndedEvent(executionEndedEvent);
-		
-	}
-	private void handleScenario(ScenarioNode scenarioNode) {
-		scenarioNode.addScenarioProperty("scenario-node-property", "x");
-		scenarioNode.getChildren().forEach(node -> {
-			handleScenarioChildNode(node);
-		});
-		
+		esController.onExecutionEndedEvent(executionEndedEvent);		
 	}
 	@SuppressWarnings("unchecked")
-	private void handleScenarioChildNode(Node node) {
+	private void handleNode(Node node) {
 		if (node instanceof TestNode) {
 			TestNode testNode = (TestNode) node;
-			//TODO:strip down parameters that we're not intrested in
 			Map<String, String> parameters = testNode.getParameters();
-			List<String> parametersToRemove = new LinkedList<>();
-			parameters.keySet()
-					  .stream()
-					  .filter(key -> isParameterFilteredOutByNamingConvention(key))
-					  .forEach(key -> parametersToRemove.add(key));
+			Map<String, String> properties = testNode.getProperties();
+			filterIgnoredValues(parameters);
+			filterIgnoredValues(properties);
+		} else if (node instanceof ScenarioNode){
+			ScenarioNode scenarioNode = (ScenarioNode) node;
+			Map<String, String> scenarioProperties = scenarioNode.getScenarioProperties();
+			filterIgnoredValues(scenarioProperties);
 			
-			parametersToRemove.forEach(key -> parameters.remove(key));
-		} else if (node instanceof NodeWithChildren){
-			//in case of nested scenarios this part will handle iterating over all the child nodes with recursion
-			((NodeWithChildren<Node>) node).getChildren().forEach(child -> handleScenarioChildNode(node));
+		} if (node instanceof NodeWithChildren){
+			((NodeWithChildren<Node>) node).getChildren().forEach(child -> handleNode(child));
 		}
 	}
+	private void filterIgnoredValues(Map<String, String> parameters) {
+		List<String> parametersToRemove = new LinkedList<>();
+		parameters.keySet()
+				  .stream()
+				  .filter(key -> isParameterFilteredOutByNamingConvention(key))
+				  .forEach(key -> parametersToRemove.add(key));
+		parametersToRemove.forEach(key -> parameters.remove(key));
+	}
 	private boolean isParameterFilteredOutByNamingConvention(String key) {
-		return key.contains("ignore");
+		return key.toLowerCase().contains("ignore");
 	}
 }
