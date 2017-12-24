@@ -10,10 +10,10 @@ $(document).ready(function () {
 			
 			var newDesc = $('#execution_edit_form [name="executionDescription"]').val();
 			var newComment = $('#execution_edit_form [name="executionComment"]').val();
-			newComment = newComment.replace(/\n/g, "%0D%0A");
+			var metadataStr = encodeURIComponent("description\\=" + newDesc + "\\;comment\\=" + newComment);
 			
 			$.ajax({
-						url : 'api/executions/' + executionId + '?metadata=description=' + newDesc + ';comment=' + newComment,
+						url : 'api/executions/' + executionId + '?metadata=' + metadataStr,
 						type : 'PUT',		
 						contentType: "application/json;charset=utf-8"
 					})

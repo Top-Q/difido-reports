@@ -108,10 +108,10 @@ public class ExecutionResource {
 		
 		if (metadataStr != null) {
 			
-			String[] keyValuePairs = metadataStr.split(";");
+			String[] keyValuePairs = metadataStr.split("\\\\;");
 
 			for (String keyValuePair : keyValuePairs) {
-				String[] keyValueSplit = keyValuePair.split("=");
+				String[] keyValueSplit = keyValuePair.split("\\\\=");
 				
 				if (keyValueSplit[0].equalsIgnoreCase("description")) {
 					if (keyValueSplit.length > 1 && !keyValueSplit[1].trim().equals("")) {
