@@ -18,6 +18,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import il.co.topq.difido.model.execution.MachineNode;
@@ -52,7 +53,7 @@ public class ESController {
 
 	// TODO: For testing. Of course that this should be handled differently.
 	// Probably using the application context.
-	public static boolean enabled = true;
+	public static volatile boolean enabled = true;
 
 	private static boolean storeOnlyAtEnd;
 
@@ -75,11 +76,71 @@ public class ESController {
 
 	}
 
+	/**
+	 * Check every half and hour that the Elastic is still up.
+	 */
+	@Scheduled(fixedRate = 1800000)
+	private void periodicallyCheckIfElasticDown() {
+		if (!enabled) {
+			// It is down or disabled by configuration. There is no need to
+			// check
+			return;
+		}
+		try {
+			client.index(Common.ELASTIC_INDEX).isExists();
+			// The Elastic seems to be fine. Moving on
+		} catch (IOException e) {
+			// Not good. The Elastic seems to be down. We will disable it.
+			enabled = false;
+			log.error("Periodic check of the Elastic found that the Elastic is down");
+		}
+	}
+
+	/**
+	 * Check every minute if the Elastic is back up.
+	 */
+	@Scheduled(fixedRate = 60000)
+	private void periodicallyCheckIfElasticBackUp() {
+		if (enabled) {
+			// The Elastic is up and running. There is no need to check if it is
+			// up.
+			return;
+		}
+		if (!Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED)) {
+			// The Elasticsearch is disabled in configuration level. There is no
+			// need to check if it is up
+			return;
+		}
+		try {
+			client.index(Common.ELASTIC_INDEX).isExists();
+			// We are back in business. The Elastic seems to be up.
+			enabled = true;
+			// The Elatic is up but if it is the first time that we are
+			// connecting to it we will need to create the index.
+			createIndexIfNoneExists();
+			if (!enabled) {
+				// The creation of the index failed. Something is still wrong.
+				// We will not continue
+				return;
+			}
+			// Let's make sure that everything works by doing further testing of
+			// the Elastic health.
+			validateElasticStatus();
+			if (enabled) {
+				// The Elastic passed the tests. It is up and running
+				log.debug("Elasticseach server is up");
+			}
+		} catch (Exception e) {
+			log.warn("Elasticsearch server is down");
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private void validateElasticStatus() {
 		if (!enabled) {
 			return;
 		}
+		log.debug("Checking status of Elasticsearch");
 		Map<String, Object> response = null;
 		try {
 			response = client.index(Common.ELASTIC_INDEX).stats().asMap();
@@ -110,7 +171,7 @@ public class ESController {
 			if (client.index(Common.ELASTIC_INDEX).isExists()) {
 				return;
 			}
-
+			log.info("Connecting to Elasticsearch for the first time. Creating new index");
 			// We are reading the mapping from external file and not using the
 			// Java API since it seems that it is not possible to do a dynamic
 			// mapping using the API
