@@ -54,8 +54,9 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		final ExecutionMetadata metaData = new ExecutionMetadata(
 				Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.format(executionDate), execution);
 		metaData.setTime(Common.API_TIME_FORMATTER.format(executionDate));
+		log.trace("Time for new Execution: " + executionDate.getTime() + " is: " + metaData.getTime());
 		metaData.setDate(Common.API_DATE_FORMATTER.format(executionDate));
-
+		log.trace("Date for new Execution: " + executionDate.getTime() + " is: " + metaData.getDate());
 		metaData.setId(persistency.advanceId());
 		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + metaData.getId());
 		metaData.setUri(Common.REPORTS_FOLDER_NAME + "/" + metaData.getFolderName() + "/index.html");
