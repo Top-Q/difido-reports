@@ -104,8 +104,8 @@ class MetadataFileSystemPersistency extends AbstactMetadataPersistency {
 				log.warn("Failed to create backup file to " + backupMetaFile.getAbsolutePath() + " due to "
 						+ e.getMessage(), e);
 			}
+			lastBackedUp = System.currentTimeMillis();
 		}
-		lastBackedUp = System.currentTimeMillis();
 	}
 
 	@Override

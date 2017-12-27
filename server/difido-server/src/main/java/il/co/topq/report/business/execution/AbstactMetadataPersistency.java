@@ -38,7 +38,6 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 		StopWatch stopWatch = new StopWatch(logger).start("Reading from persistency");
 		readFromPersistency();
 		stopWatch.stopAndLog();
-		
 		if (isCachedEmpty()) {
 			return 0;
 		}
