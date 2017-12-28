@@ -484,8 +484,10 @@ public class ESController {
 			final SimpleDateFormat sdf = (SimpleDateFormat) Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.clone();
 			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 			return sdf.format(originalDate);
-		} catch (ParseException e) {
-			log.warn("Failed to convert date " + dateInLocalTime + " to UTC time zone");
+		} catch (Exception e) {
+			log.warn(
+					"Failed to convert date '" + dateInLocalTime + "' to UTC time zone due to '" + e.getMessage() + "'",
+					e);
 			return dateInLocalTime;
 		}
 	}
