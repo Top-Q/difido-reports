@@ -13,9 +13,6 @@ public class Common {
 
 	public static final SimpleDateFormat API_TIME_FORMATTER = new SimpleDateFormat("HH:mm:ss:SS");
 
-	public static final SimpleDateFormat ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER = new SimpleDateFormat(
-			"yyyy/MM/dd HH:mm:ss");
-
 	public static final String REPORTS_FOLDER_NAME = "reports";
 
 	public static final String ELASTIC_INDEX = "report";

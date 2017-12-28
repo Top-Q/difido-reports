@@ -1,6 +1,5 @@
 package il.co.topq.report.business.execution;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
@@ -20,6 +19,7 @@ import il.co.topq.difido.model.remote.ExecutionDetails;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
+import il.co.topq.report.DateTimeConverter;
 import il.co.topq.report.events.ExecutionDeletedEvent;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.events.ExecutionUpdatedEvent;
@@ -52,7 +52,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		Execution execution = new Execution();
 		final Date executionDate = new Date();
 		final ExecutionMetadata metaData = new ExecutionMetadata(
-				Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.format(executionDate), execution);
+				new DateTimeConverter().fromDateObject(executionDate).toElasticTimestampString(), execution);
 		metaData.setTime(Common.API_TIME_FORMATTER.format(executionDate));
 		log.trace("Time for new Execution: " + executionDate.getTime() + " is: " + metaData.getTime());
 		metaData.setDate(Common.API_DATE_FORMATTER.format(executionDate));
@@ -187,10 +187,10 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		final String timestamp = executionMetaData.getTimestamp();
 		try {
 			if (!StringUtils.isEmpty(timestamp)) {
-				final Date startTime = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.parse(timestamp);
+				final Date startTime = new DateTimeConverter().fromString(timestamp).toDateObject();
 				executionMetaData.setDuration(new Date().getTime() - startTime.getTime());
 			}
-		} catch (ParseException | NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			log.warn("Failed to parse start time of execution '" + timestamp + "' due to '" + e.getMessage() + "'", e);
 		}
 	}

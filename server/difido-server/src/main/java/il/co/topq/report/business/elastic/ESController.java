@@ -2,8 +2,6 @@ package il.co.topq.report.business.elastic;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -12,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -29,6 +26,7 @@ import il.co.topq.elastic.ESClient;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
+import il.co.topq.report.DateTimeConverter;
 import il.co.topq.report.StopWatch;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionDeletedEvent;
@@ -412,14 +410,22 @@ public class ESController {
 	private ElasticsearchTest testNodeToElasticTest(ExecutionMetadata metadata, MachineNode machineNode,
 			TestNode testNode) {
 		String timestamp = null;
+		DateTimeConverter convert = new DateTimeConverter();
 		if (testNode.getTimestamp() != null) {
 			timestamp = testNode.getDate() + " " + testNode.getTimestamp();
 		} else {
-			timestamp = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.format(new Date());
+			timestamp = convert.fromNowDateObject().toElasticTimestampString();
 		}
-		String executionTimestamp = convertToUtc(metadata.getTimestamp());
-		final ElasticsearchTest esTest = new ElasticsearchTest(testNode.getUid(), executionTimestamp,
-				convertToUtc(timestamp));
+		final Date gmtExecutionTimeStamp = convert.fromString(metadata.getTimestamp()).toGMTDateObject();
+		final Date gmtTestTimeStamp = convert.fromString(timestamp).toGMTDateObject();
+
+		final String gmtExecutionStringTimestamp = convert.fromDateObject(gmtExecutionTimeStamp)
+				.toElasticTimestampString();
+		final String gmtTestStringTimestamp = convert.fromDateObject(gmtTestTimeStamp).toElasticTimestampString();
+
+		final ElasticsearchTest esTest = new ElasticsearchTest(testNode.getUid(), gmtExecutionStringTimestamp,
+				gmtTestStringTimestamp);
+		
 		esTest.setName(testNode.getName());
 		esTest.setStatus(testNode.getStatus().name());
 		esTest.setDuration(testNode.getDuration());
@@ -476,20 +482,6 @@ public class ESController {
 				+ Common.REPORTS_FOLDER_NAME + "/" + executionMetadata.getFolderName() + "/" + "tests" + "/" + "test_"
 				+ uid + "/" + "test.html";
 		// @formatter:on
-	}
-
-	private String convertToUtc(final String dateInLocalTime) {
-		try {
-			final Date originalDate = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.parse(dateInLocalTime);
-			final SimpleDateFormat sdf = (SimpleDateFormat) Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.clone();
-			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-			return sdf.format(originalDate);
-		} catch (Exception e) {
-			log.warn(
-					"Failed to convert date '" + dateInLocalTime + "' to UTC time zone due to '" + e.getMessage() + "'",
-					e);
-			return dateInLocalTime;
-		}
 	}
 
 }
