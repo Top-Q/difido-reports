@@ -187,7 +187,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		final String timestamp = executionMetaData.getTimestamp();
 		try {
 			if (!StringUtils.isEmpty(timestamp)) {
-				final Date startTime = new DateTimeConverter().fromString(timestamp).toDateObject();
+				final Date startTime = new DateTimeConverter().fromElasticString(timestamp).toDateObject();
 				executionMetaData.setDuration(new Date().getTime() - startTime.getTime());
 			}
 		} catch (NumberFormatException e) {

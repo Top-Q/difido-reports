@@ -16,9 +16,16 @@ public class DateTimeConverter {
 	public FromDate fromDateObject(Date date) {
 		return new FromDate(date);
 	}
-	
+
 	public FromDate fromNowDateObject() {
 		return new FromDate(new Date());
+	}
+
+	public FromString fromElasticString(String dateString) {
+		if (StringUtils.isEmpty(dateString)) {
+			throw new IllegalArgumentException("Date string can't be null");
+		}
+		return new FromString(LocalDateTime.parse(dateString, ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER));
 	}
 
 	public class FromDate {
@@ -39,34 +46,27 @@ public class DateTimeConverter {
 	}
 
 	public class FromString {
-		private final String dateString;
 
-		public FromString(String dateString) {
+		private final LocalDateTime ldt;
+
+		public FromString(LocalDateTime ldt) {
 			super();
-			if (StringUtils.isEmpty(dateString)) {
-				throw new IllegalStateException("No date string was defined");
+			if (null == ldt) {
+				throw new IllegalStateException("Date time is null");
 			}
-			this.dateString = dateString;
+			this.ldt = ldt;
 		}
-		
+
 		public Date toGMTDateObject() {
-			ZonedDateTime gmtZonedDt = LocalDateTime.parse(dateString, ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER)
-					.atZone(ZoneId.systemDefault())
-					.withZoneSameInstant(ZoneId.of("GMT"));
-			return toDateObject(gmtZonedDt.format(ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER));
-		}
-		
-		private Date toDateObject(final String aDateString) {
-			LocalDateTime ldt = LocalDateTime.parse(aDateString, ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER);
-			return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+			ZonedDateTime gmtZonedDt = ldt.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("GMT"));
+			String gmtZoneText = gmtZonedDt.format(ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER);
+			LocalDateTime localTimeZone = LocalDateTime.parse(gmtZoneText, ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER);
+			return Date.from(localTimeZone.atZone(ZoneId.systemDefault()).toInstant());
 		}
 
 		public Date toDateObject() {
-			return toDateObject(this.dateString);
+			return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
 		}
 	}
 
-	public FromString fromString(String dateString) {
-		return new FromString(dateString);
-	}
 }

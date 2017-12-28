@@ -416,8 +416,8 @@ public class ESController {
 		} else {
 			timestamp = convert.fromNowDateObject().toElasticTimestampString();
 		}
-		final Date gmtExecutionTimeStamp = convert.fromString(metadata.getTimestamp()).toGMTDateObject();
-		final Date gmtTestTimeStamp = convert.fromString(timestamp).toGMTDateObject();
+		final Date gmtExecutionTimeStamp = convert.fromElasticString(metadata.getTimestamp()).toGMTDateObject();
+		final Date gmtTestTimeStamp = convert.fromElasticString(timestamp).toGMTDateObject();
 
 		final String gmtExecutionStringTimestamp = convert.fromDateObject(gmtExecutionTimeStamp)
 				.toElasticTimestampString();

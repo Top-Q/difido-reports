@@ -28,11 +28,16 @@ public class DateTimeConverterTests {
 	@Test
 	public void testElasticStingToDate() throws ParseException {
 		String dateString = "2017/12/28 20:38:32";
-		Date actDate = converter.fromString(dateString).toGMTDateObject();
-		System.out.println(actDate);
+		Date actDate = converter.fromElasticString(dateString).toDateObject();
 		Date expDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(dateString);
 		assertEquals(actDate.getTime(), expDate.getTime());
 	}
 
+	@Test
+	public void testElasticStingToGmtDate() throws ParseException {
+		Date actDate = converter.fromElasticString("2017/12/28 20:38:32").toGMTDateObject();
+		Date expDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse("2017/12/28 18:38:32");
+		assertEquals(actDate.getTime(), expDate.getTime());
+	}
 
 }
