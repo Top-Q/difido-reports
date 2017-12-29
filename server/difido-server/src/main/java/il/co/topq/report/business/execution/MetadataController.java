@@ -1,5 +1,8 @@
 package il.co.topq.report.business.execution;
 
+import static il.co.topq.report.DateTimeConverter.fromDateObject;
+import static il.co.topq.report.DateTimeConverter.fromElasticString;
+
 import java.util.Date;
 import java.util.List;
 
@@ -19,7 +22,6 @@ import il.co.topq.difido.model.remote.ExecutionDetails;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.DateTimeConverter;
 import il.co.topq.report.events.ExecutionDeletedEvent;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.events.ExecutionUpdatedEvent;
@@ -52,11 +54,9 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		Execution execution = new Execution();
 		final Date executionDate = new Date();
 		final ExecutionMetadata metaData = new ExecutionMetadata(
-				new DateTimeConverter().fromDateObject(executionDate).toElasticTimestampString(), execution);
-		metaData.setTime(Common.API_TIME_FORMATTER.format(executionDate));
-		log.trace("Time for new Execution: " + executionDate.getTime() + " is: " + metaData.getTime());
-		metaData.setDate(Common.API_DATE_FORMATTER.format(executionDate));
-		log.trace("Date for new Execution: " + executionDate.getTime() + " is: " + metaData.getDate());
+				fromDateObject(executionDate).toElasticString(), execution);
+		metaData.setTime(fromDateObject(executionDate).toTimeString());
+		metaData.setDate(fromDateObject(executionDate).toDateString());
 		metaData.setId(persistency.advanceId());
 		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + metaData.getId());
 		metaData.setUri(Common.REPORTS_FOLDER_NAME + "/" + metaData.getFolderName() + "/index.html");
@@ -187,7 +187,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		final String timestamp = executionMetaData.getTimestamp();
 		try {
 			if (!StringUtils.isEmpty(timestamp)) {
-				final Date startTime = new DateTimeConverter().fromElasticString(timestamp).toDateObject();
+				final Date startTime = fromElasticString(timestamp).toDateObject();
 				executionMetaData.setDuration(new Date().getTime() - startTime.getTime());
 			}
 		} catch (NumberFormatException e) {

@@ -1,5 +1,9 @@
 package il.co.topq.report.business.elastic;
 
+import static il.co.topq.report.DateTimeConverter.fromDateObject;
+import static il.co.topq.report.DateTimeConverter.fromElasticString;
+import static il.co.topq.report.DateTimeConverter.fromNowDateObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +30,6 @@ import il.co.topq.elastic.ESClient;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.DateTimeConverter;
 import il.co.topq.report.StopWatch;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionDeletedEvent;
@@ -410,18 +413,17 @@ public class ESController {
 	private ElasticsearchTest testNodeToElasticTest(ExecutionMetadata metadata, MachineNode machineNode,
 			TestNode testNode) {
 		String timestamp = null;
-		DateTimeConverter convert = new DateTimeConverter();
 		if (testNode.getTimestamp() != null) {
 			timestamp = testNode.getDate() + " " + testNode.getTimestamp();
 		} else {
-			timestamp = convert.fromNowDateObject().toElasticTimestampString();
+			timestamp = fromNowDateObject().toElasticString();
 		}
-		final Date gmtExecutionTimeStamp = convert.fromElasticString(metadata.getTimestamp()).toGMTDateObject();
-		final Date gmtTestTimeStamp = convert.fromElasticString(timestamp).toGMTDateObject();
+		final Date gmtExecutionTimeStamp = fromElasticString(metadata.getTimestamp()).toGMTDateObject();
+		final Date gmtTestTimeStamp = fromElasticString(timestamp).toGMTDateObject();
 
-		final String gmtExecutionStringTimestamp = convert.fromDateObject(gmtExecutionTimeStamp)
-				.toElasticTimestampString();
-		final String gmtTestStringTimestamp = convert.fromDateObject(gmtTestTimeStamp).toElasticTimestampString();
+		final String gmtExecutionStringTimestamp = fromDateObject(gmtExecutionTimeStamp)
+				.toElasticString();
+		final String gmtTestStringTimestamp = fromDateObject(gmtTestTimeStamp).toElasticString();
 
 		final ElasticsearchTest esTest = new ElasticsearchTest(testNode.getUid(), gmtExecutionStringTimestamp,
 				gmtTestStringTimestamp);

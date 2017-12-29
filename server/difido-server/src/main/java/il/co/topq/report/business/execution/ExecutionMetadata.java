@@ -1,5 +1,8 @@
 package il.co.topq.report.business.execution;
 
+import static il.co.topq.report.DateTimeConverter.fromDateString;
+import static il.co.topq.report.DateTimeConverter.fromTimeString;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,8 +13,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import il.co.topq.difido.model.execution.Execution;
-import il.co.topq.report.Common;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
@@ -210,15 +211,15 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 					+ this.toString() + "' with '" + o.toString() + "'");
 		}
 		try {
-			final Date thisDate = Common.API_DATE_FORMATTER.parse(getDate());
-			final Date otherDate = Common.API_DATE_FORMATTER.parse(o.getDate());
+			final Date thisDate = fromDateString(getDate()).toDateObject();
+			final Date otherDate = fromDateString(o.getDate()).toDateObject();
 			if (thisDate.before(otherDate)) {
 				return 1;
 			} else if (thisDate.after(otherDate)) {
 				return -1;
 			} else {
-				final Date thisTime = Common.API_TIME_FORMATTER.parse(getTime());
-				final Date otherTime = Common.API_TIME_FORMATTER.parse(o.getTime());
+				final Date thisTime = fromTimeString(getTime()).toDateObject();
+				final Date otherTime = fromTimeString(o.getTime()).toDateObject();
 				if (thisTime.before(otherTime)) {
 					return 1;
 				} else {

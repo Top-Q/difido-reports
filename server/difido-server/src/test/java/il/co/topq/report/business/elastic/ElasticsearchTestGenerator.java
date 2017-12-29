@@ -1,11 +1,11 @@
 package il.co.topq.report.business.elastic;
 
+import static il.co.topq.report.DateTimeConverter.fromNowDateObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import il.co.topq.report.DateTimeConverter;
 
 class ElasticsearchTestGenerator {
 
@@ -22,8 +22,7 @@ class ElasticsearchTestGenerator {
 	}
 
 	static ElasticsearchTest generateEsTest(int executionId, String executionTimeStamp, String uid) {
-		ElasticsearchTest test = new ElasticsearchTest(uid, executionTimeStamp,
-				new DateTimeConverter().fromNowDateObject().toElasticTimestampString());
+		ElasticsearchTest test = new ElasticsearchTest(uid, executionTimeStamp, fromNowDateObject().toElasticString());
 		test.setDescription("foo bar");
 		test.setDuration(100);
 		test.setExecutionId(executionId);

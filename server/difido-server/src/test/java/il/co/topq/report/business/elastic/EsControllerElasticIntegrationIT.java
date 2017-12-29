@@ -1,5 +1,7 @@
 package il.co.topq.report.business.elastic;
 
+import static il.co.topq.report.DateTimeConverter.fromNowDateObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -12,10 +14,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import il.co.topq.report.Common;
-import il.co.topq.report.DateTimeConverter;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionEndedEvent;
-
 @Ignore("Failed when running on Travis CI")
 public class EsControllerElasticIntegrationIT {
 
@@ -33,7 +33,7 @@ public class EsControllerElasticIntegrationIT {
 		// index on slow machines
 		Thread.sleep(5000);
 		escontroller = new ESController();
-		executionTimeStamp = new DateTimeConverter().fromNowDateObject().toElasticTimestampString();
+		executionTimeStamp = fromNowDateObject().toElasticString();
 
 	}
 

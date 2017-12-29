@@ -1,43 +1,66 @@
 package il.co.topq.report;
 
+import static il.co.topq.report.DateTimeConverter.fromDateObject;
+import static il.co.topq.report.DateTimeConverter.fromDateString;
+import static il.co.topq.report.DateTimeConverter.fromElasticString;
+import static il.co.topq.report.DateTimeConverter.fromTimeString;
+import static org.junit.Assert.assertEquals;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 
 public class DateTimeConverterTests {
-
-	private DateTimeConverter converter;
-
-	@Before
-	public void setup() {
-		converter = new DateTimeConverter();
-	}
 
 	@Test
 	public void testDateToElasticString() throws ParseException {
 		String expectedDateString = "2017/12/28 20:38:32";
 		Date date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(expectedDateString);
-		String actualDateString = converter.fromDateObject(date).toElasticTimestampString();
+		String actualDateString = fromDateObject(date).toElasticString();
 		assertEquals(expectedDateString, actualDateString);
 	}
 	
 	@Test
 	public void testElasticStingToDate() throws ParseException {
 		String dateString = "2017/12/28 20:38:32";
-		Date actDate = converter.fromElasticString(dateString).toDateObject();
+		Date actDate = fromElasticString(dateString).toDateObject();
 		Date expDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(dateString);
 		assertEquals(actDate.getTime(), expDate.getTime());
 	}
 
 	@Test
 	public void testElasticStingToGmtDate() throws ParseException {
-		Date actDate = converter.fromElasticString("2017/12/28 20:38:32").toGMTDateObject();
+		Date actDate = fromElasticString("2017/12/28 20:38:32").toGMTDateObject();
 		Date expDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse("2017/12/28 18:38:32");
 		assertEquals(actDate.getTime(), expDate.getTime());
 	}
+	
+	@Test
+	public void testDateConversion() {
+		String expDateString = "21/11/2017";
+		Date date = fromDateString(expDateString).toDateObject();
+		String actDateString = fromDateObject(date).toDateString();
+		assertEquals(expDateString, actDateString);
+	}
+	
+	@Test
+	public void testTimeConversion() {
+		String expTimeString = "16:47:51:22";
+		Date date = fromTimeString(expTimeString).toDateObject();
+		String actTimeString = fromDateObject(date).toTimeString();
+		assertEquals(expTimeString, actTimeString);
+	}
+	
+	@Test
+	public void testOldTimeConversion() {
+		Date date = fromTimeString("16:47:51:222").toDateObject();
+		String actTimeString = fromDateObject(date).toTimeString();
+		assertEquals("16:47:51:22", actTimeString);
+	}
+
+
+	
 
 }
