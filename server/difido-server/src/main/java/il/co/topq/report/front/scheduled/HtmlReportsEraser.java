@@ -1,6 +1,6 @@
 package il.co.topq.report.front.scheduled;
 
-import static il.co.topq.report.DateTimeConverter.fromDateString;
+import static il.co.topq.difido.DateTimeConverter.fromDateString;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;

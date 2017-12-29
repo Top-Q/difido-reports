@@ -1,7 +1,7 @@
 package il.co.topq.report.business.execution;
 
-import static il.co.topq.report.DateTimeConverter.fromDateObject;
-import static il.co.topq.report.DateTimeConverter.fromElasticString;
+import static il.co.topq.difido.DateTimeConverter.fromDateObject;
+import static il.co.topq.difido.DateTimeConverter.fromElasticString;
 
 import java.util.Date;
 import java.util.List;

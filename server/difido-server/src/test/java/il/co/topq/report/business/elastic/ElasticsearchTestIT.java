@@ -1,6 +1,6 @@
 package il.co.topq.report.business.elastic;
 
-import static il.co.topq.report.DateTimeConverter.fromNowDateObject;
+import static il.co.topq.difido.DateTimeConverter.fromNowDateObject;
 
 import org.junit.Assert;
 import org.junit.Before;

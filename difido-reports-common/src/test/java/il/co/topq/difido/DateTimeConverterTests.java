@@ -1,9 +1,9 @@
-package il.co.topq.report;
+package il.co.topq.difido;
 
-import static il.co.topq.report.DateTimeConverter.fromDateObject;
-import static il.co.topq.report.DateTimeConverter.fromDateString;
-import static il.co.topq.report.DateTimeConverter.fromElasticString;
-import static il.co.topq.report.DateTimeConverter.fromTimeString;
+import static il.co.topq.difido.DateTimeConverter.fromDateObject;
+import static il.co.topq.difido.DateTimeConverter.fromDateString;
+import static il.co.topq.difido.DateTimeConverter.fromElasticString;
+import static il.co.topq.difido.DateTimeConverter.fromTimeString;
 import static org.junit.Assert.assertEquals;
 
 import java.text.ParseException;

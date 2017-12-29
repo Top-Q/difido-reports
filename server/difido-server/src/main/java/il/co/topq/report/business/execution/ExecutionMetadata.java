@@ -1,7 +1,7 @@
 package il.co.topq.report.business.execution;
 
-import static il.co.topq.report.DateTimeConverter.fromDateString;
-import static il.co.topq.report.DateTimeConverter.fromTimeString;
+import static il.co.topq.difido.DateTimeConverter.fromDateString;
+import static il.co.topq.difido.DateTimeConverter.fromTimeString;
 
 import java.util.Date;
 import java.util.HashMap;

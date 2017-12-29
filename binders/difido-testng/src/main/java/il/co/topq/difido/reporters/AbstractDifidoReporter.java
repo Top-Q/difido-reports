@@ -40,7 +40,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	private static final Logger log = Logger.getLogger(AbstractDifidoReporter.class.getName());
 	
-	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss:");
+	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
 
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd");
 
