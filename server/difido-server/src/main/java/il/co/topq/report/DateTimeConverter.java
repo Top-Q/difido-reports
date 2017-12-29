@@ -12,6 +12,8 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for converting date and time objects to text representation of
@@ -22,7 +24,11 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class DateTimeConverter {
 
+	private static final Logger log = LoggerFactory.getLogger(DateTimeConverter.class);
+	
 	private static final DateTimeFormatter ELASTICSEARCH_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+	
+	private static final DateTimeFormatter ELASTICSEARCH_FORMATTER_SUFFIX = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss:");
 
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -46,7 +52,14 @@ public class DateTimeConverter {
 		if (StringUtils.isEmpty(dateString)) {
 			throw new IllegalArgumentException("Date string can't be null");
 		}
-		return new FromDateTimeString(LocalDateTime.parse(dateString, ELASTICSEARCH_FORMATTER));
+		LocalDateTime ldt = null;
+		try {
+			ldt = LocalDateTime.parse(dateString, ELASTICSEARCH_FORMATTER);
+		} catch (DateTimeParseException e) {
+			log.warn("Failure in parsing Elasticsearch date '" + dateString + "'. Trying other formatter");
+			ldt = LocalDateTime.parse(dateString, ELASTICSEARCH_FORMATTER_SUFFIX);
+		}
+		return new FromDateTimeString(ldt);
 	}
 
 	public static FromDateString fromDateString(String dateString) {
@@ -63,6 +76,7 @@ public class DateTimeConverter {
 		LocalTime lt = null;
 		try {
 			lt = LocalTime.parse(timeString, TIME_FORMATTER);
+			log.warn("Failure in parsing time '" + timeString + "'. Trying other formatter");
 		} catch (DateTimeParseException e) {
 			lt = LocalTime.parse(timeString, TIME_FORMATTER_OLD);
 		}
