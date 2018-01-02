@@ -1,13 +1,11 @@
 package il.co.topq.report.business.elastic;
 
+import static il.co.topq.difido.DateTimeConverter.fromNowDateObject;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import il.co.topq.report.Common;
-import il.co.topq.report.business.elastic.ElasticsearchTest;
 
 class ElasticsearchTestGenerator {
 
@@ -24,8 +22,7 @@ class ElasticsearchTestGenerator {
 	}
 
 	static ElasticsearchTest generateEsTest(int executionId, String executionTimeStamp, String uid) {
-		ElasticsearchTest test = new ElasticsearchTest(uid, executionTimeStamp,
-				Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.format(new Date()));
+		ElasticsearchTest test = new ElasticsearchTest(uid, executionTimeStamp, fromNowDateObject().toElasticString());
 		test.setDescription("foo bar");
 		test.setDuration(100);
 		test.setExecutionId(executionId);
@@ -44,13 +41,12 @@ class ElasticsearchTestGenerator {
 		properties.put("prop1", "value1");
 		properties.put("prop2", "value2");
 		test.setProperties(properties);
-		
+
 		Map<String, String> scenarioProps = new HashMap<String, String>();
 		scenarioProps.put("sprop0", "value0");
 		scenarioProps.put("sprop1", "value1");
 		scenarioProps.put("sprop2", "value2");
 		test.setScenarioProperties(scenarioProps);
-
 
 		return test;
 	}
