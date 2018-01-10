@@ -16,7 +16,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 	private final Logger logger;
 
 	// Package private for unit testing
-	private Map<Integer, ExecutionMetadata> executionsCache;;
+	private Map<Integer, ExecutionMetadata> executionsCache;
 
 	private int lastId;
 
@@ -47,10 +47,12 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 		return result.get(0).getId();
 	}
 
+	@Override
 	public int advanceId() {
 		return ++lastId;
 	}
 
+	@Override
 	public synchronized void add(ExecutionMetadata metadata) {
 		readFromPersistency();
 		executionsCache.put(metadata.getId(), metadata);
@@ -62,6 +64,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 		stopWatch.stopAndLog();
 	}
 
+	@Override
 	public synchronized void remove(int id) {
 		readFromPersistency();
 		if (null == executionsCache.remove(id)) {
@@ -73,15 +76,18 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 		
 	}
 
+	@Override
 	public synchronized void update(ExecutionMetadata metadata) {
 		add(metadata);
 	}
 
+	@Override
 	public synchronized ExecutionMetadata get(int executionId) {
 		readFromPersistency();
 		return executionsCache.get(executionId);
 	}
 
+	@Override
 	public synchronized List<ExecutionMetadata> getAll() {
 		readFromPersistency();
 		final List<ExecutionMetadata> result = new ArrayList<ExecutionMetadata>();
@@ -94,6 +100,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 
 	}
 
+	@Override
 	public void dump() {
 		initCache();
 	}
