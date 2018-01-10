@@ -64,11 +64,12 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 	 * be plugin and controllers that are using the execution object when after
 	 * the execution is over. From the other hand, we can't keep them in memory
 	 * since it is a memory leak.<br>
-	 * issue #181 
+	 * This is what you get when you design stateful system
+	 * issue #181
 	 * 
 	 */
 	@Scheduled(fixedRate = 1000 * 60 * 10)
-	private void releaseExecutionObjects() {
+	private void scheduledReleaseOfExecutionObjects() {
 		logger.debug("About to check if there is a need to free the execution object from executions");
 		StopWatch stopWatch = new StopWatch(logger).start("Checking if there is a need to free execution objects");
 		// @formatter:off
@@ -76,10 +77,16 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 		executionsCache
 			.values()
 			.stream()
+			// filter for all the executions without execution object
 			.filter(metadata -> null != metadata.getExecution())
+			// We will clean only execution objects of executions that are no longer active
 			.filter(metadata -> !metadata.isActive())
+			// And only if the last access time is longer then the maximum specified
 			.filter(metadata -> (currentTime - metadata.getLastAccessedTime()) / 60 >= MAX_TIME_TO_KEEP_EXECUTION_IN_SECONDS )
-			.forEach(metadata -> {logger.debug("Releasing execution object from execution " + metadata.getId());metadata.setExecution(null);});
+			.forEach(metadata -> {
+				logger.debug("Releasing execution object from execution " + metadata.getId());
+				metadata.setExecution(null);
+			});
 		// @formatter:on
 		stopWatch.stopAndLog();
 	}
