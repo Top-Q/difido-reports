@@ -230,6 +230,8 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 			log.error("Trying to disable execution with id " + executionEndedEvent.getExecutionId()
 					+ " which is not exist");
 		}
+		// We will update the last update time so we know when to clean the execution.
+		updateExecutionLastUpdateTime(executionEndedEvent.getExecutionId());
 		updateSingleExecutionMeta(metadata.getId());
 		metadata.setActive(false);
 		persistency.update(metadata);
