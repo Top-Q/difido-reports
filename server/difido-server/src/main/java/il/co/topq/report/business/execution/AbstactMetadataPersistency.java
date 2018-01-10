@@ -8,10 +8,15 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import il.co.topq.report.StopWatch;
 
+@Component
 public abstract class AbstactMetadataPersistency implements MetadataPersistency {
+
+	private static final long MAX_TIME_TO_KEEP_EXECUTION_IN_SECONDS = 60 * 10;
 
 	private final Logger logger;
 
@@ -52,6 +57,33 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 		return ++lastId;
 	}
 
+	/**
+	 * Will release execution object from metadata objects that have ended more
+	 * then <code>MAX_TIME_TO_KEEP_EXECUTION_IN_SECONDS</code> seconds ago.<br>
+	 * The reason we can't simply do it when execution is over is that there may
+	 * be plugin and controllers that are using the execution object when after
+	 * the execution is over. From the other hand, we can't keep them in memory
+	 * since it is a memory leak.<br>
+	 * issue #181 
+	 * 
+	 */
+	@Scheduled(fixedRate = 1000 * 60 * 10)
+	private void releaseExecutionObjects() {
+		logger.debug("About to check if there is a need to free the execution object from executions");
+		StopWatch stopWatch = new StopWatch(logger).start("Checking if there is a need to free execution objects");
+		// @formatter:off
+		final long currentTime = System.currentTimeMillis();
+		executionsCache
+			.values()
+			.stream()
+			.filter(metadata -> null != metadata.getExecution())
+			.filter(metadata -> !metadata.isActive())
+			.filter(metadata -> (currentTime - metadata.getLastAccessedTime()) / 60 >= MAX_TIME_TO_KEEP_EXECUTION_IN_SECONDS )
+			.forEach(metadata -> {logger.debug("Releasing execution object from execution " + metadata.getId());metadata.setExecution(null);});
+		// @formatter:on
+		stopWatch.stopAndLog();
+	}
+
 	@Override
 	public synchronized void add(ExecutionMetadata metadata) {
 		readFromPersistency();
@@ -73,7 +105,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 		StopWatch stopWatch = new StopWatch(logger).start("Writing to persistency");
 		writeToPersistency();
 		stopWatch.stopAndLog();
-		
+
 	}
 
 	@Override
