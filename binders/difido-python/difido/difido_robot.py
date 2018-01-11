@@ -136,7 +136,8 @@ class AbstractReport(object):
         element.title = message['message']
         if message["level"] == "FAIL":
             element.set_status("failure")
-            self.test.set_status("failure")
+            if self.test is not None:
+                self.test.set_status("failure")
 
         self.add_report_element(element)
 
