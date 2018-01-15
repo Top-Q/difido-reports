@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 	// Package private for unit testing
 	private Map<Integer, ExecutionMetadata> executionsCache;
 
-	private int lastId;
+	private final AtomicInteger lastId = new AtomicInteger(0);
 
 	protected abstract void readFromPersistency();
 
@@ -31,7 +32,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 
 	public AbstactMetadataPersistency() {
 		logger = LoggerFactory.getLogger(AbstactMetadataPersistency.class);
-		lastId = getLastId();
+		lastId.set(getLastId());
 	}
 
 	/**
@@ -54,7 +55,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 
 	@Override
 	public int advanceId() {
-		return ++lastId;
+		return lastId.incrementAndGet();
 	}
 
 	/**
@@ -146,7 +147,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 
 	protected void initCache() {
 		executionsCache = Collections.synchronizedMap(new HashMap<Integer, ExecutionMetadata>());
-		lastId = 0;
+		lastId.set(0);
 	}
 
 	protected void populateCache(Map<Integer, ExecutionMetadata> data) {
