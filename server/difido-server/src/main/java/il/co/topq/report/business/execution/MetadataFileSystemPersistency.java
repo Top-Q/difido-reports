@@ -81,7 +81,10 @@ class MetadataFileSystemPersistency extends AbstactMetadataPersistency {
 						log.warn("Failed to delete temp execution file " + tempMetaFile.getAbsolutePath());
 					}
 				}
-				new ObjectMapper().writeValue(tempMetaFile, getExecutionsCache());
+				Map<Integer, ExecutionMetadata> executionCache = getExecutionsCache();
+				synchronized (executionCache) {
+					new ObjectMapper().writeValue(tempMetaFile, executionCache);
+				}
 				if (tempMetaFile.length() == 0) {
 					log.warn("Execution meta file '" + tempMetaFile.getAbsolutePath()
 							+ "' length is 0 after serialiaztion. Aborting write");
