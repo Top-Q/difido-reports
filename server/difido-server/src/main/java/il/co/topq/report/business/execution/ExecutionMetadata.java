@@ -222,8 +222,10 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 				final Date otherTime = fromTimeString(o.getTime()).toDateObject();
 				if (thisTime.before(otherTime)) {
 					return 1;
-				} else {
+				} if (thisTime.after(otherTime)) {
 					return -1;
+				} else {
+					return 0;
 				}
 			}
 		} catch (Throwable t) {
