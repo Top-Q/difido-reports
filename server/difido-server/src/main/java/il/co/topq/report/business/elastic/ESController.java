@@ -413,8 +413,10 @@ public class ESController {
 	private ElasticsearchTest testNodeToElasticTest(ExecutionMetadata metadata, MachineNode machineNode,
 			TestNode testNode) {
 		String timestamp = null;
-		if (testNode.getTimestamp() != null) {
+		if (testNode.getDate() != null && testNode.getTimestamp() != null) {
 			timestamp = testNode.getDate() + " " + testNode.getTimestamp();
+		} else if (null == testNode.getDate() && testNode.getTimestamp() !=null) {
+			timestamp = fromNowDateObject().toReverseDateString() + " " + testNode.getTimestamp();
 		} else {
 			timestamp = fromNowDateObject().toElasticString();
 		}

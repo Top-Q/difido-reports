@@ -25,6 +25,8 @@ public class DateTimeConverter {
 	private static final DateTimeFormatter ELASTICSEARCH_FORMATTER_SUFFIX = DateTimeFormatter
 			.ofPattern("yyyy/MM/dd HH:mm:ss:");
 
+	private static final DateTimeFormatter REVERSE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+	
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss:SS");
@@ -95,6 +97,10 @@ public class DateTimeConverter {
 
 		public String toDateString() {
 			return date.toInstant().atZone(ZoneId.systemDefault()).format(DATE_FORMATTER);
+		}
+		
+		public String toReverseDateString() {
+			return date.toInstant().atZone(ZoneId.systemDefault()).format(REVERSE_DATE_FORMATTER);
 		}
 
 		public String toTimeString() {
