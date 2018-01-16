@@ -15,6 +15,16 @@ public class StopWatch {
 		stopWatch.setKeepTaskList(false);
 		this.log = log;
 	}
+	
+	/**
+	 * Builder method
+	 * 
+	 * @param log
+	 * @return
+	 */
+	public static StopWatch newStopWatch(Logger log) {
+		return new StopWatch(log);
+	}
 
 	public StopWatch start(String taskName) {
 		if (!log.isTraceEnabled()){

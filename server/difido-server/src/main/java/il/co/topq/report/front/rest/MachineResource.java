@@ -19,9 +19,11 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RestController;
 
 import il.co.topq.difido.model.execution.MachineNode;
+import il.co.topq.report.StopWatch;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.MachineCreatedEvent;
+import static il.co.topq.report.StopWatch.newStopWatch;
 
 @RestController
 @Path("api/executions/{execution}/machines")
@@ -51,8 +53,13 @@ public class MachineResource {
 		if (null == metadata) {
 			throw new WebApplicationException("Execution with id " + executionId + " is not exist");
 		}
+		StopWatch stopWatch = newStopWatch(log).start("Adding machine to execution");
 		metadata.getExecution().addMachine(machine);
+		stopWatch.stopAndLog();
+		
+		stopWatch = newStopWatch(log).start("Publishing machine create event");
 		publisher.publishEvent(new MachineCreatedEvent(metadata, machine));
+		stopWatch.stopAndLog();
 		return metadata.getExecution().getMachines().indexOf(machine);
 	}
 
@@ -86,8 +93,14 @@ public class MachineResource {
 			throw new WebApplicationException(
 					"Trying to update none existing machine with id " + machineId + " in execution " + executionId);
 		}
+		
+		StopWatch stopWatch = newStopWatch(log).start("Updating machine in execution");
 		metadata.getExecution().getMachines().set(machineId, machine);
+		stopWatch.stopAndLog();
+		
+		stopWatch = newStopWatch(log).start("Publishing machine created event");
 		publisher.publishEvent(new MachineCreatedEvent(metadata, machine));
+		stopWatch.stopAndLog();
 	}
 
 	@GET
