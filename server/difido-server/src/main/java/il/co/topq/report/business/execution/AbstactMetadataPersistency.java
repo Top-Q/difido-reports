@@ -130,14 +130,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 	@Override
 	public synchronized List<ExecutionMetadata> getAll() {
 		readFromPersistency();
-		final List<ExecutionMetadata> result = new ArrayList<ExecutionMetadata>();
-		result.addAll(executionsCache.values());
-		// This synchronized is very important. See issue #81
-		synchronized (this) {
-			Collections.sort(result);
-		}
-		return result;
-
+		return new ArrayList<ExecutionMetadata>(executionsCache.values());
 	}
 
 	@Override

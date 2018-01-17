@@ -123,6 +123,7 @@ function populateTable() {
 				titleAttr: 'Export to PDF'
 			}],
 			aaSorting: [],
+			order: [[ 0, "desc" ]],
 			deferRender: true,
 			sPaginationType: "full_numbers",
 			iDisplayLength: 25,

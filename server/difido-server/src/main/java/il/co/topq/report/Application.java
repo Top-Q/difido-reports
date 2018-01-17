@@ -39,7 +39,7 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 		executor.setCorePoolSize(1);
 		// Do not change the number of threads here
 		executor.setMaxPoolSize(1);
-		executor.setQueueCapacity(10000);
+		executor.setQueueCapacity(100000);
 		executor.setThreadNamePrefix("AsyncActionQueue-");
 		executor.initialize();
 		return executor;
