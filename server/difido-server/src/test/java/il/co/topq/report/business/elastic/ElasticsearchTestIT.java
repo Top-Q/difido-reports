@@ -1,12 +1,10 @@
 package il.co.topq.report.business.elastic;
 
-import java.util.Date;
+import static il.co.topq.difido.DateTimeConverter.fromNowDateObject;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import il.co.topq.report.Common;
 
 public class ElasticsearchTestIT {
 
@@ -17,7 +15,7 @@ public class ElasticsearchTestIT {
 	@Before
 	public void setUp() {
 		executionId = 10;
-		executionTimeStamp = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.format(new Date());
+		executionTimeStamp = fromNowDateObject().toElasticString();
 	}
 
 	@Test

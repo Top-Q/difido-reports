@@ -1,6 +1,8 @@
 package il.co.topq.report.business.execution;
 
-import java.text.ParseException;
+import static il.co.topq.difido.DateTimeConverter.fromDateObject;
+import static il.co.topq.difido.DateTimeConverter.fromElasticString;
+
 import java.util.Date;
 import java.util.List;
 
@@ -52,11 +54,9 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		Execution execution = new Execution();
 		final Date executionDate = new Date();
 		final ExecutionMetadata metaData = new ExecutionMetadata(
-				Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.format(executionDate), execution);
-		metaData.setTime(Common.API_TIME_FORMATTER.format(executionDate));
-		log.trace("Time for new Execution: " + executionDate.getTime() + " is: " + metaData.getTime());
-		metaData.setDate(Common.API_DATE_FORMATTER.format(executionDate));
-		log.trace("Date for new Execution: " + executionDate.getTime() + " is: " + metaData.getDate());
+				fromDateObject(executionDate).toElasticString(), execution);
+		metaData.setTime(fromDateObject(executionDate).toTimeString());
+		metaData.setDate(fromDateObject(executionDate).toDateString());
 		metaData.setId(persistency.advanceId());
 		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + metaData.getId());
 		metaData.setUri(Common.REPORTS_FOLDER_NAME + "/" + metaData.getFolderName() + "/index.html");
@@ -187,10 +187,10 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		final String timestamp = executionMetaData.getTimestamp();
 		try {
 			if (!StringUtils.isEmpty(timestamp)) {
-				final Date startTime = Common.ELASTIC_SEARCH_TIMESTAMP_STRING_FORMATTER.parse(timestamp);
+				final Date startTime = fromElasticString(timestamp).toDateObject();
 				executionMetaData.setDuration(new Date().getTime() - startTime.getTime());
 			}
-		} catch (ParseException | NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			log.warn("Failed to parse start time of execution '" + timestamp + "' due to '" + e.getMessage() + "'", e);
 		}
 	}
@@ -230,6 +230,8 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 			log.error("Trying to disable execution with id " + executionEndedEvent.getExecutionId()
 					+ " which is not exist");
 		}
+		// We will update the last update time so we know when to clean the execution.
+		updateExecutionLastUpdateTime(executionEndedEvent.getExecutionId());
 		updateSingleExecutionMeta(metadata.getId());
 		metadata.setActive(false);
 		persistency.update(metadata);

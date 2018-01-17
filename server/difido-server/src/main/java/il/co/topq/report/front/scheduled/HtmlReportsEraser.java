@@ -1,7 +1,8 @@
 package il.co.topq.report.front.scheduled;
 
+import static il.co.topq.difido.DateTimeConverter.fromDateString;
+
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 import org.slf4j.Logger;
@@ -11,13 +12,11 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.ExecutionUpdatedEvent;
-
 @Component
 public class HtmlReportsEraser {
 
@@ -55,8 +54,7 @@ public class HtmlReportsEraser {
 			if (meta.isActive() || meta.isLocked() || !meta.isHtmlExists()) {
 				continue;
 			}
-			final LocalDate executionDate = LocalDate.parse(meta.getDate(),
-					DateTimeFormatter.ofPattern(Common.API_DATE_FORMATTER.toPattern()));
+			final LocalDate executionDate = fromDateString(meta.getDate()).toLocalDate();
 			final long old = ChronoUnit.DAYS.between(executionDate, today);
 
 			if (old > daysToKeep) {
