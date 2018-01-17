@@ -22,13 +22,14 @@ import il.co.topq.difido.model.remote.ExecutionDetails;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
+import il.co.topq.report.StopWatch;
 import il.co.topq.report.events.ExecutionDeletedEvent;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.events.ExecutionUpdatedEvent;
 import il.co.topq.report.events.FileAddedToTestEvent;
 import il.co.topq.report.events.MachineCreatedEvent;
 import il.co.topq.report.events.TestDetailsCreatedEvent;
-
+import static il.co.topq.report.StopWatch.newStopWatch;
 @Component
 public class MetadataController implements MetadataProvider, MetadataCreator {
 
@@ -51,6 +52,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 	 */
 	@Override
 	public ExecutionMetadata createMetadata(ExecutionDetails executionDetails) {
+		StopWatch stopWatch = newStopWatch(log).start("Creating new metadata");
 		Execution execution = new Execution();
 		final Date executionDate = new Date();
 		final ExecutionMetadata metaData = new ExecutionMetadata(
@@ -68,6 +70,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 			setAllowedPropertiesToMetaData(metaData, executionDetails);
 		}
 		persistency.add(metaData);
+		stopWatch.stopAndLog();
 		return metaData;
 	}
 
@@ -249,8 +252,10 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 
 	@EventListener
 	public void onMachineCreatedEvent(MachineCreatedEvent machineCreatedEvent) {
+		StopWatch stopWatch = newStopWatch(log).start("Machine created event for execution " + machineCreatedEvent.getExecutionId());
 		updateExecutionLastUpdateTime(machineCreatedEvent.getExecutionId());
 		updateAllExecutionsMetaData();
+		stopWatch.stopAndLog();
 	}
 
 	/**
