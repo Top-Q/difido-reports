@@ -15,6 +15,7 @@ import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.events.MachineCreatedEvent;
 import il.co.topq.report.plugins.ExecutionPlugin;
 import il.co.topq.report.plugins.InteractivePlugin;
+import il.co.topq.report.plugins.MachineUpdatePlugin;
 import il.co.topq.report.plugins.Plugin;
 import il.co.topq.report.plugins.PluginManager;
 
@@ -53,11 +54,11 @@ public class PluginController {
 			return;
 		}
 		log.debug("Plugin controller was called at machine created event for execution:" + machineCreatedEvent.getExecutionId());
-		List<ExecutionPlugin> executionPlugins = pluginManager.getPlugins(ExecutionPlugin.class);
-		for (ExecutionPlugin plugin : executionPlugins) {
+		List<MachineUpdatePlugin> machineUpdatePlugins = pluginManager.getPlugins(MachineUpdatePlugin.class);
+		for (MachineUpdatePlugin plugin : machineUpdatePlugins) {
 			try {
 				log.debug("Calling plugin " + plugin.getName());
-				plugin.onExecutionEnded(machineCreatedEvent.getMetadata());
+				plugin.onMachineCreated(machineCreatedEvent);
 			} catch (Throwable e) {
 				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name " + plugin.getName(), e);
 			}
