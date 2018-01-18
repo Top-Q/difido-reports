@@ -47,10 +47,7 @@ public abstract class AbstactMetadataPersistency implements MetadataPersistency 
 		if (isCachedEmpty()) {
 			return 0;
 		}
-		final List<ExecutionMetadata> result = new ArrayList<ExecutionMetadata>();
-		result.addAll(executionsCache.values());
-		Collections.sort(result);
-		return result.get(0).getId();
+		return Collections.max(executionsCache.values()).getId();
 	}
 
 	@Override
