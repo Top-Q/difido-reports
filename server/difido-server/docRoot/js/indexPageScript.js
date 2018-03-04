@@ -67,7 +67,7 @@ function populateTable() {
 				action: function () {
 					table.ajax.reload(null, false);
 				},
-				text: '<i class="fa fa-refresh"></i>',
+				text: '<i class="fas fa-sync-alt"></i>',
 				titleAttr: 'Reload'
 			},
 			{
@@ -78,7 +78,8 @@ function populateTable() {
 				text: '<i class="fa fa-lock"></i>',
 				titleAttr: 'Lock Execution'
 
-			}, {
+			}, 
+			{
 				text: 'Unlock',
 				action: function (e, dt, node, config) {
 					lockUnlockSelected(table, "false");
@@ -86,7 +87,8 @@ function populateTable() {
 				text: '<i class="fa fa-unlock"></i>',
 				titleAttr: 'Unlock Execution'
 
-			}, {
+			},
+			 {
 				text: 'Delete',
 				action: function (e, dt, node, config) {
 					deleteSelected(table);
@@ -104,7 +106,7 @@ function populateTable() {
 			},
 			{
 				extend: 'copyHtml5',
-				text: '<i class="fa fa-files-o"></i>',
+				text: '<i class="far fa-copy"></i>',
 				titleAttr: 'Copy to Clipboard'
 			},
 			{
@@ -114,14 +116,28 @@ function populateTable() {
 			},
 			{
 				extend: 'csvHtml5',
-				text: '<i class="fa fa-file-text-o"></i>',
+				text: '<i class="fas fa-file-alt"></i>',
 				titleAttr: 'Export to CSV'
 			},
 			{
 				extend: 'pdfHtml5',
-				text: '<i class="fa fa-file-pdf-o"></i>',
+				text: '<i class="far fa-file-pdf"></i>',
 				titleAttr: 'Export to PDF'
-			}],
+			}, 
+			{
+				action: function (e, dt, node, config) {
+					var data = table.rows('.selected').data();
+					if(data.length == 0) {
+						bootbox.alert("There are no selected rows. Please select one row and try again. ");
+						return;
+					}
+					var id = data[0][0];
+					executionDetails(id);
+				},
+				text: '<i class="fas fa-edit"></i>',
+				titleAttr: 'Show / Edit Description & Comment'
+			}
+		],
 			aaSorting: [],
 			order: [[ 0, "desc" ]],
 			deferRender: true,
@@ -140,10 +156,8 @@ function populateTable() {
 					// We don't want that a click on the link will make the row selectable
 					className: "unselectable",
 					data: null,
-					"render": function (data, type, row) {
-						return '<a target="_blank" href="' + row[2] + '">'
-							+ data[1] + '</a>&nbsp;&nbsp;&nbsp;&nbsp;'
-							+ '<a class="a_button" href="#" title="Show / Edit Description & Comment" onClick="executionDetails(' + row[0] + ')"><span class="span_button">&#9998;</span></a>';
+					"render": function (data, type, row) { 
+						return '<a target="_blank" href="' + row[2] + '">'+ data[1] + '</a>';
 					}
 				},
 				{
