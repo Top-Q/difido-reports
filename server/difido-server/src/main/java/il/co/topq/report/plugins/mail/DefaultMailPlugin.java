@@ -20,7 +20,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 
 	private final Logger log = LoggerFactory.getLogger(DefaultMailPlugin.class);
 
-	private MailSender sender;
+	protected MailSender sender;
 
 	private boolean enabled = true;
 

@@ -12,8 +12,10 @@ import org.springframework.stereotype.Component;
 
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionEndedEvent;
+import il.co.topq.report.events.MachineCreatedEvent;
 import il.co.topq.report.plugins.ExecutionPlugin;
 import il.co.topq.report.plugins.InteractivePlugin;
+import il.co.topq.report.plugins.MachineUpdatePlugin;
 import il.co.topq.report.plugins.Plugin;
 import il.co.topq.report.plugins.PluginManager;
 
@@ -40,6 +42,25 @@ public class PluginController {
 			} catch (Throwable e) {
 				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "
 						+ plugin.getName(), e);
+			}
+
+		}
+	}
+	
+	@EventListener
+	public void onMachineCreatedEvent(MachineCreatedEvent machineCreatedEvent) {
+		if (machineCreatedEvent == null || machineCreatedEvent.getMetadata() == null) {
+			log.error("Machine created event was called with null argument");
+			return;
+		}
+		log.debug("Plugin controller was called at machine created event for execution:" + machineCreatedEvent.getExecutionId());
+		List<MachineUpdatePlugin> machineUpdatePlugins = pluginManager.getPlugins(MachineUpdatePlugin.class);
+		for (MachineUpdatePlugin plugin : machineUpdatePlugins) {
+			try {
+				log.debug("Calling plugin " + plugin.getName());
+				plugin.onMachineCreated(machineCreatedEvent);
+			} catch (Throwable e) {
+				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name " + plugin.getName(), e);
 			}
 
 		}
