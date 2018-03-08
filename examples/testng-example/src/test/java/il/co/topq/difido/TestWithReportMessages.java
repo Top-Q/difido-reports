@@ -6,6 +6,12 @@ import il.co.topq.difido.model.Enums.Status;
 
 public class TestWithReportMessages extends AbstractDifidoTestCase {
 
+	@Test
+	public void testUtf() {
+		report.log("אני כותב בשפת הקודש");
+		report.log("Я пишу на языке Достоевского");
+	}
+	
 	@Test(description = "Test with steps")
 	public void testWithSteps() {
 		report.step("Step 1");
