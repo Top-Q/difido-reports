@@ -157,7 +157,7 @@ public class PersistenceUtils {
 			}
 			String json = mapper.writeValueAsString(execution);
 			json = "var execution = " + json + ";";
-			FileUtils.write(executionModelFile, json);
+			FileUtils.write(executionModelFile, json, "utf-8");
 		} catch (Exception e) {
 			log.warning("Failed to write html report due to " + e.getMessage());
 		}
@@ -178,14 +178,13 @@ public class PersistenceUtils {
 	}
 
 	/**
-	 * Converts the test details to JSon file and copy it to the HTML report
-	 * folder.
+	 * Converts the test details to JSon file and copy it to the HTML report folder.
 	 * 
 	 * @param testDetails
 	 *            Test details data
 	 * @param currentReportFolder
-	 *            The root folder of the HTML reports. It is needed in order to
-	 *            copy the test HTML file
+	 *            The root folder of the HTML reports. It is needed in order to copy
+	 *            the test HTML file
 	 * @param testDestinationFolder
 	 *            The folder contains the test details.
 	 */
@@ -212,7 +211,7 @@ public class PersistenceUtils {
 		}
 
 		try {
-			FileUtils.write(tempFile, json);
+			FileUtils.write(tempFile, json, "utf-8");
 			log.fine("Test details was written to file " + tempFile.getAbsolutePath());
 		} catch (IOException e) {
 			log.severe("Failed writing test details of test with uid " + testDetails.getUid() + " to temp file due to "

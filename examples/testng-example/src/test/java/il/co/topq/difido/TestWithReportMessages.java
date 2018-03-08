@@ -9,6 +9,7 @@ public class TestWithReportMessages extends AbstractDifidoTestCase {
 	@Test
 	public void testUtf() {
 		report.log("אני כותב בשפת הקודש");
+		report.log("Я пишу на языке Достоевского");
 	}
 	
 	@Test(description = "Test with steps")
