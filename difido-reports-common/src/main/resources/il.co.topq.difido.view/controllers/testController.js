@@ -89,6 +89,12 @@ function setStopLevelElement(element) {
 
     // decrease depth as level closed
     depth -= depthStep;
+
+    //make sure we don't slide left more
+    //than needed... Thanks Alik.
+    if (depth<0) {
+        depth = 0;
+    }
 }
 
 function setStepElement($container, element) {
