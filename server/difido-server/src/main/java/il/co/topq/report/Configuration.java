@@ -29,7 +29,7 @@ public enum Configuration {
 		ELASTIC_HTTP_PORT("elastic.http.port","9200"),
 		ELASTIC_TRANSPORT_TCP_PORT("elastic.transport.tcp.port","9300"),
 		ENABLE_HTML_REPORTS("enable.html.reports", "true"), 
-		ENABLE_ARCHIVED_RESOURCES("enable.archived.resources","true"),
+		ENABLE_ARCHIVED_RESOURCES("enable.archived.resources","false"),
 		DAYS_TO_KEEP_HTML_REPORTS("days.to.keep.html.reports","0"),
 		EXTERNAL_LINKS("external.links",""),
 		ENABLE_MAIL("enable.mail", "false"), MAIL_USER_NAME("mail.user.name",""), 
