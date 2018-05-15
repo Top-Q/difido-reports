@@ -21,7 +21,9 @@ public class RemoteDifidoConfig extends AbstractPropertiesConfigFile {
 		USE_SHARED_EXECUTION("use.shared.execution", "false"),
 		EXISTING_EXECUTION_ID("existing.execution.id", "-1"),
 		FORCE_NEW_EXECUTION("force.new.execution", "false"),
-		APPEND_TO_EXISTING_EXECUTION("append.to.existing.execution", "false");
+		APPEND_TO_EXISTING_EXECUTION("append.to.existing.execution", "false"),
+		COMPRESS_FILES_ABOVE("compress.files.above","5000");
+		
 		// @formatter:on
 
 		private String property;

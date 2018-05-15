@@ -14,6 +14,7 @@ import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.remote.ExecutionDetails;
 import il.co.topq.difido.model.test.TestDetails;
+import il.co.topq.difido.ZipUtils;
 
 public class RemoteDifidoReporter extends AbstractDifidoReporter {
 
@@ -200,7 +201,31 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 
 	private void sendFileToServer(File file) {
 		try {
-			client.addFile(executionId, getTestDetails().getUid(), file);
+			//int treshold RemoteDifidoOptions.
+			int thresholdInBytes = difidoConfig.getPropertyAsInt(RemoteDifidoOptions.COMPRESS_FILES_ABOVE);
+			if (thresholdInBytes > 0 || file.length()> thresholdInBytes){
+				File zipped = ZipUtils.gzip(file);
+				if (zipped != null && zipped.exists()){
+					client.addFile(executionId, getTestDetails().getUid(), zipped);
+					//if we created a new file, we should delete it 
+					if (zipped != null && !file.equals(zipped)){
+						try{
+							zipped.delete();
+						} catch (Exception e){
+							log.warning(String.format("Failed to delete temporary zip file: %s",zipped.getAbsolutePath()));
+									
+						}
+						
+					}
+				}
+				else {
+					log.warning("Failed to zip file on the fly, uploading original");
+					client.addFile(executionId, getTestDetails().getUid(), file);
+				}
+			}
+			else {
+				client.addFile(executionId, getTestDetails().getUid(), file);
+			}
 		} catch (Exception e) {
 			log.warning("Failed uploading file " + file.getName() + " to remote server due to " + e.getMessage());
 		}

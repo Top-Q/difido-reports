@@ -1,6 +1,7 @@
 package il.co.topq.difido;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -8,8 +9,9 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.zip.GZIPOutputStream;
 
-class ZipUtils {
+public class ZipUtils {
 
 	/**
 	 * uncompress all the files in the specified zipFile to the specified
@@ -51,4 +53,44 @@ class ZipUtils {
 
 	}
 
+	/**
+	 * Gzips the given file and returns the zipped one.
+	 * @param originalFile
+	 * @return
+	 */
+	public static File gzip(File originalFile) {
+		if (originalFile == null || !originalFile.exists())
+			return null;
+		
+		//if file already zipped, return it;
+		if (originalFile.getPath().toLowerCase().endsWith(".gz"))
+			return originalFile;
+		
+		File zippedFile = new File(originalFile.getAbsolutePath().concat(".gz"));
+		
+		try (FileInputStream input = new FileInputStream(originalFile)){
+			try (FileOutputStream output = new FileOutputStream(zippedFile)){
+					try (GZIPOutputStream gzipOS = new GZIPOutputStream(output)){
+						byte[] buffer = new byte[1024];
+			            int len;
+			            while((len= input.read(buffer)) != -1){
+			                gzipOS.write(buffer, 0, len);
+			            }
+						
+			            gzipOS.close();
+			            output.close();
+			            input.close();
+					}
+			}
+
+			return zippedFile;
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return originalFile;
+		
+		
+	}
+	
 }
