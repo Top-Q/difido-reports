@@ -23,7 +23,7 @@ public class RemoteDifidoConfig extends AbstractPropertiesConfigFile {
 		FORCE_NEW_EXECUTION("force.new.execution", "false"),
 		APPEND_TO_EXISTING_EXECUTION("append.to.existing.execution", "false"),
 		COMPRESS_FILES_ABOVE("compress.files.above","5000"),
-		DONT_COMPRESS_EXTENTIONS("dont.compress.extensions","7z;zip;rar;gzip;gz;jpg;jpeg;png;gif;avi;xvid;mp4;mp3;tif;tiff;pdf;wmf;svg;exe;jar");
+		DONT_COMPRESS_EXTENSIONS("dont.compress.extensions","7z;zip;rar;gzip;gz;jpg;jpeg;png;gif;avi;xvid;mp4;mp3;tif;tiff;pdf;wmf;svg;exe;jar");
 		
 		
 		// @formatter:on

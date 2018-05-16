@@ -259,7 +259,7 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 			return;
 		
 		this.extentionsToSkip = new LinkedHashSet<>();
-		List<String> extentionsList = difidoConfig.getPropertyAsList(RemoteDifidoOptions.DONT_COMPRESS_EXTENTIONS);
+		List<String> extentionsList = difidoConfig.getPropertyAsList(RemoteDifidoOptions.DONT_COMPRESS_EXTENSIONS);
 		for (String extension : extentionsList){
 			int startFrom = extension.lastIndexOf(".") + 1; //strip off any irrelevant file parts a user may have entered (e.g. tar.gz, or *.exe)
 			extentionsToSkip.add(extension.toLowerCase().substring(startFrom));
