@@ -2,19 +2,25 @@ package il.co.topq.difido.reporters;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.testng.ISuite;
 
+import il.co.topq.difido.ZipUtils;
+import il.co.topq.difido.config.DifidoConfig;
 import il.co.topq.difido.config.RemoteDifidoConfig;
+import il.co.topq.difido.config.DifidoConfig.DifidoOptions;
 import il.co.topq.difido.config.RemoteDifidoConfig.RemoteDifidoOptions;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.remote.ExecutionDetails;
 import il.co.topq.difido.model.test.TestDetails;
-import il.co.topq.difido.ZipUtils;
 
 public class RemoteDifidoReporter extends AbstractDifidoReporter {
 
@@ -35,6 +41,8 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 	private RemoteDifidoConfig difidoConfig;
 
 	private ExecutionDetails details;
+	
+	private Set<String> extentionsToSkip = null;
 
 	/**
 	 * When files are added in the setup phase, there is no test context and no
@@ -201,11 +209,13 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 
 	private void sendFileToServer(File file) {
 		try {
-			//int treshold RemoteDifidoOptions.
+
 			int thresholdInBytes = difidoConfig.getPropertyAsInt(RemoteDifidoOptions.COMPRESS_FILES_ABOVE);
-			if (thresholdInBytes > 0 || file.length()> thresholdInBytes){
+			if (thresholdInBytes > 0 && file.length() > thresholdInBytes && isCompressable(file)){
 				File zipped = ZipUtils.gzip(file);
 				if (zipped != null && zipped.exists()){
+					log.fine("Uploading a compressed file: " + zipped.getName());
+					
 					client.addFile(executionId, getTestDetails().getUid(), zipped);
 					//if we created a new file, we should delete it 
 					if (zipped != null && !file.equals(zipped)){
@@ -230,6 +240,32 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 			log.warning("Failed uploading file " + file.getName() + " to remote server due to " + e.getMessage());
 		}
 	}
+	
+	/**
+	 * checks whether the file extension is 'blacklisted' for compression
+	 */
+	private boolean isCompressable(File f){
+		String ext = FilenameUtils.getExtension(f.getAbsolutePath()).toLowerCase();
+		return !getSkippedExtensions().contains(ext);
+	}
+	
+	private Set<String> getSkippedExtensions(){
+		initSkippedExtensions();
+		return this.extentionsToSkip;
+	}
+	
+	private void initSkippedExtensions(){
+		if (this.extentionsToSkip != null)
+			return;
+		
+		this.extentionsToSkip = new LinkedHashSet<>();
+		List<String> extentionsList = difidoConfig.getPropertyAsList(RemoteDifidoOptions.DONT_COMPRESS_EXTENTIONS);
+		for (String extension : extentionsList){
+			int startFrom = extension.lastIndexOf(".") + 1; //strip off any irrelevant file parts a user may have entered (e.g. tar.gz, or *.exe)
+			extentionsToSkip.add(extension.toLowerCase().substring(startFrom));
+		}
+	}
+	
 
 	/**
 	 * Elements that are created in setup phases, before test context is created

@@ -97,6 +97,14 @@ public class DifidoReporterTests extends AbstractTestCase {
 		}
 		
 	}
+	
+	@Test
+	public void testAddImageFile() throws Exception{
+		//Reporter.log("This file should be uploaded uncompressed");
+		File image = new File(DifidoReporterTests.class.getResource("/login.png").toURI());
+		report.log("File: " + image.getAbsolutePath() + " exists()=" + image.exists());
+		report.addFile(image, "This file should be uncompressed on the server");
+	}
 
 	@Test(description = "Adding screenshot to the report")
 	public void testAddScreenshot() throws IOException, AWTException {
