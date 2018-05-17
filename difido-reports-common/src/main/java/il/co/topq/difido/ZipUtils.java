@@ -1,8 +1,11 @@
 package il.co.topq.difido;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -96,6 +99,38 @@ public class ZipUtils {
 		
 	}
 
+	/**
+	 * Gzipps the given file and returns it as byte[] 
+	 * @param file
+	 * @return
+	 */
+	public static byte[] gzipToBytesArray(File file){
+		
+		try(FileInputStream input = new FileInputStream(file);
+				ByteArrayOutputStream output = new ByteArrayOutputStream();
+				GZIPOutputStream gzipOS = new GZIPOutputStream(output);){
+			
+			byte[] buffer = new byte[1024];
+			int len;
+			while((len= input.read(buffer)) != -1){
+				gzipOS.write(buffer, 0, len);
+			}
+			
+			
+			return output.toByteArray();
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		return null;
+		
+	}
+	
+	
 	/**
 	 * Since we must preserve the fileName of the originalFile (or browser auto-unzip 
 	 * will not work  later, when the resource is requested), so if a file x.y.gz already exists in temp dir
