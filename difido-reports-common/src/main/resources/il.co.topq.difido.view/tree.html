@@ -85,7 +85,21 @@
     $(function() {
         $("#leftpane").resizable({
             minWidth: 250,
-            maxWidth: 600
+            maxWidth: 600, 
+             //iframes interfere with resize because they  consume  
+            //our mouse events and ruin our beautiful resize. 
+            //so we must hide the iframes before the resize and 
+            //unhide when done. 
+            start: function () {
+                $("iframe").each(function (index, element) {
+                    $(element).hide();
+                });
+
+            },
+            stop: function () {
+                $('iframe').show();
+            }
+    
         });
     });
 
