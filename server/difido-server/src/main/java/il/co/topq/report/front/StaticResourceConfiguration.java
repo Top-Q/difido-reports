@@ -3,8 +3,6 @@ package il.co.topq.report.front;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.ResourceChainRegistration;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -28,18 +26,23 @@ public class StaticResourceConfiguration extends WebMvcConfigurerAdapter {
 		}
 		log.debug("docRoot folder is set to " + docRoot);
 		
-		ResourceHandlerRegistration resourceHandlerRegistration = registry.addResourceHandler("/**")
-		.addResourceLocations("file:" + docRoot);
+		registry.addResourceHandler("/**")
+		.addResourceLocations("file:" + docRoot)
+		.resourceChain(false) 
+		.addResolver(new GzipArchivedResourceResolver())
+		.addResolver(new PathResourceResolver());
 		
-		boolean enableArchivedResources = il.co.topq.report.Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_ARCHIVED_RESOURCES);
+	/*	There's no apparent point at this time in making this functionality optional.  
+	 * 	boolean enableArchivedResources = il.co.topq.report.Configuration.INSTANCE.readBoolean(ConfigProps.ENABLE_ARCHIVED_RESOURCES);
 		log.debug("enableArchivedResources={}",enableArchivedResources);
 		if (enableArchivedResources){
-			//many of our resources are dynamic
+			//many of our resources (eg execution.js, test,js) are dynamic
 			//so we probably don't want to cache them.  
 			resourceHandlerRegistration.resourceChain(false) 
 			.addResolver(new GzipArchivedResourceResolver())
 			.addResolver(new PathResourceResolver());
 		}
+	*/
 		
 	}
 

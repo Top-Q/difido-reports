@@ -86,6 +86,13 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	 */
 	private boolean htmlExists = true;
 
+	
+	/**
+	 * When we archive an execution, this flag fill be set
+	 * to true, to prevent us from trying to archive it again. 
+	 */
+	private boolean archived = false;
+	
 	/**
 	 * The last time in absolute milliseconds that this execution was changed.
 	 * This is used for calculating if the max idle time is over. <br>
@@ -176,6 +183,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 			this.numOfTestsWithWarnings = metaData.numOfTestsWithWarnings;
 			this.numOfMachines = metaData.numOfMachines;
 			this.dirty = metaData.dirty;
+			this.archived = metaData.archived;
 		}
 	}
 
@@ -228,6 +236,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 				.append("active", active)
 				.append("locked", locked)
 				.append("htmlExists", htmlExists)
+				.append("archived",archived)
 				.append("lastAccessedTime", lastAccessedTime)
 				.append("numOfTests", numOfTests)
 				.append("numOfSuccessfulTests", numOfSuccessfulTests)
@@ -448,6 +457,15 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setComment(String comment) {
 		this.comment = comment;
+	}
+	
+	public boolean isArchived(){
+		return this.archived;
+	}
+	
+	public void setArchived(boolean value){
+		this.archived = value;
+		setDirty(true);
 	}
 	
 	@JsonIgnore

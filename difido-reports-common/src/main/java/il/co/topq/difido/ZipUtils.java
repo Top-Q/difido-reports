@@ -132,28 +132,14 @@ public class ZipUtils {
 	
 	
 	/**
-	 * Since we must preserve the fileName of the originalFile (or browser auto-unzip 
-	 * will not work  later, when the resource is requested), so if a file x.y.gz already exists in temp dir
-	 * we will have to create a nester dir and place our file there.
+	 * Returns a file with .gz appended.
 	 * 
 	 * @param originalFile
 	 * @return
 	 */
 	private static File getZippedFile(File originalFile){
-		String tempDir = System.getProperty("java.io.tmpdir");
-		String fileName = originalFile.getName().concat(".gz");
-		File f = new File(String.format("%s%s",tempDir,fileName));
-		if (!f.exists())
-			return f;
-		
-		File nestedDir = new File(String.format("%s%s",tempDir,System.nanoTime()));
-		try {
-			if (!nestedDir.mkdirs()){
-				return null;
-			}
-			
-			
-			return new File(nestedDir,fileName);
+		try{	
+			return new File(originalFile.getAbsolutePath().concat(".gz"));
 			
 			
 		} catch (Exception e) {

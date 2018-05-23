@@ -9,6 +9,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.servlet.resource.EncodedResource;
@@ -25,6 +27,8 @@ import org.springframework.web.servlet.resource.ResourceResolverChain;
  *
  */
 public class GzipArchivedResourceResolver extends GzipResourceResolver {
+	private final static Logger log = LoggerFactory.getLogger(GzipArchivedResourceResolver.class);
+	
 	private final static String GZ = ".gz";
 	@Override
 	protected Resource resolveResourceInternal(HttpServletRequest request, String requestPath,
@@ -32,7 +36,8 @@ public class GzipArchivedResourceResolver extends GzipResourceResolver {
 
 		//Use the parent's logic for retrieving the resource first (this will include fetching the 
 		//Gzip version of the resource if exists); 
-		//if we managed to retrieve a resource the usual way - just return it 
+		//if we managed to retrieve a resource the usual way (either original or gzipped)
+		//- just return it 
 		Resource originalResource = super.resolveResourceInternal(request, requestPath, locations, chain);
 		try {	
 			if (originalResource != null){ 
@@ -58,7 +63,7 @@ public class GzipArchivedResourceResolver extends GzipResourceResolver {
 
 
 		}catch (Exception e){
-			logger.error("Unexpected exception for [" +originalResource.getFilename() + "]",e);
+			log.error("Unexpected exception for [" +originalResource.getFilename() + "]",e);
 		}
 		
 		return originalResource;

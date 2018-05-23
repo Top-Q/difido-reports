@@ -4,8 +4,13 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +18,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import il.co.topq.difido.PersistenceUtils;
+import il.co.topq.difido.ZipUtils;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
@@ -20,6 +26,7 @@ import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.StopWatch;
 import il.co.topq.report.business.AsyncActionQueue;
 import il.co.topq.report.business.execution.ExecutionMetadata;
+import il.co.topq.report.events.ExecutionArchivedEvent;
 import il.co.topq.report.events.ExecutionCreatedEvent;
 import il.co.topq.report.events.ExecutionDeletedEvent;
 import il.co.topq.report.events.ExecutionEndedEvent;
@@ -34,8 +41,10 @@ public class HtmlReportsController {
 	private final Logger log = LoggerFactory.getLogger(HtmlReportsController.class);
 
 	private static final File TEMPLATE_FOLDER = new File("htmlTemplate");
-
+	
 	private AsyncActionQueue queue;
+	
+	private final Set<String> archiveableExtensions= new LinkedHashSet<>(Configuration.INSTANCE.readList(ConfigProps.EXTENSIONS_TO_ARCHIVE));
 
 	enum HtmlGenerationLevel {
 		EXECUTION, MACHINE, SCENARIO, TEST, TEST_DETAILS, ELEMENT
@@ -83,6 +92,83 @@ public class HtmlReportsController {
 		}
 	}
 
+	
+	
+	@EventListener
+	public void onExecutionArchivedEvent(ExecutionArchivedEvent executionArchivedEvent){
+		ExecutionMetadata meta = executionArchivedEvent.getMetadata();
+		
+		if (meta == null || meta.isActive() || !meta.isHtmlExists() || meta.isArchived()){
+			return;
+		}
+		final File executionFolder = getExecutionDestinationFolder(executionArchivedEvent.getMetadata());
+		if (null != executionArchivedEvent && executionFolder.exists()){
+			meta.setArchived(true);
+			archiveHtmlFolder(executionFolder);
+		}
+	}
+	
+	
+	private void archiveHtmlFolder(File executionFolder) {
+		
+		queue.addAction(()-> {
+			log.debug("About to archive (compress): {}", executionFolder);
+			archive(executionFolder);
+		});
+	}
+	
+	/**
+	 * Recursively archives the file/dir and deletes the 
+	 * original.
+	 * 
+	 * @param file
+	 */
+	private void archive(File file){
+		try {
+			if (!file.exists()){
+				log.error("File {} doesn't exists, cannot be archived",file.getAbsolutePath());
+				return;
+			}
+			
+			//if a directory recursively archive all nested files/folders
+			if (file.isDirectory()){
+				Arrays.stream(file.listFiles()).forEach(f->archive(f));
+				return;
+			}
+			
+			
+			if (isArchiveable(file.getName())){
+				File zipped = ZipUtils.gzip(file);
+				if (null != zipped && zipped.exists()){
+					file.delete();
+				}
+				else {
+					log.error("Failed to zip {}", file.getAbsolutePath());
+				}
+			}
+			
+			
+		} catch (Exception e) {
+			log.error("Unexpected exception during archive",e);
+		}
+		
+	}
+
+	
+	
+	private boolean isArchiveable(String fileName){
+		if (null == fileName)
+			return false;
+		
+				
+		String ext = FilenameUtils.getExtension(fileName);
+		if (StringUtils.isEmpty(ext))
+			return false;
+		
+		return archiveableExtensions.contains(ext.toLowerCase());
+		
+	}
+
 	/**
 	 * Delete the HTML folder of the given execution
 	 * 
@@ -106,6 +192,7 @@ public class HtmlReportsController {
 		});
 	}
 
+	
 	private void prepareExecutionFolder(ExecutionMetadata executionMetadata) {
 		final File executionDestinationFolder = getExecutionDestinationFolder(executionMetadata);
 		queue.addAction(() -> {
