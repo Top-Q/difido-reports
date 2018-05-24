@@ -5,6 +5,11 @@
 			<package name="il.co.topq.difido"></package>
 		</packages>
 	</test>
+	<test name="Test Rerun Tests">
+		<classes>
+			<class name="il.co.topq.difido.TestWithRetries"></class>
+		</classes>
+	</test>
 	<test name="Test Attaching Files">
 		<classes>
 			<class name="il.co.topq.difido.TestsWithFiles"></class>
@@ -30,6 +35,4 @@
 			<class name="il.co.topq.difido.TestsSugarCrm"></class>
 		</classes>
 	</test>
-	
-
 </suite>
