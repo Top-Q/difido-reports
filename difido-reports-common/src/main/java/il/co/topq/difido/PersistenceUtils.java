@@ -195,6 +195,7 @@ public class PersistenceUtils {
 	public static void writeTest(TestDetails testDetails, File currentReportFolder, File testDestinationFolder) {
 		if (null == testDetails) {
 			log.warning("TestDetails object is null. Aborting write opertaion");
+			return;
 		}
 		final File testHtml = new File(testDestinationFolder, TEST_DETAILS_HTML_FILE);
 		if (!testHtml.exists()) {
