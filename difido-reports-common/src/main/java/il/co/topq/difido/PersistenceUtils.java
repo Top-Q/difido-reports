@@ -146,6 +146,10 @@ public class PersistenceUtils {
 	 * @param destinationFolder
 	 */
 	public static void writeExecution(Execution execution, File destinationFolder) {
+		if (null == execution) {
+			log.warning("Execution object is null. Aborting write to disk operation");
+			return;
+		}
 		try {
 			File executionModelFile = new File(destinationFolder, EXECUTION_MODEL_FILE);
 			if (executionModelFile.exists()) {
@@ -189,6 +193,9 @@ public class PersistenceUtils {
 	 *            The folder contains the test details.
 	 */
 	public static void writeTest(TestDetails testDetails, File currentReportFolder, File testDestinationFolder) {
+		if (null == testDetails) {
+			log.warning("TestDetails object is null. Aborting write opertaion");
+		}
 		final File testHtml = new File(testDestinationFolder, TEST_DETAILS_HTML_FILE);
 		if (!testHtml.exists()) {
 			try {
