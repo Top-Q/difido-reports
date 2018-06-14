@@ -15,7 +15,7 @@ using System.Windows.Forms;
 namespace difido_client_tests
 {
     [TestFixture]
-    public class ReportUsageExamples
+    public class NUnitExamples
     {
 
         protected IReportDispatcher report = ReportManager.Instance;

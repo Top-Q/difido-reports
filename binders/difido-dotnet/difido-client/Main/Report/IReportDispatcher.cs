@@ -22,9 +22,9 @@ namespace difido_client
 
         void Report(string title, string message, bool status);
 
-        void Report(string title, string message, ReporterTestInfo.TestStatus status);
+        void Report(string title, string message, DifidoTestStatus status);
 
-        void Report(string title, string message, ReporterTestInfo.TestStatus status, ReportElementType type);
+        void Report(string title, string message, DifidoTestStatus status, ReportElementType type);
 
         void ReportFile(string title, string filePath);
 

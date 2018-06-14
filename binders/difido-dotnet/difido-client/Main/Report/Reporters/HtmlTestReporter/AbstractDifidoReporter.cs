@@ -73,7 +73,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
         }
 
 
-        public void Report(string title, string message, ReporterTestInfo.TestStatus status, ReportElementType type)
+        public void Report(string title, string message, DifidoTestStatus status, ReportElementType type)
         {
             ReportElement element = new ReportElement();
             if (null == testDetails)

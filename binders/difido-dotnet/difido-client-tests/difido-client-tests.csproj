@@ -32,6 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="nunit.core">
       <HintPath>..\packages\NUnitTestAdapter.2.0.0\lib\nunit.core.dll</HintPath>
       <Private>False</Private>
@@ -66,7 +67,8 @@
     <Compile Include="Infra\ScreenCapture.cs" />
     <Compile Include="Infra\NUnitHook.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tests\ReportUsageExamples.cs" />
+    <Compile Include="Tests\MSTestExamples.cs" />
+    <Compile Include="Tests\NUnitExamples.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\difido-client\difido-client.csproj">
@@ -75,6 +77,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="DataDriven\test1.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
