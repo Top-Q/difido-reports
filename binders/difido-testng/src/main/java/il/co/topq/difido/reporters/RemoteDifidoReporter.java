@@ -2,13 +2,20 @@ package il.co.topq.difido.reporters;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.testng.ISuite;
 
+import il.co.topq.difido.ZipUtils;
+import il.co.topq.difido.config.DifidoConfig;
 import il.co.topq.difido.config.RemoteDifidoConfig;
+import il.co.topq.difido.config.DifidoConfig.DifidoOptions;
 import il.co.topq.difido.config.RemoteDifidoConfig.RemoteDifidoOptions;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.ScenarioNode;
@@ -34,6 +41,8 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 	private RemoteDifidoConfig difidoConfig;
 
 	private ExecutionDetails details;
+	
+	private Set<String> extentionsToSkip = null;
 
 	/**
 	 * When files are added in the setup phase, there is no test context and no
@@ -200,11 +209,54 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 
 	private void sendFileToServer(File file) {
 		try {
-			client.addFile(executionId, getTestDetails().getUid(), file);
+
+			int thresholdInBytes = difidoConfig.getPropertyAsInt(RemoteDifidoOptions.COMPRESS_FILES_ABOVE);
+			if (thresholdInBytes > 0 && file.length() > thresholdInBytes && isCompressable(file)){
+				
+				//zip the file to an in-memory byte array and upload to server 
+				//adding .gz to the original fileName;
+				byte[] zippped = ZipUtils.gzipToBytesArray(file);
+				if (null != zippped){
+					client.addFile(executionId, getTestDetails().getUid(), zippped, file.getName().concat(".gz"));
+				}
+				else {
+					log.warning("Failed to zip file on the fly, uploading original");
+					client.addFile(executionId, getTestDetails().getUid(), file);
+				}
+			}
+			else {
+				client.addFile(executionId, getTestDetails().getUid(), file);
+			}
 		} catch (Exception e) {
 			log.warning("Failed uploading file " + file.getName() + " to remote server due to " + e.getMessage());
 		}
 	}
+	
+	/**
+	 * checks whether the file extension is 'blacklisted' for compression
+	 */
+	private boolean isCompressable(File f){
+		String ext = FilenameUtils.getExtension(f.getAbsolutePath()).toLowerCase();
+		return !getSkippedExtensions().contains(ext);
+	}
+	
+	private Set<String> getSkippedExtensions(){
+		initSkippedExtensions();
+		return this.extentionsToSkip;
+	}
+	
+	private void initSkippedExtensions(){
+		if (this.extentionsToSkip != null)
+			return;
+		
+		this.extentionsToSkip = new LinkedHashSet<>();
+		List<String> extentionsList = difidoConfig.getPropertyAsList(RemoteDifidoOptions.DONT_COMPRESS_EXTENSIONS);
+		for (String extension : extentionsList){
+			int startFrom = extension.lastIndexOf(".") + 1; //strip off any irrelevant file parts a user may have entered (e.g. tar.gz, or *.exe)
+			extentionsToSkip.add(extension.toLowerCase().substring(startFrom));
+		}
+	}
+	
 
 	/**
 	 * Elements that are created in setup phases, before test context is created

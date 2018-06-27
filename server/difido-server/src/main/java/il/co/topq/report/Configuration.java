@@ -30,6 +30,9 @@ public enum Configuration {
 		ELASTIC_TRANSPORT_TCP_PORT("elastic.transport.tcp.port","9300"),
 		ENABLE_HTML_REPORTS("enable.html.reports", "true"), 
 		DAYS_TO_KEEP_HTML_REPORTS("days.to.keep.html.reports","0"),
+		ENABLE_COMPRESSED_RESOURCES("enable.compressed.resources","true"),
+		COMPRESS_AFTER_X_DAYS("compress.html.after.x.days","-1"),
+		EXTENSIONS_TO_ARCHIVE("compress.extensions","log;txt;html;js;css"),
 		EXTERNAL_LINKS("external.links",""),
 		ENABLE_MAIL("enable.mail", "false"), MAIL_USER_NAME("mail.user.name",""), 
 		MAIL_PASSWORD("mail.password", ""),
@@ -51,6 +54,7 @@ public enum Configuration {
 		LAST_REPORTS_INTERVAL_IN_SEC("last.reports.interval.in.sec", "10"),
 		LAST_REPORTS_NUM_OF_EXECUTIONS("last.reports.num.of.executions", "4"),
 		LAST_REPORTS_FILTER("last.reports.filter","");
+		
 		// @formatter:off
 
 		private final String propName;
@@ -140,7 +144,7 @@ public enum Configuration {
 	}
 
 	public List<String> readList(ConfigProps prop) {
-		final String value = configProperties.getProperty(prop.getPropName());
+		final String value = readString(prop);
 		if (StringUtils.isEmpty(value)) {
 			return new ArrayList<String>();
 		}
