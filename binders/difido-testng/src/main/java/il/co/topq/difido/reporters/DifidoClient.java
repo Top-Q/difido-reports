@@ -13,6 +13,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.ByteArrayPartSource;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
@@ -83,9 +84,18 @@ public class DifidoClient {
 		handleResponseCode(method, responseCode);
 	}
 
+	
+	public void addFile(final int executionId, final String uid, final byte[] bytes, String fileName) throws Exception {
+		Part[] parts = new Part[] { new FilePart("file", new ByteArrayPartSource(fileName, bytes))};
+		addFile(executionId,uid,parts);
+	}
 	public void addFile(final int executionId, final String uid, final File file) throws Exception {
-		PostMethod method = new PostMethod(baseUri + "executions/" + executionId + "/details/" + uid + "/file/");
 		Part[] parts = new Part[] { new FilePart("file", file) };
+		addFile(executionId,uid,parts);
+	}
+	
+	private void addFile(final int executionId, final String uid, final Part[] parts) throws Exception {
+		PostMethod method = new PostMethod(baseUri + "executions/" + executionId + "/details/" + uid + "/file/");
 		method.setRequestEntity(new MultipartRequestEntity(parts, method.getParams()));
 		final int responseCode = client.executeMethod(method);
 		handleResponseCode(method, responseCode);

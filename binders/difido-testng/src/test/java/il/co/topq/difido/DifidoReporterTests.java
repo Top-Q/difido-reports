@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
 import il.co.topq.difido.model.Enums.Status;
@@ -76,6 +77,33 @@ public class DifidoReporterTests extends AbstractTestCase {
 	public void testAddFile() {
 		File file = new File("pom.xml");
 		report.addFile(file, "This is the file");
+	}
+	
+	@Test 
+	public void testAddBigFile(){
+		try {
+			File file = File.createTempFile("big", ".log");
+			StringBuilder sb = new StringBuilder();
+			for (int i=0;i<1000000;i++){
+				sb.append("line: #" + i).append("\n");
+			}
+			FileUtils.write(file, sb.toString());
+			
+			
+			report.addFile(file, "Really big file");
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+	}
+	
+	@Test
+	public void testAddImageFile() throws Exception{
+		//Reporter.log("This file should be uploaded uncompressed");
+		File image = new File(DifidoReporterTests.class.getResource("/login.png").toURI());
+		report.log("File: " + image.getAbsolutePath() + " exists()=" + image.exists());
+		report.addFile(image, "This file should be uncompressed on the server");
 	}
 
 	@Test(description = "Adding screenshot to the report")
