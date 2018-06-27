@@ -56,7 +56,10 @@ public abstract class AbstractPropertiesConfigFile {
 
 	public String getPropertyAsString(ConfigOptions option) {
 		String value = properties.getProperty(option.getProperty());
-		if (value == null || value.isEmpty()){
+		if (null == value) {
+			value = option.getDefaultValue();
+		}
+		if (null == value || value.isEmpty()){
 			return "";
 		}
 		return value.trim();
@@ -68,8 +71,17 @@ public abstract class AbstractPropertiesConfigFile {
 	}
 
 	public int getPropertyAsInt(ConfigOptions option) {
-		final String value = getPropertyAsString(option);
-		return Integer.parseInt(value);
+		String value = getPropertyAsString(option);
+		if (null == value || value.trim().isEmpty()) {
+			value = option.getDefaultValue();
+		}
+		int intValue = 0;
+		try {
+			intValue = Integer.parseInt(value);
+		} catch (NumberFormatException e) {
+			log.warning("Failed to parse string '" + value +"' to integer");
+		}
+		return intValue;
 	}
 
 	public List<String> getPropertyAsList(ConfigOptions option) {

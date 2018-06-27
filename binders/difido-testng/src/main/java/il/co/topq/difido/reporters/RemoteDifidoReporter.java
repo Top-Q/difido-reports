@@ -215,9 +215,10 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 				
 				//zip the file to an in-memory byte array and upload to server 
 				//adding .gz to the original fileName;
-				byte[] zippped = ZipUtils.gzipToBytesArray(file);
-				if (null != zippped){
-					client.addFile(executionId, getTestDetails().getUid(), zippped, file.getName().concat(".gz"));
+				byte[] zipped = ZipUtils.gzipToBytesArray(file);
+				FileUtils.writeByteArrayToFile(new File("me.zip.gz"), zipped);
+				if (null != zipped){
+					client.addFile(executionId, getTestDetails().getUid(), zipped, file.getName().concat(".gz"));
 				}
 				else {
 					log.warning("Failed to zip file on the fly, uploading original");
