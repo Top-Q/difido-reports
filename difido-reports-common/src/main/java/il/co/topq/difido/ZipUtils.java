@@ -3,11 +3,9 @@ package il.co.topq.difido;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -61,108 +59,109 @@ public class ZipUtils {
 
 	/**
 	 * Gzips the originalFile and returns a zipped one.
+	 * 
 	 * @param originalFile
 	 * @return
 	 */
 	public static File gzip(File originalFile) {
 		if (originalFile == null || !originalFile.exists())
 			return null;
-		
-	
+
 		File zippedFile = getZippedFile(originalFile);
 		if (zippedFile == null)
 			return null;
-		
-		try (FileInputStream input = new FileInputStream(originalFile); 
-			 FileOutputStream output = new FileOutputStream(zippedFile);
-			 GZIPOutputStream gzipOS = new GZIPOutputStream(output)) {
-		
+
+		try (FileInputStream input = new FileInputStream(originalFile);
+				FileOutputStream output = new FileOutputStream(zippedFile);
+				GZIPOutputStream gzipOS = new GZIPOutputStream(output)) {
+
 			byte[] buffer = new byte[1024];
 			int len;
-			while((len= input.read(buffer)) != -1){
+			while ((len = input.read(buffer)) != -1) {
 				gzipOS.write(buffer, 0, len);
 			}
 
 			gzipOS.close();
-			output.close();
 			input.close();
 
 			return zippedFile;
 		}
 
-		catch(Exception e){
+		catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return originalFile;
-		
-		
+
 	}
 
 	/**
-	 * Gzipps the given file and returns it as byte[] 
+	 * Gzipps the given file and returns it as byte[]
+	 * 
 	 * @param file
 	 * @return
 	 */
-	public static byte[] gzipToBytesArray(File file){
-		
-		try(FileInputStream input = new FileInputStream(file);
+	public static byte[] gzipToBytesArray(File file) {
+		try (FileInputStream input = new FileInputStream(file);
 				ByteArrayOutputStream output = new ByteArrayOutputStream();
-				GZIPOutputStream gzipOS = new GZIPOutputStream(output);){
-			
+				GZIPOutputStream gzipOS = new GZIPOutputStream(output);) {
+
 			byte[] buffer = new byte[1024];
 			int len;
-			while((len= input.read(buffer)) != -1){
+			while ((len = input.read(buffer)) != -1) {
 				gzipOS.write(buffer, 0, len);
 			}
-			
-			
+
+			gzipOS.flush();
+			gzipOS.close();
+
 			return output.toByteArray();
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-		
-		
+		} 
+
 		return null;
-		
+
 	}
-	
-	
+
+	public static void main(String[] args) throws Exception {
+		File pomFile = new File("difido-reports-common.iml");
+		if (!pomFile.exists()) {
+			throw new Exception("File not found");
+		}
+		byte[] content = gzipToBytesArray(pomFile);
+		FileUtils.writeByteArrayToFile(new File("delme.tar.gz"), content);
+	}
+
 	/**
-	 * Since we must preserve the fileName of the originalFile (or browser auto-unzip 
-	 * will not work  later, when the resource is requested), so if a file x.y.gz already exists in temp dir
-	 * we will have to create a nester dir and place our file there.
+	 * Since we must preserve the fileName of the originalFile (or browser
+	 * auto-unzip will not work later, when the resource is requested), so if a
+	 * file x.y.gz already exists in temp dir we will have to create a nester
+	 * dir and place our file there.
 	 * 
 	 * @param originalFile
 	 * @return
 	 */
-	private static File getZippedFile(File originalFile){
+	private static File getZippedFile(File originalFile) {
 		String tempDir = System.getProperty("java.io.tmpdir");
 		String fileName = originalFile.getName().concat(".gz");
-		File f = new File(String.format("%s%s",tempDir,fileName));
+		File f = new File(String.format("%s%s", tempDir, fileName));
 		if (!f.exists())
 			return f;
-		
-		File nestedDir = new File(String.format("%s%s",tempDir,System.nanoTime()));
+
+		File nestedDir = new File(String.format("%s%s", tempDir, System.nanoTime()));
 		try {
-			if (!nestedDir.mkdirs()){
+			if (!nestedDir.mkdirs()) {
 				return null;
 			}
-			
-			
-			return new File(nestedDir,fileName);
-			
-			
+
+			return new File(nestedDir, fileName);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
-		
-	
-		
-		
+
 	}
 }
