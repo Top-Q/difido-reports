@@ -117,6 +117,11 @@ public class ZipUtils {
 			}
 			
 			
+			gzipOS.flush();
+			output.flush();
+			gzipOS.close();
+			output.close();
+			
 			return output.toByteArray();
 			
 		} catch (FileNotFoundException e) {
