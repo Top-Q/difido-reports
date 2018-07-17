@@ -8,17 +8,24 @@ Array.prototype.top = function(){
 function setFixedProperties(currentTest, element) {
     $(element).find("#name").text(currentTest.name);
     $(element).find("#timestamp").text(currentTest.date + " " + currentTest.timestamp);
-    $(element).find("#description").text(currentTest.description);
+    $(element).find("#description").html(currentTest.description);
 }
 
 function addPropertiesToTbl(properties, table) {
     for (var key in properties) {
         var tr = $('<tr>');
         tr.append($('<td>').text(key));
-        tr.append($('<td>').text(properties[key]));
+        var value = properties[key];
+        var lines = value.split(/\\r?\\n/);
+        var td = $('<td>');
+        lines.forEach(function(line) {
+            td.append($('<div>').text(line));
+        });
+        tr.append(td);
         $(table).append(tr);
     }
 }
+
 
 function setCustomProperties(currentTest,element) {
     addPropertiesToTbl(currentTest.properties, $(element).find("#propTbl > tbody"));
