@@ -1,4 +1,5 @@
-﻿using difido_client;
+﻿
+using difidoClient;
 using NUnit.Framework;
 using System;
 using System.Drawing;
@@ -12,8 +13,8 @@ namespace difido_client_tests
     public class ReportUsageExamples
     {
 
-        //protected IReportDispatcher report = ReportManager.Instance;
-        protected IReportDispatcher report = null;
+        protected IReport report = new DifidoReporter();
+        //protected IReportDispatcher report = null;
 
         [SetUp]
         public void SetUp()
