@@ -191,7 +191,7 @@ namespace AddIn
                 xmlTextWriter.Flush();
                 text =  stringWriter.GetStringBuilder().ToString();
             }
-            File.AppendAllText(@"C:\Users\ITAI\Desktop\addin.xml",text + Environment.NewLine);
+            File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"/Desktop/addin.xml", text + Environment.NewLine);
         }
     }
 }
