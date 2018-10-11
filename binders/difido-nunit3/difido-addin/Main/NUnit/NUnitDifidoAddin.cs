@@ -5,6 +5,8 @@ using System;
 using System.IO;
 using Difido;
 using Difido.Model;
+using Difido.Model.Test;
+using System.Web.Script.Serialization;
 
 namespace AddIn
 {
@@ -176,7 +178,17 @@ namespace AddIn
                 string line;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    dispatcher.Report(line);
+                    ReportElement element = null;
+                    try
+                    {
+                        element = new JavaScriptSerializer().Deserialize<ReportElement>(line);
+                    } catch
+                    {
+                        element = new ReportElement();
+                        element.time = DateTime.Now.ToString("HH:mm:ss");
+                        element.title = line;
+                    }                    
+                    dispatcher.Report(element);
                 }
             }
         }

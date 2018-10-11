@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Difido.Model;
+using Difido.Model.Test;
+using System;
+using System.Web.Script.Serialization;
 
 namespace difidoClient
 {
@@ -38,7 +41,15 @@ namespace difidoClient
 
         public void Report(string title, string message, TestStatus status, ReportElementType type)
         {
-            Console.WriteLine("title:" + title + ",message:"+message+",status:"+status+",type:"+type);
+            ReportElement element = new ReportElement();
+            element.time = DateTime.Now.ToString("HH:mm:ss");
+            element.title = title;
+            element.message = message;
+            element.status = status.ToString();
+            element.type = type.ToString();           
+            
+            Console.WriteLine(new JavaScriptSerializer().Serialize(element));
+            //Console.WriteLine("title:" + title + ",message:"+message+",status:"+status+",type:"+type);
         }
 
         public void ReportFile(string title, string filePath)

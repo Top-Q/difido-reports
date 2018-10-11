@@ -65,26 +65,21 @@ namespace Difido.Main.Report.Reporters.HtmlTestReporter
         }
 
 
-        public void Report(string title, string message, TestStatus status, ReportElementType type)
+        public void Report(ReportElement element)
         {
-            ReportElement element = new ReportElement();
+            
             if (null == testDetails)
             {
                 Console.WriteLine("HTML reporter was not initiliazed propertly. No reports would be created.");
                 return;
             }
 
-            element.title = title;
-            element.message = message;
-            element.time = DateTime.Now.ToString("HH:mm:ss");
-            element.status = status.ToString();
-            element.type = type.ToString();
             testDetails.AddReportElement(element);
-            if (type == ReportElementType.lnk || type == ReportElementType.img)
+            if (element.type  == "lnk" || element.type == "img")
             {
-                if (File.Exists(message))
+                if (File.Exists(element.message))
                 {
-                    string fileName = FileWasAdded(testDetails, message);
+                    string fileName = FileWasAdded(testDetails, element.message);
                     if (fileName != null)
                     {
                         element.message = fileName;

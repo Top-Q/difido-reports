@@ -1,19 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
+using Difido.Model;
 
 namespace difidoClient
 {
-
-    public enum ReportElementType
-    {
-        regular, step, lnk, img, startLevel, stopLevel
-    }
-
-    public enum TestStatus
-    {
-        success, failure, error, warning
-    }
 
 
 

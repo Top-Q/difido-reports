@@ -146,7 +146,7 @@ namespace Difido.Report.Html
                 JavaScriptSerializer serializer = new JavaScriptSerializer();
                 serializer.MaxJsonLength = int.MaxValue;
                 string json = "var test=" + serializer.Serialize(details) + ";";
-                System.IO.StreamWriter file = new System.IO.StreamWriter(testFolder + @"\" + testModelFileName);
+                StreamWriter file = new StreamWriter(testFolder + @"\" + testModelFileName);
                 try
                 {
                     file.WriteLine(json);

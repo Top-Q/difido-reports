@@ -1,4 +1,5 @@
 ﻿using Difido.Model;
+using Difido.Model.Test;
 using Difido.Report.Html;
 using System;
 using System.Collections;
@@ -94,7 +95,10 @@ namespace Difido
                 {
                     if (errorsList.Count > 0)
                     {
-                        Report("Errors during the test", ConvertListToString(errorsList));
+                        ReportElement element = new ReportElement();
+                        element.title = "Errors during the test";
+                        element.message = ConvertListToString(errorsList);
+                        Report(element);
                     }
 
                     reporter.EndTest(endTestInfo);
@@ -146,7 +150,7 @@ namespace Difido
             }
         }
 
-
+/*
         public void ReportError(params object[] args)
         {
             var info = ConvertStringArgsToFormatterAndValues(args);
@@ -160,63 +164,17 @@ namespace Difido
             Report(title, "");
         }
 
-
-        public void Report(string title)
-        {
-            Report(title, null);
-        }
-
-        public void Report(string title, string message)
-        {
-            Report(title, message, TestStatus.success, ReportElementType.regular);
-        }
-
-        public void Report(string title, string message, bool success)
-        {
-            Report(title, message, success ? TestStatus.success : TestStatus.failure);
-            
-        }
-
-        public void Report(string title, string message, TestStatus status)
-        {
-            Report(title, message, status, ReportElementType.regular);
-        }
-
-        public void Report(string title, string message, TestStatus status, ReportElementType type)
+    */
+        public void Report(ReportElement element)
         {
             foreach (IReporter reporter in reporters)
             {
                 lock (syncRoot)
                 {
-                    reporter.Report(title, message, status, type);
+                    reporter.Report(element);
                 }
 
             }
-        }
-
-        public void ReportFile(string title, string filePath)
-        {
-            Report(title, filePath, TestStatus.success, ReportElementType.lnk);
-            
-        }
-
-        public void Step(string title)
-        {
-            Report(title, null, TestStatus.success, ReportElementType.step);
-        }
-
-        public void ReportImage(string title, string filePath)
-        {
-            Report(title, filePath, TestStatus.success, ReportElementType.img);
-        }
-        
-        public void StartLevel(string description)
-        {
-            Report(description, null, TestStatus.success, ReportElementType.startLevel);
-        }
-        public void EndLevel()
-        {
-            Report(null, null, TestStatus.success, ReportElementType.stopLevel);
         }
 
         public void AddTestProperty(string propertyName, string propertyValue)

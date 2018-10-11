@@ -1,4 +1,5 @@
 ﻿using Difido.Model;
+using Difido.Model.Test;
 
 namespace Difido
 {
@@ -16,7 +17,7 @@ namespace Difido
 
         void EndSuite(EndSuiteInfo endSuiteInfo);
 
-        void Report(string title, string message, TestStatus status, ReportElementType type);
+        void Report(ReportElement reportElement);
 
         void AddTestProperty(string propertyName, string propertyValue);
 

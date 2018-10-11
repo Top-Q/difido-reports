@@ -63,9 +63,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\difido-client\difido-client.csproj">
-      <Project>{4ad44a6c-9c8a-43f8-b4f5-7eb489e32428}</Project>
-      <Name>difido-client</Name>
+    <ProjectReference Include="..\difido-reporter\difido-reporter.csproj">
+      <Project>{03dbff25-81ba-49fa-8b49-d4afcbde39b7}</Project>
+      <Name>difido-reporter</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
