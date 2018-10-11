@@ -14,6 +14,8 @@ namespace difido_client_tests.Tests
         public void TestOne()
         {
             Console.WriteLine("In test one");
+            Console.WriteLine("Another line in test one");
+            
         }
 
         [Test]

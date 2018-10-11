@@ -35,13 +35,13 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
         {
             currentTest = new Test(index, startTestInfo.Name, executionUid + "-" + index);
 
-            //TODO: Take it from the strucutre
             DateTime dateTime = DateTime.Now;
             currentTest.timestamp = dateTime.ToString("HH:mm:ss");
             currentTest.date = dateTime.ToString("yyyy/MM/dd");
             currentTest.className = startTestInfo.FullName;
             currentTest.description = startTestInfo.FullName;
-            //string scenarioName = testInfo.FullyQualifiedTestClassName.Split('.')[testInfo.FullyQualifiedTestClassName.Split('.').Length - 2];
+            currentTest.AddProperty("Id",startTestInfo.Id);
+            currentTest.AddProperty("ParentId", startTestInfo.ParentId);
             Scenario parentScenario = machine.GetScenarioChildWithId(startTestInfo.ParentId);
             parentScenario.AddChild(currentTest);
             ExecutionWasAddedOrUpdated(execution);
@@ -51,6 +51,11 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
         public void EndTest(EndTestInfo endTestInfo)
         {
             TestDetailsWereAdded(testDetails);
+            currentTest.AddProperty("StartTime", endTestInfo.StartTime);
+            currentTest.AddProperty("EndTime", endTestInfo.EndTime);
+            currentTest.AddProperty("Asserts", ""+endTestInfo.Asserts);
+            currentTest.AddProperty("RunState",  endTestInfo.RunState);
+            currentTest.AddProperty("Seed", "" + endTestInfo.Seed);
             currentTest.status = endTestInfo.Result.ToString();
             currentTest.duration = (long)(endTestInfo.Duration * 100000);
             ExecutionWasAddedOrUpdated(execution);
@@ -86,7 +91,9 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
 
                 }
             }
-
+            /*
+             * Since NUnit is sending all the output messages together, there is no use for this mehchanism
+             * 
             // The stopwatch is an important mechanism that helps when test is creating a large number of message in short time intervals.
             if (!stopwatch.IsRunning)
             {
@@ -100,7 +107,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
                 }
             }
             stopwatch.Restart();
-
+            */
             TestDetailsWereAdded(testDetails);
 
         }

@@ -42,11 +42,12 @@ namespace AddIn
                     else if (xmlDoc.SelectSingleNode("/test-case") != null)
                     {
                         EndTest(xmlDoc);
-                    }
-                    else if (xmlDoc.SelectSingleNode("/test-output") != null)
-                    {
-                        TestOutput(xmlDoc);
-                    }
+                        if (xmlDoc.SelectSingleNode("//output") != null)
+                        {
+                            TestOutput(xmlDoc);
+                        }
+
+                }
             }
         }
 
@@ -105,12 +106,26 @@ namespace AddIn
         private void EndSuite(XmlDocument xmlDoc)
         {
             append(xmlDoc);
+            if (null == xmlDoc.SelectSingleNode("/*/@parentId"))
+            {
+                // From some reason NUnit is sending all the data twice, in two different 
+                // formats. In in a single xml element for each event and the other one is 
+                // a larger XML element that holds all the data.
+                // Since we already collected the data in the first time, we don't need it
+                // again and we can just ignore it from now on.
+                return;
+            }
             EndSuiteInfo info = new EndSuiteInfo();
             info.Type = xmlDoc.SelectSingleNode("/*/@type").Value;
             info.Id = xmlDoc.SelectSingleNode("/*/@id").Value;
             info.Name = xmlDoc.SelectSingleNode("/*/@name").Value;
             info.FullName= xmlDoc.SelectSingleNode("/*/@fullname").Value;
-            //info.ClassName = xmlDoc.SelectSingleNode("/*/@classname").Value;
+            XmlNode node = xmlDoc.SelectSingleNode("/*/@classname");
+            if (node != null)
+            {
+                info.ClassName = node.Value;
+            }
+            
             info.RunState = xmlDoc.SelectSingleNode("/*/@runstate").Value;
             info.TestCaseCount = Convert.ToInt32(xmlDoc.SelectSingleNode("/*/@testcasecount").Value);
             info.Result = ParseResult(xmlDoc.SelectSingleNode("/*/@result").Value);
@@ -156,6 +171,14 @@ namespace AddIn
         private void TestOutput(XmlDocument xmlDoc)
         {
             append(xmlDoc);
+            using (StringReader sr = new StringReader(xmlDoc.InnerText))
+            {
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    dispatcher.Report(line);
+                }
+            }
         }
 
         private void append(XmlDocument xmlDoc)
