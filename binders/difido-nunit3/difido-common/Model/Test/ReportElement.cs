@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 
-namespace difido_client.Report.Html.Model
+namespace Difido.Model.Test
 {
     public class ReportElement
     {

@@ -1,14 +1,11 @@
-﻿using difido_client.Main.Config;
-using difido_client.Main.Report.Reporters.HtmlTestReporter.Model.Execution;
-using difido_client.Report.Html.Model;
+﻿using Difido.Main.Config;
+using Difido.Model.Execution;
+using Difido.Model.Test;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace difido_client.Main.Report.Reporters.HtmlTestReporter
+namespace Difido.Main.Report.Reporters.HtmlTestReporter
 {
     public class RemoteHtmlReporter : AbstractDifidoReporter
     {
@@ -90,7 +87,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
         }
 
 
-        protected override void TestDetailsWereAdded(difido_client.Report.Html.Model.TestDetails testDetails)
+        protected override void TestDetailsWereAdded(TestDetails testDetails)
         {
             if (!enabled)
             {
@@ -108,7 +105,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
 
         }
 
-        protected override void ExecutionWasAddedOrUpdated(difido_client.Report.Html.Model.Execution execution)
+        protected override void ExecutionWasAddedOrUpdated(Execution execution)
         {
             // We have to call to the Init here and not in the Init method, 
             // since this method is called too many times, and each time it is called, a new execution is created. 
@@ -128,7 +125,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             }
         }
 
-        protected override string FileWasAdded(difido_client.Report.Html.Model.TestDetails testDetails, string file)
+        protected override string FileWasAdded(Difido.Model.Test.TestDetails testDetails, string file)
         {
             if (!enabled)
             {
@@ -152,7 +149,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
 
         }
 
-        protected override void MachineWasAdded(difido_client.Report.Html.Model.Machine machine)
+        protected override void MachineWasAdded(Machine machine)
         {
         }
 

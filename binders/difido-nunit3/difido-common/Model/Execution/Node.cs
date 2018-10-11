@@ -5,7 +5,7 @@ using System.Text;
 
 using System.Web.Script.Serialization;
 
-namespace difido_client.Report.Html.Model
+namespace Difido.Model.Execution
 {
     public abstract class Node
     {

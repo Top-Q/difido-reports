@@ -1,5 +1,7 @@
 ﻿
-namespace difido_client
+using Difido.Model;
+
+namespace Difido
 {
     public interface IReportDispatcher
     {

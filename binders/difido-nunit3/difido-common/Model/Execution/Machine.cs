@@ -1,5 +1,5 @@
 ﻿
-namespace difido_client.Report.Html.Model
+namespace Difido.Model.Execution
 {
     public class Machine : NodeWithChildren
     {

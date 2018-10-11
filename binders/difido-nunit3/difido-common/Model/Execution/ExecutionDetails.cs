@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace difido_client.Main.Report.Reporters.HtmlTestReporter.Model.Execution
+namespace Difido.Model.Execution
 {
     public class ExecutionDetails
     {

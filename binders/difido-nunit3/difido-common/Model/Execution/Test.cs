@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 
-namespace difido_client.Report.Html.Model
+namespace Difido.Model.Execution
 {
     public class Test : Node
     {

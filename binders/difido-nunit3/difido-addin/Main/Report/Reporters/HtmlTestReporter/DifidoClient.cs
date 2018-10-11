@@ -1,5 +1,5 @@
-﻿using difido_client.Main.Report.Reporters.HtmlTestReporter.Model.Execution;
-using difido_client.Report.Html.Model;
+﻿using Difido.Model.Execution;
+using Difido.Model.Test;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 
-namespace difido_client.Main.Report.Reporters.HtmlTestReporter
+namespace Difido.Main.Report.Reporters.HtmlTestReporter
 {
     internal class DifidoClient
     {

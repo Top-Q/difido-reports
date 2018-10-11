@@ -3,7 +3,8 @@ using NUnit.Engine.Extensibility;
 using System.Xml;
 using System;
 using System.IO;
-using difido_client;
+using Difido;
+using Difido.Model;
 
 namespace AddIn
 {
@@ -14,8 +15,7 @@ namespace AddIn
         IReportDispatcher dispatcher = ReportManager.Instance;
 
         public void OnTestEvent(string xmlEventString)
-        {
-            System.IO.File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"/Desktop/newsuccess.txt", "SUCCESS");
+        {            
             {
                     var xmlDoc = new XmlDocument();
                     xmlDoc.LoadXml(xmlEventString);

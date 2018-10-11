@@ -1,10 +1,12 @@
-﻿using difido_client.Report.Html.Model;
+﻿using Difido.Model.Execution;
+using Difido.Model.Test;
+using Difido.Model;
 using System;
 using System.IO;
 using System.Diagnostics;
 using System.Collections.Generic;
 
-namespace difido_client.Main.Report.Reporters.HtmlTestReporter
+namespace Difido.Main.Report.Reporters.HtmlTestReporter
 {
     public abstract class AbstractDifidoReporter : IReporter
     {
@@ -148,12 +150,6 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             }
 
             Scenario scenario = new Scenario(startSuiteInfo.Name);
-            if (machine.children != null)
-            {
-                // We need to copy all the properties from the first scenario. 
-                // Failing to do so will cause that the tests in the ElsaticSearch, for example, will not have properties.
-                scenario.scenarioProperties = ((Scenario)machine.children[0]).scenarioProperties;
-            }
             if (null == scenario.scenarioProperties)
             {
                 scenario.scenarioProperties = new Dictionary<string, string>();

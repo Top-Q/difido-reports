@@ -2,24 +2,18 @@
 
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 using System.Web.Script.Serialization;
 
-
-using System.Diagnostics;
-
 using System.IO;
-
 using System.IO.Compression;
-using difido_client.Report.Html.Model;
-using difido_client.Utils;
-using difido_client.Main.Report.Reporters.HtmlTestReporter;
+using Difido.Model.Execution;
+using Difido.Model.Test;
+
+using Difido.Utils;
+using Difido.Main.Report.Reporters.HtmlTestReporter;
 
 
-namespace difido_client.Report.Html
+namespace Difido.Report.Html
 {
     public class HtmlTestReporter : AbstractDifidoReporter
     {

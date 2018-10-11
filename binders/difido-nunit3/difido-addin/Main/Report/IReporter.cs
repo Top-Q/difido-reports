@@ -1,5 +1,6 @@
-﻿
-namespace difido_client
+﻿using Difido.Model;
+
+namespace Difido
 {
     public interface IReporter
     {
@@ -21,11 +22,7 @@ namespace difido_client
 
     }
 
-    public enum ReportElementType
-    {
-        regular,step,lnk,img,startLevel,stopLevel
-    }
-
+    
     public struct StartTestInfo
     {
         private string id;
@@ -100,10 +97,6 @@ namespace difido_client
         }
     }
 
-    public enum TestStatus
-    {
-        success, failure, error, warning
-    }
 
 
     public struct EndTestInfo

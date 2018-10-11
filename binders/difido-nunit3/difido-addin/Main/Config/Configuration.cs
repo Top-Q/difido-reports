@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace difido_client.Main.Config
+namespace Difido.Main.Config
 {
     public class Configuration
     {

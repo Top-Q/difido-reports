@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace difido_client.Main.Config
+namespace Difido.Main.Config
 {
     public class IniHandler
     {

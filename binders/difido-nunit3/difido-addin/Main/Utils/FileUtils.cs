@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 
-namespace difido_client.Utils
+namespace Difido.Utils
 {
     public static class FileUtils
     {
