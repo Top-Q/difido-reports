@@ -113,49 +113,56 @@ public class Retriever {
 		final ExecutionMetadata executionMetaData = new ExecutionMetadata();
 		boolean firstTest = true;
 		boolean firstScenario = true;
-		for (MachineNode machine : execution.getMachines()) {
-			numOfMachines++;
-			final List<ScenarioNode> scenarios = machine.getChildren();
-			if (null == scenarios) {
-				continue;
-			}
-			for (ScenarioNode scenario : scenarios) {
-				if (firstScenario) {
-					firstScenario = false;
-					scenarioProperties = scenario.getScenarioProperties();
+		if (execution != null) {
+			for (MachineNode machine : execution.getMachines()) {
+				numOfMachines++;
+				if (null == machine) {
+					continue;
 				}
-				for (Node node : scenario.getChildren(true)) {
-					if (node instanceof TestNode) {
-						numOfTests++;
-						switch (node.getStatus()) {
-						case success:
-							numOfSuccessfulTests++;
-							break;
-						case error:
-						case failure:
-							numOfFailedTests++;
-							break;
-						case warning:
-							numOfTestsWithWarnings++;
-						default:
-							break;
-						}
-						TestNode test = (TestNode) node;
-						duration += test.getDuration();
-						if (firstTest) {
-							firstTest = false;
-							try {
-								time = EnhancedDateTimeConverter.fromTimeString(test.getTimestamp() + ":00").toDateObject();
-								date = EnhancedDateTimeConverter.fromReverseDateString(test.getDate()).toDateObject();
-								timestamp = test.getDate() + " " + test.getTimestamp();
-							} catch (Exception e) {
-								log.error("Failed to parse date or time from test " + test.toString(), e);
+				final List<ScenarioNode> scenarios = machine.getChildren();
+				if (null == scenarios) {
+					continue;
+				}
+				for (ScenarioNode scenario : scenarios) {
+					if (firstScenario) {
+						firstScenario = false;
+						scenarioProperties = scenario.getScenarioProperties();
+					}
+					for (Node node : scenario.getChildren(true)) {
+						if (node instanceof TestNode) {
+							numOfTests++;
+							switch (node.getStatus()) {
+							case success:
+								numOfSuccessfulTests++;
+								break;
+							case error:
+							case failure:
+								numOfFailedTests++;
+								break;
+							case warning:
+								numOfTestsWithWarnings++;
+							default:
+								break;
 							}
-
+							TestNode test = (TestNode) node;
+							duration += test.getDuration();
+							if (firstTest) {
+								firstTest = false;
+								try {
+									time = EnhancedDateTimeConverter.fromTimeString(test.getTimestamp() + ":00").toDateObject();
+									date = EnhancedDateTimeConverter.fromReverseDateString(test.getDate()).toDateObject();
+									timestamp = test.getDate() + " " + test.getTimestamp();
+								} catch (Exception e) {
+									log.error("Failed to parse date or time from test " + test.toString(), e);
+								}
+								
+							}
 						}
 					}
 				}
 			}
+		} else {
+			log.error("Execution is null");
 		}
 		executionMetaData.setNumOfTests(numOfTests);
 		executionMetaData.setNumOfFailedTests(numOfFailedTests);
