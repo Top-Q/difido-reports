@@ -113,7 +113,7 @@ public class Retriever {
 		final ExecutionMetadata executionMetaData = new ExecutionMetadata();
 		boolean firstTest = true;
 		boolean firstScenario = true;
-		if (execution != null) {
+		if (execution != null && execution.getMachines() != null) {
 			for (MachineNode machine : execution.getMachines()) {
 				numOfMachines++;
 				if (null == machine) {
@@ -162,7 +162,7 @@ public class Retriever {
 				}
 			}
 		} else {
-			log.error("Execution is null");
+			log.error("Execution or machines are null");
 		}
 		executionMetaData.setNumOfTests(numOfTests);
 		executionMetaData.setNumOfFailedTests(numOfFailedTests);
@@ -181,8 +181,5 @@ public class Retriever {
 		return executionMetaData;
 	}
 
-	
-	
-	
 	
 }
