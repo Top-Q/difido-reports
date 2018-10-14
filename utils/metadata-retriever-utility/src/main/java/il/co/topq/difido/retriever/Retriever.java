@@ -1,13 +1,16 @@
 package il.co.topq.difido.retriever;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -24,25 +27,30 @@ import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 
 public class Retriever {
-	
+
 	private Logger log = LoggerFactory.getLogger(Retriever.class);
-	
+
 	private final File docRootFolder;
-	
+
 	private final File metaFile;
 
-	public Retriever(File docRootFolder, File metaFile) {
+	private final File allowedPropsFile;
+
+	public Retriever(File docRootFolder, File metaFile, File allowedPropsFile) {
 		super();
 		this.docRootFolder = docRootFolder;
 		this.metaFile = metaFile;
+		this.allowedPropsFile = allowedPropsFile;
 	}
-	
-	public void retrieve() { 
+
+	public void retrieve() {
 		final File reportsFolder = new File(docRootFolder, "reports");
 		if (!reportsFolder.exists() || !reportsFolder.isDirectory()) {
 			log.error("Report folder does not exists in '" + docRootFolder.getAbsolutePath() + "' folder");
 			System.exit(1);
 		}
+		log.debug("Parsing scenario properties file");
+		final List<String> allowedProps = parseAllowedProperties();
 		log.debug("Collecting reports from " + reportsFolder.getAbsolutePath());
 		List<Path> foldersList = null;
 		try {
@@ -68,7 +76,7 @@ public class Retriever {
 			final int id = extractExecutionId(reportPath);
 			log.debug("Parsed execution id is " + id);
 			Execution execution = PersistenceUtils.readExecution(reportPath.toFile());
-			ExecutionMetadata metadata = extractMetadata(execution);
+			ExecutionMetadata metadata = extractMetadata(execution, allowedProps);
 			metadata.setId(id);
 			metadata.setFolderName(reportPath.getFileName().toString());
 			metadata.setUri("reports/" + reportPath.getFileName().toString() + "/index.html");
@@ -82,9 +90,25 @@ public class Retriever {
 			System.exit(1);
 		}
 		log.info("Finished successfully creating meta.json file in " + metaFile.getAbsolutePath());
-	
+
 	}
-	
+
+	private List<String> parseAllowedProperties() {
+		final List<String> props = new ArrayList<>();
+		if (null == allowedPropsFile || !allowedPropsFile.exists()) {
+			log.debug("No allowed properties were specified. Using all properties");
+			return props;
+		}
+		try (Scanner scanner = new Scanner(allowedPropsFile);) {
+			while (scanner.hasNextLine()) {
+				props.add(scanner.nextLine().trim());
+			}
+		} catch (FileNotFoundException e) {
+			log.error("Failed to parse allowed properties file", e);
+		}
+		return props;
+	}
+
 	private int extractExecutionId(Path reportPath) {
 		String folderName = reportPath.getFileName().toString();
 		String idAsString = folderName.substring(folderName.indexOf("_") + 1);
@@ -98,7 +122,7 @@ public class Retriever {
 
 	}
 
-	private ExecutionMetadata extractMetadata(Execution execution) {
+	private ExecutionMetadata extractMetadata(Execution execution, List<String> allowedProps) {
 		int numOfTests = 0;
 		int numOfSuccessfulTests = 0;
 		int numOfFailedTests = 0;
@@ -149,13 +173,15 @@ public class Retriever {
 							if (firstTest) {
 								firstTest = false;
 								try {
-									time = EnhancedDateTimeConverter.fromTimeString(test.getTimestamp() + ":00").toDateObject();
-									date = EnhancedDateTimeConverter.fromReverseDateString(test.getDate()).toDateObject();
+									time = EnhancedDateTimeConverter.fromTimeString(test.getTimestamp() + ":00")
+											.toDateObject();
+									date = EnhancedDateTimeConverter.fromReverseDateString(test.getDate())
+											.toDateObject();
 									timestamp = test.getDate() + " " + test.getTimestamp();
 								} catch (Exception e) {
 									log.error("Failed to parse date or time from test " + test.toString(), e);
 								}
-								
+
 							}
 						}
 					}
@@ -177,9 +203,19 @@ public class Retriever {
 			executionMetaData.setTime(EnhancedDateTimeConverter.fromDateObject(time).toTimeString());
 		}
 		executionMetaData.setTimestamp(timestamp);
-		executionMetaData.setProperties(scenarioProperties);
+		if (scenarioProperties != null && !scenarioProperties.isEmpty()) {
+			if (allowedProps != null && !allowedProps.isEmpty()) {
+				for (String propName : scenarioProperties.keySet()) {
+					if (allowedProps.contains(propName)) {
+						executionMetaData.addProperty(propName, scenarioProperties.get(propName));
+					}
+				}
+
+			} else {
+				executionMetaData.setProperties(scenarioProperties);
+			}
+		}
 		return executionMetaData;
 	}
 
-	
 }
