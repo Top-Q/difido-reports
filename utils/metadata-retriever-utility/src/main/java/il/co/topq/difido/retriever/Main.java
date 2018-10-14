@@ -11,14 +11,13 @@ public class Main implements Runnable {
 
 	private static final String META_FILE_NAME = "meta.json";
 
-	@Option(names = {"-d", "--docroot"}, required = true, description = "server docRoot folder")
+	@Option(names = {"-d", "--docroot"}, required = true, description = "The Difido server docRoot folder with the report folders")
 	private File docRootFolder;
 
-	@Option(names = {"-m", "--metadata"}, required = false, description = "Destination folder of metadata file")
+	@Option(names = {"-m", "--metadata"}, required = false, description = "Destination folder of the generated metadata file (meta.json). default is the current folder")
 	private File metaFolder;
 
 	public void run() {
-		System.out.println(docRootFolder.getAbsolutePath());
 		File metaFile = null;
 		if (null == metaFolder || !metaFolder.exists()) {
 			metaFile = new File(META_FILE_NAME);
