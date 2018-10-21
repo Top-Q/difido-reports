@@ -83,7 +83,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Resources\test_results.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\difido-reports-common.jar" />

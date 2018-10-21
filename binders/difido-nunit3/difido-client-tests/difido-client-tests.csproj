@@ -63,6 +63,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\difido-common\difido-common.csproj">
+      <Project>{d58ec69f-a793-4b53-8124-261970c1ce31}</Project>
+      <Name>difido-common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\difido-reporter\difido-reporter.csproj">
       <Project>{03dbff25-81ba-49fa-8b49-d4afcbde39b7}</Project>
       <Name>difido-reporter</Name>

@@ -31,7 +31,7 @@ namespace difidoClient
 
         public void Report(string title, string message, bool status)
         {
-            Report(title, message, status ? TestStatus.success : TestStatus.success, ReportElementType.regular);
+            Report(title, message, status ? TestStatus.success : TestStatus.failure, ReportElementType.regular);
         }
 
         public void Report(string title, string message, TestStatus status)

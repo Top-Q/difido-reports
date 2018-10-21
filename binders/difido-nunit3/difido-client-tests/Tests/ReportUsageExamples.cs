@@ -88,6 +88,27 @@ namespace difido_client_tests
         }
 
         [Test]
+        public void TestWithSoftFailure()
+        {
+            report.Report("Message before failure");
+            report.Report("Soft failure", "Soft Failure Message", false);
+            report.Report("Message after failure");
+        }
+
+        [Test]
+        public void TestMultipleAssertions()
+        {
+            
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(5.2, 6, "First Assertion");
+                Assert.AreEqual(3.9, 4, "Second assertion");
+            });
+        }
+
+
+        [Test]
         public void TestWithScreenshot0()
         {            
             CaptureScreenshot("TestWithScreenshot0");

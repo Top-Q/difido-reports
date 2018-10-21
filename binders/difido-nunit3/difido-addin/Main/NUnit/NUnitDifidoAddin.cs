@@ -49,13 +49,23 @@ namespace AddIn
                             TestOutput(xmlDoc);
                         }
 
+                        if (xmlDoc.SelectSingleNode("//failure") != null)
+                        {
+                            TestFailures(xmlDoc);
+                        }
+
+                        if (xmlDoc.SelectSingleNode("//assertion") != null)
+                        {
+                            TestAssertions(xmlDoc);
+                        }
+
+
                 }
             }
         }
 
         private void EndTest(XmlDocument xmlDoc)
-        {
-            append(xmlDoc);
+        {            
             EndTestInfo info = new EndTestInfo();
             info.Id = xmlDoc.SelectSingleNode("/*/@id").Value;
             info.FullName = xmlDoc.SelectSingleNode("/*/@fullname").Value;
@@ -94,8 +104,7 @@ namespace AddIn
         }
 
         private void StartTest(XmlDocument xmlDoc)
-        {
-            append(xmlDoc);
+        {            
             StartTestInfo info = new StartTestInfo();
             info.Id = xmlDoc.SelectSingleNode("/*/@id").Value;
             info.ParentId = xmlDoc.SelectSingleNode("/*/@parentId").Value;
@@ -106,8 +115,7 @@ namespace AddIn
         }
 
         private void EndSuite(XmlDocument xmlDoc)
-        {
-            append(xmlDoc);
+        {            
             if (null == xmlDoc.SelectSingleNode("/*/@parentId"))
             {
                 // From some reason NUnit is sending all the data twice, in two different 
@@ -146,8 +154,7 @@ namespace AddIn
         }
 
         private void StartSuite(XmlDocument xmlDoc)
-        {
-            append(xmlDoc);
+        {            
             StartSuiteInfo info = new StartSuiteInfo(); 
             info.Id = xmlDoc.SelectSingleNode("/*/@id").Value;
             info.ParentId = xmlDoc.SelectSingleNode("/*/@parentId").Value;
@@ -159,21 +166,58 @@ namespace AddIn
         }
 
         private void EndRun(XmlDocument xmlDoc)
-        {
-            append(xmlDoc);
+        {            
             dispatcher.EndRun();
         }
 
         private void StartRun(XmlDocument xmlDoc)
         {            
-            append(xmlDoc);
+         
             
+        }
+
+        private void TestFailures(XmlDocument xmlDoc)
+        {
+            ReportElement element = new ReportElement();
+            element.time = CurrentTime();
+            element.title = "Failures";
+            element.type = ReportElementType.step.ToString();
+            dispatcher.Report(element);
+
+            element = new ReportElement();
+            element.time = CurrentTime();
+            element.title = xmlDoc.SelectSingleNode("/*/failure/message").InnerText;
+            element.message = xmlDoc.SelectSingleNode("/*/failure/stack-trace").InnerText;
+            element.status = TestStatus.failure.ToString();
+            dispatcher.Report(element);
+
+        }
+
+        private void TestAssertions(XmlDocument xmlDoc)
+        {
+            ReportElement element = new ReportElement();
+            element.time = CurrentTime();
+            element.title = "Assertions";
+            element.type = ReportElementType.step.ToString();
+            dispatcher.Report(element);
+
+            element = new ReportElement();
+            element.time = CurrentTime();
+            element.title = xmlDoc.SelectSingleNode("/*/assertions/assertion/message").InnerText;
+            element.message = xmlDoc.SelectSingleNode("/*/assertions/assertion/stack-trace").InnerText;
+            string resultString = xmlDoc.SelectSingleNode("/*/assertions/assertion/@result").InnerText;
+            element.status = "Failed".Equals(resultString) ? TestStatus.failure.ToString() : TestStatus.success.ToString();
+            dispatcher.Report(element);
+        }
+
+        private static string CurrentTime()
+        {
+            return DateTime.Now.ToString("HH:mm:ss");
         }
 
         private void TestOutput(XmlDocument xmlDoc)
         {
-            append(xmlDoc);
-            using (StringReader sr = new StringReader(xmlDoc.InnerText))
+            using (StringReader sr = new StringReader(xmlDoc.SelectSingleNode("/*/output").InnerText))            
             {
                 string line;
                 while ((line = sr.ReadLine()) != null)
@@ -185,25 +229,13 @@ namespace AddIn
                     } catch
                     {
                         element = new ReportElement();
-                        element.time = DateTime.Now.ToString("HH:mm:ss");
+                        element.time = CurrentTime();
                         element.title = line;
-                    }                    
+                    }
                     dispatcher.Report(element);
                 }
             }
         }
 
-        private void append(XmlDocument xmlDoc)
-        {
-            string text = null;
-            using (var stringWriter = new StringWriter())
-            using (var xmlTextWriter = XmlWriter.Create(stringWriter))
-            {
-                xmlDoc.WriteTo(xmlTextWriter);
-                xmlTextWriter.Flush();
-                text =  stringWriter.GetStringBuilder().ToString();
-            }
-            File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"/Desktop/addin.xml", text + Environment.NewLine);
-        }
     }
 }
