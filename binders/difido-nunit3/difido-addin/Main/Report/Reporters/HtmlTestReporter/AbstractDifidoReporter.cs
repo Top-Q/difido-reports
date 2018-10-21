@@ -78,7 +78,7 @@ namespace Difido.Main.Report.Reporters.HtmlTestReporter
             if (element.type  == "lnk" || element.type == "img")
             {
                 if (File.Exists(element.message))
-                {
+                {                    
                     string fileName = FileWasAdded(testDetails, element.message);
                     if (fileName != null)
                     {

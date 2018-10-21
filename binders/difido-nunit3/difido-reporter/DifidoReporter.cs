@@ -49,7 +49,6 @@ namespace difidoClient
             element.type = type.ToString();           
             
             Console.WriteLine(new JavaScriptSerializer().Serialize(element));
-            //Console.WriteLine("title:" + title + ",message:"+message+",status:"+status+",type:"+type);
         }
 
         public void ReportFile(string title, string filePath)

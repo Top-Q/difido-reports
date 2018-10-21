@@ -14,13 +14,11 @@ namespace difido_client_tests
     {
 
         protected IReport report = new DifidoReporter();
-        //protected IReportDispatcher report = null;
 
         [SetUp]
         public void SetUp()
         {
             string testId= TestContext.CurrentContext.Test.ID;
-            Console.WriteLine(testId);
         }
         
         [Test]
@@ -92,16 +90,16 @@ namespace difido_client_tests
         [Test]
         public void TestWithScreenshot0()
         {            
-            CaptureScreenshot();
+            CaptureScreenshot("TestWithScreenshot0");
         }
 
         [Test]
         public void TestWithScreenshot1()
         {            
-            CaptureScreenshot();
+            CaptureScreenshot("TestWithScreenshot1");
         }
 
-        private void CaptureScreenshot()
+        private void CaptureScreenshot(string fileName)
         {
             var bmpScreenshot = new Bitmap(Screen.PrimaryScreen.Bounds.Width,
                                Screen.PrimaryScreen.Bounds.Height,
@@ -119,10 +117,11 @@ namespace difido_client_tests
                                         CopyPixelOperation.SourceCopy);
 
             // Save the screenshot to the specified path that the user has chosen.
-            string fileName = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".png";
+            fileName = System.IO.Path.GetTempPath() + fileName + ".png";
+            File.Delete(fileName);
             bmpScreenshot.Save(fileName, ImageFormat.Png);
             report.ReportImage("screenshot", fileName);
-            File.Delete(fileName);
+            
         }
 
         [Test]
