@@ -1,4 +1,4 @@
-package il.co.topq.difido.retriever;
+package il.co.topq.difido.recovery;
 
 import java.math.BigInteger;
 import java.time.Instant;

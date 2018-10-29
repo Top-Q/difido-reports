@@ -1,4 +1,4 @@
-package il.co.topq.difido.retriever;
+package il.co.topq.difido.recovery;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,9 +26,9 @@ import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 
-public class Retriever {
+public class Recoverer {
 
-	private Logger log = LoggerFactory.getLogger(Retriever.class);
+	private Logger log = LoggerFactory.getLogger(Recoverer.class);
 
 	private final File docRootFolder;
 
@@ -36,14 +36,14 @@ public class Retriever {
 
 	private final File allowedPropsFile;
 
-	public Retriever(File docRootFolder, File metaFile, File allowedPropsFile) {
+	public Recoverer(File docRootFolder, File metaFile, File allowedPropsFile) {
 		super();
 		this.docRootFolder = docRootFolder;
 		this.metaFile = metaFile;
 		this.allowedPropsFile = allowedPropsFile;
 	}
 
-	public void retrieve() {
+	public void recover() {
 		final File reportsFolder = new File(docRootFolder, "reports");
 		if (!reportsFolder.exists() || !reportsFolder.isDirectory()) {
 			log.error("Report folder does not exists in '" + docRootFolder.getAbsolutePath() + "' folder");

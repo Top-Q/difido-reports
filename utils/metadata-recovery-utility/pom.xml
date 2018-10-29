@@ -2,7 +2,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>metadata-retriever-utility</artifactId>
+	<artifactId>metadata-recovery-utility</artifactId>
 	<parent>
 		<artifactId>difido-parent</artifactId>
 		<groupId>il.co.topq.difido</groupId>
@@ -56,9 +56,11 @@
 					<!-- MainClass in manifest make a executable jar -->
 					<archive>
 						<manifest>
-							<mainClass>il.co.topq.difido.retriever.Main</mainClass>
+							<mainClass>il.co.topq.difido.recovery.Main</mainClass>
 						</manifest>
 					</archive>
+					<finalName>dru</finalName>
+					<appendAssemblyId>false</appendAssemblyId>
 
 				</configuration>
 				<executions>
