@@ -9,32 +9,32 @@
 		"test": {
 			"properties": {
 				"name": {
-					"type": "string",
-					"index": "not_analyzed"
+					"type": "keyword",
+					"index": true
 				},
 				"uid": {
-					"type": "string",
-					"index": "not_analyzed"
+					"type": "keyword",
+					"index": true
 				},
 				"parent": {
-					"type": "string",
-					"index": "not_analyzed"
+					"type": "keyword",
+					"index": true
 				},
 				"status": {
-					"type": "string",
-					"index": "not_analyzed"
+					"type": "keyword",
+					"index": true
 				},
 				"url": {
-					"type": "string",
-					"index": "not_analyzed"
+					"type": "keyword",
+					"index": true
 				},
 				"description": {
-					"type": "string",
-					"index": "not_analyzed"
+					"type": "keyword",
+					"index": true
 				},
 				"execution": {
-					"type": "string",
-					"index": "not_analyzed"
+					"type": "keyword",
+					"index": true
 				},
 				"executionId": {
 					"type": "long"
@@ -43,8 +43,8 @@
 					"type": "long"
 				},
 				"machine": {
-					"type": "string",
-					"index": "not_analyzed"
+					"type": "keyword",
+					"index": true
 				},
 				"timestamp": {
 					"type": "date",
@@ -106,8 +106,8 @@
 						"unmatch": "^(long_|int_|double_|date_)$",
 						"match_mapping_type": "string",
 						"mapping": {
-							"type": "string",
-							"index": "not_analyzed"
+							"type": "keyword",
+							"index": true
 						}
 					}
 				}
