@@ -13,9 +13,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.testng.ISuite;
 
 import il.co.topq.difido.ZipUtils;
-import il.co.topq.difido.config.DifidoConfig;
 import il.co.topq.difido.config.RemoteDifidoConfig;
-import il.co.topq.difido.config.DifidoConfig.DifidoOptions;
 import il.co.topq.difido.config.RemoteDifidoConfig.RemoteDifidoOptions;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.ScenarioNode;
@@ -40,8 +38,6 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 
 	private RemoteDifidoConfig difidoConfig;
 
-	private ExecutionDetails details;
-	
 	private Set<String> extentionsToSkip = null;
 
 	/**
@@ -131,28 +127,15 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 			}
 
 		}
-		details = new ExecutionDetails(description, useSharedExecution);
+		ExecutionDetails details = new ExecutionDetails(description, useSharedExecution);
 		details.setForceNew(forceNewExecution);
 		details.setExecutionProperties(properties);
 		return client.addExecution(details);
 	}
 
-	/**
-	 * We want to add all the execution properties for each scenario. This will
-	 * eventually appear in the ElasticSearch
-	 * 
-	 * @param scenario
-	 */
 	@Override
 	protected void onScenarioStart(ScenarioNode scenario) {
-		// If the execution is shared, and we were not responsible for creating
-		// the execution, the execution details in this stage will be null.
-		if (details != null && details.getExecutionProperties() != null) {
-			for (String key : details.getExecutionProperties().keySet()) {
-				scenario.addScenarioProperty(key, details.getExecutionProperties().get(key));
-			}
-		}
-
+		// Unused
 	}
 
 	@Override

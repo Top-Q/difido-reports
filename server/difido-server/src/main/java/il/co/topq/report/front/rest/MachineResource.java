@@ -1,5 +1,7 @@
 package il.co.topq.report.front.rest;
 
+import static il.co.topq.report.StopWatch.newStopWatch;
+
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -19,11 +21,11 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RestController;
 
 import il.co.topq.difido.model.execution.MachineNode;
+import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.report.StopWatch;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.MachineCreatedEvent;
-import static il.co.topq.report.StopWatch.newStopWatch;
 
 @RestController
 @Path("api/executions/{execution}/machines")
@@ -56,7 +58,7 @@ public class MachineResource {
 		StopWatch stopWatch = newStopWatch(log).start("Adding machine to execution");
 		metadata.getExecution().addMachine(machine);
 		stopWatch.stopAndLog();
-		
+
 		stopWatch = newStopWatch(log).start("Publishing machine create event");
 		publisher.publishEvent(new MachineCreatedEvent(metadata, machine));
 		stopWatch.stopAndLog();
@@ -93,14 +95,49 @@ public class MachineResource {
 			throw new WebApplicationException(
 					"Trying to update none existing machine with id " + machineId + " in execution " + executionId);
 		}
-		
-		StopWatch stopWatch = newStopWatch(log).start("Updating machine in execution");
+
+		StopWatch stopWatch = newStopWatch(log).start("Updating execution properties as scenario properties");
+		addExecutionProsAsScenarioProps(machine, metadata);
+		stopWatch.stopAndLog();
+		stopWatch = newStopWatch(log).start("Updating machine in execution");
 		metadata.getExecution().getMachines().set(machineId, machine);
 		stopWatch.stopAndLog();
-		
+
 		stopWatch = newStopWatch(log).start("Publishing machine created event");
 		publisher.publishEvent(new MachineCreatedEvent(metadata, machine));
 		stopWatch.stopAndLog();
+	}
+
+	/**
+	 * 
+	 * Issue #192. We would like to have all the execution properties as
+	 * scenario properties so They will be visible in the HTML report and in the
+	 * Elastic. This is currently the responsibility of One of the binders.
+	 * 
+	 * @param machine
+	 *            The machine that is updated
+	 * @param metadata
+	 *            The metadata with the current execution properties
+	 */
+	private void addExecutionProsAsScenarioProps(MachineNode machine, final ExecutionMetadata metadata) {
+		if (null == metadata.getProperties()) {
+			return;
+		}
+		if (null == machine.getChildren() || machine.getChildren().isEmpty()) {
+			return;
+		}
+		for (ScenarioNode scenario : machine.getChildren()) {
+			for (String key : metadata.getProperties().keySet()) {
+				// If the scenario doesn't have scenario properties (null), we
+				// can be sure that we are not overriding
+				// any properties.
+				if (null == scenario.getScenarioProperties() || null == scenario.getScenarioProperties().get(key)) {
+					// In case the scenario properties is null, this call will
+					// create a new instance.
+					scenario.addScenarioProperty(key, metadata.getProperties().get(key));
+				}
+			}
+		}
 	}
 
 	@GET
