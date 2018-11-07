@@ -7,7 +7,9 @@ public class TestsWithProperties extends AbstractDifidoTestCase {
 	@Test(description = "Test that adds test properties")
 	public void testAddTestProperties(){
 		report.addTestProperty("int_i", "232");
-		report.addTestProperty("float_f", "23.43");
+		report.addTestProperty("long_l", "23223435453");
+		report.addTestProperty("double_d", "23.489893");
+		report.addTestProperty("float_d", "23.48");
 		report.addTestProperty("text", "foo bar");
 		report.addTestProperty("date_d", "1978/10/16 16:23:23");
 	}

@@ -7,6 +7,70 @@
 	},
 	"mappings": {
 		"test": {
+			"dynamic_templates": [
+				{
+					"long_prop": {
+						"match": "long_*",
+						"match_mapping_type": "string",
+						"mapping": {
+							"type": "long",
+							"index": false
+						}
+					}
+				},
+				{
+					"int_prop": {
+						"match": "int_*",
+						"match_mapping_type": "string",
+						"mapping": {
+							"type": "integer",
+							"index": false
+						}
+					}
+				},
+				{
+					"double_prop": {
+						"match": "double_*",
+						"match_mapping_type": "string",
+						"mapping": {
+							"type": "double",
+							"index": false
+						}
+					}
+				},
+				{
+					"float_prop": {
+						"match": "float_*",
+						"match_mapping_type": "string",
+						"mapping": {
+							"type": "float",
+							"index": false
+						}
+					}
+				},
+				{
+					"date_prop": {
+						"match": "date_*",
+						"match_mapping_type": "string",
+						"mapping": {
+							"type": "date",
+							"index": false,
+							"format": "yyyy/MM/dd HH:mm:ss"
+						}
+					}
+				},
+				{
+					"notanalyzed": {
+						"match": "*",
+						"unmatch": "^(long_|int_|double_|float_|date_)$",
+						"match_mapping_type": "string",
+						"mapping": {
+							"type": "keyword",
+							"index": true
+						}
+					}
+				}
+			],
 			"properties": {
 				"name": {
 					"type": "keyword",
@@ -57,61 +121,8 @@
 				"duration": {
 					"type": "long"
 				}
-			},
-			"dynamic_templates": [
-				{
-					"long_prop": {
-						"match": "long_*",
-						"match_mapping_type": "string",
-						"mapping": {
-							"type": "long",
-							"index": "not_analyzed"
-						}
-					}
-				},
-				{
-					"int_prop": {
-						"match": "int_*",
-						"match_mapping_type": "string",
-						"mapping": {
-							"type": "integer",
-							"index": "not_analyzed"
-						}
-					}
-				},
-				{
-					"double_prop": {
-						"match": "double_*",
-						"match_mapping_type": "string",
-						"mapping": {
-							"type": "double",
-							"index": "not_analyzed"
-						}
-					}
-				},
-				{
-					"date_prop": {
-						"match": "date_*",
-						"match_mapping_type": "string",
-						"mapping": {
-							"type": "date",
-							"index": "not_analyzed",
-							"format": "yyyy/MM/dd HH:mm:ss"
-						}
-					}
-				},
-				{
-					"notanalyzed": {
-						"match": "*",
-						"unmatch": "^(long_|int_|double_|date_)$",
-						"match_mapping_type": "string",
-						"mapping": {
-							"type": "keyword",
-							"index": true
-						}
-					}
-				}
-			]
+			}
+
 		}
 	}
 }
