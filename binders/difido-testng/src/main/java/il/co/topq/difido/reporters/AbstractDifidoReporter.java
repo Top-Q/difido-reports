@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -71,6 +72,10 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	private DifidoConfig config;
 
 	private List<ReportElement> bufferedElements;
+	
+	private Map<String, String> bufferedTestProperties;
+	
+	private Map<String, String> bufferedRunProperties;
 
 	private boolean inSetup;
 
@@ -79,6 +84,9 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	public AbstractDifidoReporter() {
 		config = new DifidoConfig();
 		bufferedElements = new ArrayList<ReportElement>();
+		bufferedTestProperties = new HashMap<>();
+		bufferedRunProperties = new HashMap<>();
+		
 	}
 
 	protected void generateUid() {
@@ -224,6 +232,17 @@ public abstract class AbstractDifidoReporter implements Reporter {
 			bufferedElements.clear();
 			log(null, null, Status.success, ElementType.stopLevel);
 		}
+		if (!bufferedRunProperties.isEmpty()) {
+			log.fine("Found "+ bufferedRunProperties.size() +" buffered run properties");
+			bufferedRunProperties.keySet().stream().forEach(key -> addRunProperty(key, bufferedRunProperties.get(key)));
+			bufferedRunProperties.clear();
+		}
+		if (!bufferedTestProperties.isEmpty()) {
+			log.fine("Found "+ bufferedTestProperties.size() +" buffered test properties");
+			bufferedTestProperties.keySet().stream().forEach(key -> addTestProperty(key, bufferedTestProperties.get(key)));
+			bufferedTestProperties.clear();
+		}
+
 		// We need to make sure that the report messages are written.
 		writeTestDetails(testDetails);
 	}
@@ -497,6 +516,10 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	}
 
 	public void addTestProperty(String name, String value) {
+		if (inSetup || inTeardown) {
+			bufferedTestProperties.put(name, value);
+			return;
+		}
 		if (null == testDetails) {
 			return;
 		}
@@ -510,10 +533,14 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	 * @param value
 	 */
 	public void addRunProperty(String name, String value) {
+		if (inSetup || inTeardown) {
+			bufferedRunProperties.put(name, value);
+			return;
+		}
 		if (null == currentClassScenario) {
 			return;
 		}
-		log("Adding run proprty '" + name + "'='" + value + "'", null, Status.success, ElementType.regular);
+		log("Adding run property '" + name + "'='" + value + "'", null, Status.success, ElementType.regular);
 		currentTestScenario.addScenarioProperty(name, value);
 	}
 
