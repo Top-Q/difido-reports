@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -27,6 +28,7 @@ import il.co.topq.difido.model.execution.Node;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.elastic.ESClient;
+import il.co.topq.elastic.ESClient.Builder;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
@@ -48,7 +50,7 @@ public class ESController {
 
 	private static final String TEST_TYPE = "test";
 
-	private final Logger log = LoggerFactory.getLogger(ESController.class);
+	private static final Logger log = LoggerFactory.getLogger(ESController.class);
 
 	volatile Map<Integer, Set<TestNode>> savedTestsPerExecution;
 
@@ -69,12 +71,25 @@ public class ESController {
 		savedTestsPerExecution = Collections.synchronizedMap(new HashMap<Integer, Set<TestNode>>());
 		storeOnlyAtEnd = Configuration.INSTANCE.readBoolean(ConfigProps.STORE_IN_ELASTIC_ONLY_AT_EXECUTION_END);
 		log.debug("Store only at end of execution is set to: enabled=" + storeOnlyAtEnd);
-		final String host = Configuration.INSTANCE.readString(ConfigProps.ELASTIC_HOST);
-		final int port = Configuration.INSTANCE.readInt(ConfigProps.ELASTIC_HTTP_PORT);
-		client = new ESClient(host, port);
+		client = buildClient(Configuration.INSTANCE.readList(ConfigProps.ELASTIC_HOST),
+				Configuration.INSTANCE.readList(ConfigProps.ELASTIC_HTTP_PORT));
 		createIndexIfNoneExists();
 		validateElasticStatus();
+	}
 
+	static ESClient buildClient(final List<String> hosts, final List<String> ports) {
+		Objects.requireNonNull(hosts, "Hosts can't be null");
+		Objects.requireNonNull(ports, "Ports can't be null");
+		log.debug("Creating Elasticsearch client with hosts " + hosts);
+		final Builder builder = ESClient.builder();
+		for (int i = 0; i < hosts.size(); i++) {
+			int port = 9200;
+			if (ports.size() > i) {
+				port = Integer.parseInt(ports.get(i));
+			}
+			builder.addClient(hosts.get(i), port);
+		}
+		return builder.build();
 	}
 
 	/**
@@ -415,7 +430,7 @@ public class ESController {
 		String timestamp = null;
 		if (testNode.getDate() != null && testNode.getTimestamp() != null) {
 			timestamp = testNode.getDate() + " " + testNode.getTimestamp();
-		} else if (null == testNode.getDate() && testNode.getTimestamp() !=null) {
+		} else if (null == testNode.getDate() && testNode.getTimestamp() != null) {
 			timestamp = fromNowDateObject().toReverseDateString() + " " + testNode.getTimestamp();
 		} else {
 			timestamp = fromNowDateObject().toElasticString();
@@ -423,13 +438,12 @@ public class ESController {
 		final Date gmtExecutionTimeStamp = fromElasticString(metadata.getTimestamp()).toGMTDateObject();
 		final Date gmtTestTimeStamp = fromElasticString(timestamp).toGMTDateObject();
 
-		final String gmtExecutionStringTimestamp = fromDateObject(gmtExecutionTimeStamp)
-				.toElasticString();
+		final String gmtExecutionStringTimestamp = fromDateObject(gmtExecutionTimeStamp).toElasticString();
 		final String gmtTestStringTimestamp = fromDateObject(gmtTestTimeStamp).toElasticString();
 
 		final ElasticsearchTest esTest = new ElasticsearchTest(testNode.getUid(), gmtExecutionStringTimestamp,
 				gmtTestStringTimestamp);
-		
+
 		esTest.setName(testNode.getName());
 		esTest.setStatus(testNode.getStatus().name());
 		esTest.setDuration(testNode.getDuration());
