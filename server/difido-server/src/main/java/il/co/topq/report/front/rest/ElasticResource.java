@@ -1,6 +1,5 @@
 package il.co.topq.report.front.rest;
 
-import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -35,8 +34,8 @@ public class ElasticResource {
 	public ElasticResource() {
 		String elasticHost = null;
 		int elasticPort = 0;
-		elasticHost = Configuration.INSTANCE.readString(ConfigProps.ELASTIC_HOST);
-		elasticPort = Configuration.INSTANCE.readInt(ConfigProps.ELASTIC_HTTP_PORT);
+		elasticHost = Configuration.INSTANCE.readList(ConfigProps.ELASTIC_HOST).get(0);
+		elasticPort = Integer.parseInt(Configuration.INSTANCE.readList(ConfigProps.ELASTIC_HTTP_PORT).get(0));
 		try {
 			base = new URL("http://" + elasticHost + ":" + elasticPort + "/");
 		} catch (MalformedURLException e) {
@@ -57,14 +56,14 @@ public class ElasticResource {
 		}
 		ResponseEntity<String> response = null;
 		try {
-			response = template
-					.postForEntity(base.toString() + index + "/" + doc + "/_search?pretty=true", body, String.class);
-			
-		} catch (RestClientException e){
+			response = template.postForEntity(base.toString() + index + "/" + doc + "/_search?pretty=true", body,
+					String.class);
+
+		} catch (RestClientException e) {
 			log.warn("Failed to connect to Kibana");
 			return "";
 		}
-		
+
 		return response.getBody();
 	}
 
