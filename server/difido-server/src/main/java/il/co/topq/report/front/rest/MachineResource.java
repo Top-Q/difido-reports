@@ -81,7 +81,9 @@ public class MachineResource {
 			throw new WebApplicationException("Execution with id " + executionId + " is not exist");
 		}
 		if (null == metadata.getExecution()) {
-			log.error("Metadata of execution with id " + executionId + " exists but the execution is null");
+			log.error("Metadata of execution with id " + executionId
+					+ " exists but the execution is null. "
+					+ "This can happen due to use trying to update execution that is already done and closed.");
 			throw new WebApplicationException(
 					"Metadata of execution with id " + executionId + " exists but the execution is null");
 		}

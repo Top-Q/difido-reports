@@ -3,12 +3,12 @@ package il.co.topq.report.plugins.mail;
 import java.io.StringWriter;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;

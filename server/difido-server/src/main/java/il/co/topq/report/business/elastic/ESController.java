@@ -19,6 +19,9 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -44,7 +47,7 @@ import il.co.topq.report.events.MachineCreatedEvent;
  *
  */
 @Component
-public class ESController {
+public class ESController implements HealthIndicator, InfoContributor {
 
 	private static final String INDEX_SETTINGS_FILE = "mapping.json";
 
@@ -500,6 +503,33 @@ public class ESController {
 				+ Common.REPORTS_FOLDER_NAME + "/" + executionMetadata.getFolderName() + "/" + "tests" + "/" + "test_"
 				+ uid + "/" + "test.html";
 		// @formatter:on
+	}
+
+	@Override
+	public Health health() {
+		if (!Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED)) {
+			return Health.up().build();
+		}
+		if (!enabled) {
+			return Health.down().withDetail("Elasticsearch server is down", "").build();
+		}
+		return Health.up().build();
+	}
+
+	/**
+	 * Info about the server that can be retrieved using the
+	 * http://<host>:<port>/info request
+	 */
+	@Override
+	public void contribute(org.springframework.boot.actuate.info.Info.Builder builder) {
+		if (!enabled) {
+			return;
+		}
+		Map<String, Integer> elasticDetails = new HashMap<>();
+		elasticDetails.put("saved executions", savedTestsPerExecution.size());
+		elasticDetails.put("saved tests", savedTestsPerExecution.values().size());
+		builder.withDetail("elastic controller", elasticDetails).build();
+		
 	}
 
 }

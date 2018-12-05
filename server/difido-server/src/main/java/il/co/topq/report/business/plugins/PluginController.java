@@ -1,14 +1,19 @@
 package il.co.topq.report.business.plugins;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.info.Info.Builder;
+import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionEndedEvent;
@@ -20,7 +25,7 @@ import il.co.topq.report.plugins.Plugin;
 import il.co.topq.report.plugins.PluginManager;
 
 @Component
-public class PluginController {
+public class PluginController implements InfoContributor {
 
 	private final Logger log = LoggerFactory.getLogger(PluginController.class);
 
@@ -46,21 +51,23 @@ public class PluginController {
 
 		}
 	}
-	
+
 	@EventListener
 	public void onMachineCreatedEvent(MachineCreatedEvent machineCreatedEvent) {
 		if (machineCreatedEvent == null || machineCreatedEvent.getMetadata() == null) {
 			log.error("Machine created event was called with null argument");
 			return;
 		}
-		log.debug("Plugin controller was called at machine created event for execution:" + machineCreatedEvent.getExecutionId());
+		log.debug("Plugin controller was called at machine created event for execution:"
+				+ machineCreatedEvent.getExecutionId());
 		List<MachineUpdatePlugin> machineUpdatePlugins = pluginManager.getPlugins(MachineUpdatePlugin.class);
 		for (MachineUpdatePlugin plugin : machineUpdatePlugins) {
 			try {
 				log.debug("Calling plugin " + plugin.getName());
 				plugin.onMachineCreated(machineCreatedEvent);
 			} catch (Throwable e) {
-				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name " + plugin.getName(), e);
+				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "
+						+ plugin.getName(), e);
 			}
 
 		}
@@ -130,6 +137,20 @@ public class PluginController {
 
 		}
 		return "";
+
+	}
+
+	/**
+	 * Info about the server that can be retrieved using the
+	 * http://<host>:<port>/info request
+	 */
+	@Override
+	public void contribute(Builder builder) {
+		Map<String, String> pluginDetails = new HashMap<>();
+		List<Plugin> plugins = pluginManager.getPlugins(Plugin.class);
+		pluginDetails.put("number of plugins", plugins.size() + "");
+		pluginDetails.put("plugins", plugins.stream().map(p -> p.getName()).collect(Collectors.toList()).toString());
+		builder.withDetail("plugin controller", pluginDetails).build();
 
 	}
 }

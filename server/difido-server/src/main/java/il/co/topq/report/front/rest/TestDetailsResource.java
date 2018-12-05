@@ -44,6 +44,9 @@ public class TestDetailsResource {
 			throw new WebApplicationException("Details can't be null");
 		}
 		ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
+		if (null == metadata) {
+			log.error("Can't update test details for execution " + executionId + " which is null");
+		}
 		publisher.publishEvent(new TestDetailsCreatedEvent(metadata, details));
 	}
 
