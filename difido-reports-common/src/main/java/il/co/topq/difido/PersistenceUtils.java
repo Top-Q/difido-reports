@@ -70,7 +70,7 @@ public class PersistenceUtils {
 				}
 				return extractedFiles.get(0);
 			} catch (Exception e) {
-				log.warning("Failed to decompress jar that contains HTML files");
+				log.warning("Failed to decompress jar that contains HTML files due to '" + e.getMessage() + "'");
 				return null;
 			}
 
@@ -98,7 +98,7 @@ public class PersistenceUtils {
 			try {
 				ZipUtils.decopmerss(jarFile.getAbsolutePath(), destinationFolder.getAbsolutePath(), resourcesPath);
 			} catch (Exception e) {
-				log.warning("Failed to copy HTML resources");
+				log.warning("Failed to copy HTML resources due to '" + e.getMessage() + "'");
 				return;
 			}
 
@@ -108,7 +108,7 @@ public class PersistenceUtils {
 				File files = new File(resourceFiles.toURI());
 				FileUtils.copyDirectory(files, destinationFolder);
 			} catch (Exception e) {
-				log.warning("Failed to copy HTML resources");
+				log.warning("Failed to copy HTML resources due to '" + e.getMessage() + "'");
 			}
 
 		}
@@ -133,7 +133,7 @@ public class PersistenceUtils {
 			final String json = FileUtils.readFileToString(executionJson);
 			execution = mapper.readValue(json.replaceFirst("var execution = ", ""), Execution.class);
 		} catch (IOException e) {
-			log.warning("Found execution json file but failed reading it");
+			log.warning("Found execution json file but failed reading it due to '" + e.getMessage() + "'");
 		}
 		return execution;
 	}
@@ -163,32 +163,38 @@ public class PersistenceUtils {
 			json = "var execution = " + json + ";";
 			FileUtils.write(executionModelFile, json, "utf-8");
 		} catch (Exception e) {
-			log.warning("Failed to write html report due to " + e.getMessage());
+			log.warning("Failed to write html report due to '" + e.getMessage() + "'");
 		}
 
 	}
 
 	public static TestDetails readTest(final File testSourceFolder) {
 		final File testHtml = new File(testSourceFolder, TEST_DETAILS_MODEL_FILE);
+		if (!testHtml.exists()) {
+			log.warning(
+					"Trying to read test details from file " + testHtml.getAbsolutePath() + " but it doesn't exist");
+		}
 		ObjectMapper mapper = new ObjectMapper();
 		TestDetails test = null;
 		try {
 			final String json = FileUtils.readFileToString(testHtml);
 			test = mapper.readValue(json.replaceFirst("var test = ", ""), TestDetails.class);
 		} catch (IOException e) {
-			log.warning("Found test details json file but failed reading it");
+			log.warning("Found test details json file '" + testHtml.getAbsolutePath()
+					+ "' but failed reading it due to '" + e.getMessage() + "'");
 		}
 		return test;
 	}
 
 	/**
-	 * Converts the test details to JSon file and copy it to the HTML report folder.
+	 * Converts the test details to JSon file and copy it to the HTML report
+	 * folder.
 	 * 
 	 * @param testDetails
 	 *            Test details data
 	 * @param currentReportFolder
-	 *            The root folder of the HTML reports. It is needed in order to copy
-	 *            the test HTML file
+	 *            The root folder of the HTML reports. It is needed in order to
+	 *            copy the test HTML file
 	 * @param testDestinationFolder
 	 *            The folder contains the test details.
 	 */

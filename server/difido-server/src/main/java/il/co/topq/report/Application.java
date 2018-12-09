@@ -1,12 +1,15 @@
 	package il.co.topq.report;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.web.SpringBootServletInitializer;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -15,8 +18,10 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync
-public class Application extends SpringBootServletInitializer implements AsyncConfigurer {
+public class Application extends SpringBootServletInitializer implements AsyncConfigurer,InfoContributor {
 
+	ThreadPoolTaskExecutor executor;
+	
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(Application.class);
@@ -34,7 +39,7 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 	 */
 	@Override
 	public Executor getAsyncExecutor() {
-		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor = new ThreadPoolTaskExecutor();
 		// Do not change the number of threads here
 		executor.setCorePoolSize(1);
 		// Do not change the number of threads here
@@ -49,6 +54,24 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 	public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
 		// Unused
 		return null;
+	}
+
+	/**
+	 * Info about the server that can be retrieved using the
+	 * http://<host>:<port>/info request
+	 */
+	@Override
+	public void contribute(org.springframework.boot.actuate.info.Info.Builder builder) {
+		if (null == executor) {
+			return;
+		}
+		Map<String, Integer> queueDetails = new HashMap<>();
+		queueDetails.put("active thread count", executor.getActiveCount());
+		queueDetails.put("thread pool size", executor.getPoolSize());
+		queueDetails.put("max pool size", executor.getMaxPoolSize());
+		queueDetails.put("tasks in queue", executor.getThreadPoolExecutor().getQueue().size());
+		builder.withDetail("asyncActionQueue", queueDetails).build();
+		
 	}
 
 }

@@ -8,7 +8,8 @@ public abstract class AbsMetadataEvent implements MetadataEvent {
 
 	public AbsMetadataEvent(ExecutionMetadata metadata) {
 		if (null == metadata) {
-			throw new IllegalArgumentException("Metadata can't be null");
+			throw new IllegalArgumentException(
+					"Metadata can't be null in event from type " + this.getClass().getSimpleName());
 		}
 		this.metadata = metadata;
 	}

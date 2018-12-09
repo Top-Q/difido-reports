@@ -2,16 +2,21 @@ package il.co.topq.report.business.execution;
 
 import static il.co.topq.difido.DateTimeConverter.fromDateObject;
 import static il.co.topq.difido.DateTimeConverter.fromElasticString;
+import static il.co.topq.report.StopWatch.newStopWatch;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.info.Info.Builder;
+import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
@@ -29,9 +34,9 @@ import il.co.topq.report.events.ExecutionUpdatedEvent;
 import il.co.topq.report.events.FileAddedToTestEvent;
 import il.co.topq.report.events.MachineCreatedEvent;
 import il.co.topq.report.events.TestDetailsCreatedEvent;
-import static il.co.topq.report.StopWatch.newStopWatch;
+
 @Component
-public class MetadataController implements MetadataProvider, MetadataCreator {
+public class MetadataController implements MetadataProvider, MetadataCreator, InfoContributor {
 
 	private final Logger log = LoggerFactory.getLogger(MetadataController.class);
 
@@ -55,8 +60,8 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 		StopWatch stopWatch = newStopWatch(log).start("Creating new metadata");
 		Execution execution = new Execution();
 		final Date executionDate = new Date();
-		final ExecutionMetadata metaData = new ExecutionMetadata(
-				fromDateObject(executionDate).toElasticString(), execution);
+		final ExecutionMetadata metaData = new ExecutionMetadata(fromDateObject(executionDate).toElasticString(),
+				execution);
 		metaData.setTime(fromDateObject(executionDate).toTimeString());
 		metaData.setDate(fromDateObject(executionDate).toDateString());
 		metaData.setId(persistency.advanceId());
@@ -183,7 +188,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 
 	/**
 	 * Updates the duration of the execution according to the start time.
-	 *  
+	 * 
 	 * @param executionMetaData
 	 */
 	private synchronized void updateDuration(final ExecutionMetadata executionMetaData) {
@@ -233,7 +238,8 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 			log.error("Trying to disable execution with id " + executionEndedEvent.getExecutionId()
 					+ " which is not exist");
 		}
-		// We will update the last update time so we know when to clean the execution.
+		// We will update the last update time so we know when to clean the
+		// execution.
 		updateExecutionLastUpdateTime(executionEndedEvent.getExecutionId());
 		updateSingleExecutionMeta(metadata.getId());
 		metadata.setActive(false);
@@ -252,7 +258,8 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 
 	@EventListener
 	public void onMachineCreatedEvent(MachineCreatedEvent machineCreatedEvent) {
-		StopWatch stopWatch = newStopWatch(log).start("Machine created event for execution " + machineCreatedEvent.getExecutionId());
+		StopWatch stopWatch = newStopWatch(log)
+				.start("Machine created event for execution " + machineCreatedEvent.getExecutionId());
 		updateExecutionLastUpdateTime(machineCreatedEvent.getExecutionId());
 		updateAllExecutionsMetaData();
 		stopWatch.stopAndLog();
@@ -279,6 +286,18 @@ public class MetadataController implements MetadataProvider, MetadataCreator {
 	public void onFileAddedToTestEvent(FileAddedToTestEvent fileAddedToTestEvent) {
 		updateExecutionLastUpdateTime(fileAddedToTestEvent.getExecutionId());
 
+	}
+
+	/**
+	 * Info about the server that can be retrieved using the
+	 * http://<host>:<port>/info request
+	 */
+	@Override
+	public void contribute(Builder builder) {
+		Map<String, Integer> metadataDetails = new HashMap<>();
+		metadataDetails.put("existing executions", persistency.getAll().size());
+		metadataDetails.put("active executions", (int) persistency.getAll().stream().filter(e -> e.isActive()).count());
+		builder.withDetail("metadata controller", metadataDetails);
 	}
 
 }

@@ -3,7 +3,7 @@ package il.co.topq.report.business.execution;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

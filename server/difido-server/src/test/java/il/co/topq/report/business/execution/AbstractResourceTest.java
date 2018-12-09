@@ -13,10 +13,9 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import il.co.topq.difido.PersistenceUtils;
 import il.co.topq.difido.model.execution.Execution;
@@ -26,9 +25,7 @@ import il.co.topq.report.business.elastic.ESController;
 import il.co.topq.report.front.rest.DifidoClient;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = Application.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port=8080" })
+@SpringBootTest(classes = Application.class,webEnvironment = WebEnvironment.DEFINED_PORT)
 public abstract class AbstractResourceTest {
 
 	private static final File reportsFolder = new File("docRoot/reports");

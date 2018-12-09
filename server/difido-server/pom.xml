@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.3.1.RELEASE</version>
+		<version>1.4.4.RELEASE</version>
 	</parent>
 	<organization>
 		<name>Top-Q</name>
@@ -60,7 +60,6 @@
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>4.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.spullara.mustache.java</groupId>
@@ -75,7 +74,6 @@
 		<dependency>
 			<groupId>io.searchbox</groupId>
 			<artifactId>jest</artifactId>
-			<version>0.1.5</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.mail</groupId>
@@ -84,6 +82,7 @@
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
+			<!--  version>1.7</version-->
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.jersey.media</groupId>
