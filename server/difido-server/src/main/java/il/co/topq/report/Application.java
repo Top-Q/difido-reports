@@ -66,9 +66,10 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 			return;
 		}
 		Map<String, Integer> queueDetails = new HashMap<>();
-		queueDetails.put("active count", executor.getActiveCount());
-		queueDetails.put("pool size", executor.getPoolSize());
+		queueDetails.put("active thread count", executor.getActiveCount());
+		queueDetails.put("thread pool size", executor.getPoolSize());
 		queueDetails.put("max pool size", executor.getMaxPoolSize());
+		queueDetails.put("tasks in queue", executor.getThreadPoolExecutor().getQueue().size());
 		builder.withDetail("asyncActionQueue", queueDetails).build();
 		
 	}
