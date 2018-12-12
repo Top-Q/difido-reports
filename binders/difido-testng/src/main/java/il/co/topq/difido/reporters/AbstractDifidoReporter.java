@@ -42,6 +42,8 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	private static final Logger log = Logger.getLogger(AbstractDifidoReporter.class.getName());
 	
 	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
+	
+	private static final SimpleDateFormat REPORT_ELEMENT_TIME_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
 
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd");
 
@@ -452,7 +454,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	}
 
 	private ReportElement updateTimestampAndTitle(ReportElement element, String title) {
-		element.setTime(TIME_FORMAT.format(new Date()));
+		element.setTime(REPORT_ELEMENT_TIME_FORMAT.format(new Date()));
 		element.setTitle(title);
 		return element;
 	}
