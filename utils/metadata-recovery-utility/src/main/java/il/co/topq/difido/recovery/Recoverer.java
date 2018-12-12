@@ -24,7 +24,6 @@ import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.Node;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
-import il.co.topq.report.business.execution.ExecutionMetadata;
 
 public class Recoverer {
 

@@ -16,9 +16,14 @@
 
 	<dependencies>
 		<dependency>
-			<artifactId>difido-server</artifactId>
-			<groupId>il.co.topq.report</groupId>
-			<version>2.2.05-SNAPSHOT</version>
+			<groupId>il.co.topq.difido</groupId>
+			<artifactId>difido-reports-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
