@@ -41,6 +41,9 @@ public class TestNode extends Node {
 
 	@JsonProperty("className")
 	private String className;
+	
+	@JsonProperty("hideInHtml")
+	private boolean hideInHtml;
 
 	@JsonProperty("parameters")
 	private Map<String, String> parameters;
@@ -243,5 +246,14 @@ public class TestNode extends Node {
 	public void setProperties(Map<String, String> properties) {
 		this.properties = properties;
 	}
+
+	public boolean isHideInHtml() {
+		return hideInHtml;
+	}
+
+	public void setHideInHtml(boolean hideInHtml) {
+		this.hideInHtml = hideInHtml;
+	}
+	
 
 }
