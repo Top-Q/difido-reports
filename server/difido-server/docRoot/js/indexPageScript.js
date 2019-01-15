@@ -123,6 +123,15 @@ function populateTable() {
 				extend: 'pdfHtml5',
 				text: '<i class="far fa-file-pdf"></i>',
 				titleAttr: 'Export to PDF'
+			},
+			{
+				text: 'zipHtml5',
+				action: function (e, dt, node, config) {
+					downloadSelectedAsZipped(table);
+				},
+				text: '<i class="far fa-file-archive"></i>',
+				titleAttr: 'Download zipped execution'
+
 			}, 
 			{
 				action: function (e, dt, node, config) {
@@ -282,6 +291,32 @@ function deleteSelected(table) {
 			}
 
 		});
+}
+
+function downloadSelectedAsZipped(table) {
+    var numOfSelected = table.rows('.selected').data().length;
+    if (numOfSelected == 0) {
+        return;
+    }
+    var data = table.rows('.selected').data();
+    for (var i = 0; i < numOfSelected; i++) {
+        var id = data[i][0];
+        url= 'api/reports/' + id;
+        downloadFileFromUrl(url, i);
+        // Unselecting all elements
+        // Everything was deleted, we can reload the table.
+    }
+    setTimeout(function(){window.location.reload(1);}, 2500 *numOfSelected); // Hello, John
+   $(".selected").removeClass("selected");
+}
+
+function downloadFileFromUrl(url, index ){
+  var hiddenIFrameID = 'hiddenDownloader' + index;
+  var iframe = document.createElement('iframe');
+  iframe.id = hiddenIFrameID;
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+  iframe.src = url;
 }
 
 function executePlugin(table) {
