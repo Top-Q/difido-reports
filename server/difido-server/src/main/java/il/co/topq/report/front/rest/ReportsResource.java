@@ -107,7 +107,7 @@ public class ReportsResource {
 				}
 			}
 		});
-		response.header("Content-Disposition", "attachment; filename=\"execution" + executionId + "\"");
+		response.header("Content-Disposition", "attachment; filename=\"execution" + executionId + ".zip\"");
 		return response;
 	}
 
