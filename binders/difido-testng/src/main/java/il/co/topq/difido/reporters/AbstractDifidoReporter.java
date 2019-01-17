@@ -40,9 +40,9 @@ import il.co.topq.difido.model.test.TestDetails;
 public abstract class AbstractDifidoReporter implements Reporter {
 
 	private static final Logger log = Logger.getLogger(AbstractDifidoReporter.class.getName());
-	
+
 	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
-	
+
 	private static final SimpleDateFormat REPORT_ELEMENT_TIME_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
 
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd");
@@ -74,9 +74,9 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	private DifidoConfig config;
 
 	private List<ReportElement> bufferedElements;
-	
+
 	private Map<String, String> bufferedTestProperties;
-	
+
 	private Map<String, String> bufferedRunProperties;
 
 	private boolean inSetup;
@@ -88,7 +88,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		bufferedElements = new ArrayList<ReportElement>();
 		bufferedTestProperties = new HashMap<>();
 		bufferedRunProperties = new HashMap<>();
-		
+
 	}
 
 	protected void generateUid() {
@@ -226,7 +226,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	protected void flushBufferedElements(String elementsDescription) {
 		log.fine("About to flush buffered elements");
 		if (!bufferedElements.isEmpty()) {
-			log.fine("Found "+ bufferedElements.size() +" buffered elements");
+			log.fine("Found " + bufferedElements.size() + " buffered elements");
 			log(elementsDescription, null, Status.success, ElementType.startLevel);
 			for (ReportElement element : bufferedElements) {
 				log(element);
@@ -235,13 +235,14 @@ public abstract class AbstractDifidoReporter implements Reporter {
 			log(null, null, Status.success, ElementType.stopLevel);
 		}
 		if (!bufferedRunProperties.isEmpty()) {
-			log.fine("Found "+ bufferedRunProperties.size() +" buffered run properties");
+			log.fine("Found " + bufferedRunProperties.size() + " buffered run properties");
 			bufferedRunProperties.keySet().stream().forEach(key -> addRunProperty(key, bufferedRunProperties.get(key)));
 			bufferedRunProperties.clear();
 		}
 		if (!bufferedTestProperties.isEmpty()) {
-			log.fine("Found "+ bufferedTestProperties.size() +" buffered test properties");
-			bufferedTestProperties.keySet().stream().forEach(key -> addTestProperty(key, bufferedTestProperties.get(key)));
+			log.fine("Found " + bufferedTestProperties.size() + " buffered test properties");
+			bufferedTestProperties.keySet().stream()
+					.forEach(key -> addTestProperty(key, bufferedTestProperties.get(key)));
 			bufferedTestProperties.clear();
 		}
 
@@ -428,6 +429,11 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		if (inSetup || inTeardown) {
 			// We are in setup phase. We will store the elements and add it to
 			// the test details when the actual test will start
+			if (Status.error == element.getStatus() || Status.failure == element.getStatus()) {
+				// Failures and errors that happens in the setup or tear down
+				// phases should be marked as warning
+				element.setStatus(Status.warning);
+			}
 			bufferedElements.add(element);
 		} else {
 			testDetails.addReportElement(element);
@@ -570,7 +576,5 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	protected boolean isInTeardown() {
 		return inTeardown;
 	}
-	
-	
 
 }
