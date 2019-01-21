@@ -3,6 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>metadata-recovery-utility</artifactId>
+	<name>Metadata Recovery Utility</name>
 	<parent>
 		<artifactId>difido-parent</artifactId>
 		<groupId>il.co.topq.difido</groupId>
@@ -17,7 +18,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>il.co.topq.difido</groupId>
-			<artifactId>difido-reports-common</artifactId>
+			<artifactId>difido-server-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

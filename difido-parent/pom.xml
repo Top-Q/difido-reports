@@ -4,6 +4,7 @@
 	<groupId>il.co.topq.difido</groupId>
 	<artifactId>difido-parent</artifactId>
 	<version>2.2.05-SNAPSHOT</version>
+	<name>Difido Parent</name>
 	<packaging>pom</packaging>
 	<organization>
 		<name>Top-Q</name>
@@ -77,6 +78,7 @@
 	</dependencyManagement>
 	<modules>
 		<module>../difido-reports-common</module>
+		<module>../server/difido-server-common</module>
 		<module>../server/difido-server</module>
 		<module>../binders/difido-testng</module>
 		<module>../binders/difido-generic-binder</module>
