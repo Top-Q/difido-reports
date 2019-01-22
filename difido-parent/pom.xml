@@ -78,7 +78,7 @@
 	</dependencyManagement>
 	<modules>
 		<module>../difido-reports-common</module>
-		<module>../server/difido-server-common</module>
+		<module>../server/difido-server-plugins-common</module>
 		<module>../server/difido-server</module>
 		<module>../binders/difido-testng</module>
 		<module>../binders/difido-generic-binder</module>

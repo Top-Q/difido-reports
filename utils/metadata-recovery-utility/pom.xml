@@ -18,7 +18,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>il.co.topq.difido</groupId>
-			<artifactId>difido-server-common</artifactId>
+			<artifactId>difido-server-plugins-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
