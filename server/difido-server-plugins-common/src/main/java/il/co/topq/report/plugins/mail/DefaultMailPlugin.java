@@ -8,7 +8,6 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
@@ -151,7 +150,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		sender.setMailMessageAsHtmlText(true);
 
 		final String host = Configuration.INSTANCE.readString(ConfigProps.MAIL_SMTP_HOST);
-		if (StringUtils.isEmpty(host)) {
+		if (isEmpty(host)) {
 			log.warn("SMTP host is not configured. Can't send mail");
 			setEnabled(false);
 			return;
@@ -167,14 +166,14 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		sender.setSmtpPort(port);
 
 		final String userName = Configuration.INSTANCE.readString(ConfigProps.MAIL_USER_NAME);
-		if (!StringUtils.isEmpty(userName)) {
+		if (!isEmpty(userName)) {
 			sender.setUserName(userName);
 		} else {
 			log.warn("SMTP User name is not configured.");
 		}
 
 		final String password = Configuration.INSTANCE.readString(ConfigProps.MAIL_PASSWORD);
-		if (!StringUtils.isEmpty(password)) {
+		if (!isEmpty(password)) {
 			sender.setPassword(password);
 		} else {
 			log.warn("SMTP Password is not configured.");
@@ -184,7 +183,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		sender.setSsl(ssl);
 
 		final String from = getFromAddress();
-		if (StringUtils.isEmpty(from)) {
+		if (isEmpty(from)) {
 			log.warn("Mail from address is not configured. Can't send mail");
 			setEnabled(false);
 			return;
@@ -192,7 +191,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		sender.setFromAddress(from);
 
 		final String to = getToAddress();
-		if (StringUtils.isEmpty(to)) {
+		if (isEmpty(to)) {
 			log.warn("Mail to address is not configured. Can't send mail");
 			setEnabled(false);
 			return;
@@ -200,7 +199,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		sender.setSendTo(to.split(";"));
 
 		final String cc = getCcAddresses();
-		if (!StringUtils.isEmpty(cc)) {
+		if (!isEmpty(cc)) {
 			sender.setSendCc(cc.split(";"));
 		}
 
@@ -208,6 +207,10 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 		if (null != attachments && attachments.length != 0) {
 			sender.setAttachments(attachments);
 		}
+	}
+	
+	private static boolean isEmpty(String value) {
+		return null == value || value.isEmpty();
 	}
 
 	protected String getCcAddresses() {

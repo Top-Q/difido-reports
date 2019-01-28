@@ -10,7 +10,6 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 public enum Configuration {
 
@@ -142,7 +141,7 @@ public enum Configuration {
 
 	public List<String> readList(ConfigProps prop) {
 		final String value = configProperties.getProperty(prop.getPropName());
-		if (StringUtils.isEmpty(value)) {
+		if (null == value || value.isEmpty()) {
 			return new ArrayList<String>();
 		}
 		return Arrays.asList(value.split(";"));

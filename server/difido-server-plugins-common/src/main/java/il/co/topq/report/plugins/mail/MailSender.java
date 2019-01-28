@@ -20,7 +20,6 @@ import javax.mail.internet.MimeMultipart;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 /**
  * this class is used for sending\receiving mail<br>
@@ -199,7 +198,7 @@ public class MailSender {
 		multipart.addBodyPart(messageBodyPart);
 		if (attachments != null) {
 			for (String file : attachments) {
-				if (!StringUtils.isEmpty(file)) {
+				if (file != null && !file.isEmpty()) {
 					log.debug("Attaching " + file);
 					// Part two is attachment
 					messageBodyPart = new MimeBodyPart();
