@@ -157,9 +157,16 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 			for (ScenarioNode scenario : scenarios) {
 				for (Node node : scenario.getChildren(true)) {
 					if (node instanceof TestNode) {
-						numOfTests++;
 						switch (node.getStatus()) {
 						case success:
+							if (((TestNode) node).isHideInHtml()) {
+								// It is important to put 'continue' here since
+								// we don't want to get to the end of the 'for'
+								// code block to the part that we add this test
+								// to the number of tests. This supposed to be
+								// completely hidden
+								continue;
+							}
 							numOfSuccessfulTests++;
 							break;
 						case error:
@@ -171,6 +178,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 						default:
 							break;
 						}
+						numOfTests++;
 					}
 				}
 			}
