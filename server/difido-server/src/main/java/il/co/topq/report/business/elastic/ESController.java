@@ -26,6 +26,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import il.co.topq.difido.model.Enums.Status;
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.Node;
 import il.co.topq.difido.model.execution.ScenarioNode;
@@ -487,6 +488,11 @@ public class ESController implements HealthIndicator, InfoContributor {
 		}
 		for (Node node : machineNode.getChildren(true)) {
 			if (node instanceof TestNode) {
+				if (((TestNode) node).isHideInHtml() && Status.success == ((TestNode) node).getStatus()) {
+					// We don't want to add to the Elastic successful tests that
+					// are hidden in the HTML
+					continue;
+				}
 				executionTests.add((TestNode) node);
 			}
 		}
@@ -529,7 +535,7 @@ public class ESController implements HealthIndicator, InfoContributor {
 		elasticDetails.put("saved executions", savedTestsPerExecution.size());
 		elasticDetails.put("saved tests", savedTestsPerExecution.values().size());
 		builder.withDetail("elastic controller", elasticDetails).build();
-		
+
 	}
 
 }
