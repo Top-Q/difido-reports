@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,8 @@ namespace difido_client.Main.Report.Reporters.ConsoleReporter
 {
     public class ConsoleReporter : IReporter
     {
+        private static readonly string divider = "------------------------------------------------------------------------";
+
         public void AddTestProperty(string propertyName, string propertyValue)
         {
         }
@@ -22,11 +25,11 @@ namespace difido_client.Main.Report.Reporters.ConsoleReporter
 
         public void EndTest(ReporterTestInfo testInfo)
         {
-            Print("------------------------------------------------------------------------");
+            Print(divider);
             Print("[TEST END]: " + testInfo.TestName);
             Print("Test duration: " + testInfo.DurationTime + " milliseconds");
             Print("Test status: " + testInfo.Status);
-            Print("------------------------------------------------------------------------");
+            Print(divider);
         }
 
         public void Init(string outputFolder)
@@ -95,14 +98,17 @@ namespace difido_client.Main.Report.Reporters.ConsoleReporter
 
         public void StartTest(ReporterTestInfo testInfo)
         {
-            Print("------------------------------------------------------------------------");
+            Print(divider);
             Print("[TEST START]: " + testInfo.TestName);
-            Print("------------------------------------------------------------------------");
+            Print(divider);
         }
 
-        private void Print(String message)
+        private void Print(string message)
         {
-            Console.WriteLine(DateTime.Now.ToString("HH:mm:ss: ") + message);
+            message = DateTime.Now.ToString("HH:mm:ss: ") + message;
+            Console.WriteLine(message);
+            Debug.WriteLine(message);
+            Trace.WriteLine(message);
         }
     }
 }

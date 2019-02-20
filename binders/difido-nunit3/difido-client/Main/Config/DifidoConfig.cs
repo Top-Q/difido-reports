@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace difido_client.Main.Config
 {
-    public class Configuration
+    public class DifidoConfig
     {
-        private static volatile Configuration instance;
-        private static object syncRoot = new Object();
-        private const string configurationFileName = "configuration.ini";
+        private static volatile DifidoConfig instance;
+        private static object syncRoot = new object();
+        private const string configurationFileName = "difido_config.ini";
         private const string configurationIniSection = "general";
 
         private IniHandler iniHandler;
 
-        private Configuration()
+        private DifidoConfig()
         {
             string configurationFile = Path.Combine(GetRootFolder(), configurationFileName);
             iniHandler = new IniHandler(configurationFile);
@@ -33,7 +33,7 @@ namespace difido_client.Main.Config
             {
                 return false;
             }
-            if (String.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(value))
             {
                 return false;
             }
@@ -56,12 +56,13 @@ namespace difido_client.Main.Config
         }
 
 
-        public string GetRootFolder()
+        public static string GetRootFolder()
         {
-            return Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.Parent.FullName;
+            string rootFolder = Directory.GetCurrentDirectory();
+            return rootFolder;
         }
 
-        public static Configuration Instance
+        public static DifidoConfig Instance
         {
             get
             {
@@ -70,7 +71,7 @@ namespace difido_client.Main.Config
                     lock (syncRoot)
                     {
                         if (instance == null)
-                            instance = new Configuration();
+                            instance = new DifidoConfig();
                     }
                 }
 

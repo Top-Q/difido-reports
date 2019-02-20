@@ -1,4 +1,5 @@
 ﻿using difido_client;
+using difido_client.Main.NUnit;
 using difido_client_tests.Infra.difido_client_tests;
 using NUnit.Framework;
 using System;
@@ -15,20 +16,37 @@ using System.Windows.Forms;
 namespace difido_client_tests
 {
     [TestFixture]
-    public class NUnitExamples
+    public class NUnit3Examples : AbstractDifidoNUnit3Test
     {
 
         protected IReportDispatcher report = ReportManager.Instance;
 
         [SetUp]
         public void SetUp()
-        {            
+        {
+            report.Report("This is from: NUnit3Examples.SetUp");
         }
-        
+
+        [TearDown]
+        public void TearDown()
+        {
+            report.Report("This is from: NUnit3Examples.TearDown");
+        }
+
         [Test]
         public void SimpleReport()
         {            
-            report.Report("My very simple report");
+            report.Report("Sleeping 5 seconds");
+            Thread.Sleep(5000);
+            report.Report("And this is the end");
+        }
+
+        [Test]
+        public void FailTest()
+        {
+            report.Report("OK...");
+            Assert.Fail("This is not good!");
+            report.Report("OK...");
         }
 
         [Test]
@@ -70,7 +88,6 @@ namespace difido_client_tests
         {
             report.Report("About to fail the test with exception");
             throw new Exception("This is my error message");
-
         }
 
         [Test]
@@ -87,7 +104,6 @@ namespace difido_client_tests
         {
             report.Report("About to fail the test with assertion");
             Assert.IsNotNull(null, "Failing the test with assertion");
-
         }
 
         [Test]

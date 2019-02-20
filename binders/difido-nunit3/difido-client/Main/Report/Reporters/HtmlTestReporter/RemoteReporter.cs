@@ -40,7 +40,7 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
             string port = null;
             try
             {
-                enabled = Boolean.Parse(Configuration.Instance.GetProperty(CONFIGURATION_SECTION, "enabled"));
+                enabled = Boolean.Parse(DifidoConfig.Instance.GetProperty(CONFIGURATION_SECTION, "enabled"));
             }
             catch
             {
@@ -53,12 +53,12 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
                 {
                     return;
                 }
-                host = Configuration.Instance.GetProperty(CONFIGURATION_SECTION, "host");
-                port = Configuration.Instance.GetProperty(CONFIGURATION_SECTION, "port");
+                host = DifidoConfig.Instance.GetProperty(CONFIGURATION_SECTION, "host");
+                port = DifidoConfig.Instance.GetProperty(CONFIGURATION_SECTION, "port");
 
                 try
                 {
-                    existingExecutionId = Int32.Parse(Configuration.Instance.GetProperty(CONFIGURATION_SECTION, "existingExecutionId"));
+                    existingExecutionId = Int32.Parse(DifidoConfig.Instance.GetProperty(CONFIGURATION_SECTION, "existingExecutionId"));
                 }
                 catch
                 {
@@ -67,13 +67,13 @@ namespace difido_client.Main.Report.Reporters.HtmlTestReporter
                 
 
                 ExecutionDetails executionDetails = new ExecutionDetails();
-                if (Configuration.Instance.IsPropertyExists(CONFIGURATION_SECTION, "executionDescription"))
+                if (DifidoConfig.Instance.IsPropertyExists(CONFIGURATION_SECTION, "executionDescription"))
                 {
-                    executionDetails.description = Configuration.Instance.GetProperty(CONFIGURATION_SECTION, "executionDescription");
+                    executionDetails.description = DifidoConfig.Instance.GetProperty(CONFIGURATION_SECTION, "executionDescription");
                 }
-                if (Configuration.Instance.IsPropertyExists(CONFIGURATION_SECTION, "executionProperties"))
+                if (DifidoConfig.Instance.IsPropertyExists(CONFIGURATION_SECTION, "executionProperties"))
                 {
-                    string executionPropertiesValue = Configuration.Instance.GetProperty(CONFIGURATION_SECTION, "executionProperties");
+                    string executionPropertiesValue = DifidoConfig.Instance.GetProperty(CONFIGURATION_SECTION, "executionProperties");
 
                     // Parsing the properties from the configuration file and adding them as execution properties
                     executionDetails.executionProperties = executionPropertiesValue.Split(';')
