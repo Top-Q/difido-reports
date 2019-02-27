@@ -1,18 +1,7 @@
-﻿using difido_client;
-using difido_client.Main.Config;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace difido_client.Main.NUnit
 {
@@ -20,7 +9,7 @@ namespace difido_client.Main.NUnit
     public class AbstractDifidoNUnit3Test
     {
         protected static IReportDispatcher report = null;
-        ReporterTestInfo testInfo;
+        protected static ReporterTestInfo testInfo;
         protected Stopwatch testStopwatch;
 
         [SetUp]
@@ -41,25 +30,30 @@ namespace difido_client.Main.NUnit
             testStopwatch.Start();
 
             report.StartTest(testInfo);
-
-            //report.Report("This is from: AbstractDifidoNUnit3Test.BeforeAll");
         }
 
         [TearDown]
         public void AfterAll()
         {
-            //report.Report("This is from: AbstractDifidoNUnit3Test.AfterAll");
-
             TestContext.ResultAdapter resultAdapter = TestContext.CurrentContext.Result;
 
-            if (resultAdapter.Outcome == ResultState.Error)
+            if (resultAdapter.Outcome == ResultState.Success && (testInfo.Status == DifidoTestStatus.failure || testInfo.Status == DifidoTestStatus.error))
+            {
+                testStopwatch.Stop();
+                testInfo.DurationTime = testStopwatch.ElapsedMilliseconds;
+                report.EndTest(testInfo);
+
+                Assert.Fail("Test failed. See reports above for details.");
+            }
+
+            if (resultAdapter.Outcome == ResultState.Success)
+            {
+                testInfo.Status = DifidoTestStatus.success;
+            }
+            else if (resultAdapter.Outcome == ResultState.Error)
             {
                 testInfo.Status = DifidoTestStatus.error;
                 report.Report(resultAdapter.Message, resultAdapter.StackTrace, DifidoTestStatus.error);
-            }
-            else if (resultAdapter.Outcome == ResultState.Success)
-            {
-                testInfo.Status = DifidoTestStatus.success;
             }
             else if (resultAdapter.Outcome == ResultState.Failure)
             {
@@ -93,26 +87,37 @@ namespace difido_client.Main.NUnit
 
         public static void ReportWarning(string message)
         {
+            testInfo.Status = DifidoTestStatus.warning;
             report.Report(message, null, DifidoTestStatus.warning);
         }
 
         public static void ReportWarning(string title, string message)
         {
+            testInfo.Status = DifidoTestStatus.warning;
             report.Report(title, message, DifidoTestStatus.warning);
         }
 
         public static void ReportFail(string message)
         {
+            testInfo.Status = DifidoTestStatus.failure;
             report.Report(message, null, DifidoTestStatus.failure);
         }
 
         public static void ReportFail(string title, string message)
         {
+            testInfo.Status = DifidoTestStatus.failure;
             report.Report(title, message, DifidoTestStatus.failure);
+        }
+
+        public static void ReportError(string message)
+        {
+            testInfo.Status = DifidoTestStatus.error;
+            report.Report(message, null, DifidoTestStatus.error);
         }
 
         public static void ReportError(string title, string message)
         {
+            testInfo.Status = DifidoTestStatus.error;
             report.Report(title, message, DifidoTestStatus.error);
         }
 

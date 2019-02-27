@@ -3,6 +3,7 @@ using difido_client.Main.Report.Reporters.ConsoleReporter;
 using difido_client.Main.Report.Reporters.HtmlTestReporter;
 using difido_client.Report.Excel;
 using difido_client.Report.Html;
+using difido_client.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace difido_client
         private static object syncRoot = new Object();
         private List<IReporter> reporters;
         private string outputFolder;
+        private string executionStartTime;
         private static List<string> errorsList = new List<string>();
 
         private ReportManager() {
@@ -28,8 +30,16 @@ namespace difido_client
             //reporters.Add(new ExcelReporter());
             reporters.Add(new ConsoleReporter());
 
-            outputFolder = DifidoConfig.GetRootFolder() + @"/TestResults/Report";
-            //outputFolder = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName + @"/TestResults/Report";
+            executionStartTime = DateTime.Now.ToString();
+
+            if (DifidoConfig.Instance.IsPropertyExists("reportServer", "localOutputFolder"))
+            {
+                outputFolder = DifidoConfig.Instance.GetProperty("reportServer", "localOutputFolder");
+            }
+            else
+            {
+                outputFolder = DifidoConfig.GetRootFolder() + @"/TestResults/Report";
+            }
 
             try
             {
@@ -41,6 +51,11 @@ namespace difido_client
             }
             
             Init(outputFolder);
+        }
+
+        public void AddReporter(IReporter reporter)
+        {
+            reporters.Add(reporter);
         }
 
         public static ReportManager Instance
@@ -134,7 +149,6 @@ namespace difido_client
                 }
             }
         }
-
 
         public void ReportError(params object[] args)
         {
@@ -254,7 +268,10 @@ namespace difido_client
             return FormatterAndArgs;
         }
 
+        public void ArchiveReport()
+        {
+            string archiveFolderPath = Path.Combine(outputFolder, executionStartTime.Replace("/", "_").Replace(":", "_").Replace(" ", "_"));
+            FileUtils.DirectoryCopy(outputFolder + "/current", archiveFolderPath, true);
+        }
     }
-
-
 }
