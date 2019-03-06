@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace difido_client.Main.Config
     {
         private static volatile DifidoConfig instance;
         private static object syncRoot = new object();
+        private const string relativeConfigurationPathPrefix = "../../../";
         private const string configurationFileName = "difido_config.ini";
         private const string configurationIniSection = "general";
 
@@ -18,7 +20,7 @@ namespace difido_client.Main.Config
 
         private DifidoConfig()
         {
-            string configurationFile = Path.Combine(GetRootFolder(), configurationFileName);
+            string configurationFile = Path.Combine(GetRootFolder(), relativeConfigurationPathPrefix, configurationFileName);
             iniHandler = new IniHandler(configurationFile);
         }
 
@@ -58,7 +60,9 @@ namespace difido_client.Main.Config
 
         public static string GetRootFolder()
         {
-            string rootFolder = Directory.GetCurrentDirectory();
+            //Directory.GetCurrentDirectory(); -> this method is problematic when working with NUnit3
+            // Instead using: TestContext.CurrentContext.TestDirectory; (to get the path to: bin/Debug)
+            string rootFolder = TestContext.CurrentContext.TestDirectory;
             return rootFolder;
         }
 

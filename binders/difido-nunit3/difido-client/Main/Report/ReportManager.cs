@@ -38,7 +38,7 @@ namespace difido_client
             }
             else
             {
-                outputFolder = DifidoConfig.GetRootFolder() + @"/TestResults/Report";
+                outputFolder = DifidoConfig.GetRootFolder() + @"../../../../TestResults/Report";
             }
 
             try
