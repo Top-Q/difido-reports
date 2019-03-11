@@ -44,7 +44,7 @@ public class ArchiveService {
 		return destinationPath;
 	}
 
-	private static File getExecutionFolder(ExecutionMetadata metadata) {
+	public File getExecutionFolder(ExecutionMetadata metadata) {
 		return new File(Configuration.INSTANCE.readString(ConfigProps.DOC_ROOT_FOLDER) + File.separator
 				+ Common.REPORTS_FOLDER_NAME + File.separator + metadata.getFolderName());
 	}

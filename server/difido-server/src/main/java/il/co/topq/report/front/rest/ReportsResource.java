@@ -1,5 +1,6 @@
 package il.co.topq.report.front.rest;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -18,6 +19,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 import il.co.topq.report.StopWatch;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.business.execution.MetadataProvider;
-import il.co.topq.report.business.report.ExecutionTableService;
 import il.co.topq.report.business.report.ArchiveService;
+import il.co.topq.report.business.report.ExecutionTableService;
 
 @RestController
 @Path("api/reports")
@@ -36,19 +38,18 @@ public class ReportsResource {
 	private static final Logger log = LoggerFactory.getLogger(ReportsResource.class);
 
 	private final MetadataProvider metadataProvider;
-	
+
 	@Autowired
 	public ReportsResource(MetadataProvider metadataProvider) {
 		this.metadataProvider = metadataProvider;
 	}
-	
+
 	@Autowired
 	public ExecutionTableService executionTableService;
-	
+
 	@Autowired
 	public ArchiveService zipService;
-	
-	
+
 	/**
 	 * Get list of all the reports
 	 * 
@@ -62,13 +63,12 @@ public class ReportsResource {
 		StopWatch stopWatch = new StopWatch(log).start("Getting all metaData");
 		final ExecutionMetadata[] metaDataArr = metadataProvider.getAllMetaData();
 		stopWatch.stopAndLog();
-		
+
 		stopWatch.start("Initilaizing table");
 		final DataTable dataTable = executionTableService.initTable(metaDataArr);
 		stopWatch.stopAndLog();
 		return dataTable;
 	}
-	
 
 	public static class DataTable {
 		// Holds the headers of the table. The data structure has to be ordered
@@ -76,11 +76,12 @@ public class ReportsResource {
 		final public Set<String> columns = new LinkedHashSet<>();
 		final public List<List<String>> data = new ArrayList<>();
 	}
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
 	@Path("/{execution: [0-9]+}")
 	public Response getReportAsZip(@PathParam("execution") int executionId) {
+		log.debug("GET - Recieved request for getting execution " + executionId + " as ZIP");
 		final ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
 		if (null == metadata) {
 			log.error("No execution with id " + executionId + " was found");
@@ -111,6 +112,35 @@ public class ReportsResource {
 		return response;
 	}
 
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("/{execution: [0-9]+}/size")
+	public long getReportSize(@PathParam("execution") int executionId) {
+		log.debug("GET - Recieved request for getting the size of execution " + executionId + " folder");
+		final ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
+		long size = 0;
+		if (null == metadata) {
+			log.error("No execution with id " + executionId + " was found");
+			return size;
+		}
+		StopWatch stopWatch = new StopWatch(log).start("Calculating reports folder size");
+		try {
+			File executionFolder = zipService.getExecutionFolder(metadata);
+			if (null == executionFolder || !executionFolder.exists()) {
+				log.error("Error getting execution folder for execution " + executionId + ". Recieved "
+						+ executionFolder);
+				return size;
+			}
+			size = FileUtils.sizeOfDirectory(executionFolder);
+			if (0 == size) {
+				log.error("Failed calculating folder size. Check if folder is restricted");
+			}
 
+		} finally {
+			stopWatch.stopAndLog();
+		}
+
+		return size;
+	}
 
 }

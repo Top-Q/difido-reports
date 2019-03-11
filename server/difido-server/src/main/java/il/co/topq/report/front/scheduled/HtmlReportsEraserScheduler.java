@@ -18,9 +18,9 @@ import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.ExecutionUpdatedEvent;
 @Component
-public class HtmlReportsEraser {
+public class HtmlReportsEraserScheduler {
 
-	private final static Logger log = LoggerFactory.getLogger(HtmlReportsEraser.class);
+	private final static Logger log = LoggerFactory.getLogger(HtmlReportsEraserScheduler.class);
 
 	private int daysToKeep = 0;
 
@@ -31,7 +31,7 @@ public class HtmlReportsEraser {
 	private final ApplicationEventPublisher publisher;
 
 	@Autowired
-	public HtmlReportsEraser(MetadataProvider metadataProvider, ApplicationEventPublisher publisher) {
+	public HtmlReportsEraserScheduler(MetadataProvider metadataProvider, ApplicationEventPublisher publisher) {
 		this.metadataProvider = metadataProvider;
 		this.publisher = publisher;
 		daysToKeep = Configuration.INSTANCE.readInt(ConfigProps.DAYS_TO_KEEP_HTML_REPORTS);
@@ -42,7 +42,7 @@ public class HtmlReportsEraser {
 		}
 	}
 
-	@Scheduled(fixedRate = 36000000)
+	@Scheduled(fixedRate = 36_000_000)
 	public void eraseOldHtmlReports() {
 		if (!enabled) {
 			return;

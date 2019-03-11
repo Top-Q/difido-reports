@@ -14,9 +14,9 @@ import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.ExecutionEndedEvent;
 
 @Component
-public class ExecutionEnder {
+public class ExecutionEnderScheduler {
 
-	private final Logger log = LoggerFactory.getLogger(ExecutionEnder.class);
+	private final Logger log = LoggerFactory.getLogger(ExecutionEnderScheduler.class);
 
 	private static int maxExecutionIdleTimeout = 0;
 
@@ -27,7 +27,7 @@ public class ExecutionEnder {
 	private final ApplicationEventPublisher publisher;
 
 	@Autowired
-	public ExecutionEnder(MetadataProvider metadataProvider, ApplicationEventPublisher publisher) {
+	public ExecutionEnderScheduler(MetadataProvider metadataProvider, ApplicationEventPublisher publisher) {
 		this.metadataProvider = metadataProvider;
 		this.publisher = publisher;
 	}

@@ -4,6 +4,9 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletProperties;
 import org.springframework.stereotype.Component;
 
+import il.co.topq.report.Configuration;
+import il.co.topq.report.Configuration.ConfigProps;
+
 @Component
 public class JerseyConfig extends ResourceConfig {
 	public JerseyConfig() {
@@ -12,10 +15,13 @@ public class JerseyConfig extends ResourceConfig {
 	
 
 	private void registerEndpoints() {
-		register(ExecutionResource.class);
-		register(MachineResource.class);
+		if (!Configuration.INSTANCE.readBoolean(ConfigProps.ARCHIVER_ENABLED)){
+			register(ExecutionResource.class);
+			register(MachineResource.class);
+			register(TestDetailsResource.class);
+			
+		}
 		register(ReportsResource.class);
-		register(TestDetailsResource.class);
 		register(PluginResource.class);
 		register(SettingsResource.class);
 

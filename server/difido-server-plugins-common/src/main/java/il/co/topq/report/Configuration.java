@@ -50,7 +50,11 @@ public enum Configuration {
 		PLUGIN_CLASSES("plugin.classes", "il.co.topq.report.plugins.mail.DefaultMailPlugin"),
 		LAST_REPORTS_INTERVAL_IN_SEC("last.reports.interval.in.sec", "10"),
 		LAST_REPORTS_NUM_OF_EXECUTIONS("last.reports.num.of.executions", "4"),
-		LAST_REPORTS_FILTER("last.reports.filter","");
+		LAST_REPORTS_FILTER("last.reports.filter",""),
+		ARCHIVER_ENABLED("archiver.enabled","false"),
+		ARCHIVER_DIFIDO_SERVER("archiver.difido.server",""),
+		ARCHIVER_MIN_REPORTS_AGE("archiver.min.reports.age","10"),
+		ARCHIVER_DELETE_AFTER_ARCHIVE("archiver.delete.after.archive","true");
 		// @formatter:off
 
 		private final String propName;

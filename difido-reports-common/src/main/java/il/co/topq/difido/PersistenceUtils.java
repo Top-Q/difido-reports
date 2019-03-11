@@ -48,6 +48,9 @@ public class PersistenceUtils {
 			return jarFile;
 		}
 		File libFolder = new File("./lib");
+		if(!libFolder.exists()) {
+			 libFolder = new File("./BOOT-INF/lib");
+		}
 		if (libFolder.exists()) {
 			File[] files = libFolder.listFiles(new FilenameFilter() {
 
