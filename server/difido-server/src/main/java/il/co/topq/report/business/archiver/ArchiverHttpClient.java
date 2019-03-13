@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
 
+import com.sun.org.apache.regexp.internal.RE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -62,8 +63,15 @@ public class ArchiverHttpClient {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
+		ResponseEntity<byte[]> response = null;
 
-		ResponseEntity<byte[]> response = restTemplate.exchange(host + path, HttpMethod.GET, entity, byte[].class, "1");
+		try {
+			response = restTemplate.exchange(host + path, HttpMethod.GET, entity, byte[].class, "1");
+		}catch (RestClientException e) {
+			log.error("Fail to download file: " +  fileName, e);
+			return null;
+		}
+
 		final File file = new File(System.getProperty("java.io.tmpdir"), fileName);
 		if (file.exists()) {
 			file.delete();

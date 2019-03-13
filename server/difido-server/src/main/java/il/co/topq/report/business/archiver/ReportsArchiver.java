@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -164,6 +165,7 @@ public class ReportsArchiver implements Archiver {
 		final String response = client.getString("/api/reports/" + id + "/size");
 		if (null == response || response.isEmpty()) {
 			log.error("Failed to get response from remote Difido about size of execution");
+			return false;
 		}
 		final long remoteSize = Long.parseLong(response);
 		if (remoteSize <= 0) {
@@ -192,6 +194,7 @@ public class ReportsArchiver implements Archiver {
 				Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + execution.getId() + ".zip");
 		if (null == archivedHtmlFile) {
 			log.error("Failed to get execution zip file for execution " + execution.getId());
+			return null;
 		}
 		log.debug("Got archived HTML file " + archivedHtmlFile.getName());
 		return archivedHtmlFile;
@@ -226,7 +229,8 @@ public class ReportsArchiver implements Archiver {
 		final List<ExecutionMetadata> executionsToArchive = remoteExecutions.values().parallelStream()
 				.filter(e -> !e.isActive())
 				.filter(el -> persistency.getAll().stream().noneMatch(er -> er.getId() == el.getId()))
-				.filter(e -> new Date().getTime() - DateTimeConverter.fromDateString(e.getDate()).toDateObject()
+				.filter(e -> StringUtils.isNotBlank(e.getDate()) &&
+						new Date().getTime() - DateTimeConverter.fromDateString(e.getDate()).toDateObject()
 						.getTime() > minReportsAgeInMillis)
 				.collect(Collectors.toList());
 		log.debug("There are " + executionsToArchive.size() + " that needs to be archived in the remote Difido server");
