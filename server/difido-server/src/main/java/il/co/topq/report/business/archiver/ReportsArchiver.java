@@ -3,18 +3,24 @@ package il.co.topq.report.business.archiver;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.actuate.info.Info.Builder;
+import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +34,13 @@ import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.business.execution.MetadataPersistency;
 
 @Component
-public class ReportsArchiver implements Archiver {
+public class ReportsArchiver implements Archiver, HealthIndicator, InfoContributor {
+
+	/**
+	 * The archiver is keeping records of the last archive operations. This
+	 * number represents the maximum number of records it should keep track on
+	 */
+	private static final int MAX_RECORDS_IN_HISTORY = 10;
 
 	private final Logger log = LoggerFactory.getLogger(ReportsArchiver.class);
 
@@ -64,6 +76,12 @@ public class ReportsArchiver implements Archiver {
 	private final int maxToArchive;
 
 	/**
+	 * Data structure used for keeping history records of the last archive
+	 * operations. This only used when reading the server info
+	 */
+	private final CircularFifoBuffer archiveHistory;
+
+	/**
 	 * Provides the concurrency mechanisms
 	 */
 	@Autowired
@@ -80,6 +98,7 @@ public class ReportsArchiver implements Archiver {
 		reportsFolder = Configuration.INSTANCE.readString(ConfigProps.DOC_ROOT_FOLDER) + File.separator
 				+ Common.REPORTS_FOLDER_NAME;
 		maxToArchive = Configuration.INSTANCE.readInt(ConfigProps.ARCHIVER_MAX_TO_ARCHIVE);
+		archiveHistory = new CircularFifoBuffer(MAX_RECORDS_IN_HISTORY);
 	}
 
 	/**
@@ -98,6 +117,26 @@ public class ReportsArchiver implements Archiver {
 		final Map<Integer, ExecutionMetadata> remoteExecutions = getAllRemoteExecutions();
 		final List<ExecutionMetadata> executionsToArchive = filterExecutionsToArchive(remoteExecutions);
 		archiveExecutions(executionsToArchive);
+		logHistory(remoteExecutions, executionsToArchive);
+	}
+
+	private void logHistory(Map<Integer, ExecutionMetadata> remoteExecutions,
+			List<ExecutionMetadata> executionsToArchive) {
+		if (executionsToArchive == null) {
+			log.error("Executions to archive can't be null");
+			return;
+		}
+		if (executionsToArchive.isEmpty()) {
+			// Nothing to add to the records
+			return;
+		}
+		final Map<String, Object> record = new HashMap<>();
+		record.put("timestamp", new Date().toString());
+		record.put("overall remote executions number", remoteExecutions.size());
+		record.put("archived executions", executionsToArchive.size());
+		record.put("ids of archived executions",
+				executionsToArchive.stream().map(e -> e.getId()).collect(Collectors.toList()));
+		archiveHistory.add(record);
 	}
 
 	/**
@@ -274,5 +313,33 @@ public class ReportsArchiver implements Archiver {
 		} catch (IOException e) {
 			log.error("Couldn't extract the file " + archiveFile.getAbsolutePath(), e);
 		}
+	}
+
+	/**
+	 * Provides information about the internal status and operations of the
+	 * archiver. Can be triggered by calling to <code>/info</code>
+	 */
+	@Override
+	public void contribute(Builder builder) {
+		if (!enabled) {
+			return;
+		}
+		builder.withDetail("reports archiver", archiveHistory).build();
+	}
+
+	/**
+	 * Provides information about the health of the component.Can be triggered
+	 * when calling to <code>/health</code>
+	 */
+	@Override
+	public Health health() {
+		if (!Configuration.INSTANCE.readBoolean(ConfigProps.ARCHIVER_ENABLED)) {
+			return Health.up().build();
+		}
+		if (!enabled) {
+			return Health.down().withDetail("Reports archiver is down", "").build();
+		}
+		return Health.up().build();
+
 	}
 }
