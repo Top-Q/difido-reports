@@ -59,6 +59,11 @@ public class ReportsArchiver implements Archiver {
 	private final String reportsFolder;
 
 	/**
+	 * The maximum number of execution to archive in each iteration
+	 */
+	private final int maxToArchive;
+
+	/**
 	 * Provides the concurrency mechanisms
 	 */
 	@Autowired
@@ -74,6 +79,7 @@ public class ReportsArchiver implements Archiver {
 		minReportsAgeInMillis = TimeUnit.DAYS.toMillis(minReportsAge);
 		reportsFolder = Configuration.INSTANCE.readString(ConfigProps.DOC_ROOT_FOLDER) + File.separator
 				+ Common.REPORTS_FOLDER_NAME;
+		maxToArchive = Configuration.INSTANCE.readInt(ConfigProps.ARCHIVER_MAX_TO_ARCHIVE);
 	}
 
 	/**
@@ -213,8 +219,10 @@ public class ReportsArchiver implements Archiver {
 
 	private void deleteRemoteExecution(ExecutionMetadata e) {
 		if (Configuration.INSTANCE.readBoolean(ConfigProps.ARCHIVER_DELETE_AFTER_ARCHIVE)) {
-			final boolean deleteFromElastic = Configuration.INSTANCE.readBoolean(ConfigProps.ARCHIVER_DELETE_FROM_ELASTIC);
-			log.debug("About to delete execution " + e.getId() + " from main Difido server. Delete from Elastic: " + deleteFromElastic);
+			final boolean deleteFromElastic = Configuration.INSTANCE
+					.readBoolean(ConfigProps.ARCHIVER_DELETE_FROM_ELASTIC);
+			log.debug("About to delete execution " + e.getId() + " from main Difido server. Delete from Elastic: "
+					+ deleteFromElastic);
 			client.delete("/api/executions/" + e.getId() + "?fromElastic=" + deleteFromElastic);
 		}
 	}
@@ -230,11 +238,12 @@ public class ReportsArchiver implements Archiver {
 		final List<ExecutionMetadata> executionsToArchive = remoteExecutions.values().parallelStream()
 				.filter(e -> !e.isActive())
 				.filter(el -> persistency.getAll().stream().noneMatch(er -> er.getId() == el.getId()))
-				.filter(e -> StringUtils.isNotBlank(e.getDate()) &&
-						new Date().getTime() - DateTimeConverter.fromDateString(e.getDate()).toDateObject()
-						.getTime() > minReportsAgeInMillis)
-				.collect(Collectors.toList());
-		log.debug("There are " + executionsToArchive.size() + " that needs to be archived in the remote Difido server");
+				.filter(e -> StringUtils.isNotBlank(e.getDate()) && new Date().getTime() - DateTimeConverter
+						.fromDateString(e.getDate()).toDateObject().getTime() > minReportsAgeInMillis)
+				.limit(maxToArchive).collect(Collectors.toList());
+		log.debug("There are " + executionsToArchive.size()
+				+ " that needs to be archived in the remote Difido server. Max execution number to archive in single itearion is "
+				+ maxToArchive);
 		return executionsToArchive;
 	}
 

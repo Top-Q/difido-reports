@@ -26,9 +26,9 @@ public class ArchivingScheduler {
 	}
 
 	/**
-	 * The archiver will wake up once in every 24 hours
+	 * The archiver will wake up once in every 6 hours
 	 */
-	@Scheduled(fixedRate = 86_400_000)
+	@Scheduled(fixedRate = 21_600_000)
 	public void setExecutionsToNotActive() {
 		if (!enabled) {
 			return;
