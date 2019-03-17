@@ -54,7 +54,8 @@ public enum Configuration {
 		ARCHIVER_ENABLED("archiver.enabled","false"),
 		ARCHIVER_DIFIDO_SERVER("archiver.difido.server",""),
 		ARCHIVER_MIN_REPORTS_AGE("archiver.min.reports.age","10"),
-		ARCHIVER_DELETE_AFTER_ARCHIVE("archiver.delete.after.archive","true");
+		ARCHIVER_DELETE_AFTER_ARCHIVE("archiver.delete.after.archive","true"),
+		ARCHIVER_DELETE_FROM_ELASTIC("archiver.delete.from.elastic","false");
 		// @formatter:off
 
 		private final String propName;

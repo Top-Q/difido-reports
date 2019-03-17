@@ -213,8 +213,9 @@ public class ReportsArchiver implements Archiver {
 
 	private void deleteRemoteExecution(ExecutionMetadata e) {
 		if (Configuration.INSTANCE.readBoolean(ConfigProps.ARCHIVER_DELETE_AFTER_ARCHIVE)) {
-			log.debug("About to delete execution " + e.getId() + " from main Difido server");
-			client.delete("/api/executions/" + e.getId());
+			final boolean deleteFromElastic = Configuration.INSTANCE.readBoolean(ConfigProps.ARCHIVER_DELETE_FROM_ELASTIC);
+			log.debug("About to delete execution " + e.getId() + " from main Difido server. Delete from Elastic: " + deleteFromElastic);
+			client.delete("/api/executions/" + e.getId() + "?fromElastic=" + deleteFromElastic);
 		}
 	}
 
