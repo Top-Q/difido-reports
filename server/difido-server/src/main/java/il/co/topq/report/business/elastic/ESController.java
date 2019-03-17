@@ -223,6 +223,11 @@ public class ESController implements HealthIndicator, InfoContributor {
 		if (!enabled) {
 			return;
 		}
+		if (!executionDeletedEvent.isDeleteFromElastic()) {
+			log.debug("Reqested not to delete Elastic data while deleting execution "
+					+ executionDeletedEvent.getExecutionId() + ". Aborting operation");
+			return;
+		}
 		StopWatch stopWatch = new StopWatch(log).start("Deleting all tests of execution with id "
 				+ executionDeletedEvent.getMetadata().getId() + " from the Elastic");
 
@@ -259,7 +264,7 @@ public class ESController implements HealthIndicator, InfoContributor {
 //			@formatter:on
 
 			} catch (IOException e) {
-				log.warn("Failed to delete test with id: " + test.getUid());
+				log.error("Failed to delete test with id: " + test.getUid(), e);
 				continue;
 			}
 			if (!"deleted".equals(response.get("result").toString())) {

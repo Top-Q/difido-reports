@@ -2,6 +2,7 @@ package il.co.topq.report.front.rest;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -143,8 +144,8 @@ public class ExecutionResource {
 	 */
 	@DELETE
 	@Path("/{execution: [0-9]+}")
-	public void delete(@PathParam("execution") int executionIndex) {
-		log.debug("DELETE - Delete execution with id " + executionIndex);
+	public void delete(@PathParam("execution") int executionIndex, @DefaultValue("true") @QueryParam("fromElastic") boolean deleteFromElastic) {
+		log.debug("DELETE - Delete execution with id " + executionIndex+". Delete from Elastic=" + deleteFromElastic);
 		final ExecutionMetadata executionMetaData = metadataProvider.getMetadata(executionIndex);
 		if (null == executionMetaData) {
 			log.warn("Trying to delete execution with index " + executionIndex + " which is not exist");
@@ -158,7 +159,7 @@ public class ExecutionResource {
 			log.warn("Trying to delete execution with index " + executionIndex + " which is locked");
 			return;
 		}
-		publisher.publishEvent(new ExecutionDeletedEvent(executionIndex, executionMetaData));
+		publisher.publishEvent(new ExecutionDeletedEvent(executionIndex, executionMetaData, deleteFromElastic));
 	}
 
 }
