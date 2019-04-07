@@ -1,5 +1,6 @@
 package il.co.topq.difido.model.remote;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -27,7 +28,7 @@ public class ExecutionDetails {
 	 * Free list of properties that can be specified by the user
 	 */
 	@JsonProperty("executionProperties")
-	private Map<String, String> executionProperties;
+	private HashMap<String, String> executionProperties;
 
 	/**
 	 * Is this execution can be shared between different machines.
@@ -78,11 +79,11 @@ public class ExecutionDetails {
 		this.description = description;
 	}
 
-	public Map<String, String> getExecutionProperties() {
+	public HashMap<String, String> getExecutionProperties() {
 		return executionProperties;
 	}
 
-	public void setExecutionProperties(Map<String, String> executionProperties) {
+	public void setExecutionProperties(HashMap<String, String> executionProperties) {
 		this.executionProperties = executionProperties;
 	}
 

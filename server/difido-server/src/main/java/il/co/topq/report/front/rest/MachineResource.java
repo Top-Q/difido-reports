@@ -22,12 +22,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RestController;
 
+import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.report.StopWatch;
 import il.co.topq.report.business.execution.ExecutionMetadata;
-import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.MachineCreatedEvent;
+import il.co.topq.report.persistence.ExecutionRepository;
+import il.co.topq.report.persistence.MetadataRepository;
 
 @RestController
 @Path("api/executions/{execution}/machines")
@@ -37,12 +39,16 @@ public class MachineResource {
 
 	private final ApplicationEventPublisher publisher;
 
-	private final MetadataProvider metadataProvider;
+	private final ExecutionRepository executionRepository;
+
+	private final MetadataRepository metadataRepository;
 
 	@Autowired
-	public MachineResource(MetadataProvider metadataProvider, ApplicationEventPublisher publisher) {
-		this.metadataProvider = metadataProvider;
+	public MachineResource(ApplicationEventPublisher publisher, ExecutionRepository executionRepository,
+			MetadataRepository metadataRepository) {
 		this.publisher = publisher;
+		this.executionRepository = executionRepository;
+		this.metadataRepository = metadataRepository;
 	}
 
 	@POST
@@ -50,22 +56,20 @@ public class MachineResource {
 	@Produces(MediaType.TEXT_PLAIN)
 	public int addNewMachine(@Context HttpServletRequest request, @PathParam("execution") int executionId,
 			MachineNode machine) {
-		log.debug("POST ("+request.getRemoteAddr()+") - Add new machine to execution " + executionId);
+		log.debug("POST (" + request.getRemoteAddr() + ") - Add new machine to execution " + executionId);
 		if (null == machine) {
 			throw new WebApplicationException("Machine can't be null");
 		}
-		final ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
-		if (null == metadata) {
-			throw new WebApplicationException("Execution with id " + executionId + " is not exist");
-		}
+		final Execution execution = executionRepository.findById(executionId);
+
 		StopWatch stopWatch = newStopWatch(log).start("Adding machine to execution");
-		metadata.getExecution().addMachine(machine);
+		execution.addMachine(machine);
 		stopWatch.stopAndLog();
 
 		stopWatch = newStopWatch(log).start("Publishing machine create event");
-		publisher.publishEvent(new MachineCreatedEvent(metadata, machine));
+		publisher.publishEvent(new MachineCreatedEvent(executionId, machine));
 		stopWatch.stopAndLog();
-		return metadata.getExecution().getMachines().indexOf(machine);
+		return execution.getMachines().indexOf(machine);
 	}
 
 	@PUT
@@ -73,42 +77,41 @@ public class MachineResource {
 	@Path("{machine}")
 	public void updateMachine(@Context HttpServletRequest request, @PathParam("execution") int executionId,
 			@PathParam("machine") int machineId, MachineNode machine) {
-		log.debug("PUT ("+request.getRemoteAddr()+") - Update machine to execution with id " + executionId);
+		log.debug("PUT (" + request.getRemoteAddr() + ") - Update machine to execution with id " + executionId);
 		if (null == machine) {
-			log.error("Request from ("+request.getRemoteAddr()+") to update machine with null machine");
+			log.error("Request from (" + request.getRemoteAddr() + ") to update machine with null machine");
 			throw new WebApplicationException("Machine can't be null");
 		}
-		final ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
-		if (null == metadata) {
-			log.error("Request from ("+request.getRemoteAddr()+") to update machine to execution with id " + executionId + " which is not exist");
-			throw new WebApplicationException("Execution with id " + executionId + " is not exist");
-		}
-		if (null == metadata.getExecution()) {
-			log.error("Request from ("+request.getRemoteAddr()+") to update machine to execution id " + executionId + " which the metadata exists but the execution is null. "
+		final Execution execution = executionRepository.findById(executionId);
+		if (null == execution) {
+			log.error("Request from (" + request.getRemoteAddr() + ") to update machine to execution id " + executionId
+					+ " which the metadata exists but the execution is null. "
 					+ "This can happen due to use trying to update execution that is already done and closed.");
 			throw new WebApplicationException(
 					"Metadata of execution with id " + executionId + " exists but the execution is null");
 		}
-		if (null == metadata.getExecution().getMachines()) {
-			log.error("Request from ("+request.getRemoteAddr()+")  to update machines in execution " + executionId + " while no machines were added");
+		if (null == execution.getMachines()) {
+			log.error("Request from (" + request.getRemoteAddr() + ")  to update machines in execution " + executionId
+					+ " while no machines were added");
 			throw new WebApplicationException(
 					"Trying to update machines in execution " + executionId + "while no machines were added");
 		}
-		if (null == metadata.getExecution().getMachines().get(machineId)) {
-			log.error("Request from ("+request.getRemoteAddr()+") to update none existing machine with id " + machineId + " in execution " + executionId);
+		if (null == execution.getMachines().get(machineId)) {
+			log.error("Request from (" + request.getRemoteAddr() + ") to update none existing machine with id "
+					+ machineId + " in execution " + executionId);
 			throw new WebApplicationException(
 					"Trying to update none existing machine with id " + machineId + " in execution " + executionId);
 		}
 
 		StopWatch stopWatch = newStopWatch(log).start("Updating execution properties as scenario properties");
-		addExecutionProsAsScenarioProps(machine, metadata);
+		addExecutionProsAsScenarioProps(executionId, machine);
 		stopWatch.stopAndLog();
 		stopWatch = newStopWatch(log).start("Updating machine in execution");
-		metadata.getExecution().getMachines().set(machineId, machine);
+		execution.getMachines().set(machineId, machine);
 		stopWatch.stopAndLog();
 
 		stopWatch = newStopWatch(log).start("Publishing machine created event");
-		publisher.publishEvent(new MachineCreatedEvent(metadata, machine));
+		publisher.publishEvent(new MachineCreatedEvent(executionId, machine));
 		stopWatch.stopAndLog();
 	}
 
@@ -123,7 +126,8 @@ public class MachineResource {
 	 * @param metadata
 	 *            The metadata with the current execution properties
 	 */
-	private void addExecutionProsAsScenarioProps(MachineNode machine, final ExecutionMetadata metadata) {
+	private void addExecutionProsAsScenarioProps(int executionId, MachineNode machine) {
+		ExecutionMetadata metadata = metadataRepository.findById(executionId);
 		if (null == metadata.getProperties()) {
 			return;
 		}
@@ -149,15 +153,16 @@ public class MachineResource {
 	@Path("/{machine}")
 	public MachineNode getSingleMachine(@Context HttpServletRequest request, @PathParam("execution") int execution,
 			@PathParam("machine") int machine) {
-		log.debug("GET ("+request.getRemoteAddr()+") - Get machine from execution with id " + execution + " and machine id " + machine);
-		return metadataProvider.getMetadata(execution).getExecution().getMachines().get(machine);
+		log.debug("GET (" + request.getRemoteAddr() + ") - Get machine from execution with id " + execution
+				+ " and machine id " + machine);
+		return executionRepository.findById(execution).getMachines().get(machine);
 	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<MachineNode> getMachines(@Context HttpServletRequest request, @PathParam("execution") int execution) {
-		log.debug("GET ("+request.getRemoteAddr()+") - Get machines from execution with id " + execution);
-		return metadataProvider.getMetadata(execution).getExecution().getMachines();
+		log.debug("GET (" + request.getRemoteAddr() + ") - Get machines from execution with id " + execution);
+		return executionRepository.findById(execution).getMachines();
 	}
 
 }

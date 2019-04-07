@@ -51,7 +51,7 @@ public class TestDetailsResource {
 			log.error("Request from " + request.getRemoteAddr() + " to update test details for execution " + executionId
 					+ " which is null");
 		}
-		publisher.publishEvent(new TestDetailsCreatedEvent(metadata, details));
+		publisher.publishEvent(new TestDetailsCreatedEvent(executionId, details));
 	}
 
 }

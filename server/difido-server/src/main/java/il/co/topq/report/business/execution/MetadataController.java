@@ -34,17 +34,22 @@ import il.co.topq.report.events.ExecutionUpdatedEvent;
 import il.co.topq.report.events.FileAddedToTestEvent;
 import il.co.topq.report.events.MachineCreatedEvent;
 import il.co.topq.report.events.TestDetailsCreatedEvent;
+import il.co.topq.report.persistence.ExecutionRepository;
+import il.co.topq.report.persistence.MetadataRepository;
 
 @Component
 public class MetadataController implements MetadataProvider, MetadataCreator, InfoContributor {
 
 	private final Logger log = LoggerFactory.getLogger(MetadataController.class);
 
-	MetadataPersistency persistency;
+	private MetadataRepository metadataRepository;
+
+	private ExecutionRepository executionRepository;
 
 	@Autowired
-	public MetadataController(MetadataPersistency persistency) {
-		this.persistency = persistency;
+	public MetadataController(MetadataRepository metadataRepository, ExecutionRepository executionRepository) {
+		this.metadataRepository = metadataRepository;
+		this.executionRepository = executionRepository;
 	}
 
 	/**
@@ -60,11 +65,9 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 		StopWatch stopWatch = newStopWatch(log).start("Creating new metadata");
 		Execution execution = new Execution();
 		final Date executionDate = new Date();
-		final ExecutionMetadata metaData = new ExecutionMetadata(fromDateObject(executionDate).toElasticString(),
-				execution);
+		final ExecutionMetadata metaData = new ExecutionMetadata(fromDateObject(executionDate).toElasticString());
 		metaData.setTime(fromDateObject(executionDate).toTimeString());
 		metaData.setDate(fromDateObject(executionDate).toDateString());
-		metaData.setId(persistency.advanceId());
 		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + metaData.getId());
 		metaData.setUri(Common.REPORTS_FOLDER_NAME + "/" + metaData.getFolderName() + "/index.html");
 		metaData.setComment("");
@@ -74,7 +77,8 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 			metaData.setShared(executionDetails.isShared());
 			setAllowedPropertiesToMetaData(metaData, executionDetails);
 		}
-		persistency.add(metaData);
+		metadataRepository.save(metaData);
+		executionRepository.save(metaData.getId(), execution);
 		stopWatch.stopAndLog();
 		return metaData;
 	}
@@ -86,7 +90,8 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 
 	@EventListener
 	public void onExecutionUpdatedEvent(ExecutionUpdatedEvent executionUpdatedEvent) {
-		persistency.update(executionUpdatedEvent.getMetadata());
+
+		metadataRepository.save(executionUpdatedEvent.getMetadata());
 
 		// In some cases the update can be used only to trigger deletion of the
 		// HTML reports and metadata.
@@ -97,7 +102,8 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 
 	private void deleteExecutionMetadata(ExecutionMetadata metadata) {
 		log.debug("About to delete the metadata of execution with id " + metadata.getId());
-		persistency.remove(metadata.getId());
+		metadataRepository.delete(metadata.getId());
+		executionRepository.delete(metadata.getId());
 		log.debug("Metadata of execution with id " + metadata.getId() + " was deleted");
 	}
 
@@ -124,7 +130,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 
 	@Override
 	public ExecutionMetadata getMetadata(int executionId) {
-		final ExecutionMetadata executionMetaData = persistency.get(executionId);
+		final ExecutionMetadata executionMetaData = metadataRepository.findById(executionId);
 		if (null == executionMetaData) {
 			log.error("Trying to get execution meta data of execution " + executionId + " which is not exist");
 			return null;
@@ -136,10 +142,11 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 	}
 
 	private void updateSingleExecutionMeta(int executionId) {
-		ExecutionMetadata executionMetaData = persistency.get(executionId);
+		ExecutionMetadata executionMetaData = metadataRepository.findById(executionId);
 		updateDuration(executionMetaData);
+		Execution execution = executionRepository.findById(executionId);
 
-		if (executionMetaData.getExecution() == null || executionMetaData.getExecution().getLastMachine() == null) {
+		if (execution == null || execution.getLastMachine() == null) {
 			return;
 		}
 		int numOfTests = 0;
@@ -148,7 +155,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 		int numOfTestsWithWarnings = 0;
 		int numOfMachines = 0;
 
-		for (MachineNode machine : executionMetaData.getExecution().getMachines()) {
+		for (MachineNode machine : execution.getMachines()) {
 			numOfMachines++;
 			final List<ScenarioNode> scenarios = machine.getChildren();
 			if (null == scenarios) {
@@ -190,7 +197,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 			executionMetaData.setNumOfTestsWithWarnings(numOfTestsWithWarnings);
 			executionMetaData.setNumOfMachines(numOfMachines);
 		}
-		persistency.update(executionMetaData);
+		metadataRepository.save(executionMetaData);
 
 	}
 
@@ -213,7 +220,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 
 	@Override
 	public ExecutionMetadata[] getAllMetaData() {
-		final List<ExecutionMetadata> result = persistency.getAll();
+		final List<ExecutionMetadata> result = metadataRepository.findAll();
 		for (ExecutionMetadata meta : result) {
 			if (meta.isActive()) {
 				updateSingleExecutionMeta(meta.getId());
@@ -230,10 +237,9 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 	 */
 	@Override
 	public ExecutionMetadata getShared() {
-		for (ExecutionMetadata meta : persistency.getAll()) {
-			if (meta.isActive() && meta.isShared()) {
-				return meta;
-			}
+		List<ExecutionMetadata> sharedAndActive = metadataRepository.findBySharedIsTrueAndActiveIsTrue();
+		if (!sharedAndActive.isEmpty()) {
+			return sharedAndActive.get(0);
 		}
 		return null;
 
@@ -241,7 +247,7 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 
 	@EventListener
 	public void onExecutionEndedEvent(ExecutionEndedEvent executionEndedEvent) {
-		final ExecutionMetadata metadata = persistency.get(executionEndedEvent.getExecutionId());
+		final ExecutionMetadata metadata = metadataRepository.findById(executionEndedEvent.getExecutionId());
 		if (null == metadata) {
 			log.error("Trying to disable execution with id " + executionEndedEvent.getExecutionId()
 					+ " which is not exist");
@@ -251,17 +257,16 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 		updateExecutionLastUpdateTime(executionEndedEvent.getExecutionId());
 		updateSingleExecutionMeta(metadata.getId());
 		metadata.setActive(false);
-		persistency.update(metadata);
+		metadataRepository.save(metadata);
 	}
 
 	private void updateExecutionLastUpdateTime(int executionId) {
-		final ExecutionMetadata metadata = persistency.get(executionId);
+		final ExecutionMetadata metadata = metadataRepository.findById(executionId);
 		if (null == metadata) {
 			log.error("Trying to update machine in execution with id " + executionId + " which is not exist");
 		}
 		metadata.setLastAccessedTime(System.currentTimeMillis());
-		// We do not need to update the persistence. It is important only on
-		// object level
+		metadataRepository.save(metadata);
 	}
 
 	@EventListener
@@ -277,10 +282,8 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 	 * Updates the state of all the active executions.
 	 */
 	private void updateAllExecutionsMetaData() {
-		for (ExecutionMetadata meta : persistency.getAll()) {
-			if (meta.isActive()) {
-				updateSingleExecutionMeta(meta.getId());
-			}
+		for (ExecutionMetadata meta : metadataRepository.findByActive(true)) {
+			updateSingleExecutionMeta(meta.getId());
 
 		}
 	}
@@ -303,8 +306,8 @@ public class MetadataController implements MetadataProvider, MetadataCreator, In
 	@Override
 	public void contribute(Builder builder) {
 		Map<String, Integer> metadataDetails = new HashMap<>();
-		metadataDetails.put("existing executions", persistency.getAll().size());
-		metadataDetails.put("active executions", (int) persistency.getAll().stream().filter(e -> e.isActive()).count());
+		metadataDetails.put("existing executions", (int) metadataRepository.count());
+		metadataDetails.put("active executions", (int) metadataRepository.findByActive(true).size());
 		builder.withDetail("metadata controller", metadataDetails);
 	}
 

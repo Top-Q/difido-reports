@@ -4,8 +4,15 @@ import il.co.topq.report.business.execution.ExecutionMetadata;
 
 public class ExecutionUpdatedEvent extends AbsMetadataEvent {
 
-	public ExecutionUpdatedEvent(ExecutionMetadata metadata) {
-		super(metadata);
+	private final ExecutionMetadata executionMetadata;
+	
+	public ExecutionUpdatedEvent(ExecutionMetadata executionMetadata) {
+		super(executionMetadata.getId());
+		this.executionMetadata = executionMetadata;
+	}
+
+	public ExecutionMetadata getExecutionMetadata() {
+		return executionMetadata;
 	}
 
 }

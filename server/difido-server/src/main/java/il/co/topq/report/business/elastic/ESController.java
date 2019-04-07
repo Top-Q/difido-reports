@@ -19,6 +19,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.info.InfoContributor;
@@ -41,6 +42,7 @@ import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionDeletedEvent;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.events.MachineCreatedEvent;
+import il.co.topq.report.persistence.ExecutionRepository;
 
 /**
  * 
@@ -65,6 +67,9 @@ public class ESController implements HealthIndicator, InfoContributor {
 	private static boolean storeOnlyAtEnd;
 
 	ESClient client;
+	
+	@Autowired
+	private ExecutionRepository executionRepository;
 
 	public ESController() {
 		enabled = Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED);
@@ -283,7 +288,7 @@ public class ESController implements HealthIndicator, InfoContributor {
 		if (!enabled) {
 			return;
 		}
-		for (MachineNode machineNode : executionEndedEvent.getMetadata().getExecution().getMachines()) {
+		for (MachineNode machineNode : executionRepository.findById(executionEndedEvent.getExecutionId()).getMachines()) {
 			saveDirtyTests(executionEndedEvent.getMetadata(), machineNode);
 		}
 		updateExecutionDuration(executionEndedEvent.getMetadata().getId(),

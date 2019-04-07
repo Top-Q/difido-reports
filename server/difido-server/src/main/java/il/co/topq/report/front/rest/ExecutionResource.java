@@ -28,6 +28,7 @@ import il.co.topq.report.events.ExecutionCreatedEvent;
 import il.co.topq.report.events.ExecutionDeletedEvent;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.events.ExecutionUpdatedEvent;
+import il.co.topq.report.persistence.ExecutionRepository;
 
 @RestController
 @Path("api/executions")
@@ -43,7 +44,7 @@ public class ExecutionResource {
 
 	@Autowired
 	public ExecutionResource(ApplicationEventPublisher publisher, MetadataProvider metadataProvider,
-			MetadataCreator metadataCreator) {
+			MetadataCreator metadataCreator, ExecutionRepository executionRepository) {
 		this.publisher = publisher;
 		this.metadataCreator = metadataCreator;
 		this.metadataProvider = metadataProvider;
@@ -113,7 +114,7 @@ public class ExecutionResource {
 		if (active != null && !active) {
 			// TODO: This should be changed to use the executionUpdatedEvent for
 			// consistency
-			publisher.publishEvent(new ExecutionEndedEvent(executionMetadata));
+			publisher.publishEvent(new ExecutionEndedEvent(executionIndex));
 		}
 
 		if (locked != null) {
@@ -175,7 +176,7 @@ public class ExecutionResource {
 					+ " which is locked");
 			return;
 		}
-		publisher.publishEvent(new ExecutionDeletedEvent(executionIndex, executionMetaData, deleteFromElastic));
+		publisher.publishEvent(new ExecutionDeletedEvent(executionIndex, deleteFromElastic));
 	}
 
 }

@@ -8,8 +8,15 @@ import il.co.topq.report.business.execution.ExecutionMetadata;
  */
 public class ExecutionCreatedEvent extends AbsMetadataEvent {
 
+	private final ExecutionMetadata executionMetaData;
+
 	public ExecutionCreatedEvent(ExecutionMetadata executionMetaData) {
-		super(executionMetaData);
+		super(executionMetaData.getId());
+		this.executionMetaData = executionMetaData;
+	}
+
+	public ExecutionMetadata getExecutionMetaData() {
+		return executionMetaData;
 	}
 
 }

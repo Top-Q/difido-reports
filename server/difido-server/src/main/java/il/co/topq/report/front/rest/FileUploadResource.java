@@ -50,7 +50,7 @@ public class FileUploadResource {
 							+ "failed since metadata is null");
 				}
 				publisher.publishEvent(
-						new FileAddedToTestEvent(metadata, uid, file.getBytes(), file.getOriginalFilename()));
+						new FileAddedToTestEvent(execution, uid, file.getBytes(), file.getOriginalFilename()));
 			} catch (IOException e1) {
 				log.warn("Request from " + request.getRemoteAddr() + " to get content of file with name "
 						+ file.getOriginalFilename() + " failed", e1);
