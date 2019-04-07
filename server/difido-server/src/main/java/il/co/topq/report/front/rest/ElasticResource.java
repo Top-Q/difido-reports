@@ -3,7 +3,9 @@ package il.co.topq.report.front.rest;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
@@ -47,11 +49,11 @@ public class ElasticResource {
 	}
 
 	@RequestMapping(consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON, value = "api/elastic/{index}/{doc}", method = RequestMethod.POST)
-	public String post(@DefaultValue("report") @PathVariable("index") String index,
+	public String post(@Context HttpServletRequest request, @DefaultValue("report") @PathVariable("index") String index,
 			@DefaultValue("test") @PathVariable("doc") String doc, @RequestBody String body) {
-		log.debug("PUT - Query from Elastic");
+		log.debug("PUT (" + request.getRemoteAddr() + ") - Query from Elastic");
 		if (!enabled) {
-			log.debug("Elastic is disabled. aborting");
+			log.warn("Aborting request from " + request.getRemoteAddr() + " to post to Elastic since it is disabled");
 			return "";
 		}
 		ResponseEntity<String> response = null;
@@ -60,7 +62,8 @@ public class ElasticResource {
 					String.class);
 
 		} catch (RestClientException e) {
-			log.warn("Failed to connect to Kibana");
+			log.warn("Aborting request from " + request.getRemoteAddr()
+					+ " to post to Elastic since no connection can be established");
 			return "";
 		}
 

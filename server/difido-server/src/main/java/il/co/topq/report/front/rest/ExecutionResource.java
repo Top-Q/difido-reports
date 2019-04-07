@@ -1,5 +1,6 @@
 package il.co.topq.report.front.rest;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -10,6 +11,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
@@ -38,7 +40,7 @@ public class ExecutionResource {
 	private final MetadataProvider metadataProvider;
 
 	private final MetadataCreator metadataCreator;
-	
+
 	@Autowired
 	public ExecutionResource(ApplicationEventPublisher publisher, MetadataProvider metadataProvider,
 			MetadataCreator metadataCreator) {
@@ -53,17 +55,18 @@ public class ExecutionResource {
 	public ExecutionMetadata getMetadata(@PathParam("execution") int execution) {
 		return metadataProvider.getMetadata(execution);
 	}
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
-	public int post(ExecutionDetails executionDetails) {
+	public int post(@Context HttpServletRequest request, ExecutionDetails executionDetails) {
 		ExecutionMetadata metadata = null;
-		log.debug("POST - Adding new execution");
+		log.debug("POST (" + request.getRemoteAddr() + ") - Adding new execution ");
 		if (executionDetails != null && executionDetails.isShared() && !executionDetails.isForceNew()) {
 			metadata = metadataProvider.getShared();
 			if (null == metadata) {
-				log.debug("POST - Could not find an active shared execution. Creating a new execution");
+				log.debug("POST (" + request.getRemoteAddr()
+						+ ") - Could not find an active shared execution. Creating a new execution");
 				metadata = metadataCreator.createMetadata(executionDetails);
 			}
 		} else {
@@ -75,24 +78,35 @@ public class ExecutionResource {
 	}
 
 	/**
-	 * Used to update that a single execution should not be active any more. This is Irreversible.
-	 * Also allows updating the execution description & comment through the metadata parameter
+	 * Used to update that a single execution should not be active any more.
+	 * This is Irreversible. Also allows updating the execution description &
+	 * comment through the metadata parameter
 	 * 
-	 * @param executionIndex - the id of the execution
-	 * @param active - Set to not active
-	 * @param locked - Set the execution to locked. Will no be deleted
-	 * @param metadataStr - String of key-value pairs to allow updating execution description, comment and possibly other parameters in the future, 
+	 * @param executionIndex
+	 *            - the id of the execution
+	 * @param active
+	 *            - Set to not active
+	 * @param locked
+	 *            - Set the execution to locked. Will no be deleted
+	 * @param metadataStr
+	 *            - String of key-value pairs to allow updating execution
+	 *            description, comment and possibly other parameters in the
+	 *            future,
 	 */
 	@PUT
 	@Path("/{execution: [0-9]+}")
-	public void put(@PathParam("execution") int executionIndex, @QueryParam("active") Boolean active, @QueryParam("locked") Boolean locked, @QueryParam("metadata") String metadataStr) {
-		
-		log.debug("PUT - Upating execution with id " + executionIndex + ". to active: " + active + ", locked: " + locked + ", metadata: " + metadataStr);
+	public void put(@Context HttpServletRequest request, @PathParam("execution") int executionIndex,
+			@QueryParam("active") Boolean active, @QueryParam("locked") Boolean locked,
+			@QueryParam("metadata") String metadataStr) {
+
+		log.debug("PUT (" + request.getRemoteAddr() + ") - Upating execution with id " + executionIndex
+				+ ". to active: " + active + ", locked: " + locked + ", metadata: " + metadataStr);
 
 		final ExecutionMetadata executionMetadata = metadataProvider.getMetadata(executionIndex);
-		
+
 		if (null == executionMetadata) {
-			log.warn("Trying to update state of execution with id " + executionIndex + " which is not exist");
+			log.warn("Request from " + request.getRemoteAddr() + " to update the state of execution with id "
+					+ executionIndex + " which is not exist");
 			return;
 		}
 
@@ -101,37 +115,34 @@ public class ExecutionResource {
 			// consistency
 			publisher.publishEvent(new ExecutionEndedEvent(executionMetadata));
 		}
-		
+
 		if (locked != null) {
 			executionMetadata.setLocked(locked);
 			publisher.publishEvent(new ExecutionUpdatedEvent(executionMetadata));
 		}
-		
+
 		if (metadataStr != null) {
-			
+
 			String[] keyValuePairs = metadataStr.split("\\\\;");
 
 			for (String keyValuePair : keyValuePairs) {
 				String[] keyValueSplit = keyValuePair.split("\\\\=");
-				
+
 				if (keyValueSplit[0].equalsIgnoreCase("description")) {
 					if (keyValueSplit.length > 1 && !keyValueSplit[1].trim().equals("")) {
 						executionMetadata.setDescription(keyValueSplit[1]);
-					}
-					else {
+					} else {
 						executionMetadata.setDescription("");
 					}
-				}
-				else if (keyValueSplit[0].equalsIgnoreCase("comment") ) {
+				} else if (keyValueSplit[0].equalsIgnoreCase("comment")) {
 					if (keyValueSplit.length > 1 && !keyValueSplit[1].trim().equals("")) {
 						executionMetadata.setComment(keyValueSplit[1]);
-					}
-					else {
+					} else {
 						executionMetadata.setComment("");
 					}
 				}
 			}
-			
+
 			publisher.publishEvent(new ExecutionUpdatedEvent(executionMetadata));
 		}
 	}
@@ -144,19 +155,24 @@ public class ExecutionResource {
 	 */
 	@DELETE
 	@Path("/{execution: [0-9]+}")
-	public void delete(@PathParam("execution") int executionIndex, @DefaultValue("true") @QueryParam("fromElastic") boolean deleteFromElastic) {
-		log.debug("DELETE - Delete execution with id " + executionIndex+". Delete from Elastic=" + deleteFromElastic);
+	public void delete(@Context HttpServletRequest request, @PathParam("execution") int executionIndex,
+			@DefaultValue("true") @QueryParam("fromElastic") boolean deleteFromElastic) {
+		log.debug("DELETE  (" + request.getRemoteAddr() + ") - Delete execution with id " + executionIndex
+				+ ". Delete from Elastic=" + deleteFromElastic);
 		final ExecutionMetadata executionMetaData = metadataProvider.getMetadata(executionIndex);
 		if (null == executionMetaData) {
-			log.warn("Trying to delete execution with index " + executionIndex + " which is not exist");
+			log.warn("Request from " + request.getRemoteAddr() + " to delete execution with index " + executionIndex
+					+ " which is not exist");
 			return;
 		}
 		if (executionMetaData.isActive()) {
-			log.warn("Trying to delete execution with index " + executionIndex + " which is still active");
+			log.warn("Request from " + request.getRemoteAddr() + " to delete execution with index " + executionIndex
+					+ " which is still active");
 			return;
 		}
 		if (executionMetaData.isLocked()) {
-			log.warn("Trying to delete execution with index " + executionIndex + " which is locked");
+			log.warn("Request from " + request.getRemoteAddr() + " to delete execution with index " + executionIndex
+					+ " which is locked");
 			return;
 		}
 		publisher.publishEvent(new ExecutionDeletedEvent(executionIndex, executionMetaData, deleteFromElastic));

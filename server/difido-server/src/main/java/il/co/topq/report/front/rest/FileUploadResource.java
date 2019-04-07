@@ -2,6 +2,9 @@ package il.co.topq.report.front.rest;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,19 +38,22 @@ public class FileUploadResource {
 	}
 
 	@RequestMapping(value = "/api/executions/{execution}/details/{uid}/file", method = RequestMethod.POST)
-	public @ResponseBody void handleFileUpload(@PathVariable int execution, @PathVariable String uid,
-			@RequestParam("file") MultipartFile file) {
-		log.debug("POST - Attach file '" + file.getName() + "' to test with uid " + uid + " in execution " + execution);
+	public @ResponseBody void handleFileUpload(@Context HttpServletRequest request, @PathVariable int execution,
+			@PathVariable String uid, @RequestParam("file") MultipartFile file) {
+		log.debug("POST (" + request.getRemoteAddr() + ") - Attach file '" + file.getName() + "' to test with uid "
+				+ uid + " in execution " + execution);
 		if (!file.isEmpty()) {
 			try {
 				final ExecutionMetadata metadata = metadataProvider.getMetadata(execution);
 				if (null == metadata) {
-					log.warn("Trying to add file to execution with id " + execution + " which is not exists");
+					log.warn("Request from " + request.getRemoteAddr() + " to add file to execution " + execution
+							+ "failed since metadata is null");
 				}
 				publisher.publishEvent(
 						new FileAddedToTestEvent(metadata, uid, file.getBytes(), file.getOriginalFilename()));
 			} catch (IOException e1) {
-				log.warn("Failed get content of file with name " + file.getOriginalFilename());
+				log.warn("Request from " + request.getRemoteAddr() + " to get content of file with name "
+						+ file.getOriginalFilename() + " failed", e1);
 			}
 		}
 	}

@@ -4,6 +4,7 @@ import static il.co.topq.report.StopWatch.newStopWatch;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -12,6 +13,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
@@ -46,8 +48,9 @@ public class MachineResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
-	public int addNewMachine(@PathParam("execution") int executionId, MachineNode machine) {
-		log.debug("POST - Add new machine to execution " + executionId);
+	public int addNewMachine(@Context HttpServletRequest request, @PathParam("execution") int executionId,
+			MachineNode machine) {
+		log.debug("POST ("+request.getRemoteAddr()+") - Add new machine to execution " + executionId);
 		if (null == machine) {
 			throw new WebApplicationException("Machine can't be null");
 		}
@@ -68,32 +71,31 @@ public class MachineResource {
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("{machine}")
-	public void updateMachine(@PathParam("execution") int executionId, @PathParam("machine") int machineId,
-			MachineNode machine) {
-		log.debug("PUT - Update machine to execution with id " + executionId);
+	public void updateMachine(@Context HttpServletRequest request, @PathParam("execution") int executionId,
+			@PathParam("machine") int machineId, MachineNode machine) {
+		log.debug("PUT ("+request.getRemoteAddr()+") - Update machine to execution with id " + executionId);
 		if (null == machine) {
-			log.error("Trying to update machine with null machine");
+			log.error("Request from ("+request.getRemoteAddr()+") to update machine with null machine");
 			throw new WebApplicationException("Machine can't be null");
 		}
 		final ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
 		if (null == metadata) {
-			log.error("Execution with id " + executionId + " is not exist");
+			log.error("Request from ("+request.getRemoteAddr()+") to update machine to execution with id " + executionId + " which is not exist");
 			throw new WebApplicationException("Execution with id " + executionId + " is not exist");
 		}
 		if (null == metadata.getExecution()) {
-			log.error("Metadata of execution with id " + executionId
-					+ " exists but the execution is null. "
+			log.error("Request from ("+request.getRemoteAddr()+") to update machine to execution id " + executionId + " which the metadata exists but the execution is null. "
 					+ "This can happen due to use trying to update execution that is already done and closed.");
 			throw new WebApplicationException(
 					"Metadata of execution with id " + executionId + " exists but the execution is null");
 		}
 		if (null == metadata.getExecution().getMachines()) {
-			log.error("Trying to update machines in execution " + executionId + "while no machines were added");
+			log.error("Request from ("+request.getRemoteAddr()+")  to update machines in execution " + executionId + " while no machines were added");
 			throw new WebApplicationException(
 					"Trying to update machines in execution " + executionId + "while no machines were added");
 		}
 		if (null == metadata.getExecution().getMachines().get(machineId)) {
-			log.error("Trying to update none existing machine with id " + machineId + " in execution " + executionId);
+			log.error("Request from ("+request.getRemoteAddr()+") to update none existing machine with id " + machineId + " in execution " + executionId);
 			throw new WebApplicationException(
 					"Trying to update none existing machine with id " + machineId + " in execution " + executionId);
 		}
@@ -145,15 +147,16 @@ public class MachineResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{machine}")
-	public MachineNode getSingleMachine(@PathParam("execution") int execution, @PathParam("machine") int machine) {
-		log.debug("GET - Get machine from execution with id " + execution + " and machine id " + machine);
+	public MachineNode getSingleMachine(@Context HttpServletRequest request, @PathParam("execution") int execution,
+			@PathParam("machine") int machine) {
+		log.debug("GET ("+request.getRemoteAddr()+") - Get machine from execution with id " + execution + " and machine id " + machine);
 		return metadataProvider.getMetadata(execution).getExecution().getMachines().get(machine);
 	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<MachineNode> getMachines(@PathParam("execution") int execution) {
-		log.debug("GET - Get machines from execution with id " + execution);
+	public List<MachineNode> getMachines(@Context HttpServletRequest request, @PathParam("execution") int execution) {
+		log.debug("GET ("+request.getRemoteAddr()+") - Get machines from execution with id " + execution);
 		return metadataProvider.getMetadata(execution).getExecution().getMachines();
 	}
 

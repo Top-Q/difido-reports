@@ -3,12 +3,14 @@ package il.co.topq.report.front.rest;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
@@ -54,9 +56,9 @@ public class PluginResource {
 	@POST
 	@Path("{plugin}")
 	@Produces(MediaType.TEXT_HTML)
-	public String post(@PathParam("plugin") String plugin, @QueryParam("executions") List<Integer> executions,
+	public String post(@Context HttpServletRequest request, @PathParam("plugin") String plugin, @QueryParam("executions") List<Integer> executions,
 			@QueryParam("params") String params) {
-		log.debug("POST - Execute plugin " + plugin + "(" + params + ") on " + executions.size() + " execution(s)");
+		log.debug("POST ("+request.getRemoteAddr()+") - Execute plugin " + plugin + "(" + params + ") on " + executions.size() + " execution(s)");
 		final List<ExecutionMetadata> metaDataList = new ArrayList<ExecutionMetadata>();
 		if (executions != null) {
 			for (int executionId : executions) {
@@ -79,8 +81,8 @@ public class PluginResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<String> getPluginNames() {
-		log.debug("GET - Getting the list of all plugins");
+	public List<String> getPluginNames(@Context HttpServletRequest request) {
+		log.debug("GET ("+request.getRemoteAddr()+") - Getting the list of all plugins");
 		return pluginController.getPluginNames();
 	}
 

@@ -9,11 +9,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -58,8 +60,8 @@ public class ReportsResource {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public DataTable get() {
-		log.debug("GET - Get all reports");
+	public DataTable get(@Context HttpServletRequest request) {
+		log.debug("GET (" + request.getRemoteAddr() + ") - Get all reports");
 		StopWatch stopWatch = new StopWatch(log).start("Getting all metaData");
 		final ExecutionMetadata[] metaDataArr = metadataProvider.getAllMetaData();
 		stopWatch.stopAndLog();
@@ -80,11 +82,13 @@ public class ReportsResource {
 	@GET
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
 	@Path("/{execution: [0-9]+}")
-	public Response getReportAsZip(@PathParam("execution") int executionId) {
-		log.debug("GET - Recieved request for getting execution " + executionId + " as ZIP");
+	public Response getReportAsZip(@Context HttpServletRequest request, @PathParam("execution") int executionId) {
+		log.debug("GET (" + request.getRemoteAddr() + ") - Recieved request for getting execution " + executionId
+				+ " as ZIP");
 		final ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
 		if (null == metadata) {
-			log.error("No execution with id " + executionId + " was found");
+			log.error("Request from " + request.getRemoteAddr() + " to get report as ZIP of execution id " + executionId
+					+ " failed since metadata is null");
 			return null;
 		}
 		StopWatch stopWatch = new StopWatch(log).start("Archiving HTML reports");
@@ -115,12 +119,14 @@ public class ReportsResource {
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/{execution: [0-9]+}/size")
-	public long getReportSize(@PathParam("execution") int executionId) {
-		log.debug("GET - Recieved request for getting the size of execution " + executionId + " folder");
+	public long getReportSize(@Context HttpServletRequest request, @PathParam("execution") int executionId) {
+		log.debug("GET (" + request.getRemoteAddr() + ")- Recieved request for getting the size of execution "
+				+ executionId + " folder");
 		final ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
 		long size = 0;
 		if (null == metadata) {
-			log.error("No execution with id " + executionId + " was found");
+			log.error("Request from " + request.getRemoteAddr() + " to get report size of execution with id "
+					+ executionId + " failed since to metadata was found");
 			return size;
 		}
 		StopWatch stopWatch = new StopWatch(log).start("Calculating reports folder size");
@@ -133,7 +139,8 @@ public class ReportsResource {
 			}
 			size = FileUtils.sizeOfDirectory(executionFolder);
 			if (0 == size) {
-				log.error("Failed calculating folder size. Check if folder is restricted");
+				log.error("Request from " + request.getRemoteAddr()
+						+ " to calculate folder size failed. Check if folder is restricted");
 			}
 
 		} finally {

@@ -1,10 +1,12 @@
 package il.co.topq.report.front.rest;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
@@ -37,15 +39,17 @@ public class TestDetailsResource {
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void post(@PathParam("execution") int executionId, TestDetails details) {
-		log.debug("POST - Add execution details to execution with id " + executionId);
+	public void post(@Context HttpServletRequest request, @PathParam("execution") int executionId,
+			TestDetails details) {
+		log.debug("POST (" + request.getRemoteAddr() + ") - Add execution details to execution with id " + executionId);
 		if (null == details) {
-			log.error("Details can't be null");
+			log.error("Request from " + request.getRemoteAddr() + " to update null details");
 			throw new WebApplicationException("Details can't be null");
 		}
 		ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
 		if (null == metadata) {
-			log.error("Can't update test details for execution " + executionId + " which is null");
+			log.error("Request from " + request.getRemoteAddr() + " to update test details for execution " + executionId
+					+ " which is null");
 		}
 		publisher.publishEvent(new TestDetailsCreatedEvent(metadata, details));
 	}
