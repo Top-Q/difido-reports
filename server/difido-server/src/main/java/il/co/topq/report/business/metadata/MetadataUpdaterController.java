@@ -59,12 +59,16 @@ public class MetadataUpdaterController  implements InfoContributor {
 
 	@EventListener
 	public void onTestDetailsCreatedEvent(TestDetailsCreatedEvent testDetailsCreatedEvent) {
-		updateSingleExecutionMetaAndSave(testDetailsCreatedEvent.getExecutionId());
+		final ExecutionMetadata metadata = metadataRepository.findById(testDetailsCreatedEvent.getExecutionId());
+		updateExecutionLastUpdateTime(metadata);
+		metadataRepository.save(metadata);
 	}
 
 	@EventListener
 	public void onFileAddedToTestEvent(FileAddedToTestEvent fileAddedToTestEvent) {
-		updateSingleExecutionMetaAndSave(fileAddedToTestEvent.getExecutionId());
+		final ExecutionMetadata metadata = metadataRepository.findById(fileAddedToTestEvent.getExecutionId());
+		updateExecutionLastUpdateTime(metadata);
+		metadataRepository.save(metadata);
 	}
 	
 	@EventListener

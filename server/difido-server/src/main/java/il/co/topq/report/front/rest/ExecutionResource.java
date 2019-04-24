@@ -236,9 +236,9 @@ public class ExecutionResource {
 			return;
 		}
 		
+		publisher.publishEvent(new ExecutionDeletedEvent(executionId, deleteFromElastic));
 		metadataRepository.delete(executionMetaData);
 		executionRepository.delete(executionId);
-		publisher.publishEvent(new ExecutionDeletedEvent(executionId, deleteFromElastic));
 	}
 
 }
