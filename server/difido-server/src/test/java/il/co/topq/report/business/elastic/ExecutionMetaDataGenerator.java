@@ -70,7 +70,7 @@ class ExecutionMetaDataGenerator {
 	static ExecutionMetadata generateExecutionMetadata(int numOfMachinesInExecution, int numOfScenariosInMachine, int numOfTestsInScneario){
 		ExecutionMetadata executionMetaData = new ExecutionMetadata();
 		executionMetaData.setId(executionId++);
-		executionMetaData.setExecution(generateExecution(numOfMachinesInExecution, numOfScenariosInMachine, numOfTestsInScneario));
+//		executionMetaData.setExecution(generateExecution(numOfMachinesInExecution, numOfScenariosInMachine, numOfTestsInScneario));
 		executionMetaData.setActive(true);
 		executionMetaData.setDate("16/10/2016");
 		executionMetaData.setFolderName(new File(".").getAbsolutePath());

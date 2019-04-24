@@ -23,6 +23,7 @@ import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Application;
 import il.co.topq.report.business.elastic.ESController;
 import il.co.topq.report.front.rest.DifidoClient;
+import il.co.topq.report.persistence.MetadataRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = Application.class,webEnvironment = WebEnvironment.DEFINED_PORT)
@@ -38,7 +39,7 @@ public abstract class AbstractResourceTest {
 	protected DifidoClient client;
 
 	@Autowired
-	private MetadataController executionManager;
+	private MetadataRepository metadataRepository;
 
 	@Before
 	public void setUp() throws Exception {
@@ -65,7 +66,7 @@ public abstract class AbstractResourceTest {
 			}
 			FileUtils.deleteDirectory(reportsFolder);
 		}
-		executionManager.persistency.dump();
+		metadataRepository.deleteAll();
 	}
 
 	protected static Execution getExecution() {

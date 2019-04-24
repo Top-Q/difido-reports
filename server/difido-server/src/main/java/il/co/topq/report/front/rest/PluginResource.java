@@ -19,8 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
 import il.co.topq.report.business.execution.ExecutionMetadata;
-import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.business.plugins.PluginController;
+import il.co.topq.report.persistence.MetadataRepository;
 
 @RestController
 @Path("api/plugins")
@@ -30,12 +30,12 @@ public class PluginResource {
 
 	private PluginController pluginController;
 
-	private final MetadataProvider metadataProvider;
+	private final MetadataRepository metadataRepository;
 
 	@Autowired
-	public PluginResource(PluginController pluginController, MetadataProvider metadataProvider) {
+	public PluginResource(PluginController pluginController, MetadataRepository metadataRepository) {
 		this.pluginController = pluginController;
-		this.metadataProvider = metadataProvider;
+		this.metadataRepository = metadataRepository;
 	}
 
 	/**
@@ -62,7 +62,7 @@ public class PluginResource {
 		final List<ExecutionMetadata> metaDataList = new ArrayList<ExecutionMetadata>();
 		if (executions != null) {
 			for (int executionId : executions) {
-				final ExecutionMetadata metaData = metadataProvider.getMetadata(executionId);
+				final ExecutionMetadata metaData = metadataRepository.findById(executionId);
 				if (metaData != null) {
 					metaDataList.add(metaData);
 

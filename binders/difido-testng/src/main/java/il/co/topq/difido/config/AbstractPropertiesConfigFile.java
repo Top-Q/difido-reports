@@ -96,9 +96,9 @@ public abstract class AbstractPropertiesConfigFile {
 		return valueList;
 	}
 
-	public Map<String, String> getPropertyAsMap(ConfigOptions option) {
+	public HashMap<String, String> getPropertyAsMap(ConfigOptions option) {
 		final String value = getPropertyAsString(option);
-		Map<String, String> valueMap = new HashMap<String, String>();
+		HashMap<String, String> valueMap = new HashMap<String, String>();
 		if (value == null || value.isEmpty()) {
 			return valueMap;
 		}

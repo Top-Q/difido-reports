@@ -60,7 +60,7 @@ public class EsControllerElasticIntegrationIT {
 	@Test
 	public void testAddExecution() throws Exception {
 		ExecutionMetadata metaData = ExecutionMetaDataGenerator.generateExecutionMetadata(1, 2, 10);
-		ExecutionEndedEvent event = new ExecutionEndedEvent(metaData);
+		ExecutionEndedEvent event = new ExecutionEndedEvent(metaData.getId());
 		escontroller.onExecutionEndedEvent(event);
 		Thread.sleep(1000);
 //		@formatter:off

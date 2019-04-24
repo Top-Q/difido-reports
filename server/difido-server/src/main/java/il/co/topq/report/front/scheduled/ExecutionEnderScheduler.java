@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.business.execution.ExecutionMetadata;
-import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.ExecutionEndedEvent;
+import il.co.topq.report.persistence.MetadataRepository;
 
 @Component
 public class ExecutionEnderScheduler {
@@ -21,14 +21,14 @@ public class ExecutionEnderScheduler {
 	private static int maxExecutionIdleTimeout = 0;
 
 	private static boolean enabled;
-	
-	private final MetadataProvider metadataProvider;
-	
+
 	private final ApplicationEventPublisher publisher;
 
+	private final MetadataRepository metadataRepository;
+
 	@Autowired
-	public ExecutionEnderScheduler(MetadataProvider metadataProvider, ApplicationEventPublisher publisher) {
-		this.metadataProvider = metadataProvider;
+	public ExecutionEnderScheduler(MetadataRepository metadataRepository, ApplicationEventPublisher publisher) {
+		this.metadataRepository = metadataRepository;
 		this.publisher = publisher;
 	}
 
@@ -46,19 +46,16 @@ public class ExecutionEnderScheduler {
 			return;
 		}
 		log.trace("Waking up in order to search for executions that need to end");
-		final ExecutionMetadata[] metaDataArr = metadataProvider.getAllMetaData();
+		final ExecutionMetadata[] metaDataArr = metadataRepository.findByActive(true)
+				.toArray(new ExecutionMetadata[] {});
 		for (ExecutionMetadata meta : metaDataArr) {
-			if (!meta.isActive()) {
-				continue;
-			}
 			final int idleTime = (int) (System.currentTimeMillis() - meta.getLastAccessedTime()) / 1000;
-			if (null == meta.getExecution()) {
-				log.warn("Active meta data of execution with id " + meta.getId() + " has no execution included");
-			}
 			if (idleTime > maxExecutionIdleTimeout) {
 				log.debug("Execution with id " + meta.getId() + " idle time is " + idleTime
 						+ " which exceeded the max idle time of " + maxExecutionIdleTimeout + ". Disabling execution");
-				publisher.publishEvent(new ExecutionEndedEvent(meta));
+				meta.setActive(false);
+				metadataRepository.save(meta);
+				publisher.publishEvent(new ExecutionEndedEvent(meta.getId()));
 			}
 		}
 

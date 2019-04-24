@@ -31,7 +31,8 @@ import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.business.execution.ExecutionMetadata;
-import il.co.topq.report.business.execution.MetadataPersistency;
+import il.co.topq.report.persistence.ExecutionRepository;
+import il.co.topq.report.persistence.MetadataRepository;
 
 @Component
 public class ReportsArchiver implements Archiver, HealthIndicator, InfoContributor {
@@ -47,7 +48,10 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 	/**
 	 * The local persistence
 	 */
-	private MetadataPersistency persistency;
+	private MetadataRepository metadataRepository;
+
+	private ExecutionRepository executionRepository;
+
 
 	/**
 	 * Is this service enabled or not. Can be disabled from the configuration or
@@ -89,8 +93,9 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 	ThreadPoolTaskExecutor executor;
 
 	@Autowired
-	public ReportsArchiver(MetadataPersistency persistency) {
-		this.persistency = persistency;
+	public ReportsArchiver(MetadataRepository metadataRepository, ExecutionRepository executionRepository) {
+		this.metadataRepository = metadataRepository;
+		this.executionRepository = executionRepository;
 		client = new ArchiverHttpClient(Configuration.INSTANCE.readString(ConfigProps.ARCHIVER_DIFIDO_SERVER));
 		enabled = Configuration.INSTANCE.readBoolean(ConfigProps.ARCHIVER_ENABLED);
 		final int minReportsAge = Configuration.INSTANCE.readInt(ConfigProps.ARCHIVER_MIN_REPORTS_AGE);
@@ -248,12 +253,12 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 	/**
 	 * Will add the execution to the persistency.
 	 * 
-	 * @param execution
+	 * @param metadata
 	 */
-	private void addExecutionToPersistency(ExecutionMetadata execution) {
-		log.debug("Adding execution " + execution.getId() + " to persistency");
-		execution.setDirty(true);
-		persistency.add(execution);
+	private void addExecutionToPersistency(ExecutionMetadata metadata) {
+		log.debug("Adding execution " + metadata.getId() + " to persistency");
+		metadata.setDirty(true);
+		metadataRepository.save(metadata);
 	}
 
 	private void deleteRemoteExecution(ExecutionMetadata e) {
@@ -275,8 +280,7 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 	 */
 	private List<ExecutionMetadata> filterExecutionsToArchive(Map<Integer, ExecutionMetadata> remoteExecutions) {
 		final List<ExecutionMetadata> executionsToArchive = remoteExecutions.values().parallelStream()
-				.filter(e -> !e.isActive())
-				.filter(el -> persistency.getAll().stream().noneMatch(er -> er.getId() == el.getId()))
+				.filter(el -> metadataRepository.findByActive(false).stream().noneMatch(er -> er.getId() == el.getId()))
 				.filter(e -> StringUtils.isNotBlank(e.getDate()) && new Date().getTime() - DateTimeConverter
 						.fromDateString(e.getDate()).toDateObject().getTime() > minReportsAgeInMillis)
 				.limit(maxToArchive).collect(Collectors.toList());

@@ -25,13 +25,15 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RestController;
 
 import il.co.topq.report.StopWatch;
 import il.co.topq.report.business.execution.ExecutionMetadata;
-import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.business.report.ArchiveService;
 import il.co.topq.report.business.report.ExecutionTableService;
+import il.co.topq.report.events.UpdateAllMetadatasRequestEvent;
+import il.co.topq.report.persistence.MetadataRepository;
 
 @RestController
 @Path("api/reports")
@@ -39,11 +41,14 @@ public class ReportsResource {
 
 	private static final Logger log = LoggerFactory.getLogger(ReportsResource.class);
 
-	private final MetadataProvider metadataProvider;
+	private final MetadataRepository metadataRepository;
+	
+	private final ApplicationEventPublisher publisher;
 
 	@Autowired
-	public ReportsResource(MetadataProvider metadataProvider) {
-		this.metadataProvider = metadataProvider;
+	public ReportsResource(MetadataRepository metadataRepository, ApplicationEventPublisher publisher) {
+		this.metadataRepository = metadataRepository;
+		this.publisher = publisher;
 	}
 
 	@Autowired
@@ -63,7 +68,8 @@ public class ReportsResource {
 	public DataTable get(@Context HttpServletRequest request) {
 		log.debug("GET (" + request.getRemoteAddr() + ") - Get all reports");
 		StopWatch stopWatch = new StopWatch(log).start("Getting all metaData");
-		final ExecutionMetadata[] metaDataArr = metadataProvider.getAllMetaData();
+		publisher.publishEvent(new UpdateAllMetadatasRequestEvent());
+		final ExecutionMetadata[] metaDataArr = metadataRepository.findAll().toArray(new ExecutionMetadata[] {});
 		stopWatch.stopAndLog();
 
 		stopWatch.start("Initilaizing table");
@@ -85,7 +91,7 @@ public class ReportsResource {
 	public Response getReportAsZip(@Context HttpServletRequest request, @PathParam("execution") int executionId) {
 		log.debug("GET (" + request.getRemoteAddr() + ") - Recieved request for getting execution " + executionId
 				+ " as ZIP");
-		final ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
+		final ExecutionMetadata metadata = metadataRepository.findById(executionId);
 		if (null == metadata) {
 			log.error("Request from " + request.getRemoteAddr() + " to get report as ZIP of execution id " + executionId
 					+ " failed since metadata is null");
@@ -122,7 +128,7 @@ public class ReportsResource {
 	public long getReportSize(@Context HttpServletRequest request, @PathParam("execution") int executionId) {
 		log.debug("GET (" + request.getRemoteAddr() + ")- Recieved request for getting the size of execution "
 				+ executionId + " folder");
-		final ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
+		final ExecutionMetadata metadata = metadataRepository.findById(executionId);
 		long size = 0;
 		if (null == metadata) {
 			log.error("Request from " + request.getRemoteAddr() + " to get report size of execution with id "

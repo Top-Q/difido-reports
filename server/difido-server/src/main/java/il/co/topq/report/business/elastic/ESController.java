@@ -43,6 +43,7 @@ import il.co.topq.report.events.ExecutionDeletedEvent;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.events.MachineCreatedEvent;
 import il.co.topq.report.persistence.ExecutionRepository;
+import il.co.topq.report.persistence.MetadataRepository;
 
 /**
  * 
@@ -67,9 +68,12 @@ public class ESController implements HealthIndicator, InfoContributor {
 	private static boolean storeOnlyAtEnd;
 
 	ESClient client;
-	
+
 	@Autowired
 	private ExecutionRepository executionRepository;
+
+	@Autowired
+	private MetadataRepository metadataRepository;
 
 	public ESController() {
 		enabled = Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED);
@@ -234,7 +238,7 @@ public class ESController implements HealthIndicator, InfoContributor {
 			return;
 		}
 		StopWatch stopWatch = new StopWatch(log).start("Deleting all tests of execution with id "
-				+ executionDeletedEvent.getMetadata().getId() + " from the Elastic");
+				+ executionDeletedEvent.getExecutionId() + " from the Elastic");
 
 		log.debug("About to delete all tests of execution " + executionDeletedEvent.getExecutionId()
 				+ " from the ElasticSearch");
@@ -288,11 +292,13 @@ public class ESController implements HealthIndicator, InfoContributor {
 		if (!enabled) {
 			return;
 		}
-		for (MachineNode machineNode : executionRepository.findById(executionEndedEvent.getExecutionId()).getMachines()) {
-			saveDirtyTests(executionEndedEvent.getMetadata(), machineNode);
+		final ExecutionMetadata executionMetadataToEnd = metadataRepository
+				.findById(executionEndedEvent.getExecutionId());
+		for (MachineNode machineNode : executionRepository.findById(executionEndedEvent.getExecutionId())
+				.getMachines()) {
+			saveDirtyTests(executionMetadataToEnd, machineNode);
 		}
-		updateExecutionDuration(executionEndedEvent.getMetadata().getId(),
-				executionEndedEvent.getMetadata().getDuration());
+		updateExecutionDuration(executionMetadataToEnd.getId(), executionMetadataToEnd.getDuration());
 
 		log.debug("Removing all saved test for execution " + executionEndedEvent.getExecutionId() + " from the cache");
 		savedTestsPerExecution.remove(executionEndedEvent.getExecutionId());
@@ -341,7 +347,8 @@ public class ESController implements HealthIndicator, InfoContributor {
 		if (!enabled || storeOnlyAtEnd) {
 			return;
 		}
-		saveDirtyTests(machineCreatedEvent.getMetadata(), machineCreatedEvent.getMachineNode());
+		final ExecutionMetadata executionMetadata = metadataRepository.findById(machineCreatedEvent.getExecutionId());
+		saveDirtyTests(executionMetadata, machineCreatedEvent.getMachineNode());
 	}
 
 	private void saveDirtyTests(ExecutionMetadata metadata, MachineNode machineNode) {

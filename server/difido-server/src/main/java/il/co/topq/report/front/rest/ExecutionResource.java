@@ -1,5 +1,11 @@
 package il.co.topq.report.front.rest;
 
+import static il.co.topq.difido.DateTimeConverter.fromDateObject;
+import static il.co.topq.report.StopWatch.newStopWatch;
+
+import java.util.Date;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -20,15 +26,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RestController;
 
+import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.remote.ExecutionDetails;
+import il.co.topq.report.Common;
+import il.co.topq.report.Configuration;
+import il.co.topq.report.Configuration.ConfigProps;
+import il.co.topq.report.StopWatch;
 import il.co.topq.report.business.execution.ExecutionMetadata;
-import il.co.topq.report.business.execution.MetadataCreator;
-import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.ExecutionCreatedEvent;
 import il.co.topq.report.events.ExecutionDeletedEvent;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.events.ExecutionUpdatedEvent;
 import il.co.topq.report.persistence.ExecutionRepository;
+import il.co.topq.report.persistence.MetadataRepository;
 
 @RestController
 @Path("api/executions")
@@ -38,23 +48,66 @@ public class ExecutionResource {
 
 	private final ApplicationEventPublisher publisher;
 
-	private final MetadataProvider metadataProvider;
+	private MetadataRepository metadataRepository;
 
-	private final MetadataCreator metadataCreator;
+	private ExecutionRepository executionRepository;
 
 	@Autowired
-	public ExecutionResource(ApplicationEventPublisher publisher, MetadataProvider metadataProvider,
-			MetadataCreator metadataCreator, ExecutionRepository executionRepository) {
+	public ExecutionResource(ApplicationEventPublisher publisher, ExecutionRepository executionRepository,
+			MetadataRepository metadataRepository) {
 		this.publisher = publisher;
-		this.metadataCreator = metadataCreator;
-		this.metadataProvider = metadataProvider;
+		this.executionRepository = executionRepository;
+		this.metadataRepository = metadataRepository;
 	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{execution: [0-9]+}")
-	public ExecutionMetadata getMetadata(@PathParam("execution") int execution) {
-		return metadataProvider.getMetadata(execution);
+	public ExecutionMetadata getMetadata(@PathParam("execution") int executionId) {
+		return metadataRepository.findById(executionId);
+	}
+
+	/**
+	 * Sets the execution properties in the execution meta data. Will allow
+	 * addition only of properties that are specified in the configuration file
+	 * 
+	 * @param metaData
+	 * @param executionDetails
+	 */
+	private void setAllowedPropertiesToMetaData(ExecutionMetadata metaData, ExecutionDetails executionDetails) {
+		final List<String> allowedProperties = Configuration.INSTANCE.readList(ConfigProps.CUSTOM_EXECUTION_PROPERTIES);
+		if (allowedProperties.isEmpty()) {
+			metaData.setProperties(executionDetails.getExecutionProperties());
+			return;
+		}
+		for (String executionProp : executionDetails.getExecutionProperties().keySet()) {
+			if (allowedProperties.contains(executionProp)) {
+				metaData.addProperty(executionProp, executionDetails.getExecutionProperties().get(executionProp));
+			}
+		}
+
+	}
+
+	private ExecutionMetadata createMetadata(ExecutionDetails executionDetails) {
+		StopWatch stopWatch = newStopWatch(log).start("Creating new metadata");
+		Execution execution = new Execution();
+		final Date executionDate = new Date();
+		final ExecutionMetadata metaData = new ExecutionMetadata(fromDateObject(executionDate).toElasticString());
+		metaData.setTime(fromDateObject(executionDate).toTimeString());
+		metaData.setDate(fromDateObject(executionDate).toDateString());
+		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + metaData.getId());
+		metaData.setUri(Common.REPORTS_FOLDER_NAME + "/" + metaData.getFolderName() + "/index.html");
+		metaData.setComment("");
+		metaData.setActive(true);
+		if (executionDetails != null) {
+			metaData.setDescription(executionDetails.getDescription());
+			metaData.setShared(executionDetails.isShared());
+			setAllowedPropertiesToMetaData(metaData, executionDetails);
+		}
+		metadataRepository.save(metaData);
+		executionRepository.save(metaData.getId(), execution);
+		stopWatch.stopAndLog();
+		return metaData;
 	}
 
 	@POST
@@ -64,14 +117,16 @@ public class ExecutionResource {
 		ExecutionMetadata metadata = null;
 		log.debug("POST (" + request.getRemoteAddr() + ") - Adding new execution ");
 		if (executionDetails != null && executionDetails.isShared() && !executionDetails.isForceNew()) {
-			metadata = metadataProvider.getShared();
-			if (null == metadata) {
+			final List<ExecutionMetadata> sharedMetadataList = metadataRepository.findBySharedIsTrueAndActiveIsTrue();
+			if (sharedMetadataList.isEmpty()) {
 				log.debug("POST (" + request.getRemoteAddr()
 						+ ") - Could not find an active shared execution. Creating a new execution");
-				metadata = metadataCreator.createMetadata(executionDetails);
+				metadata = createMetadata(executionDetails);
+			} else {
+				metadata = sharedMetadataList.get(0);
 			}
 		} else {
-			metadata = metadataCreator.createMetadata(executionDetails);
+			metadata = createMetadata(executionDetails);
 		}
 		publisher.publishEvent(new ExecutionCreatedEvent(metadata));
 		return metadata.getId();
@@ -83,7 +138,7 @@ public class ExecutionResource {
 	 * This is Irreversible. Also allows updating the execution description &
 	 * comment through the metadata parameter
 	 * 
-	 * @param executionIndex
+	 * @param executionId
 	 *            - the id of the execution
 	 * @param active
 	 *            - Set to not active
@@ -96,31 +151,35 @@ public class ExecutionResource {
 	 */
 	@PUT
 	@Path("/{execution: [0-9]+}")
-	public void put(@Context HttpServletRequest request, @PathParam("execution") int executionIndex,
+	public void put(@Context HttpServletRequest request, @PathParam("execution") int executionId,
 			@QueryParam("active") Boolean active, @QueryParam("locked") Boolean locked,
 			@QueryParam("metadata") String metadataStr) {
 
-		log.debug("PUT (" + request.getRemoteAddr() + ") - Upating execution with id " + executionIndex
-				+ ". to active: " + active + ", locked: " + locked + ", metadata: " + metadataStr);
+		log.debug("PUT (" + request.getRemoteAddr() + ") - Upating execution with id " + executionId + ". to active: "
+				+ active + ", locked: " + locked + ", metadata: " + metadataStr);
 
-		final ExecutionMetadata executionMetadata = metadataProvider.getMetadata(executionIndex);
+		final ExecutionMetadata executionMetadata = metadataRepository.findById(executionId);
 
 		if (null == executionMetadata) {
 			log.warn("Request from " + request.getRemoteAddr() + " to update the state of execution with id "
-					+ executionIndex + " which is not exist");
+					+ executionId + " which is not exist");
 			return;
 		}
 
 		if (active != null && !active) {
+			executionMetadata.setActive(false);
+			metadataRepository.save(executionMetadata);
 			// TODO: This should be changed to use the executionUpdatedEvent for
 			// consistency
-			publisher.publishEvent(new ExecutionEndedEvent(executionIndex));
+			publisher.publishEvent(new ExecutionEndedEvent(executionId));
 		}
 
 		if (locked != null) {
 			executionMetadata.setLocked(locked);
-			publisher.publishEvent(new ExecutionUpdatedEvent(executionMetadata));
+			metadataRepository.save(executionMetadata);
+			publisher.publishEvent(new ExecutionUpdatedEvent(executionId));
 		}
+		
 
 		if (metadataStr != null) {
 
@@ -143,8 +202,8 @@ public class ExecutionResource {
 					}
 				}
 			}
-
-			publisher.publishEvent(new ExecutionUpdatedEvent(executionMetadata));
+			metadataRepository.save(executionMetadata);
+			publisher.publishEvent(new ExecutionUpdatedEvent(executionId));
 		}
 	}
 
@@ -152,31 +211,34 @@ public class ExecutionResource {
 	 * Delete a single execution from the server. A notification will be sent to
 	 * delete it from all the listeners.
 	 * 
-	 * @param executionIndex
+	 * @param executionId
 	 */
 	@DELETE
 	@Path("/{execution: [0-9]+}")
-	public void delete(@Context HttpServletRequest request, @PathParam("execution") int executionIndex,
+	public void delete(@Context HttpServletRequest request, @PathParam("execution") int executionId,
 			@DefaultValue("true") @QueryParam("fromElastic") boolean deleteFromElastic) {
-		log.debug("DELETE  (" + request.getRemoteAddr() + ") - Delete execution with id " + executionIndex
+		log.debug("DELETE  (" + request.getRemoteAddr() + ") - Delete execution with id " + executionId
 				+ ". Delete from Elastic=" + deleteFromElastic);
-		final ExecutionMetadata executionMetaData = metadataProvider.getMetadata(executionIndex);
+		final ExecutionMetadata executionMetaData = metadataRepository.findById(executionId);
 		if (null == executionMetaData) {
-			log.warn("Request from " + request.getRemoteAddr() + " to delete execution with index " + executionIndex
+			log.warn("Request from " + request.getRemoteAddr() + " to delete execution with index " + executionId
 					+ " which is not exist");
 			return;
 		}
 		if (executionMetaData.isActive()) {
-			log.warn("Request from " + request.getRemoteAddr() + " to delete execution with index " + executionIndex
+			log.warn("Request from " + request.getRemoteAddr() + " to delete execution with index " + executionId
 					+ " which is still active");
 			return;
 		}
 		if (executionMetaData.isLocked()) {
-			log.warn("Request from " + request.getRemoteAddr() + " to delete execution with index " + executionIndex
+			log.warn("Request from " + request.getRemoteAddr() + " to delete execution with index " + executionId
 					+ " which is locked");
 			return;
 		}
-		publisher.publishEvent(new ExecutionDeletedEvent(executionIndex, deleteFromElastic));
+		
+		metadataRepository.delete(executionMetaData);
+		executionRepository.delete(executionId);
+		publisher.publishEvent(new ExecutionDeletedEvent(executionId, deleteFromElastic));
 	}
 
 }

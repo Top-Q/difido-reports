@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.events.MachineCreatedEvent;
+import il.co.topq.report.persistence.MetadataRepository;
 import il.co.topq.report.plugins.ExecutionPlugin;
 import il.co.topq.report.plugins.InteractivePlugin;
 import il.co.topq.report.plugins.MachineUpdatePlugin;
@@ -29,21 +30,23 @@ public class PluginController implements InfoContributor {
 
 	private final Logger log = LoggerFactory.getLogger(PluginController.class);
 
-	@Autowired
-	private PluginManager pluginManager;
+	private final PluginManager pluginManager;
+	
+	private final MetadataRepository metadataRepository;
+	
+	public PluginController(PluginManager pluginManager, MetadataRepository metadataRepository) {
+		this.pluginManager = pluginManager;
+		this.metadataRepository = metadataRepository;
+	}
 
 	@EventListener
 	public void onExecutionEndedEvent(ExecutionEndedEvent executionEndedEvent) {
-		if (executionEndedEvent == null || executionEndedEvent.getMetadata() == null) {
-			log.error("Execution ended event was called with null argument");
-			return;
-		}
 		log.debug("Plugin controller was called at the end of execution " + executionEndedEvent.getExecutionId());
 		List<ExecutionPlugin> executionPlugins = pluginManager.getPlugins(ExecutionPlugin.class);
 		for (ExecutionPlugin plugin : executionPlugins) {
 			try {
 				log.debug("Calling plugin " + plugin.getName());
-				plugin.onExecutionEnded(executionEndedEvent.getMetadata());
+				plugin.onExecutionEnded(metadataRepository.findById(executionEndedEvent.getExecutionId()));
 			} catch (Throwable e) {
 				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "
 						+ plugin.getName(), e);
@@ -54,10 +57,6 @@ public class PluginController implements InfoContributor {
 
 	@EventListener
 	public void onMachineCreatedEvent(MachineCreatedEvent machineCreatedEvent) {
-		if (machineCreatedEvent == null || machineCreatedEvent.getMetadata() == null) {
-			log.error("Machine created event was called with null argument");
-			return;
-		}
 		log.debug("Plugin controller was called at machine created event for execution:"
 				+ machineCreatedEvent.getExecutionId());
 		List<MachineUpdatePlugin> machineUpdatePlugins = pluginManager.getPlugins(MachineUpdatePlugin.class);
