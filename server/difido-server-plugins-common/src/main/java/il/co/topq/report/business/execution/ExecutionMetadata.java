@@ -7,8 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import il.co.topq.difido.model.execution.Execution;
-
 @Entity
 public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 

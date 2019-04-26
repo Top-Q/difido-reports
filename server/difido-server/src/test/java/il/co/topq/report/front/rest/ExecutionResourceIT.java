@@ -12,8 +12,8 @@ public class ExecutionResourceIT extends AbstractResourceTest {
 
 	@Test
 	public void getGet() throws Exception {
-		ExecutionDetails executionDetails = new ExecutionDetails();
-		assertThat(client.addExecution(executionDetails), equalTo(1));
+		client.addExecution(new ExecutionDetails());
+		assertThat(metadataRepository.count(), equalTo(1L));
 	}
 
 	@Test

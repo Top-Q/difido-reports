@@ -8,7 +8,6 @@ import java.net.URL;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,7 @@ public abstract class AbstractResourceTest {
 	protected DifidoClient client;
 
 	@Autowired
-	private MetadataRepository metadataRepository;
+	protected MetadataRepository metadataRepository;
 
 	@Before
 	public void setUp() throws Exception {
@@ -49,14 +48,11 @@ public abstract class AbstractResourceTest {
 		flushPreviousReports();
 	}
 
-	@After
-	public void tearDown() throws IOException {
-		// flushPreviousReports();
-	}
-
 	private void flushPreviousReports() throws IOException {
 		try {
 			waitForTasksToFinish();
+			metadataRepository.deleteAll();
+			metadataRepository.flush();
 			FileUtils.deleteDirectory(reportsFolder);
 		} catch (IOException e) {
 			// This can happen. Let's give it another try
@@ -66,7 +62,6 @@ public abstract class AbstractResourceTest {
 			}
 			FileUtils.deleteDirectory(reportsFolder);
 		}
-		metadataRepository.deleteAll();
 	}
 
 	protected static Execution getExecution() {
@@ -113,7 +108,7 @@ public abstract class AbstractResourceTest {
 	}
 
 	protected static File[] findAllExecutionFolders() {
-		final File[] executionFolders = new File("docRoot/reports").listFiles(new FileFilter() {
+		final File[] executionFolders = reportsFolder.listFiles(new FileFilter() {
 
 			@Override
 			public boolean accept(File file) {

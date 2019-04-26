@@ -76,7 +76,7 @@ public class ConcurrencyExecutionIT extends AbstractResourceTest {
 
 		waitForTasksToFinish();
 		start = System.currentTimeMillis();
-
+		Assert.assertEquals(NUM_OF_THREADS, metadataRepository.count());
 		final Execution[] executions = getAllExecutions();
 		Assert.assertNotNull(executions);
 		Assert.assertEquals(NUM_OF_THREADS, executions.length);

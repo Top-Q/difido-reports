@@ -121,6 +121,8 @@ public class HtmlReportsController {
 
 	private void prepareExecutionFolder(ExecutionMetadata executionMetadata) {
 		final File executionDestinationFolder = getExecutionDestinationFolder(executionMetadata);
+		log.debug("About to create folder for execution with id " + executionMetadata.getId() + " in "
+				+ executionDestinationFolder);
 		queue.addAction(() -> {
 			if (!TEMPLATE_FOLDER.exists() || !(new File(TEMPLATE_FOLDER, "index.html").exists())) {
 				PersistenceUtils.copyResources(TEMPLATE_FOLDER);

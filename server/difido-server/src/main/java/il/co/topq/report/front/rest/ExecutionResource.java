@@ -95,7 +95,6 @@ public class ExecutionResource {
 		final ExecutionMetadata metaData = new ExecutionMetadata(fromDateObject(executionDate).toElasticString());
 		metaData.setTime(fromDateObject(executionDate).toTimeString());
 		metaData.setDate(fromDateObject(executionDate).toDateString());
-		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + metaData.getId());
 		metaData.setUri(Common.REPORTS_FOLDER_NAME + "/" + metaData.getFolderName() + "/index.html");
 		metaData.setComment("");
 		metaData.setActive(true);
@@ -104,6 +103,8 @@ public class ExecutionResource {
 			metaData.setShared(executionDetails.isShared());
 			setAllowedPropertiesToMetaData(metaData, executionDetails);
 		}
+		metadataRepository.save(metaData);
+		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + metaData.getId());
 		metadataRepository.save(metaData);
 		executionRepository.save(metaData.getId(), execution);
 		stopWatch.stopAndLog();
