@@ -29,6 +29,8 @@ import il.co.topq.report.events.FileAddedToTestEvent;
 import il.co.topq.report.events.MachineCreatedEvent;
 import il.co.topq.report.events.TestDetailsCreatedEvent;
 import il.co.topq.report.persistence.ExecutionRepository;
+import il.co.topq.report.persistence.ExecutionState;
+import il.co.topq.report.persistence.ExecutionStateRepository;
 import il.co.topq.report.persistence.MetadataRepository;
 
 @Component
@@ -44,16 +46,19 @@ public class HtmlReportsController {
 
 	private final MetadataRepository metadataRepository;
 
+	private final ExecutionStateRepository stateRepository;
+
 	enum HtmlGenerationLevel {
 		EXECUTION, MACHINE, SCENARIO, TEST, TEST_DETAILS, ELEMENT
 	}
 
 	@Autowired
 	public HtmlReportsController(AsyncActionQueue queue, ExecutionRepository executionRepository,
-			MetadataRepository metadataRepository) {
+			ExecutionStateRepository stateRepository, MetadataRepository metadataRepository) {
 		this.queue = queue;
 		this.executionRepository = executionRepository;
 		this.metadataRepository = metadataRepository;
+		this.stateRepository = stateRepository;
 	}
 
 	/**
@@ -87,8 +92,12 @@ public class HtmlReportsController {
 	 * 
 	 * @param executionUpdatedEvent
 	 */
-	@EventListener(condition = "!#executionUpdatedEvent.metadata.htmlExists and !#executionUpdatedEvent.metadata.locked")
+	@EventListener
 	public void onExecutionUpdatedEvent(ExecutionUpdatedEvent executionUpdatedEvent) {
+		final ExecutionState state = stateRepository.getOne(executionUpdatedEvent.getExecutionId());
+		if (state.isHtmlExists() || state.isLocked()) {
+			return;
+		}
 		final ExecutionMetadata metadata = metadataRepository.findById(executionUpdatedEvent.getExecutionId());
 		final File executionFolder = getExecutionDestinationFolder(metadata);
 		if (executionFolder != null && executionFolder.exists()) {

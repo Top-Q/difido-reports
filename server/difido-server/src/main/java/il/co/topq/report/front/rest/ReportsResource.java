@@ -33,6 +33,8 @@ import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.business.report.ArchiveService;
 import il.co.topq.report.business.report.ExecutionTableService;
 import il.co.topq.report.events.UpdateAllMetadatasRequestEvent;
+import il.co.topq.report.persistence.ExecutionState;
+import il.co.topq.report.persistence.ExecutionStateRepository;
 import il.co.topq.report.persistence.MetadataRepository;
 
 @RestController
@@ -44,10 +46,13 @@ public class ReportsResource {
 	private final MetadataRepository metadataRepository;
 	
 	private final ApplicationEventPublisher publisher;
+	
+	private final ExecutionStateRepository stateRepository;
 
 	@Autowired
-	public ReportsResource(MetadataRepository metadataRepository, ApplicationEventPublisher publisher) {
+	public ReportsResource(MetadataRepository metadataRepository, ExecutionStateRepository stateRepository,ApplicationEventPublisher publisher) {
 		this.metadataRepository = metadataRepository;
+		this.stateRepository = stateRepository;
 		this.publisher = publisher;
 	}
 
@@ -69,11 +74,15 @@ public class ReportsResource {
 		log.debug("GET (" + request.getRemoteAddr() + ") - Get all reports");
 		StopWatch stopWatch = new StopWatch(log).start("Getting all metaData");
 		publisher.publishEvent(new UpdateAllMetadatasRequestEvent());
-		final ExecutionMetadata[] metaDataArr = metadataRepository.findAll().toArray(new ExecutionMetadata[] {});
+		final List<ExecutionMetadata> metadataList = metadataRepository.findAll();
 		stopWatch.stopAndLog();
 
+		stopWatch.start("Getting all states");
+		final List<ExecutionState> stateList = stateRepository.findAll();
+		stopWatch.stopAndLog();
+		
 		stopWatch.start("Initilaizing table");
-		final DataTable dataTable = executionTableService.initTable(metaDataArr);
+		final DataTable dataTable = executionTableService.initTable(metadataList,stateList);
 		stopWatch.stopAndLog();
 		return dataTable;
 	}

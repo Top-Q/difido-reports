@@ -2,8 +2,10 @@ package il.co.topq.report.business.report;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,7 @@ import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.StopWatch;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.front.rest.ReportsResource.DataTable;
+import il.co.topq.report.persistence.ExecutionState;
 
 @Service
 public class ExecutionTableService {
@@ -36,7 +39,7 @@ public class ExecutionTableService {
 	private static final String[] DEFAULT_HEADERS = new String[] { ID, DESCRIPTION, LINK, DATE, TIME, DURATION,
 			NUM_OF_TESTS, NUM_OF_SUCCESSFUL, NUM_OF_WARNINGS, NUM_OF_FAILS, NUM_OF_MACHINES, ACTIVE, LOCKED };
 
-	public DataTable initTable(ExecutionMetadata[] metaData) {
+	public DataTable initTable(List<ExecutionMetadata> metaData, List<ExecutionState> stateList) {
 		DataTable table = new DataTable();
 		List<String> headers;
 		if (!Configuration.INSTANCE.readList(ConfigProps.EXECUTION_TABLE_HEADERS).isEmpty()) {
@@ -64,7 +67,7 @@ public class ExecutionTableService {
 				if (null == meta.getProperties()) {
 					continue;
 				}
-				for (String header: meta.getProperties().keySet()) {
+				for (String header : meta.getProperties().keySet()) {
 					if (!headers.contains(header)) {
 						headers.add(header);
 					}
@@ -77,10 +80,14 @@ public class ExecutionTableService {
 		}
 
 		StopWatch stopWatch = new StopWatch(log).start("Populating rows");
+		Map<Integer, ExecutionState> idToState = new HashMap<>();
+		for (ExecutionState state : stateList) {
+			idToState.put(state.getId(), state);
+		}
 		for (ExecutionMetadata meta : metaData) {
 			final List<String> row = new ArrayList<>();
 			for (String header : headers) {
-				populateRow(table, row, header, meta);
+				populateRow(table, row, header, meta, idToState.get(meta.getId()));
 			}
 			table.data.add(row);
 		}
@@ -88,12 +95,13 @@ public class ExecutionTableService {
 		return table;
 	}
 
-	private void populateRow(DataTable table, List<String> row, String header, ExecutionMetadata meta) {
+	private void populateRow(DataTable table, List<String> row, String header, ExecutionMetadata meta,
+			ExecutionState state) {
 		if (!table.columns.contains(header)) {
 			table.columns.add(header);
 		}
 		if (header.equalsIgnoreCase(ID)) {
-			row.add(""+meta.getId());
+			row.add("" + meta.getId());
 			return;
 		}
 		if (header.equalsIgnoreCase(DESCRIPTION)) {
@@ -117,23 +125,23 @@ public class ExecutionTableService {
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_TESTS)) {
-			row.add(""+meta.getNumOfTests());
+			row.add("" + meta.getNumOfTests());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_SUCCESSFUL)) {
-			row.add(""+meta.getNumOfSuccessfulTests());
+			row.add("" + meta.getNumOfSuccessfulTests());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_WARNINGS)) {
-			row.add(""+meta.getNumOfTestsWithWarnings());
+			row.add("" + meta.getNumOfTestsWithWarnings());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_FAILS)) {
-			row.add(""+meta.getNumOfFailedTests());
+			row.add("" + meta.getNumOfFailedTests());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_MACHINES)) {
-			row.add(""+meta.getNumOfMachines());
+			row.add("" + meta.getNumOfMachines());
 			return;
 		}
 		if (header.equalsIgnoreCase(DURATION)) {
@@ -148,13 +156,26 @@ public class ExecutionTableService {
 			row.add(durationHour + "h" + durationMin + "m" + durationSec + "s");
 			return;
 		}
-		if (header.equalsIgnoreCase(ACTIVE)) {
-			row.add(""+ meta.isActive());
-			return;
-		}
-		if (header.equalsIgnoreCase(LOCKED)) {
-			row.add(""+meta.isLocked());
-			return;
+		if (state != null) {
+			if (header.equalsIgnoreCase(ACTIVE)) {
+				row.add(state.isActive() + "");
+				return;
+			}
+			if (header.equalsIgnoreCase(LOCKED)) {
+				row.add(state.isLocked() + "");
+				return;
+			}
+
+		} else {
+			if (header.equalsIgnoreCase(ACTIVE)) {
+				row.add(false + "");
+				return;
+			}
+			if (header.equalsIgnoreCase(LOCKED)) {
+				row.add(false + "");
+				return;
+			}
+
 		}
 		if (meta == null || meta.getProperties() == null) {
 			return;

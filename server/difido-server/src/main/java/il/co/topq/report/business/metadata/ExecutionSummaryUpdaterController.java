@@ -23,54 +23,32 @@ import il.co.topq.difido.model.execution.ScenarioNode;
 import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionEndedEvent;
-import il.co.topq.report.events.FileAddedToTestEvent;
 import il.co.topq.report.events.MachineCreatedEvent;
-import il.co.topq.report.events.TestDetailsCreatedEvent;
-import il.co.topq.report.events.UpdateAllMetadatasRequestEvent;
 import il.co.topq.report.events.UpdateMetadataRequestEvent;
 import il.co.topq.report.persistence.ExecutionRepository;
 import il.co.topq.report.persistence.MetadataRepository;
 
 @Component
-public class MetadataUpdaterController  implements InfoContributor {
+public class ExecutionSummaryUpdaterController implements InfoContributor {
 
-	private final Logger log = LoggerFactory.getLogger(MetadataUpdaterController.class);
+	private final Logger log = LoggerFactory.getLogger(ExecutionSummaryUpdaterController.class);
 	
 	private MetadataRepository metadataRepository;
 
 	private ExecutionRepository executionRepository;
 
 	@Autowired
-	public MetadataUpdaterController(MetadataRepository metadataRepository, ExecutionRepository executionRepository) {
+	public ExecutionSummaryUpdaterController(MetadataRepository metadataRepository, ExecutionRepository executionRepository) {
 		this.metadataRepository = metadataRepository;
 		this.executionRepository = executionRepository;
 	}
 
-	@EventListener
-	public void onUpdateAllMetadatasRequestEvent(UpdateAllMetadatasRequestEvent updateAllMetadatasRequestEvent) {
-		updateAllExecutionsMetaData();
-	}
-	
 	@EventListener
 	public void onUpdateMetadataRequestEvent(UpdateMetadataRequestEvent updateMetadataRequestEvent) {
 		updateSingleExecutionMetaAndSave(updateMetadataRequestEvent.getExecutionId());
 	}
 	
 
-	@EventListener
-	public void onTestDetailsCreatedEvent(TestDetailsCreatedEvent testDetailsCreatedEvent) {
-		final ExecutionMetadata metadata = metadataRepository.findById(testDetailsCreatedEvent.getExecutionId());
-		updateExecutionLastUpdateTime(metadata);
-		metadataRepository.save(metadata);
-	}
-
-	@EventListener
-	public void onFileAddedToTestEvent(FileAddedToTestEvent fileAddedToTestEvent) {
-		final ExecutionMetadata metadata = metadataRepository.findById(fileAddedToTestEvent.getExecutionId());
-		updateExecutionLastUpdateTime(metadata);
-		metadataRepository.save(metadata);
-	}
-	
 	@EventListener
 	public void onExecutionEndedEvent(ExecutionEndedEvent executionEndedEvent) {
 		updateSingleExecutionMetaAndSave(executionEndedEvent.getExecutionId());
@@ -85,20 +63,8 @@ public class MetadataUpdaterController  implements InfoContributor {
 		final ExecutionMetadata metadata = metadataRepository.findById(executionId);
 		updateSingleExecutionMeta(metadata);
 		metadataRepository.save(metadata);
-		
 	}
 	
-	private void updateExecutionLastUpdateTime(ExecutionMetadata metadata) {
-		metadata.setLastAccessedTime(System.currentTimeMillis());
-	}
-	
-	private void updateAllExecutionsMetaData() {
-		for (ExecutionMetadata meta : metadataRepository.findByActive(true)) {
-			updateSingleExecutionMeta(meta);
-			metadataRepository.save(meta);
-
-		}
-	}
 
 	private void updateSingleExecutionMeta(ExecutionMetadata executionMetaData) {
 		updateDuration(executionMetaData);
@@ -155,7 +121,6 @@ public class MetadataUpdaterController  implements InfoContributor {
 			executionMetaData.setNumOfTestsWithWarnings(numOfTestsWithWarnings);
 			executionMetaData.setNumOfMachines(numOfMachines);
 		}
-		updateExecutionLastUpdateTime(executionMetaData);
 
 	}
 	
@@ -184,7 +149,6 @@ public class MetadataUpdaterController  implements InfoContributor {
 	public void contribute(Builder builder) {
 		Map<String, Integer> metadataDetails = new HashMap<>();
 		metadataDetails.put("existing executions", (int) metadataRepository.count());
-		metadataDetails.put("active executions", (int) metadataRepository.findByActive(true).size());
 		builder.withDetail("metadata controller", metadataDetails);
 	}
 

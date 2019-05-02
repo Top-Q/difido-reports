@@ -38,6 +38,8 @@ import il.co.topq.report.events.ExecutionDeletedEvent;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.events.ExecutionUpdatedEvent;
 import il.co.topq.report.persistence.ExecutionRepository;
+import il.co.topq.report.persistence.ExecutionState;
+import il.co.topq.report.persistence.ExecutionStateRepository;
 import il.co.topq.report.persistence.MetadataRepository;
 
 @RestController
@@ -52,12 +54,15 @@ public class ExecutionResource {
 
 	private ExecutionRepository executionRepository;
 
+	private ExecutionStateRepository stateRepository;
+
 	@Autowired
 	public ExecutionResource(ApplicationEventPublisher publisher, ExecutionRepository executionRepository,
-			MetadataRepository metadataRepository) {
+			MetadataRepository metadataRepository, ExecutionStateRepository stateRepository) {
 		this.publisher = publisher;
 		this.executionRepository = executionRepository;
 		this.metadataRepository = metadataRepository;
+		this.stateRepository = stateRepository;
 	}
 
 	@GET
@@ -93,18 +98,17 @@ public class ExecutionResource {
 		Execution execution = new Execution();
 		final Date executionDate = new Date();
 		final ExecutionMetadata metaData = new ExecutionMetadata(fromDateObject(executionDate).toElasticString());
+		metadataRepository.save(metaData);
 		metaData.setTime(fromDateObject(executionDate).toTimeString());
 		metaData.setDate(fromDateObject(executionDate).toDateString());
+		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + metaData.getId());
 		metaData.setUri(Common.REPORTS_FOLDER_NAME + "/" + metaData.getFolderName() + "/index.html");
 		metaData.setComment("");
-		metaData.setActive(true);
 		if (executionDetails != null) {
 			metaData.setDescription(executionDetails.getDescription());
 			metaData.setShared(executionDetails.isShared());
 			setAllowedPropertiesToMetaData(metaData, executionDetails);
 		}
-		metadataRepository.save(metaData);
-		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + metaData.getId());
 		metadataRepository.save(metaData);
 		executionRepository.save(metaData.getId(), execution);
 		stopWatch.stopAndLog();
@@ -117,21 +121,20 @@ public class ExecutionResource {
 	public int post(@Context HttpServletRequest request, ExecutionDetails executionDetails) {
 		ExecutionMetadata metadata = null;
 		log.debug("POST (" + request.getRemoteAddr() + ") - Adding new execution ");
-		if (executionDetails != null && executionDetails.isShared() && !executionDetails.isForceNew()) {
-			final List<ExecutionMetadata> sharedMetadataList = metadataRepository.findBySharedIsTrueAndActiveIsTrue();
-			if (sharedMetadataList.isEmpty()) {
-				log.debug("POST (" + request.getRemoteAddr()
-						+ ") - Could not find an active shared execution. Creating a new execution");
-				metadata = createMetadata(executionDetails);
-			} else {
-				metadata = sharedMetadataList.get(0);
-			}
-		} else {
-			metadata = createMetadata(executionDetails);
-		}
+		metadata = createMetadata(executionDetails);
+		createNewExecutionState(metadata);
 		publisher.publishEvent(new ExecutionCreatedEvent(metadata));
 		return metadata.getId();
 
+	}
+
+	private void createNewExecutionState(ExecutionMetadata metadata) {
+		ExecutionState state = new ExecutionState();
+		state.setId(metadata.getId());
+		state.setActive(true);
+		state.setLocked(false);
+		state.setHtmlExists(true);
+		stateRepository.save(state);
 	}
 
 	/**
@@ -168,19 +171,20 @@ public class ExecutionResource {
 		}
 
 		if (active != null && !active) {
-			executionMetadata.setActive(false);
-			metadataRepository.save(executionMetadata);
+			final ExecutionState state = stateRepository.findOne(executionMetadata.getId());
+			state.setActive(false);
+			stateRepository.save(state);
 			// TODO: This should be changed to use the executionUpdatedEvent for
 			// consistency
 			publisher.publishEvent(new ExecutionEndedEvent(executionId));
 		}
 
 		if (locked != null) {
-			executionMetadata.setLocked(locked);
-			metadataRepository.save(executionMetadata);
+			ExecutionState state = stateRepository.findOne(executionMetadata.getId());
+			state.setLocked(locked);
+			stateRepository.save(state);
 			publisher.publishEvent(new ExecutionUpdatedEvent(executionId));
 		}
-		
 
 		if (metadataStr != null) {
 
@@ -226,17 +230,18 @@ public class ExecutionResource {
 					+ " which is not exist");
 			return;
 		}
-		if (executionMetaData.isActive()) {
+		final ExecutionState state = stateRepository.findOne(executionId);
+		if (state.isActive()) {
 			log.warn("Request from " + request.getRemoteAddr() + " to delete execution with index " + executionId
 					+ " which is still active");
 			return;
 		}
-		if (executionMetaData.isLocked()) {
+		if (state.isLocked()) {
 			log.warn("Request from " + request.getRemoteAddr() + " to delete execution with index " + executionId
 					+ " which is locked");
 			return;
 		}
-		
+
 		publisher.publishEvent(new ExecutionDeletedEvent(executionId, deleteFromElastic));
 		metadataRepository.delete(executionMetaData);
 		executionRepository.delete(executionId);

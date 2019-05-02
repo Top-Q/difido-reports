@@ -9,7 +9,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import org.hibernate.annotations.common.reflection.MetadataProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RestController;
 
 import il.co.topq.difido.model.test.TestDetails;
-import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.TestDetailsCreatedEvent;
 
 @RestController

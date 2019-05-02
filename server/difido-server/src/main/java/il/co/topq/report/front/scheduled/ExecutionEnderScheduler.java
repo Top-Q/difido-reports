@@ -1,5 +1,7 @@
 package il.co.topq.report.front.scheduled;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +11,10 @@ import org.springframework.stereotype.Component;
 
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.business.execution.ExecutionMetadata;
+import il.co.topq.report.business.metadata.AccessTimeUpdaterController;
 import il.co.topq.report.events.ExecutionEndedEvent;
-import il.co.topq.report.persistence.MetadataRepository;
+import il.co.topq.report.persistence.ExecutionState;
+import il.co.topq.report.persistence.ExecutionStateRepository;
 
 @Component
 public class ExecutionEnderScheduler {
@@ -24,11 +27,14 @@ public class ExecutionEnderScheduler {
 
 	private final ApplicationEventPublisher publisher;
 
-	private final MetadataRepository metadataRepository;
+	private final ExecutionStateRepository stateRepository;
+	
+	private final AccessTimeUpdaterController accessTimeUpdater;
 
 	@Autowired
-	public ExecutionEnderScheduler(MetadataRepository metadataRepository, ApplicationEventPublisher publisher) {
-		this.metadataRepository = metadataRepository;
+	public ExecutionEnderScheduler(ExecutionStateRepository stateRepository, AccessTimeUpdaterController accessTimeUpdater, ApplicationEventPublisher publisher) {
+		this.stateRepository = stateRepository;
+		this.accessTimeUpdater = accessTimeUpdater;
 		this.publisher = publisher;
 	}
 
@@ -46,16 +52,15 @@ public class ExecutionEnderScheduler {
 			return;
 		}
 		log.trace("Waking up in order to search for executions that need to end");
-		final ExecutionMetadata[] metaDataArr = metadataRepository.findByActive(true)
-				.toArray(new ExecutionMetadata[] {});
-		for (ExecutionMetadata meta : metaDataArr) {
-			final int idleTime = (int) (System.currentTimeMillis() - meta.getLastAccessedTime()) / 1000;
+		final List<ExecutionState> stateList = stateRepository.findByActive(true);
+		for (ExecutionState state : stateList) {
+			final int idleTime = (int) (System.currentTimeMillis() - accessTimeUpdater.getLastAccessTime(state.getId())) / 1000;
 			if (idleTime > maxExecutionIdleTimeout) {
-				log.debug("Execution with id " + meta.getId() + " idle time is " + idleTime
+				log.debug("Execution with id " + state.getId() + " idle time is " + idleTime
 						+ " which exceeded the max idle time of " + maxExecutionIdleTimeout + ". Disabling execution");
-				meta.setActive(false);
-				metadataRepository.save(meta);
-				publisher.publishEvent(new ExecutionEndedEvent(meta.getId()));
+				state.setActive(false);
+				stateRepository.save(state);
+				publisher.publishEvent(new ExecutionEndedEvent(state.getId()));
 			}
 		}
 

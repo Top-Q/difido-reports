@@ -18,11 +18,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	private int id;
 
 	/**
-	 * Is the meta data was saved to the persistency.
-	 */
-	private boolean dirty;
-
-	/**
 	 * The description of the execution as described by the user the triggered
 	 * it
 	 */
@@ -70,31 +65,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	private String time;
 
 	/**
-	 * Is the execution is currently active or is it already finished
-	 */
-	private boolean active;
-
-	/**
-	 * If execution is locked it will not be deleted from disk no matter how old
-	 * it is
-	 */
-	private boolean locked;
-
-	/**
-	 * When the HTML is deleted, the flag is set to false. This can happen if
-	 * the execution age is larger then the maximum days allowed.
-	 */
-	private boolean htmlExists = true;
-
-	/**
-	 * The last time in absolute milliseconds that this execution was changed.
-	 * This is used for calculating if the max idle time is over. <br>
-	 * Marked as @jsonIgnore since there is no need to save it to the file
-	 * because when reading from the file the sessions are always none active
-	 */
-	private long lastAccessedTime;
-
-	/**
 	 * Overall number of tests in the execution
 	 */
 	private int numOfTests;
@@ -139,7 +109,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 			properties = new HashMap<String, String>();
 		}
 		properties.put(key, value);
-		setDirty(true);
 	}
 
 	/**
@@ -149,9 +118,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	 */
 	public ExecutionMetadata(final ExecutionMetadata metaData) {
 		if (null != metaData) {
-			this.active = metaData.active;
-			this.locked = metaData.locked;
-			this.htmlExists = metaData.htmlExists;
 			this.date = metaData.date;
 			this.folderName = metaData.folderName;
 			this.id = metaData.id;
@@ -159,7 +125,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 			this.comment = metaData.comment;
 			this.shared = metaData.shared;
 			this.properties = metaData.properties;
-			this.lastAccessedTime = metaData.lastAccessedTime;
 			this.time = metaData.time;
 			this.timestamp = metaData.timestamp;
 			this.duration = metaData.duration;
@@ -169,14 +134,11 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 			this.numOfFailedTests = metaData.numOfFailedTests;
 			this.numOfTestsWithWarnings = metaData.numOfTestsWithWarnings;
 			this.numOfMachines = metaData.numOfMachines;
-			this.dirty = metaData.dirty;
 		}
 	}
 
 	public ExecutionMetadata(String timestamp) {
 		this.timestamp = timestamp;
-		this.active = true;
-		lastAccessedTime = System.currentTimeMillis();
 	}
 
 	/**
@@ -219,10 +181,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 				.append("date"+ date)
 				.append("time"+ time)
 				.append("duration"+ duration)
-				.append("active"+ active)
-				.append("locked"+ locked)
-				.append("htmlExists"+ htmlExists)
-				.append("lastAccessedTime"+ lastAccessedTime)
 				.append("numOfTests"+ numOfTests)
 				.append("numOfSuccessfulTests"+ numOfSuccessfulTests)
 				.append("numOfFailedTests"+ numOfFailedTests)
@@ -237,48 +195,12 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		return timestamp;
 	}
 
-	public boolean isActive() {
-		return active;
-	}
-
-	public void setActive(boolean active) {
-		this.active = active;
-		setDirty(true);
-	}
-
-	public boolean isLocked() {
-		return locked;
-	}
-
-	public void setLocked(boolean locked) {
-		this.locked = locked;
-		setDirty(true);
-	}
-
-	public boolean isHtmlExists() {
-		return htmlExists;
-	}
-
-	public void setHtmlExists(boolean htmlExists) {
-		this.htmlExists = htmlExists;
-		setDirty(true);
-	}
-
-	public long getLastAccessedTime() {
-		return lastAccessedTime;
-	}
-
-	public void setLastAccessedTime(long lastAccessedTime) {
-		this.lastAccessedTime = lastAccessedTime;
-	}
-
 	public int getId() {
 		return id;
 	}
 
 	public void setId(int id) {
 		this.id = id;
-		setDirty(true);
 	}
 
 	public String getDescription() {
@@ -287,7 +209,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setDescription(String description) {
 		this.description = description;
-		setDirty(true);
 	}
 
 	public Map<String, String> getProperties() {
@@ -296,7 +217,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setProperties(HashMap<String, String> properties) {
 		this.properties = properties;
-		setDirty(true);
 	}
 
 	public boolean isShared() {
@@ -305,7 +225,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setShared(boolean shared) {
 		this.shared = shared;
-		setDirty(true);
 	}
 
 	public String getFolderName() {
@@ -313,7 +232,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	public void setFolderName(String folderName) {
-		setDirty(true);
 		this.folderName = folderName;
 	}
 
@@ -322,7 +240,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	public void setUri(String uri) {
-		setDirty(true);
 		this.uri = uri;
 	}
 
@@ -331,7 +248,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	public void setDate(String date) {
-		setDirty(true);
 		this.date = date;
 	}
 
@@ -343,7 +259,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		if (time == null || time.equals(this.time)) {
 			return;
 		}
-		setDirty(true);
 		this.time = time;
 	}
 
@@ -351,7 +266,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		if (this.timestamp == timestamp) {
 			return;
 		}
-		setDirty(true);
 		this.timestamp = timestamp;
 	}
 
@@ -363,7 +277,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		if (this.numOfTests == numOfTests) {
 			return;
 		}
-		setDirty(true);
 		this.numOfTests = numOfTests;
 	}
 
@@ -375,7 +288,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		if (this.numOfSuccessfulTests == numOfSuccessfulTests) {
 			return;
 		}
-		setDirty(true);
 		this.numOfSuccessfulTests = numOfSuccessfulTests;
 
 	}
@@ -388,7 +300,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		if (numOfFailedTests == this.numOfFailedTests) {
 			return;
 		}
-		setDirty(true);
 		this.numOfFailedTests = numOfFailedTests;
 	}
 
@@ -400,7 +311,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		if (this.numOfTestsWithWarnings == numOfTestsWithWarnings) {
 			return;
 		}
-		setDirty(true);
 		this.numOfTestsWithWarnings = numOfTestsWithWarnings;
 	}
 
@@ -412,7 +322,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		if (this.numOfMachines == numOfMachines) {
 			return;
 		}
-		setDirty(true);
 		this.numOfMachines = numOfMachines;
 	}
 
@@ -432,11 +341,4 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		this.comment = comment;
 	}
 
-	public boolean isDirty() {
-		return dirty;
-	}
-
-	public void setDirty(boolean dirty) {
-		this.dirty = dirty;
-	}
 }

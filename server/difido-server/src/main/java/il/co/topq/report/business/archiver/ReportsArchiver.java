@@ -32,6 +32,7 @@ import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.persistence.ExecutionRepository;
+import il.co.topq.report.persistence.ExecutionStateRepository;
 import il.co.topq.report.persistence.MetadataRepository;
 
 @Component
@@ -51,6 +52,8 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 	private MetadataRepository metadataRepository;
 
 	private ExecutionRepository executionRepository;
+	
+	private final ExecutionStateRepository stateRespository;
 
 
 	/**
@@ -93,7 +96,7 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 	ThreadPoolTaskExecutor executor;
 
 	@Autowired
-	public ReportsArchiver(MetadataRepository metadataRepository, ExecutionRepository executionRepository) {
+	public ReportsArchiver(MetadataRepository metadataRepository, ExecutionRepository executionRepository,ExecutionStateRepository stateRespository) {
 		this.metadataRepository = metadataRepository;
 		this.executionRepository = executionRepository;
 		client = new ArchiverHttpClient(Configuration.INSTANCE.readString(ConfigProps.ARCHIVER_DIFIDO_SERVER));
@@ -104,6 +107,7 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 				+ Common.REPORTS_FOLDER_NAME;
 		maxToArchive = Configuration.INSTANCE.readInt(ConfigProps.ARCHIVER_MAX_TO_ARCHIVE);
 		archiveHistory = new CircularFifoBuffer(MAX_RECORDS_IN_HISTORY);
+		this.stateRespository = stateRespository;
 	}
 
 	/**
@@ -257,7 +261,6 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 	 */
 	private void addExecutionToPersistency(ExecutionMetadata metadata) {
 		log.debug("Adding execution " + metadata.getId() + " to persistency");
-		metadata.setDirty(true);
 		metadataRepository.save(metadata);
 	}
 
@@ -280,7 +283,7 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 	 */
 	private List<ExecutionMetadata> filterExecutionsToArchive(Map<Integer, ExecutionMetadata> remoteExecutions) {
 		final List<ExecutionMetadata> executionsToArchive = remoteExecutions.values().parallelStream()
-				.filter(el -> metadataRepository.findByActive(false).stream().noneMatch(er -> er.getId() == el.getId()))
+				.filter(el -> stateRespository.findByActive(false).stream().noneMatch(er -> er.getId() == el.getId()))
 				.filter(e -> StringUtils.isNotBlank(e.getDate()) && new Date().getTime() - DateTimeConverter
 						.fromDateString(e.getDate()).toDateObject().getTime() > minReportsAgeInMillis)
 				.limit(maxToArchive).collect(Collectors.toList());

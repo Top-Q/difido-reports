@@ -71,11 +71,8 @@ class ExecutionMetaDataGenerator {
 		ExecutionMetadata executionMetaData = new ExecutionMetadata();
 		executionMetaData.setId(executionId++);
 //		executionMetaData.setExecution(generateExecution(numOfMachinesInExecution, numOfScenariosInMachine, numOfTestsInScneario));
-		executionMetaData.setActive(true);
 		executionMetaData.setDate("16/10/2016");
 		executionMetaData.setFolderName(new File(".").getAbsolutePath());
-		executionMetaData.setHtmlExists(true);
-		executionMetaData.setLocked(false);
 		executionMetaData.setNumOfFailedTests(0);
 		executionMetaData.setNumOfMachines(numOfMachinesInExecution);
 		executionMetaData.setNumOfSuccessfulTests(numOfMachinesInExecution * numOfScenariosInMachine * numOfTestsInScneario);
