@@ -1,5 +1,6 @@
 ﻿using difido_client.Main.Report.Reporters.ConsoleReporter;
 using difido_client.Main.Report.Reporters.HtmlTestReporter;
+using difido_client.MSTest;
 using difido_client.Report.Excel;
 using difido_client.Report.Html;
 using System;
@@ -19,13 +20,14 @@ namespace difido_client
         private string outputFolder;
         private static List<string> errorsList = new List<string>();
 
-        private ReportManager() {
+        private ReportManager()
+        {
             reporters = new List<IReporter>();
-            reporters.Add(new HtmlTestReporter());//TODO - This should be added dynamically from external file
+            reporters.Add(new HtmlTestReporter()); // TODO - This should be added dynamically from external file
             reporters.Add(new RemoteHtmlReporter());
             reporters.Add(new ExcelReporter());
             reporters.Add(new ConsoleReporter());
-            outputFolder = Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.Parent.FullName + @"/TestResults/Report";
+            outputFolder = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName + @"/TestResults/Report";
             try
             {
                 Directory.CreateDirectory(outputFolder);
@@ -35,9 +37,7 @@ namespace difido_client
                 throw new Exception("Failed to create reports output folder", e);
             }
 
-            
             Init(outputFolder);
-
         }
 
         public static ReportManager Instance
@@ -56,7 +56,7 @@ namespace difido_client
                 return instance;
             }
         }
-  
+
         public void Init(string outputFolder)
         {
             foreach (IReporter reporter in reporters)
@@ -65,7 +65,6 @@ namespace difido_client
                 {
                     reporter.Init(outputFolder);
                 }
-
             }
         }
 
@@ -117,7 +116,7 @@ namespace difido_client
                     reporter.EndSuite(suiteName);
 
                 }
-            }            
+            }
         }
 
         public void EndRun()
@@ -132,7 +131,6 @@ namespace difido_client
             }
         }
 
-
         public void ReportError(params object[] args)
         {
             var info = ConvertStringArgsToFormatterAndValues(args);
@@ -145,7 +143,6 @@ namespace difido_client
 
             Report(title, "");
         }
-
 
         public void Report(string title)
         {
@@ -160,7 +157,7 @@ namespace difido_client
         public void Report(string title, string message, bool success)
         {
             Report(title, message, success ? DifidoTestStatus.success : DifidoTestStatus.failure);
-            
+
         }
 
         public void Report(string title, string message, DifidoTestStatus status)
@@ -170,20 +167,37 @@ namespace difido_client
 
         public void Report(string title, string message, DifidoTestStatus status, ReportElementType type)
         {
+            UpdateTestStatus(status);
+
             foreach (IReporter reporter in reporters)
             {
                 lock (syncRoot)
                 {
                     reporter.Report(title, message, status, type);
                 }
+            }
+        }
 
+        private void UpdateTestStatus(DifidoTestStatus status)
+        {
+            if (AbstractDifidoMSTest.testInfo.Status == DifidoTestStatus.success && status != DifidoTestStatus.success)
+            {
+                AbstractDifidoMSTest.testInfo.Status = status;
+            }
+            else if (AbstractDifidoMSTest.testInfo.Status == DifidoTestStatus.warning && (status == DifidoTestStatus.failure || status == DifidoTestStatus.error))
+            {
+                AbstractDifidoMSTest.testInfo.Status = status;
+            }
+            else if (AbstractDifidoMSTest.testInfo.Status == DifidoTestStatus.failure && status == DifidoTestStatus.error)
+            {
+                AbstractDifidoMSTest.testInfo.Status = status;
             }
         }
 
         public void ReportFile(string title, string filePath)
         {
             Report(title, filePath, DifidoTestStatus.success, ReportElementType.lnk);
-            
+
         }
 
         public void Step(string title)
@@ -195,7 +209,7 @@ namespace difido_client
         {
             Report(title, filePath, DifidoTestStatus.success, ReportElementType.img);
         }
-        
+
         public void StartLevel(string description)
         {
             Report(description, null, DifidoTestStatus.success, ReportElementType.startLevel);
@@ -245,13 +259,29 @@ namespace difido_client
             }
             catch (Exception ex)
             {
-
                 //ErrorFormat("ConvertStringArgsToFormatterAndValues threw exception :{0}", ex);
             }
             return FormatterAndArgs;
         }
 
+        public void ReportFail(string message)
+        {
+            Report(message, null, DifidoTestStatus.failure);
+        }
+
+        public void ReportFail(string title, string message)
+        {
+            Report(title, message, DifidoTestStatus.failure);
+        }
+
+        public void ReportWarning(string message)
+        {
+            Report(message, null, DifidoTestStatus.warning);
+        }
+
+        public void ReportWarning(string title, string message)
+        {
+            Report(title, message, DifidoTestStatus.warning);
+        }
     }
-
-
 }

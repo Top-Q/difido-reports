@@ -1,11 +1,11 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Diagnostics;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Windows.Forms;
 
 namespace difido_client.MSTest
 
@@ -14,10 +14,8 @@ namespace difido_client.MSTest
     public abstract class AbstractDifidoMSTest
     {
         protected static IReportDispatcher report = ReportManager.Instance;
-        private static DifidoTestStatus currentTestStatus;
         private static Stopwatch testStopwatch;
-        private static ReporterTestInfo testInfo;
-
+        public static ReporterTestInfo testInfo;
         protected Dictionary<string, string> TestParameters;
         protected string NiceTestName = null;
 
@@ -27,10 +25,13 @@ namespace difido_client.MSTest
         {
             testInfo = new ReporterTestInfo();
             if (NiceTestName != null)
+            {
                 testInfo.TestName = NiceTestName;
+            }
             else
+            {
                 testInfo.TestName = TestContext.TestName;
-
+            }
 
             if (paramsForTestName != null)
             {
@@ -44,23 +45,20 @@ namespace difido_client.MSTest
 
             testInfo.FullyQualifiedTestClassName = TestContext.FullyQualifiedTestClassName;
             testInfo.Status = DifidoTestStatus.success;
-            currentTestStatus = DifidoTestStatus.success;
             report.StartTest(testInfo);
             testStopwatch = new Stopwatch();
             testStopwatch.Start();
 
-            if (TestParameters != null)
-                AddTestProperties(TestParameters);
+            AddTestProperties(TestParameters);
         }
 
         private void TestFinished()
         {
-            testInfo.Status = currentTestStatus;
             testStopwatch.Stop();
             testInfo.DurationTime = testStopwatch.ElapsedMilliseconds;
             report.EndTest(testInfo);
 
-            if (currentTestStatus == DifidoTestStatus.failure)
+            if (testInfo.Status == DifidoTestStatus.failure)
             {
                 throw new Exception("The test has failed; See test report for details.");
             }
@@ -73,7 +71,7 @@ namespace difido_client.MSTest
                 TestStarted(paramsForTestName);
                 TestBody();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 TakeScreenshot(ex.Message);
                 ReportError(ex.Message, ex.StackTrace);
@@ -103,31 +101,26 @@ namespace difido_client.MSTest
         public static void ReportWarning(string message)
         {
             report.Report(message, null, DifidoTestStatus.warning);
-            UpdateCurrentTestStatus(DifidoTestStatus.warning);
         }
 
         public static void ReportWarning(string title, string message)
         {
             report.Report(title, message, DifidoTestStatus.warning);
-            UpdateCurrentTestStatus(DifidoTestStatus.warning);
         }
 
         public static void ReportFail(string message)
         {
             report.Report(message, null, DifidoTestStatus.failure);
-            UpdateCurrentTestStatus(DifidoTestStatus.failure);
         }
 
         public static void ReportFail(string title, string message)
         {
             report.Report(title, message, DifidoTestStatus.failure);
-            UpdateCurrentTestStatus(DifidoTestStatus.failure);
         }
 
         public static void ReportError(string title, string message)
         {
             report.Report(title, message, DifidoTestStatus.error);
-            UpdateCurrentTestStatus(DifidoTestStatus.error);
         }
 
         public static void ReportStartLevel(string levelTitle)
@@ -147,25 +140,12 @@ namespace difido_client.MSTest
 
         public static void AddTestProperties(Dictionary<string, string> properties)
         {
-            foreach (var keyValue in properties)
+            if (properties != null)
             {
-                report.AddTestProperty(keyValue.Key, keyValue.Value);
-            }
-        }
-
-        public static void UpdateCurrentTestStatus(DifidoTestStatus testStatus)
-        {
-            if (testStatus == DifidoTestStatus.warning && currentTestStatus != DifidoTestStatus.failure && currentTestStatus != DifidoTestStatus.error)
-            {
-                currentTestStatus = DifidoTestStatus.warning;
-            }
-            else if (testStatus == DifidoTestStatus.failure && currentTestStatus != DifidoTestStatus.error)
-            {
-                currentTestStatus = DifidoTestStatus.failure;
-            }
-            else if (testStatus == DifidoTestStatus.error)
-            {
-                currentTestStatus = DifidoTestStatus.error;
+                foreach (var keyValue in properties)
+                {
+                    report.AddTestProperty(keyValue.Key, keyValue.Value);
+                }
             }
         }
 
@@ -173,7 +153,7 @@ namespace difido_client.MSTest
         {
             Dictionary<string, string> paramsFromDataSource = new Dictionary<string, string>();
 
-            foreach(string paramName in paramNames)
+            foreach (string paramName in paramNames)
             {
                 paramsFromDataSource[paramName] = TestContext.DataRow[paramName].ToString();
             }

@@ -11,7 +11,7 @@ namespace difido_client.Main.Config
     {
         private static volatile Configuration instance;
         private static object syncRoot = new Object();
-        private const string configurationFileName = "configuration.ini";
+        private const string configurationFileName = "difido_config.ini";
         private const string configurationIniSection = "general";
 
         private IniHandler iniHandler;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-
 namespace difido_client
 {
     public interface IReportDispatcher
@@ -12,7 +11,7 @@ namespace difido_client
 
         void EndTest(ReporterTestInfo testInfo);
 
-        void StartSuite(string suiteName,int testCount);
+        void StartSuite(string suiteName, int testCount);
 
         void EndSuite(string suiteName);
 
@@ -25,6 +24,14 @@ namespace difido_client
         void Report(string title, string message, DifidoTestStatus status);
 
         void Report(string title, string message, DifidoTestStatus status, ReportElementType type);
+
+        void ReportFail(string message);
+
+        void ReportFail(string title, string message);
+
+        void ReportWarning(string message);
+
+        void ReportWarning(string title, string message);
 
         void ReportFile(string title, string filePath);
 
