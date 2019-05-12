@@ -95,7 +95,7 @@ public class HtmlReportsController {
 			log.warn("Could not find folder for exeuction with id " + executionMetadata.getId());
 			return;
 		}
-		queue.addAction(() -> {
+		queue.addAction("Delete execution " + executionMetadata.getId() + " from disk", () -> {
 			try {
 				FileUtils.deleteDirectory(executionFolder);
 				log.debug("Finished deleting execution folder of execution with id " + executionMetadata.getId());
@@ -108,7 +108,7 @@ public class HtmlReportsController {
 
 	private void prepareExecutionFolder(ExecutionMetadata executionMetadata) {
 		final File executionDestinationFolder = getExecutionDestinationFolder(executionMetadata);
-		queue.addAction(() -> {
+		queue.addAction("Prepare execution folder for execution " + executionMetadata.getId(), () -> {
 			if (!TEMPLATE_FOLDER.exists() || !(new File(TEMPLATE_FOLDER, "index.html").exists())) {
 				PersistenceUtils.copyResources(TEMPLATE_FOLDER);
 			}
@@ -148,17 +148,16 @@ public class HtmlReportsController {
 	}
 
 	private void writeExecution(ExecutionMetadata executionMetadata) {
-		queue.addAction(() -> {
+		queue.addAction("Write execution " + executionMetadata.getId() + " to disk", () -> {
 			StopWatch stopWatch = new StopWatch(log).start("Writing execution " + executionMetadata.getId());
 			PersistenceUtils.writeExecution(executionMetadata.getExecution(),
 					getExecutionDestinationFolder(executionMetadata));
 			stopWatch.stopAndLog();
 		});
-
 	}
 
 	private void writeTestDetails(TestDetails details, ExecutionMetadata executionMetadata) {
-		queue.addAction(() -> {
+		queue.addAction("Write test details of execution " + executionMetadata.getId() + " to disk", () -> {
 			StopWatch stopWatch = new StopWatch(log).start(
 					"Writing test details of test " + details.getUid() + " for execution " + executionMetadata.getId());
 			final File executionDestinationFolder = getExecutionDestinationFolder(executionMetadata);
@@ -175,47 +174,51 @@ public class HtmlReportsController {
 
 		final File destinationFolder = buildTestFolderName(
 				getExecutionDestinationFolder(fileAddedToTestEvent.getMetadata()), fileAddedToTestEvent.getTestUid());
-		queue.addAction(() -> {
-			if (!destinationFolder.exists()) {
-				// In some cases there can be a race condition between the
-				// WriteTestDetails method and this method. If this method will
-				// be
-				// executed first, the destination folder will not be ready so
-				// we
-				// have to create it here
-				try {
-					FileUtils.forceMkdir(destinationFolder);
-				} catch (IOException e) {
-					log.warn("Test destination folder '" + destinationFolder.getAbsolutePath()
-							+ "'is not exist and failed to create one for storing file '"
-							+ fileAddedToTestEvent.getFileName() + "'");
-					return;
-				}
-			}
+		queue.addAction("Write file " + fileAddedToTestEvent.getFileName() + " of execution "
+				+ fileAddedToTestEvent.getExecutionId() + " to disk", () -> {
+					if (!destinationFolder.exists()) {
+						// In some cases there can be a race condition between
+						// the
+						// WriteTestDetails method and this method. If this
+						// method will
+						// be
+						// executed first, the destination folder will not be
+						// ready so
+						// we
+						// have to create it here
+						try {
+							FileUtils.forceMkdir(destinationFolder);
+						} catch (IOException e) {
+							log.warn("Test destination folder '" + destinationFolder.getAbsolutePath()
+									+ "'is not exist and failed to create one for storing file '"
+									+ fileAddedToTestEvent.getFileName() + "'");
+							return;
+						}
+					}
 
-			final File file = new File(destinationFolder, fileAddedToTestEvent.getFileName());
-			try {
-				if (!file.createNewFile()) {
-					log.warn("Failed to create new file " + file.getAbsolutePath()
-							+ ", probably because file with the same name is already exists in the folder "
-							+ destinationFolder);
-					return;
-				}
-			} catch (IOException e) {
-				log.warn("Failed to create new file " + file.getAbsolutePath() + " due to " + e.getMessage());
-				return;
-			}
+					final File file = new File(destinationFolder, fileAddedToTestEvent.getFileName());
+					try {
+						if (!file.createNewFile()) {
+							log.warn("Failed to create new file " + file.getAbsolutePath()
+									+ ", probably because file with the same name is already exists in the folder "
+									+ destinationFolder);
+							return;
+						}
+					} catch (IOException e) {
+						log.warn("Failed to create new file " + file.getAbsolutePath() + " due to " + e.getMessage());
+						return;
+					}
 
-			try {
-				try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file))) {
-					stream.write(fileAddedToTestEvent.getFileContent());
-				}
-			} catch (IOException e) {
-				log.warn("Failed to save file with name " + fileAddedToTestEvent.getFileName() + " due to "
-						+ e.getMessage());
-			}
-			stopWatch.stopAndLog();
-		});
+					try {
+						try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file))) {
+							stream.write(fileAddedToTestEvent.getFileContent());
+						}
+					} catch (IOException e) {
+						log.warn("Failed to save file with name " + fileAddedToTestEvent.getFileName() + " due to "
+								+ e.getMessage());
+					}
+					stopWatch.stopAndLog();
+				});
 	}
 
 	@EventListener

@@ -70,7 +70,7 @@ class MetadataFileSystemPersistency extends AbstactMetadataPersistency {
 				}
 			}
 		}
-		queue.addAction(() -> {
+		queue.addAction("Write " + EXECUTION_FILE_NAME + " to disk", () -> {
 			try {
 				// We will create a temporary file and only after successful
 				// write we
