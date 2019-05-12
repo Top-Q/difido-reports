@@ -1,16 +1,25 @@
-package il.co.topq.report.upgrade;
+package il.co.topq.report.persistence;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import javax.persistence.EntityManager;
+
+import org.hibernate.Session;
+import org.hibernate.jdbc.Work;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -18,24 +27,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.business.execution.ExecutionMetadata;
-import il.co.topq.report.persistence.ExecutionState;
-import il.co.topq.report.persistence.ExecutionStateRepository;
-import il.co.topq.report.persistence.MetadataRepository;
 
-/**
- * Upgrades the persistence from json format to database.
- * 
- * @author itai
- *
- */
 @Component
-public class PersistenceUpgrader {
-
-	private static final Logger log = LoggerFactory.getLogger(PersistenceUpgrader.class);
+public class UpgradeController {
+	private static final Logger log = LoggerFactory.getLogger(UpgradeController.class);
 
 	private static final String EXECUTION_FILE_NAME = "reports/meta.json";
 
@@ -45,16 +42,21 @@ public class PersistenceUpgrader {
 
 	private final File metaFile;
 
+	private EntityManager em;
+
+	private JdbcTemplate template;
+	
 	@Autowired
-	public PersistenceUpgrader(MetadataRepository metadataRepository, ExecutionStateRepository stateRepository) {
-		super();
+	public UpgradeController(MetadataRepository metadataRepository, ExecutionStateRepository stateRepository,EntityManager em, JdbcTemplate template) {
 		this.metadataRepository = metadataRepository;
 		this.stateRepository = stateRepository;
-		metaFile = new File(Configuration.INSTANCE.readString(ConfigProps.DOC_ROOT_FOLDER), EXECUTION_FILE_NAME);
+		this.em = em;
+		this.template = template;
+		metaFile =  new File(Configuration.INSTANCE.readString(ConfigProps.DOC_ROOT_FOLDER), EXECUTION_FILE_NAME);
 		upgrade();
 	}
 
-	private void upgrade() {
+	public void upgrade() {
 		if (!metaFile.exists()) {
 			log.debug("No old meta file found. No need to upgrade");
 			return;
@@ -69,23 +71,40 @@ public class PersistenceUpgrader {
 			return;
 		}
 		data.values().stream().forEach(e -> {
-			final ExecutionMetadata metadata = new ExecutionMetadata();
-			metadata.setId(e.getId());
-			metadata.setDate(e.getDate());
-			metadata.setComment(e.getComment());
-			metadata.setDescription(e.getDescription());
-			metadata.setDuration(e.getDuration());
-			metadata.setFolderName(e.getFolderName());
-			metadata.setNumOfFailedTests(e.getNumOfFailedTests());
-			metadata.setNumOfMachines(e.getNumOfMachines());
-			metadata.setNumOfSuccessfulTests(e.getNumOfSuccessfulTests());
-			metadata.setNumOfTests(e.getNumOfTests());
-			metadata.setNumOfTestsWithWarnings(e.getNumOfTestsWithWarnings());
-			metadata.setProperties(new HashMap<>(e.getProperties()));
-			metadata.setShared(e.isShared());
-			metadata.setTime(e.getTime());
-			metadata.setTimestamp(e.getTimestamp());
-			metadata.setUri(e.getUri());
+			template.execute("INSERT INTO EXECUTION_METADATA (ID, COMMENT , DATE , DESCRIPTION , DURATION , FOLDER_NAME , NUM_OF_FAILED_TESTS , NUM_OF_MACHINES , NUM_OF_SUCCESSFUL_TESTS , NUM_OF_TESTS , NUM_OF_TESTS_WITH_WARNINGS , PROPERTIES , SHARED , TIME , TIMESTAMP , URI ) VALUES (55556,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1);");
+//			em.getTransaction().begin();
+//			Session session = em.unwrap(Session.class);
+//			session.doWork(new Work() {
+//
+//				@Override
+//				public void execute(Connection connection) throws SQLException {
+//
+//			        try (PreparedStatement stmt = connection.prepareStatement("INSERT INTO EXECUTION_METADATA (ID, COMMENT , DATE , DESCRIPTION , DURATION , FOLDER_NAME , NUM_OF_FAILED_TESTS , NUM_OF_MACHINES , NUM_OF_SUCCESSFUL_TESTS , NUM_OF_TESTS , NUM_OF_TESTS_WITH_WARNINGS , PROPERTIES , SHARED , TIME , TIMESTAMP , URI ) VALUES ( 1212,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1);")) {
+//			            stmt.executeQuery();
+//			        }					
+//			        
+//				}
+//				
+//			});
+			
+//			metadataRepository.
+//			final UpgradeExecutionMetadata metadata = new UpgradeExecutionMetadata();
+//			metadata.setId(e.getId());
+//			metadata.setDate(e.getDate());
+//			metadata.setComment(e.getComment());
+//			metadata.setDescription(e.getDescription());
+//			metadata.setDuration(e.getDuration());
+//			metadata.setFolderName(e.getFolderName());
+//			metadata.setNumOfFailedTests(e.getNumOfFailedTests());
+//			metadata.setNumOfMachines(e.getNumOfMachines());
+//			metadata.setNumOfSuccessfulTests(e.getNumOfSuccessfulTests());
+//			metadata.setNumOfTests(e.getNumOfTests());
+//			metadata.setNumOfTestsWithWarnings(e.getNumOfTestsWithWarnings());
+//			metadata.setProperties(new HashMap<>(e.getProperties()));
+//			metadata.setShared(e.isShared());
+//			metadata.setTime(e.getTime());
+//			metadata.setTimestamp(e.getTimestamp());
+//			metadata.setUri(e.getUri());
 
 			final ExecutionState state = new ExecutionState();
 			state.setId(e.getId());
@@ -93,12 +112,11 @@ public class PersistenceUpgrader {
 			state.setHtmlExists(e.isHtmlExists());
 			state.setLocked(e.isLocked());
 
-			metadataRepository.save(metadata);
-			stateRepository.save(state);
+//			metadataRepository.save(metadata);
+//			stateRepository.save(state);
 
 		});
-		final File backupMetaFile = new File(Configuration.INSTANCE.readString(ConfigProps.DOC_ROOT_FOLDER),
-				EXECUTION_FILE_NAME + ".upgrade.backup");
+		final File backupMetaFile = new File(Configuration.INSTANCE.readString(ConfigProps.DOC_ROOT_FOLDER), EXECUTION_FILE_NAME+ ".upgrade.backup");
 		try {
 			Files.move(metaFile.toPath(), backupMetaFile.toPath(), REPLACE_EXISTING);
 			log.info("Finished upgrading data. Backup file can be found in " + backupMetaFile.getName());
@@ -239,9 +257,6 @@ public class PersistenceUpgrader {
 		 */
 		private long duration;
 
-		@JsonIgnore
-		private Execution execution;
-
 		public OldMetadata() {
 		}
 
@@ -265,7 +280,6 @@ public class PersistenceUpgrader {
 				this.locked = metaData.locked;
 				this.htmlExists = metaData.htmlExists;
 				this.date = metaData.date;
-				this.execution = metaData.execution;
 				this.folderName = metaData.folderName;
 				this.id = metaData.id;
 				this.description = metaData.description;
@@ -284,13 +298,6 @@ public class PersistenceUpgrader {
 				this.numOfMachines = metaData.numOfMachines;
 				this.dirty = metaData.dirty;
 			}
-		}
-
-		public OldMetadata(String timestamp, Execution execution) {
-			this.timestamp = timestamp;
-			this.execution = execution;
-			this.active = true;
-			lastAccessedTime = System.currentTimeMillis();
 		}
 
 		/**
@@ -319,41 +326,8 @@ public class PersistenceUpgrader {
 			}
 		}
 
-		@Override
-		public String toString() {
-			// @formatter:off
-			return new ToStringBuilder(this)
-					.append("id", id)
-					.append("description", description)
-					.append("comment", comment)
-					.append("properties", properties)
-					.append("shared", shared)
-					.append("folderName", folderName)
-					.append("uri", uri)
-					.append("date", date)
-					.append("time", time)
-					.append("duration", duration)
-					.append("active", active)
-					.append("locked", locked)
-					.append("htmlExists", htmlExists)
-					.append("lastAccessedTime", lastAccessedTime)
-					.append("numOfTests", numOfTests)
-					.append("numOfSuccessfulTests", numOfSuccessfulTests)
-					.append("numOfFailedTests", numOfFailedTests)
-					.append("numOfTestsWithWarnings", numOfTestsWithWarnings)
-					.append("numOfMachines", numOfMachines)
-					.append("timestamp", timestamp)
-					.toString();
-			// @formatter:on
-		}
-
 		public String getTimestamp() {
 			return timestamp;
-		}
-
-		@JsonIgnore
-		public Execution getExecution() {
-			return execution;
 		}
 
 		public boolean isActive() {
@@ -468,11 +442,6 @@ public class PersistenceUpgrader {
 			this.time = time;
 		}
 
-		@JsonIgnore
-		public void setExecution(Execution execution) {
-			this.execution = execution;
-		}
-
 		public void setTimestamp(String timestamp) {
 			if (this.timestamp == timestamp) {
 				return;
@@ -568,4 +537,5 @@ public class PersistenceUpgrader {
 			this.dirty = dirty;
 		}
 	}
+
 }

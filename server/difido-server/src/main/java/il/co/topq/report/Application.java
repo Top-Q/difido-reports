@@ -19,7 +19,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync
-@EnableCaching
+//@EnableCaching
 public class Application extends SpringBootServletInitializer implements AsyncConfigurer,InfoContributor {
 
 	ThreadPoolTaskExecutor executor;

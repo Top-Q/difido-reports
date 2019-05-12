@@ -212,7 +212,7 @@ public class Recoverer {
 				}
 
 			} else {
-				executionMetaData.setProperties(scenarioProperties);
+				executionMetaData.setProperties(new HashMap<String,String>(scenarioProperties));
 			}
 		}
 		return executionMetaData;
