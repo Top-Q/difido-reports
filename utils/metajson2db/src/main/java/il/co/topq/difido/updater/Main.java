@@ -15,13 +15,16 @@ public class Main implements Runnable {
 	private static final Logger log = LoggerFactory.getLogger(Main.class);
 	private static final String EXECUTION_FILE_NAME = "meta.json";
 
-	@Option(names = { "-p",
-			"--parallel" }, required = false, description = "Should the porting done in parallel for better performance")
+	@Option(names = { "-n",
+			"--parallel" }, required = false, description = "should the porting done in parallel for better performance")
 	private boolean parallel = true;
 
-	@Option(names = { "-m", "--metadata" }, required = false, description = "Location of the meta.json file")
+	@Option(names = { "-m", "--metadata" }, required = false, description = "location of the meta.json file")
 	private String metaJsonLocation = EXECUTION_FILE_NAME;
 
+	@Option(names = { "-h", "--help" }, usageHelp = true, description = "display a help message")
+    private boolean helpRequested = false;
+	
 	@Override
 	public void run() {
 		try {
@@ -34,7 +37,7 @@ public class Main implements Runnable {
 			worker.work();
 			log.info("Finished in " + (System.currentTimeMillis() - start) / 1000 + " seconds.");
 		} catch (Exception e) {
-			log.error("Failure in porting json to database");
+			log.error("Failure in porting json to database",e);
 		}
 
 	}
