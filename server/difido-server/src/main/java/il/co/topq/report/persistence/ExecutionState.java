@@ -3,7 +3,10 @@ package il.co.topq.report.persistence;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import org.springframework.cache.annotation.Cacheable;
+
 @Entity
+@Cacheable
 public class ExecutionState {
 	
 	@Id
