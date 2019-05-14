@@ -10,7 +10,7 @@ import il.co.topq.difido.model.execution.Execution;
 @Component
 public class ExecutionRepository {
 
-	private Map<Integer, Execution> executions;
+	private final Map<Integer, Execution> executions;
 
 	public ExecutionRepository() {
 		executions = new HashMap<>();
@@ -26,6 +26,10 @@ public class ExecutionRepository {
 	
 	public void delete(int id) {
 		executions.remove(id);
+	}
+	
+	public int count() {
+		return executions.size();
 	}
 
 }

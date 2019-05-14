@@ -19,7 +19,7 @@ import il.co.topq.report.events.MachineCreatedEvent;
 import il.co.topq.report.events.TestDetailsCreatedEvent;
 
 @Component
-public class AccessTimeUpdaterController implements InfoContributor{
+public class AccessTimeUpdaterController implements InfoContributor {
 
 	private final static Logger log = LoggerFactory.getLogger(AccessTimeUpdaterController.class);
 
@@ -82,17 +82,19 @@ public class AccessTimeUpdaterController implements InfoContributor{
 		}
 		return accessTimePerExecution.get(executionId);
 	}
-	
+
 	/**
 	 * Info about the server that can be retrieved using the
 	 * http://<host>:<port>/info request
 	 */
 	@Override
 	public void contribute(Builder builder) {
-		Map<String, Integer> metadataDetails = new HashMap<>();
-		metadataDetails.put("active executions", (int) accessTimePerExecution.size());
-		builder.withDetail("metadata controller", metadataDetails);
+		final Map<String, Integer> metadataDetails = new HashMap<>();
+		metadataDetails.put("enabled", enabled ? 1 : 0);
+		if (enabled) {
+			metadataDetails.put("active executions", (int) accessTimePerExecution.size());
+		}
+		builder.withDetail("access time updater controller", metadataDetails);
 	}
-
 
 }

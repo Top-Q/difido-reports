@@ -32,13 +32,14 @@ import il.co.topq.report.persistence.MetadataRepository;
 public class ExecutionSummaryUpdaterController implements InfoContributor {
 
 	private final Logger log = LoggerFactory.getLogger(ExecutionSummaryUpdaterController.class);
-	
+
 	private MetadataRepository metadataRepository;
 
 	private ExecutionRepository executionRepository;
 
 	@Autowired
-	public ExecutionSummaryUpdaterController(MetadataRepository metadataRepository, ExecutionRepository executionRepository) {
+	public ExecutionSummaryUpdaterController(MetadataRepository metadataRepository,
+			ExecutionRepository executionRepository) {
 		this.metadataRepository = metadataRepository;
 		this.executionRepository = executionRepository;
 	}
@@ -47,7 +48,6 @@ public class ExecutionSummaryUpdaterController implements InfoContributor {
 	public void onUpdateMetadataRequestEvent(UpdateMetadataRequestEvent updateMetadataRequestEvent) {
 		updateSingleExecutionMetaAndSave(updateMetadataRequestEvent.getExecutionId());
 	}
-	
 
 	@EventListener
 	public void onExecutionEndedEvent(ExecutionEndedEvent executionEndedEvent) {
@@ -58,13 +58,12 @@ public class ExecutionSummaryUpdaterController implements InfoContributor {
 	public void onMachineCreatedEvent(MachineCreatedEvent machineCreatedEvent) {
 		updateSingleExecutionMetaAndSave(machineCreatedEvent.getExecutionId());
 	}
-	
+
 	private void updateSingleExecutionMetaAndSave(int executionId) {
 		final ExecutionMetadata metadata = metadataRepository.findById(executionId);
 		updateSingleExecutionMeta(metadata);
 		metadataRepository.save(metadata);
 	}
-	
 
 	private void updateSingleExecutionMeta(ExecutionMetadata executionMetaData) {
 		updateDuration(executionMetaData);
@@ -123,7 +122,7 @@ public class ExecutionSummaryUpdaterController implements InfoContributor {
 		}
 
 	}
-	
+
 	/**
 	 * Updates the duration of the execution according to the start time.
 	 * 
@@ -140,7 +139,7 @@ public class ExecutionSummaryUpdaterController implements InfoContributor {
 			log.warn("Failed to parse start time of execution '" + timestamp + "' due to '" + e.getMessage() + "'", e);
 		}
 	}
-	
+
 	/**
 	 * Info about the server that can be retrieved using the
 	 * http://<host>:<port>/info request
@@ -149,9 +148,8 @@ public class ExecutionSummaryUpdaterController implements InfoContributor {
 	public void contribute(Builder builder) {
 		Map<String, Integer> metadataDetails = new HashMap<>();
 		metadataDetails.put("existing executions", (int) metadataRepository.count());
-		builder.withDetail("metadata controller", metadataDetails);
+		metadataDetails.put("active executions", (int) executionRepository.count());
+		builder.withDetail("execution summary controller", metadataDetails);
 	}
 
-	
-	
 }
