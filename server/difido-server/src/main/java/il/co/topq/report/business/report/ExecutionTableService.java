@@ -142,10 +142,18 @@ public class ExecutionTableService {
 				return;
 			}
 			long durInSec = Math.round(meta.getDuration() / 1000);
+			int days = 0;
+			if(durInSec > 86400) {
+				days = (int)(durInSec / 60 / 60 / 24);
+			}
 			long durationHour = (long) Math.floor(((durInSec % 31536000) % 86400) / 3600);
 			long durationMin = (long) Math.floor((((durInSec % 31536000) % 86400) % 3600) / 60);
 			long durationSec = (((durInSec % 31536000) % 86400) % 3600) % 60;
-			row.add(durationHour + "h" + durationMin + "m" + durationSec + "s");
+			if(days > 0) {
+				row.add(days + "d" + durationHour + "h" + durationMin + "m" + durationSec + "s");
+			} else {
+				row.add(durationHour + "h" + durationMin + "m" + durationSec + "s");
+			}
 			return;
 		}
 		if (header.equalsIgnoreCase(ACTIVE)) {
