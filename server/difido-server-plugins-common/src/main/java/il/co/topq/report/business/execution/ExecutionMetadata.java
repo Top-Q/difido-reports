@@ -10,8 +10,8 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.MapKeyColumn;
 import javax.persistence.JoinColumn;
+import javax.persistence.MapKeyColumn;
 
 @Entity
 @Cacheable

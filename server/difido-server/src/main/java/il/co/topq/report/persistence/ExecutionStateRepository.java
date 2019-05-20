@@ -13,5 +13,8 @@ public interface ExecutionStateRepository extends JpaRepository<ExecutionState, 
 //	@Cacheable("executionStates")
 	List<ExecutionState> findAll();
 	
+	ExecutionState findByMetadataId(int id);
+	
+	
 }
 

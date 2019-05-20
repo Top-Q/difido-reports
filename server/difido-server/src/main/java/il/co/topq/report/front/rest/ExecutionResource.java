@@ -90,14 +90,27 @@ public class ExecutionResource {
 				metaData.addProperty(executionProp, executionDetails.getExecutionProperties().get(executionProp));
 			}
 		}
-
 	}
 
+
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public int post(@Context HttpServletRequest request, ExecutionDetails executionDetails) {
+		log.debug("POST (" + request.getRemoteAddr() + ") - Adding new execution ");
+		final ExecutionMetadata metadata = createMetadata(executionDetails);
+		final ExecutionState state = createState(metadata);
+		publisher.publishEvent(new ExecutionCreatedEvent(metadata));
+		return state.getId();
+
+	}
+	
 	private ExecutionMetadata createMetadata(ExecutionDetails executionDetails) {
 		StopWatch stopWatch = newStopWatch(log).start("Creating new metadata");
 		Execution execution = new Execution();
 		final Date executionDate = new Date();
 		final ExecutionMetadata metaData = new ExecutionMetadata(fromDateObject(executionDate).toElasticString());
+		// We want to generate the id
 		metadataRepository.save(metaData);
 		metaData.setTime(fromDateObject(executionDate).toTimeString());
 		metaData.setDate(fromDateObject(executionDate).toDateString());
@@ -115,27 +128,18 @@ public class ExecutionResource {
 		return metaData;
 	}
 
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.TEXT_PLAIN)
-	public int post(@Context HttpServletRequest request, ExecutionDetails executionDetails) {
-		ExecutionMetadata metadata = null;
-		log.debug("POST (" + request.getRemoteAddr() + ") - Adding new execution ");
-		metadata = createMetadata(executionDetails);
-		createNewExecutionState(metadata);
-		publisher.publishEvent(new ExecutionCreatedEvent(metadata));
-		return metadata.getId();
-
-	}
-
-	private void createNewExecutionState(ExecutionMetadata metadata) {
+	private ExecutionState createState(ExecutionMetadata metadata) {
 		ExecutionState state = new ExecutionState();
-		state.setId(metadata.getId());
+		state.setMetadata(metadata);
 		state.setActive(true);
 		state.setLocked(false);
 		state.setHtmlExists(true);
+		state.setId(metadata.getId());
 		stateRepository.save(state);
+		return state;
 	}
+
+
 
 	/**
 	 * Used to update that a single execution should not be active any more.
@@ -162,16 +166,14 @@ public class ExecutionResource {
 		log.debug("PUT (" + request.getRemoteAddr() + ") - Upating execution with id " + executionId + ". to active: "
 				+ active + ", locked: " + locked + ", metadata: " + metadataStr);
 
-		final ExecutionMetadata executionMetadata = metadataRepository.findById(executionId);
-
-		if (null == executionMetadata) {
+		final ExecutionState state = stateRepository.findOne(executionId);
+		if (null == state) {
 			log.warn("Request from " + request.getRemoteAddr() + " to update the state of execution with id "
 					+ executionId + " which is not exist");
 			return;
 		}
 
 		if (active != null && !active) {
-			final ExecutionState state = stateRepository.findOne(executionMetadata.getId());
 			state.setActive(false);
 			stateRepository.save(state);
 			// TODO: This should be changed to use the executionUpdatedEvent for
@@ -180,7 +182,6 @@ public class ExecutionResource {
 		}
 
 		if (locked != null) {
-			ExecutionState state = stateRepository.findOne(executionMetadata.getId());
 			state.setLocked(locked);
 			stateRepository.save(state);
 			publisher.publishEvent(new ExecutionUpdatedEvent(executionId));
@@ -189,25 +190,24 @@ public class ExecutionResource {
 		if (metadataStr != null) {
 
 			String[] keyValuePairs = metadataStr.split("\\\\;");
-
 			for (String keyValuePair : keyValuePairs) {
 				String[] keyValueSplit = keyValuePair.split("\\\\=");
 
 				if (keyValueSplit[0].equalsIgnoreCase("description")) {
 					if (keyValueSplit.length > 1 && !keyValueSplit[1].trim().equals("")) {
-						executionMetadata.setDescription(keyValueSplit[1]);
+						state.getMetadata().setDescription(keyValueSplit[1]);
 					} else {
-						executionMetadata.setDescription("");
+						state.getMetadata().setDescription("");
 					}
 				} else if (keyValueSplit[0].equalsIgnoreCase("comment")) {
 					if (keyValueSplit.length > 1 && !keyValueSplit[1].trim().equals("")) {
-						executionMetadata.setComment(keyValueSplit[1]);
+						state.getMetadata().setComment(keyValueSplit[1]);
 					} else {
-						executionMetadata.setComment("");
+						state.getMetadata().setComment("");
 					}
 				}
 			}
-			metadataRepository.save(executionMetadata);
+			metadataRepository.save(state.getMetadata());
 			publisher.publishEvent(new ExecutionUpdatedEvent(executionId));
 		}
 	}
@@ -224,13 +224,12 @@ public class ExecutionResource {
 			@DefaultValue("true") @QueryParam("fromElastic") boolean deleteFromElastic) {
 		log.debug("DELETE  (" + request.getRemoteAddr() + ") - Delete execution with id " + executionId
 				+ ". Delete from Elastic=" + deleteFromElastic);
-		final ExecutionMetadata executionMetaData = metadataRepository.findById(executionId);
-		if (null == executionMetaData) {
+		final ExecutionState state = stateRepository.findOne(executionId);
+		if (null == state) {
 			log.warn("Request from " + request.getRemoteAddr() + " to delete execution with index " + executionId
 					+ " which is not exist");
 			return;
 		}
-		final ExecutionState state = stateRepository.findOne(executionId);
 		if (state.isActive()) {
 			log.warn("Request from " + request.getRemoteAddr() + " to delete execution with index " + executionId
 					+ " which is still active");
@@ -243,8 +242,9 @@ public class ExecutionResource {
 		}
 
 		publisher.publishEvent(new ExecutionDeletedEvent(executionId, deleteFromElastic));
-		metadataRepository.delete(executionMetaData);
 		executionRepository.delete(executionId);
+		stateRepository.delete(state);
+		metadataRepository.delete(state.getMetadata());
 	}
 
 }

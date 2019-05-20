@@ -1,9 +1,14 @@
 package il.co.topq.report.persistence;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.MapsId;
+import javax.persistence.OneToOne;
 
 import org.springframework.cache.annotation.Cacheable;
+
+import il.co.topq.report.business.execution.ExecutionMetadata;
 
 @Entity
 @Cacheable
@@ -28,6 +33,10 @@ public class ExecutionState {
 	 * the execution age is larger then the maximum days allowed.
 	 */
 	private boolean htmlExists;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+	@MapsId
+	private ExecutionMetadata metadata;
 
 	
 	public int getId() {
@@ -61,6 +70,16 @@ public class ExecutionState {
 	public void setHtmlExists(boolean htmlExists) {
 		this.htmlExists = htmlExists;
 	}
+
+	public ExecutionMetadata getMetadata() {
+		return metadata;
+	}
+
+	public void setMetadata(ExecutionMetadata metadata) {
+		this.metadata = metadata;
+	}
+	
+	
 
 	
 	
