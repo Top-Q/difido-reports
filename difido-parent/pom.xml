@@ -85,7 +85,6 @@
 		<module>../examples/jsystem-example/so-project</module>
 		<module>../examples/testng-example</module>
 		<module>../examples/jsystem-example/tests-project</module>
-		<module>../utils/metajson2db</module>
 		<module>../utils/metadata-recovery-utility</module>
 	</modules>
 </project>
