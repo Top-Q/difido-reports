@@ -1,4 +1,4 @@
-package il.co.topq.report.business.archiver;
+package il.co.topq.report.business.archive;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

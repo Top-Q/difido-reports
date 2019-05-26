@@ -9,6 +9,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.ScenarioNode;
@@ -45,6 +47,7 @@ public class FileUploadIT extends AbstractResourceTest {
 	}
 
 	@Test
+	@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 	public void uploadLargeFile() throws Exception {
 		String fileName = "test_file.tmp";
 		tempFile = new File(System.getProperty("java.io.tmpdir"), fileName);
@@ -52,6 +55,7 @@ public class FileUploadIT extends AbstractResourceTest {
 		long expectedFileSize = tempFile.length();
 		client.addFileFromFileSystem(executionId, uid, tempFile);
 		waitForTasksToFinish();
+		Thread.sleep(500);
 		File uploadedFiles[] = findFilesInTest(uid, fileName);
 		Assert.assertEquals(1, uploadedFiles.length);
 		Assert.assertNotNull(uploadedFiles[0]);

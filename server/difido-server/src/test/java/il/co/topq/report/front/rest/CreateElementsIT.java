@@ -6,6 +6,8 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.execution.Execution;
@@ -45,6 +47,7 @@ public class CreateElementsIT extends AbstractResourceTest {
 	}
 
 	@Test
+	@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 	public void testAddReportElement() throws Exception {
 		ReportElement element = new ReportElement(details);
 		element.setType(ElementType.regular);
@@ -66,6 +69,7 @@ public class CreateElementsIT extends AbstractResourceTest {
 	}
 
 	@Test
+	@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 	public void measureAddReportElements() throws Exception {
 		ReportElement element = null;
 		for (int i = 0; i < NUM_OF_REPORTS_ELEMENTS; i++) {
@@ -85,6 +89,7 @@ public class CreateElementsIT extends AbstractResourceTest {
 	}
 
 	@Test
+	@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 	public void testAddFile() throws Exception {
 		final File file = new File("src/test/resources/top-q.pdf");
 		ReportElement element = new ReportElement(details);

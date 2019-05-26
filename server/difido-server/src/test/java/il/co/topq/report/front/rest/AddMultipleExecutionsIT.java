@@ -3,6 +3,8 @@ package il.co.topq.report.front.rest;
 import java.util.Random;
 
 import org.junit.Test;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 import il.co.topq.difido.model.execution.MachineNode;
 import il.co.topq.difido.model.execution.ScenarioNode;
@@ -22,6 +24,7 @@ public class AddMultipleExecutionsIT extends AbstractResourceTest {
 
 	
 	@Test
+	@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 	public void testAddExecutions() throws Exception{
 		for (int i = 0 ; i < NUM_OF_EXECUTIONS ; i++){
 			ExecutionDetails description = new ExecutionDetails();

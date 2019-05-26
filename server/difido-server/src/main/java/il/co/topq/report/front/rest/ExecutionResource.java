@@ -1,8 +1,9 @@
 package il.co.topq.report.front.rest;
 
-import static il.co.topq.difido.DateTimeConverter.fromDateObject;
 import static il.co.topq.report.StopWatch.newStopWatch;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -48,6 +49,8 @@ public class ExecutionResource {
 
 	private static final Logger log = LoggerFactory.getLogger(ExecutionResource.class);
 
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
+
 	private final ApplicationEventPublisher publisher;
 
 	private MetadataRepository metadataRepository;
@@ -68,16 +71,33 @@ public class ExecutionResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{execution: [0-9]+}")
-	public ExecutionMetadata getMetadata(@Context HttpServletRequest request,@PathParam("execution") int executionId) {
+	public ExecutionMetadata getMetadata(@Context HttpServletRequest request, @PathParam("execution") int executionId) {
 		log.debug("GET (" + request.getRemoteAddr() + ") - Get metadata of execution with id " + executionId);
 		return metadataRepository.findById(executionId);
 	}
-	
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<ExecutionMetadata> getMetadata(@Context HttpServletRequest request, @QueryParam("from") String from) {
+	public List<ExecutionMetadata> getMetadata(@Context HttpServletRequest request, @QueryParam("from") String from,
+			@QueryParam("to") String to) {
 		log.debug("GET (" + request.getRemoteAddr() + ") - Get all metadata ");
+		try {
+			if (from != null && to != null) {
+				final Date dateFrom = DATE_FORMAT.parse(from);
+				final Date dateTo = DATE_FORMAT.parse(to);
+				return metadataRepository.findAllByTimestampBetween(dateFrom, dateTo);
+			} else if (from != null && to == null) {
+				final Date dateFrom = DATE_FORMAT.parse(from);
+				return metadataRepository.findAllWithTimestampAfter(dateFrom);
+			} else if (from == null && to != null) {
+				final Date dateTo = DATE_FORMAT.parse(to);
+				return metadataRepository.findAllWithTimestampBefore(dateTo);
+			}
+
+		} catch (ParseException e) {
+			log.error("Failed to parse date " + from + " or " + to, e);
+			return null;
+		}
 		return metadataRepository.findAll();
 	}
 
@@ -101,7 +121,6 @@ public class ExecutionResource {
 		}
 	}
 
-
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
@@ -113,7 +132,7 @@ public class ExecutionResource {
 		return state.getId();
 
 	}
-	
+
 	private ExecutionMetadata createMetadata(ExecutionDetails executionDetails) {
 		StopWatch stopWatch = newStopWatch(log).start("Creating new metadata");
 		Execution execution = new Execution();
@@ -121,8 +140,6 @@ public class ExecutionResource {
 		final ExecutionMetadata metaData = new ExecutionMetadata(executionDate);
 		// We want to generate the id
 		metadataRepository.save(metaData);
-		metaData.setTime(executionDate);
-		metaData.setDate(executionDate);
 		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + metaData.getId());
 		metaData.setUri(Common.REPORTS_FOLDER_NAME + "/" + metaData.getFolderName() + "/index.html");
 		metaData.setComment("");
@@ -147,8 +164,6 @@ public class ExecutionResource {
 		stateRepository.save(state);
 		return state;
 	}
-
-
 
 	/**
 	 * Used to update that a single execution should not be active any more.

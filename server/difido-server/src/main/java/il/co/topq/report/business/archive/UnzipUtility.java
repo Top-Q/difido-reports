@@ -1,4 +1,4 @@
-package il.co.topq.report.business.archiver;
+package il.co.topq.report.business.archive;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

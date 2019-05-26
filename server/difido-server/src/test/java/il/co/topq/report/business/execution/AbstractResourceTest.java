@@ -51,8 +51,6 @@ public abstract class AbstractResourceTest {
 	private void flushPreviousReports() throws IOException {
 		try {
 			waitForTasksToFinish();
-			metadataRepository.deleteAll();
-			metadataRepository.flush();
 			FileUtils.deleteDirectory(reportsFolder);
 		} catch (IOException e) {
 			// This can happen. Let's give it another try

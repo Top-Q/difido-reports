@@ -13,11 +13,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
 @Cacheable
+@Table(name = "EXECUTION_METADATA")
 public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	/**
@@ -25,18 +27,21 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	 */
 	@Id
 	@GeneratedValue
+	@Column(name = "ID")
 	private int id;
 
 	/**
 	 * The description of the execution as described by the user the triggered
 	 * it
 	 */
+	@Column(name = "DESCRIPTION")
 	private String description;
 
 	/**
 	 * A comment for the execution that might be added later (after the
 	 * execution ended)
 	 */
+	@Column(name = "COMMENT")
 	private String comment;
 
 	/**
@@ -44,13 +49,14 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	 */
 	@ElementCollection
 	@MapKeyColumn(name = "name")
-	@Column(name = "value")
-	@CollectionTable(name = "execution_properties", joinColumns = @JoinColumn(name = "execution_id"))
+	@Column(name = "value", length = 1024)
+	@CollectionTable(name = "execution_properties", joinColumns = @JoinColumn(name = "metadata_id"))
 	private Map<String, String> properties;
 
 	/**
 	 * Is this execution can be shared between different machines.
 	 */
+	@Column(name = "SHARED")
 	private boolean shared;
 
 	/**
@@ -58,51 +64,45 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	 * <br>
 	 * e.g. exec_4 <br>
 	 */
+	@Column(name = "FOLDER_NAME")
 	private String folderName;
 
 	/**
 	 * The uri of the index file of the execution report. <br>
 	 * e.g. reports/exec_4/index.html
 	 */
+	@Column(name = "URI")
 	private String uri;
-
-	/**
-	 * The date in which the execution was created in. <br>
-	 * e.g. 16/10/2016
-	 */
-	@Temporal(TemporalType.DATE)
-	private Date date;
-
-	/**
-	 * The time in which the execution was created in. <br>
-	 * 12:32:11:23
-	 */
-	@Temporal(TemporalType.TIME)
-	private Date time;
 
 	/**
 	 * Overall number of tests in the execution
 	 */
+
+	@Column(name = "NUM_OF_TESTS")
 	private int numOfTests;
 
 	/**
 	 * Number of successful tests in the execution
 	 */
+	@Column(name = "NUM_OF_SUCCESSFUL_TESTS")
 	private int numOfSuccessfulTests;
 
 	/**
 	 * Number of failed tests in the execution
 	 */
+	@Column(name = "NUM_OF_FAILED_TESTS")
 	private int numOfFailedTests;
 
 	/**
 	 * Number of tests with warnings in the execution
 	 */
+	@Column(name = "NUM_OF_TESTS_WITH_WARNINGS")
 	private int numOfTestsWithWarnings;
 
 	/**
 	 * Number of machines that were reported to this execution
 	 */
+	@Column(name = "NUM_OF_MACHINES")
 	private int numOfMachines;
 
 	/**
@@ -110,11 +110,13 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	 * 18:17:49
 	 */
 	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "TIMESTAMP")
 	private Date timestamp;
 
 	/**
 	 * The duration of the execution in milliseconds.
 	 */
+	@Column(name = "DURATION")
 	private long duration;
 
 	public ExecutionMetadata() {
@@ -135,14 +137,12 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	 */
 	public ExecutionMetadata(final ExecutionMetadata metaData) {
 		if (null != metaData) {
-			this.date = metaData.date;
 			this.folderName = metaData.folderName;
 			this.id = metaData.id;
 			this.description = metaData.description;
 			this.comment = metaData.comment;
 			this.shared = metaData.shared;
 			this.properties = metaData.properties;
-			this.time = metaData.time;
 			this.timestamp = metaData.timestamp;
 			this.duration = metaData.duration;
 			this.uri = metaData.uri;
@@ -195,8 +195,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 				.append("shared"+ shared)
 				.append("folderName"+ folderName)
 				.append("uri"+ uri)
-				.append("date"+ date)
-				.append("time"+ time)
 				.append("duration"+ duration)
 				.append("numOfTests"+ numOfTests)
 				.append("numOfSuccessfulTests"+ numOfSuccessfulTests)
@@ -258,22 +256,6 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setUri(String uri) {
 		this.uri = uri;
-	}
-
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
-	}
-
-	public Date getTime() {
-		return time;
-	}
-
-	public void setTime(Date time) {
-		this.time = time;
 	}
 
 	public void setTimestamp(Date timestamp) {

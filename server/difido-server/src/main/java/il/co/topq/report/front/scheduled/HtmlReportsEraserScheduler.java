@@ -62,11 +62,11 @@ public class HtmlReportsEraserScheduler {
 				continue;
 			}
 			final ExecutionMetadata meta = metadataRepository.getOne(state.getId());
-			final LocalDate executionDate = meta.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+			final LocalDate executionDate = meta.getTimestamp().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 			final long old = ChronoUnit.DAYS.between(executionDate, today);
 
 			if (old > daysToKeep) {
-				log.debug("Execution with id " + meta.getId() + " creation date is " + meta.getDate()
+				log.debug("Execution with id " + meta.getId() + " creation date is " + meta.getTimestamp()
 						+ " which makes it " + old + " days old which is more then the maximum of " + old
 						+ " to keep. About to delete HTML reports of the execution");
 				state.setHtmlExists(false);

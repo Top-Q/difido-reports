@@ -4,6 +4,8 @@ import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.execution.Execution;
@@ -22,6 +24,7 @@ public class ConcurrencyExecutionIT extends AbstractResourceTest {
 
 	// Disabled since the shared executions are currently not working
 	// @Test
+//	@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 	public void testConcurrentSharedExecutions() throws Exception {
 		Thread[] threads = new Thread[NUM_OF_THREADS];
 		long start = System.currentTimeMillis();
@@ -62,6 +65,7 @@ public class ConcurrencyExecutionIT extends AbstractResourceTest {
 	}
 
 	@Test
+	@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 	public void testConcurrentSeparateExecutions() throws Exception {
 		Thread[] threads = new Thread[NUM_OF_THREADS];
 		long start = System.currentTimeMillis();

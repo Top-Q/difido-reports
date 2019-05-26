@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import il.co.topq.difido.DateTimeConverter;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
 import il.co.topq.report.StopWatch;
@@ -117,11 +118,11 @@ public class ExecutionTableService {
 			return;
 		}
 		if (header.equalsIgnoreCase(DATE)) {
-			row.add(meta.getDate().toString());
+			row.add(DateTimeConverter.fromDateObject(meta.getTimestamp()).toDateString());
 			return;
 		}
 		if (header.equalsIgnoreCase(TIME)) {
-			row.add(meta.getTime().toString());
+			row.add(DateTimeConverter.fromDateObject(meta.getTimestamp()).toTimeString());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_TESTS)) {

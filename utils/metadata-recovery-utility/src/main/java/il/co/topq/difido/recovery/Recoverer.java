@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import il.co.topq.difido.DateTimeConverter;
 import il.co.topq.difido.PersistenceUtils;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
@@ -129,8 +129,6 @@ public class Recoverer {
 		int numOfTestsWithWarnings = 0;
 		int numOfMachines = 0;
 		long duration = 0;
-		Date date = null;
-		Date time = null;
 		String timestamp = null;
 		Map<String, String> scenarioProperties = null;
 
@@ -173,10 +171,6 @@ public class Recoverer {
 							if (firstTest) {
 								firstTest = false;
 								try {
-									time = EnhancedDateTimeConverter.fromTimeString(test.getTimestamp() + ":00")
-											.toDateObject();
-									date = EnhancedDateTimeConverter.fromReverseDateString(test.getDate())
-											.toDateObject();
 									timestamp = test.getDate() + " " + test.getTimestamp();
 								} catch (Exception e) {
 									log.error("Failed to parse date or time from test " + test.toString(), e);
@@ -196,13 +190,7 @@ public class Recoverer {
 		executionMetaData.setNumOfTestsWithWarnings(numOfTestsWithWarnings);
 		executionMetaData.setNumOfMachines(numOfMachines);
 		executionMetaData.setDuration(duration);
-		if (date != null) {
-			executionMetaData.setDate(EnhancedDateTimeConverter.fromDateObject(date).toDateString());
-		}
-		if (time != null) {
-			executionMetaData.setTime(EnhancedDateTimeConverter.fromDateObject(time).toTimeString());
-		}
-		executionMetaData.setTimestamp(timestamp);
+		executionMetaData.setTimestamp(DateTimeConverter.fromElasticString(timestamp).toDateObject());
 		if (scenarioProperties != null && !scenarioProperties.isEmpty()) {
 			if (allowedProps != null && !allowedProps.isEmpty()) {
 				for (String propName : scenarioProperties.keySet()) {

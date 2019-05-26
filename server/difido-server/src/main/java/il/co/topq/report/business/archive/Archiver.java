@@ -1,4 +1,4 @@
-package il.co.topq.report.business.archiver;
+package il.co.topq.report.business.archive;
 
 /**
  * Interface for services that are responsible for pulling executions from

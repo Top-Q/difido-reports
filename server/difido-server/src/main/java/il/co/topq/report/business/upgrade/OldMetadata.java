@@ -1,4 +1,4 @@
-package il.co.topq.report.updater;
+package il.co.topq.report.business.upgrade;
 
 import java.util.HashMap;
 

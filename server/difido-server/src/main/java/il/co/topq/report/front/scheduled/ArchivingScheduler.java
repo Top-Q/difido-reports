@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
-import il.co.topq.report.business.archiver.Archiver;
+import il.co.topq.report.business.archive.Archiver;
 
 @Component
 public class ArchivingScheduler {
