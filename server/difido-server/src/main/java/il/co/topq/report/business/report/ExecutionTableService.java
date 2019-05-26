@@ -117,11 +117,11 @@ public class ExecutionTableService {
 			return;
 		}
 		if (header.equalsIgnoreCase(DATE)) {
-			row.add(meta.getDate());
+			row.add(meta.getDate().toString());
 			return;
 		}
 		if (header.equalsIgnoreCase(TIME)) {
-			row.add(meta.getTime());
+			row.add(meta.getTime().toString());
 			return;
 		}
 		if (header.equalsIgnoreCase(NUM_OF_TESTS)) {

@@ -1,7 +1,5 @@
 package il.co.topq.report.business.metadata;
 
-import static il.co.topq.difido.DateTimeConverter.fromElasticString;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +12,6 @@ import org.springframework.boot.actuate.info.Info.Builder;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
@@ -129,14 +126,12 @@ public class ExecutionSummaryUpdaterController implements InfoContributor {
 	 * @param executionMetaData
 	 */
 	private synchronized void updateDuration(final ExecutionMetadata executionMetaData) {
-		final String timestamp = executionMetaData.getTimestamp();
 		try {
-			if (!StringUtils.isEmpty(timestamp)) {
-				final Date startTime = fromElasticString(timestamp).toDateObject();
-				executionMetaData.setDuration(new Date().getTime() - startTime.getTime());
+			if (null != executionMetaData.getTimestamp()) {
+				executionMetaData.setDuration(new Date().getTime() - executionMetaData.getTimestamp().getTime());
 			}
 		} catch (NumberFormatException e) {
-			log.warn("Failed to parse start time of execution '" + timestamp + "' due to '" + e.getMessage() + "'", e);
+			log.warn("Failed to parse start time of execution '" + executionMetaData.getTimestamp() + "' due to '" + e.getMessage() + "'", e);
 		}
 	}
 

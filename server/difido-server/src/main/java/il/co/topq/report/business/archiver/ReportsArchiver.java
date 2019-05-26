@@ -284,8 +284,7 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 	private List<ExecutionMetadata> filterExecutionsToArchive(Map<Integer, ExecutionMetadata> remoteExecutions) {
 		final List<ExecutionMetadata> executionsToArchive = remoteExecutions.values().parallelStream()
 				.filter(el -> stateRespository.findByActive(false).stream().noneMatch(er -> er.getId() == el.getId()))
-				.filter(e -> StringUtils.isNotBlank(e.getDate()) && new Date().getTime() - DateTimeConverter
-						.fromDateString(e.getDate()).toDateObject().getTime() > minReportsAgeInMillis)
+				.filter(e -> e.getDate() != null && new Date().getTime() - e.getDate().getTime() > minReportsAgeInMillis)
 				.limit(maxToArchive).collect(Collectors.toList());
 		log.debug("There are " + executionsToArchive.size()
 				+ " that needs to be archived in the remote Difido server. Max execution number to archive in single itearion is "

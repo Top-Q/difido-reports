@@ -68,8 +68,17 @@ public class ExecutionResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{execution: [0-9]+}")
-	public ExecutionMetadata getMetadata(@PathParam("execution") int executionId) {
+	public ExecutionMetadata getMetadata(@Context HttpServletRequest request,@PathParam("execution") int executionId) {
+		log.debug("GET (" + request.getRemoteAddr() + ") - Get metadata of execution with id " + executionId);
 		return metadataRepository.findById(executionId);
+	}
+	
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<ExecutionMetadata> getMetadata(@Context HttpServletRequest request, @QueryParam("from") String from) {
+		log.debug("GET (" + request.getRemoteAddr() + ") - Get all metadata ");
+		return metadataRepository.findAll();
 	}
 
 	/**
@@ -109,11 +118,11 @@ public class ExecutionResource {
 		StopWatch stopWatch = newStopWatch(log).start("Creating new metadata");
 		Execution execution = new Execution();
 		final Date executionDate = new Date();
-		final ExecutionMetadata metaData = new ExecutionMetadata(fromDateObject(executionDate).toElasticString());
+		final ExecutionMetadata metaData = new ExecutionMetadata(executionDate);
 		// We want to generate the id
 		metadataRepository.save(metaData);
-		metaData.setTime(fromDateObject(executionDate).toTimeString());
-		metaData.setDate(fromDateObject(executionDate).toDateString());
+		metaData.setTime(executionDate);
+		metaData.setDate(executionDate);
 		metaData.setFolderName(Common.EXECUTION_REPORT_FOLDER_PREFIX + "_" + metaData.getId());
 		metaData.setUri(Common.REPORTS_FOLDER_NAME + "/" + metaData.getFolderName() + "/index.html");
 		metaData.setComment("");

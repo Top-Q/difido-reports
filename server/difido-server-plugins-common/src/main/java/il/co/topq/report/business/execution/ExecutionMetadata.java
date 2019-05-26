@@ -1,5 +1,6 @@
 package il.co.topq.report.business.execution;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +13,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Cacheable
@@ -67,13 +70,15 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	 * The date in which the execution was created in. <br>
 	 * e.g. 16/10/2016
 	 */
-	private String date;
+	@Temporal(TemporalType.DATE)
+	private Date date;
 
 	/**
 	 * The time in which the execution was created in. <br>
 	 * 12:32:11:23
 	 */
-	private String time;
+	@Temporal(TemporalType.TIME)
+	private Date time;
 
 	/**
 	 * Overall number of tests in the execution
@@ -104,7 +109,8 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	 * The date and time in which the execution has started in. e.g. 2015/05/12
 	 * 18:17:49
 	 */
-	private String timestamp;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date timestamp;
 
 	/**
 	 * The duration of the execution in milliseconds.
@@ -148,7 +154,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		}
 	}
 
-	public ExecutionMetadata(String timestamp) {
+	public ExecutionMetadata(Date timestamp) {
 		this.timestamp = timestamp;
 	}
 
@@ -202,7 +208,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		// @formatter:on
 	}
 
-	public String getTimestamp() {
+	public Date getTimestamp() {
 		return timestamp;
 	}
 
@@ -254,29 +260,23 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		this.uri = uri;
 	}
 
-	public String getDate() {
+	public Date getDate() {
 		return date;
 	}
 
-	public void setDate(String date) {
+	public void setDate(Date date) {
 		this.date = date;
 	}
 
-	public String getTime() {
+	public Date getTime() {
 		return time;
 	}
 
-	public void setTime(String time) {
-		if (time == null || time.equals(this.time)) {
-			return;
-		}
+	public void setTime(Date time) {
 		this.time = time;
 	}
 
-	public void setTimestamp(String timestamp) {
-		if (this.timestamp == timestamp) {
-			return;
-		}
+	public void setTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
 	}
 

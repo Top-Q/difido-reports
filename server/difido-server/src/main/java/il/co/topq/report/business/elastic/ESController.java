@@ -456,7 +456,7 @@ public class ESController implements HealthIndicator, InfoContributor {
 		} else {
 			timestamp = fromNowDateObject().toElasticString();
 		}
-		final Date gmtExecutionTimeStamp = fromElasticString(metadata.getTimestamp()).toGMTDateObject();
+		final Date gmtExecutionTimeStamp = metadata.getTimestamp();
 		final Date gmtTestTimeStamp = fromElasticString(timestamp).toGMTDateObject();
 
 		final String gmtExecutionStringTimestamp = fromDateObject(gmtExecutionTimeStamp).toElasticString();

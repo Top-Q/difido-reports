@@ -1,10 +1,12 @@
 package il.co.topq.report.business.elastic;
 
 import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import il.co.topq.difido.DateTimeConverter;
 import il.co.topq.difido.model.Enums.Status;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.execution.MachineNode;
@@ -71,15 +73,16 @@ class ExecutionMetaDataGenerator {
 		ExecutionMetadata executionMetaData = new ExecutionMetadata();
 		executionMetaData.setId(executionId++);
 //		executionMetaData.setExecution(generateExecution(numOfMachinesInExecution, numOfScenariosInMachine, numOfTestsInScneario));
-		executionMetaData.setDate("16/10/2016");
+		executionMetaData.setDate(DateTimeConverter.fromDateString("16/10/2016").toDateObject());
 		executionMetaData.setFolderName(new File(".").getAbsolutePath());
 		executionMetaData.setNumOfFailedTests(0);
 		executionMetaData.setNumOfMachines(numOfMachinesInExecution);
 		executionMetaData.setNumOfSuccessfulTests(numOfMachinesInExecution * numOfScenariosInMachine * numOfTestsInScneario);
 		executionMetaData.setNumOfTests(numOfMachinesInExecution * numOfScenariosInMachine * numOfTestsInScneario);
 		executionMetaData.setNumOfTestsWithWarnings(0);
-		executionMetaData.setTime("12:32:11:23");
-		executionMetaData.setTimestamp("2016/05/12 18:17:49");
+		executionMetaData.setTime(DateTimeConverter.fromTimeString("12:32:11:23").toDateObject());
+		executionMetaData.setTimestamp(DateTimeConverter.fromElasticString("2016/05/12 18:17:49").toDateObject());
+//		executionMetaData.setTimestamp("2016/05/12 18:17:49");
 		return executionMetaData;
 	}
 

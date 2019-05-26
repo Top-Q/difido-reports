@@ -1,8 +1,7 @@
 package il.co.topq.report.front.scheduled;
 
-import static il.co.topq.difido.DateTimeConverter.fromDateString;
-
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -20,6 +19,7 @@ import il.co.topq.report.events.ExecutionUpdatedEvent;
 import il.co.topq.report.persistence.ExecutionState;
 import il.co.topq.report.persistence.ExecutionStateRepository;
 import il.co.topq.report.persistence.MetadataRepository;
+
 @Component
 public class HtmlReportsEraserScheduler {
 
@@ -30,13 +30,14 @@ public class HtmlReportsEraserScheduler {
 	private boolean enabled;
 
 	private final ExecutionStateRepository stateRepository;
-	
+
 	private final MetadataRepository metadataRepository;
 
 	private final ApplicationEventPublisher publisher;
 
 	@Autowired
-	public HtmlReportsEraserScheduler(MetadataRepository metadataRepository,ExecutionStateRepository stateRepository, ApplicationEventPublisher publisher) {
+	public HtmlReportsEraserScheduler(MetadataRepository metadataRepository, ExecutionStateRepository stateRepository,
+			ApplicationEventPublisher publisher) {
 		this.metadataRepository = metadataRepository;
 		this.stateRepository = stateRepository;
 		this.publisher = publisher;
@@ -61,7 +62,7 @@ public class HtmlReportsEraserScheduler {
 				continue;
 			}
 			final ExecutionMetadata meta = metadataRepository.getOne(state.getId());
-			final LocalDate executionDate = fromDateString(meta.getDate()).toLocalDate();
+			final LocalDate executionDate = meta.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 			final long old = ChronoUnit.DAYS.between(executionDate, today);
 
 			if (old > daysToKeep) {
