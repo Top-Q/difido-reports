@@ -59,6 +59,11 @@
 			</includes>
 		</fileSet>
 		<fileSet>
+			<outputDirectory>htmlTemplate</outputDirectory>
+			<directory>src/main/htmlTemplate</directory>
+		</fileSet>
+
+		<fileSet>
 			<directory>./</directory>
 			<outputDirectory>/plugin</outputDirectory>
 			<excludes>

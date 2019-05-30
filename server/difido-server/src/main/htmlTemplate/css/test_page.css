@@ -1,0 +1,47 @@
+.timestamp{
+    padding-right: 10px;
+    color: gray;
+}
+
+/* initially hide all non root divs */
+#detailsDiv div >div{
+    display: none;
+}
+
+#detailsDiv .step {color: #4E6CA3 !important; font-weight: bold;}
+
+#detailsDiv div{
+    word-wrap: break-word;
+    margin: 5px 0 5px 0;
+}
+
+.smallTbl { padding: 0; border: 0; width: 70% ; font-size: small}
+h3 {color: gray ; font-size: small}
+img {width: 100px}
+
+.innerToggle {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.startLevel {   
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.emptyStartLevel{   
+    font-weight: bold;
+}
+
+.startLevel.closed:before{
+    content: "+ ";
+}
+
+.emptyStartLevel,
+.startLevel:not(closed):before{
+    content: "- ";
+}
+
+.pointer{
+    cursor: pointer;
+}

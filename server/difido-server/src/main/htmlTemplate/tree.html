@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Execution Tree</title>
+    <!-- Bootstrap core CSS -->
+    <link href="css/jquery.ui.resizable.css" rel="stylesheet" type="text/css" />
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/general_page.css" rel="stylesheet">
+    <link href="css/test_page.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="css/status_colors.css" rel="stylesheet">
+    <link href="css/tree.css" rel="stylesheet">
+    <link href="css/dashboard.css" rel="stylesheet">
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+          <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+</head>
+
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Test Execution Report</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li><a href="#">Execution Tree</a></li>
+                    <li><a href="table.html">Execution Table</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div id="leftpane" class="ui-widget-content">
+            <div class="btn-group btn-group-sm" style="padding:10px ; ">
+                <input type="textbox" id="selectedClass" hidden="true" value=""/>
+                <button type="button" onclick="javascript:$('#tree').jstree('open_all')">Expand all</button>
+                <button type="button" onclick="javascript:$('#tree').jstree('close_all')">Collapse all</button>
+                
+            </div>
+            <div class="input-group" style="padding:10px">
+                <input id="tree_q" type="text" class="form-control">
+            </div>
+            <div id="tree">
+            </div>
+            
+        </div>
+        <div id="rightpane">
+            <div class="panel-heading">
+                <h3>Test Information</h3></div>
+            <div class="panel-body">
+                <iframe id="testframe">
+                </iframe>
+            </div>
+        </div>
+    </div>
+    <!-- Bootstrap core JavaScript
+        ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jstree.min.js"></script>
+    <script src="js/docs.min.js"></script>
+    <script src="controllers/controllerUtils.js"></script>
+    <script src="controllers/treeController.js"></script>
+    <script src="execution.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        $("#leftpane").resizable({
+            minWidth: 250,
+            maxWidth: 600, 
+             //iframes interfere with resize because they  consume  
+            //our mouse events and ruin our beautiful resize. 
+            //so we must hide the iframes before the resize and 
+            //unhide when done. 
+            start: function () {
+                $("iframe").each(function (index, element) {
+                    $(element).hide();
+                });
+
+            },
+            stop: function () {
+                $('iframe').show();
+            }
+    
+        });
+    });
+
+    function selectNode(){
+      // read the desired node from the URL 
+      var nodeName = getUrlParameter("node");
+      if (nodeName == undefined){
+            return ;
+      }
+        
+
+      var len = nodeName.length;
+      var id = "";
+
+    // loop through all the nodes of the tree, and find the one that matches the desired node name
+    //this can surely be implemented more efficiently! (one liner?) 
+    $( "#tree li" ).each(function( index ) {
+        if ($(this).text().substring(0,len) == nodeName){
+            //console.log($(this).text().substring(0,len));
+            id = $(this).attr("id")
+            return false;
+       }
+    });
+
+    //if no node was found - exit. 
+    if (id==""){
+        return;
+    }
+
+    //now deselect and close all nodes..
+    $("#tree").jstree('close_all');
+    $("#tree").jstree('deselect_all');
+
+
+    //and just open and select the desired node. 
+    $("#tree").jstree('open_node',id);
+    $("#tree").jstree('select_node',id);
+   
+  
+    return;
+   
+  
+    }
+
+
+    function populateTreeNew() {
+        $.jstree.defaults.search.show_only_matches = true;
+        treeController($('#tree'));
+        $('#tree').bind('select_node.jstree', function(e, data) {
+            /** 
+             * Set direct-access to node 
+             */
+            var a = data.node.a_attr;
+            //var link = node.children('a'); 
+            /** 
+             * Add linking, because jstree catches all click-Events 
+             */
+            if (a.href !== '#' && a.target !== '') {
+                var iframe = $('#testframe');
+                iframe.attr('src', a.href);
+            }
+        });
+
+        $('#tree').bind("dblclick.jstree", function (event) {
+            var node = $(event.target).closest("li");
+            var data = node.data("jstree");
+            var text = node.context.innerText;
+            var divForCopy = document.getElementById('selectedClass');
+            divForCopy.value = text;
+            divForCopy.hidden=false;
+            divForCopy.select();
+            try{
+                document.execCommand('copy');
+                divForCopy.value="";
+                divForCopy.hidden=true;
+            }
+            catch (err){
+                window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
+                divForCopy.hidden=true;
+            }
+
+           // window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
+        });
+
+
+        $(function() {
+            $("#tree").jstree({
+                "plugins": ["search"]
+            });
+            var to = false;
+            $('#tree_q').keyup(function() {
+                if (to) {
+                    clearTimeout(to);
+                }
+                to = setTimeout(function() {
+                    var v = $('#tree_q').val();
+                    $('#tree').jstree(true).search(v);
+                }, 250);
+            });
+        });
+    }
+
+
+    //Retrieves the URL parameter. 
+    function getUrlParameter(sParam) {
+            var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                      return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    };
+
+
+    $(document).ready(function() {
+       populateTreeNew();
+       selectNode();
+    });
+    </script>
+</body>
+
+</html>

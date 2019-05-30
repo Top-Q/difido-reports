@@ -1,0 +1,41 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+
+
+/* 
+    Created on : Feb 26, 2014, 9:25:17 AM
+    Author     : Itai
+*/
+
+.vertical-line {
+    width: 1px;
+    height: 300px;
+    background-color: #696969;
+    margin: 0 auto;
+}
+
+#tree {
+    overflow: auto;
+    min-height: 704px;
+    max-height: 720px
+}
+
+#leftpane {
+    box-sizing: content-box;
+    border: 0 !important;
+    border-right: 2px solid grey !important;
+    float: left;
+    width: 30%;
+}
+
+#rightpane {
+    overflow: hidden;
+}
+
+iframe {
+    display: block;
+    width: 100%;
+}
