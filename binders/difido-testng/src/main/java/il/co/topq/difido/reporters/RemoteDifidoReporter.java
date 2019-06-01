@@ -2,6 +2,7 @@ package il.co.topq.difido.reporters;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -116,7 +117,7 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 		final String description = difidoConfig.getPropertyAsString(RemoteDifidoOptions.DESCRIPTION);
 		final int id = difidoConfig.getPropertyAsInt(RemoteDifidoOptions.EXISTING_EXECUTION_ID);
 		final boolean forceNewExecution = difidoConfig.getPropertyAsBoolean(RemoteDifidoOptions.FORCE_NEW_EXECUTION);
-		final Map<String, String> properties = difidoConfig.getPropertyAsMap(RemoteDifidoOptions.EXECUTION_PROPETIES);
+		final HashMap<String, String> properties = difidoConfig.getPropertyAsMap(RemoteDifidoOptions.EXECUTION_PROPETIES);
 
 		if (appendToExistingExecution && !forceNewExecution) {
 			if (id >= 0) {

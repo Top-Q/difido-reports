@@ -9,7 +9,7 @@ import il.co.topq.report.business.execution.ExecutionMetadata;
 public class ExecutionCreatedEvent extends AbsMetadataEvent {
 
 	public ExecutionCreatedEvent(ExecutionMetadata executionMetaData) {
-		super(executionMetaData);
+		super(executionMetaData.getId());
 	}
 
 }

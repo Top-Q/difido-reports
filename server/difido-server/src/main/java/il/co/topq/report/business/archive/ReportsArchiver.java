@@ -1,4 +1,4 @@
-package il.co.topq.report.business.archiver;
+package il.co.topq.report.business.archive;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +25,12 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import il.co.topq.difido.DateTimeConverter;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
+import il.co.topq.report.business.JdbcInserter;
 import il.co.topq.report.business.execution.ExecutionMetadata;
-import il.co.topq.report.business.execution.MetadataPersistency;
+import il.co.topq.report.persistence.ExecutionStateRepository;
 
 @Component
 public class ReportsArchiver implements Archiver, HealthIndicator, InfoContributor {
@@ -47,7 +46,9 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 	/**
 	 * The local persistence
 	 */
-	private MetadataPersistency persistency;
+	private JdbcInserter jdbc;
+
+	private final ExecutionStateRepository stateRespository;
 
 	/**
 	 * Is this service enabled or not. Can be disabled from the configuration or
@@ -89,8 +90,7 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 	ThreadPoolTaskExecutor executor;
 
 	@Autowired
-	public ReportsArchiver(MetadataPersistency persistency) {
-		this.persistency = persistency;
+	public ReportsArchiver(ExecutionStateRepository stateRespository, JdbcInserter jdbc) {
 		client = new ArchiverHttpClient(Configuration.INSTANCE.readString(ConfigProps.ARCHIVER_DIFIDO_SERVER));
 		enabled = Configuration.INSTANCE.readBoolean(ConfigProps.ARCHIVER_ENABLED);
 		final int minReportsAge = Configuration.INSTANCE.readInt(ConfigProps.ARCHIVER_MIN_REPORTS_AGE);
@@ -99,6 +99,8 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 				+ Common.REPORTS_FOLDER_NAME;
 		maxToArchive = Configuration.INSTANCE.readInt(ConfigProps.ARCHIVER_MAX_TO_ARCHIVE);
 		archiveHistory = new CircularFifoBuffer(MAX_RECORDS_IN_HISTORY);
+		this.stateRespository = stateRespository;
+		this.jdbc = jdbc;
 	}
 
 	/**
@@ -114,14 +116,13 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 			return;
 		}
 		initReportsFolder();
-		final Map<Integer, ExecutionMetadata> remoteExecutions = getAllRemoteExecutions();
+		final List<ExecutionMetadata> remoteExecutions = getAllRemoteExecutions();
 		final List<ExecutionMetadata> executionsToArchive = filterExecutionsToArchive(remoteExecutions);
 		archiveExecutions(executionsToArchive);
 		logHistory(remoteExecutions, executionsToArchive);
 	}
 
-	private void logHistory(Map<Integer, ExecutionMetadata> remoteExecutions,
-			List<ExecutionMetadata> executionsToArchive) {
+	private void logHistory(List<ExecutionMetadata> remoteExecutions, List<ExecutionMetadata> executionsToArchive) {
 		if (executionsToArchive == null) {
 			log.error("Executions to archive can't be null");
 			return;
@@ -248,12 +249,20 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 	/**
 	 * Will add the execution to the persistency.
 	 * 
-	 * @param execution
+	 * @param metadata
 	 */
-	private void addExecutionToPersistency(ExecutionMetadata execution) {
-		log.debug("Adding execution " + execution.getId() + " to persistency");
-		execution.setDirty(true);
-		persistency.add(execution);
+	private void addExecutionToPersistency(ExecutionMetadata meta) {
+		log.debug("Adding execution " + meta.getId() + " to persistency");
+		jdbc.insertExecutionMetadata(meta.getId(), meta.getComment(), meta.getDescription(), meta.getTimestamp(),
+				meta.getDuration(), meta.getFolderName(), meta.getUri(), meta.isShared(), meta.getNumOfMachines(),
+				meta.getNumOfTests(), meta.getNumOfSuccessfulTests(), meta.getNumOfTestsWithWarnings(),
+				meta.getNumOfFailedTests());
+		if (meta.getProperties() != null) {
+			meta.getProperties().keySet().stream().forEach(key -> {
+				jdbc.insertExecutionProperties(meta.getId(), key, meta.getProperties().get(key));
+			});
+		}
+		jdbc.insertExecutionState(meta.getId(), false, true, false);
 	}
 
 	private void deleteRemoteExecution(ExecutionMetadata e) {
@@ -273,12 +282,11 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 	 * @param remoteExecutions
 	 * @return Executions to archive
 	 */
-	private List<ExecutionMetadata> filterExecutionsToArchive(Map<Integer, ExecutionMetadata> remoteExecutions) {
-		final List<ExecutionMetadata> executionsToArchive = remoteExecutions.values().parallelStream()
-				.filter(e -> !e.isActive())
-				.filter(el -> persistency.getAll().stream().noneMatch(er -> er.getId() == el.getId()))
-				.filter(e -> StringUtils.isNotBlank(e.getDate()) && new Date().getTime() - DateTimeConverter
-						.fromDateString(e.getDate()).toDateObject().getTime() > minReportsAgeInMillis)
+	private List<ExecutionMetadata> filterExecutionsToArchive(List<ExecutionMetadata> remoteExecutions) {
+		final List<ExecutionMetadata> executionsToArchive = remoteExecutions.parallelStream()
+				.filter(el -> stateRespository.findByActive(false).stream().noneMatch(er -> er.getId() == el.getId()))
+				.filter(e -> e.getTimestamp() != null
+						&& new Date().getTime() - e.getTimestamp().getTime() > minReportsAgeInMillis)
 				.limit(maxToArchive).collect(Collectors.toList());
 		log.debug("There are " + executionsToArchive.size()
 				+ " that needs to be archived in the remote Difido server. Max execution number to archive in single itearion is "
@@ -291,9 +299,9 @@ public class ReportsArchiver implements Archiver, HealthIndicator, InfoContribut
 	 * 
 	 * @return Map of ids to execution metadata
 	 */
-	private Map<Integer, ExecutionMetadata> getAllRemoteExecutions() {
-		Map<Integer, ExecutionMetadata> remoteExecutions = client.get("/" + Common.REPORTS_FOLDER_NAME + "/meta.json",
-				new TypeReference<Map<Integer, ExecutionMetadata>>() {
+	private List<ExecutionMetadata> getAllRemoteExecutions() {
+		List<ExecutionMetadata> remoteExecutions = client.get("/api/executions/",
+				new TypeReference<List<ExecutionMetadata>>() {
 				});
 		log.debug("Found " + remoteExecutions.size() + " execution in Difido server");
 		return remoteExecutions;

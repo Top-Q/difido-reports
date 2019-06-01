@@ -13,6 +13,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import il.co.topq.difido.PersistenceUtils;
+import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
@@ -27,6 +28,10 @@ import il.co.topq.report.events.ExecutionUpdatedEvent;
 import il.co.topq.report.events.FileAddedToTestEvent;
 import il.co.topq.report.events.MachineCreatedEvent;
 import il.co.topq.report.events.TestDetailsCreatedEvent;
+import il.co.topq.report.persistence.ExecutionRepository;
+import il.co.topq.report.persistence.ExecutionState;
+import il.co.topq.report.persistence.ExecutionStateRepository;
+import il.co.topq.report.persistence.MetadataRepository;
 
 @Component
 public class HtmlReportsController {
@@ -37,13 +42,23 @@ public class HtmlReportsController {
 
 	private AsyncActionQueue queue;
 
+	private final ExecutionRepository executionRepository;
+
+	private final MetadataRepository metadataRepository;
+
+	private final ExecutionStateRepository stateRepository;
+
 	enum HtmlGenerationLevel {
 		EXECUTION, MACHINE, SCENARIO, TEST, TEST_DETAILS, ELEMENT
 	}
 
 	@Autowired
-	public HtmlReportsController(AsyncActionQueue queue) {
+	public HtmlReportsController(AsyncActionQueue queue, ExecutionRepository executionRepository,
+			ExecutionStateRepository stateRepository, MetadataRepository metadataRepository) {
 		this.queue = queue;
+		this.executionRepository = executionRepository;
+		this.metadataRepository = metadataRepository;
+		this.stateRepository = stateRepository;
 	}
 
 	/**
@@ -53,9 +68,10 @@ public class HtmlReportsController {
 
 	@EventListener
 	public void onExecutionCreatedEvent(ExecutionCreatedEvent executionCreatedEvent) {
-		prepareExecutionFolder(executionCreatedEvent.getMetadata());
+		final ExecutionMetadata metadata = metadataRepository.findById(executionCreatedEvent.getExecutionId());
+		prepareExecutionFolder(metadata);
 		if (creationLevel.ordinal() >= HtmlGenerationLevel.EXECUTION.ordinal()) {
-			writeExecution(executionCreatedEvent.getMetadata());
+			writeExecution(metadata);
 		}
 	}
 
@@ -64,7 +80,8 @@ public class HtmlReportsController {
 	 */
 	@EventListener
 	public void onExecutionDeletedEvent(ExecutionDeletedEvent executionDeletedEvent) {
-		deleteHtmlFolder(executionDeletedEvent.getMetadata());
+		final ExecutionMetadata metadata = metadataRepository.findById(executionDeletedEvent.getExecutionId());
+		deleteHtmlFolder(metadata);
 	}
 
 	/**
@@ -75,11 +92,16 @@ public class HtmlReportsController {
 	 * 
 	 * @param executionUpdatedEvent
 	 */
-	@EventListener(condition = "!#executionUpdatedEvent.metadata.htmlExists and !#executionUpdatedEvent.metadata.locked")
+	@EventListener
 	public void onExecutionUpdatedEvent(ExecutionUpdatedEvent executionUpdatedEvent) {
-		final File executionFolder = getExecutionDestinationFolder(executionUpdatedEvent.getMetadata());
+		final ExecutionState state = stateRepository.getOne(executionUpdatedEvent.getExecutionId());
+		if (state.isHtmlExists() || state.isLocked()) {
+			return;
+		}
+		final ExecutionMetadata metadata = metadataRepository.findById(executionUpdatedEvent.getExecutionId());
+		final File executionFolder = getExecutionDestinationFolder(metadata);
 		if (executionFolder != null && executionFolder.exists()) {
-			deleteHtmlFolder(executionUpdatedEvent.getMetadata());
+			deleteHtmlFolder(metadata);
 		}
 	}
 
@@ -92,7 +114,7 @@ public class HtmlReportsController {
 		log.debug("About to delete execution folder of execution with id " + executionMetadata.getId());
 		final File executionFolder = getExecutionDestinationFolder(executionMetadata);
 		if (null == executionFolder) {
-			log.warn("Could not find folder for exeuction with id " + executionMetadata.getId());
+			log.warn("Could not find folder for execution with id " + executionMetadata.getId());
 			return;
 		}
 		queue.addAction("Delete execution " + executionMetadata.getId() + " from disk", () -> {
@@ -141,8 +163,9 @@ public class HtmlReportsController {
 
 	@EventListener
 	public void onMachineCreatedEvent(MachineCreatedEvent machineCreatedEvent) {
+		final ExecutionMetadata metadata = metadataRepository.findById(machineCreatedEvent.getExecutionId());
 		if (creationLevel.ordinal() >= HtmlGenerationLevel.MACHINE.ordinal()) {
-			writeExecution(machineCreatedEvent.getMetadata());
+			writeExecution(metadata);
 		}
 
 	}
@@ -150,8 +173,8 @@ public class HtmlReportsController {
 	private void writeExecution(ExecutionMetadata executionMetadata) {
 		queue.addAction("Write execution " + executionMetadata.getId() + " to disk", () -> {
 			StopWatch stopWatch = new StopWatch(log).start("Writing execution " + executionMetadata.getId());
-			PersistenceUtils.writeExecution(executionMetadata.getExecution(),
-					getExecutionDestinationFolder(executionMetadata));
+			final Execution execution = executionRepository.findById(executionMetadata.getId());
+			PersistenceUtils.writeExecution(execution, getExecutionDestinationFolder(executionMetadata));
 			stopWatch.stopAndLog();
 		});
 	}
@@ -171,67 +194,66 @@ public class HtmlReportsController {
 	public void onFileAddedToTestEvent(FileAddedToTestEvent fileAddedToTestEvent) {
 		StopWatch stopWatch = new StopWatch(log).start("Writing file " + fileAddedToTestEvent.getFileName()
 				+ " for test " + fileAddedToTestEvent.getTestUid());
-
-		final File destinationFolder = buildTestFolderName(
-				getExecutionDestinationFolder(fileAddedToTestEvent.getMetadata()), fileAddedToTestEvent.getTestUid());
+		final ExecutionMetadata metadata = metadataRepository.findById(fileAddedToTestEvent.getExecutionId());
+		final File destinationFolder = buildTestFolderName(getExecutionDestinationFolder(metadata),
+				fileAddedToTestEvent.getTestUid());
 		queue.addAction("Write file " + fileAddedToTestEvent.getFileName() + " of execution "
-				+ fileAddedToTestEvent.getExecutionId() + " to disk", () -> {
-					if (!destinationFolder.exists()) {
-						// In some cases there can be a race condition between
-						// the
-						// WriteTestDetails method and this method. If this
-						// method will
-						// be
-						// executed first, the destination folder will not be
-						// ready so
-						// we
-						// have to create it here
-						try {
-							FileUtils.forceMkdir(destinationFolder);
-						} catch (IOException e) {
-							log.warn("Test destination folder '" + destinationFolder.getAbsolutePath()
-									+ "'is not exist and failed to create one for storing file '"
-									+ fileAddedToTestEvent.getFileName() + "'");
-							return;
-						}
-					}
+				+ fileAddedToTestEvent.getExecutionId() + " to disk",() -> {
+			if (!destinationFolder.exists()) {
+				// In some cases there can be a race condition between the
+				// WriteTestDetails method and this method. If this method will
+				// be
+				// executed first, the destination folder will not be ready so
+				// we
+				// have to create it here
+				try {
+					FileUtils.forceMkdir(destinationFolder);
+				} catch (IOException e) {
+					log.warn("Test destination folder '" + destinationFolder.getAbsolutePath()
+							+ "'is not exist and failed to create one for storing file '"
+							+ fileAddedToTestEvent.getFileName() + "'");
+					return;
+				}
+			}
 
-					final File file = new File(destinationFolder, fileAddedToTestEvent.getFileName());
-					try {
-						if (!file.createNewFile()) {
-							log.warn("Failed to create new file " + file.getAbsolutePath()
-									+ ", probably because file with the same name is already exists in the folder "
-									+ destinationFolder);
-							return;
-						}
-					} catch (IOException e) {
-						log.warn("Failed to create new file " + file.getAbsolutePath() + " due to " + e.getMessage());
-						return;
-					}
+			final File file = new File(destinationFolder, fileAddedToTestEvent.getFileName());
+			try {
+				if (!file.createNewFile()) {
+					log.warn("Failed to create new file " + file.getAbsolutePath()
+							+ ", probably because file with the same name is already exists in the folder "
+							+ destinationFolder);
+					return;
+				}
+			} catch (IOException e) {
+				log.warn("Failed to create new file " + file.getAbsolutePath() + " due to " + e.getMessage());
+				return;
+			}
 
-					try {
-						try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file))) {
-							stream.write(fileAddedToTestEvent.getFileContent());
-						}
-					} catch (IOException e) {
-						log.warn("Failed to save file with name " + fileAddedToTestEvent.getFileName() + " due to "
-								+ e.getMessage());
-					}
-					stopWatch.stopAndLog();
-				});
+			try {
+				try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file))) {
+					stream.write(fileAddedToTestEvent.getFileContent());
+				}
+			} catch (IOException e) {
+				log.warn("Failed to save file with name " + fileAddedToTestEvent.getFileName() + " due to "
+						+ e.getMessage());
+			}
+			stopWatch.stopAndLog();
+		});
 	}
 
 	@EventListener
 	public void onTestDetailsCreatedEvent(TestDetailsCreatedEvent testDetailsCreatedEvent) {
+		final ExecutionMetadata metadata = metadataRepository.findById(testDetailsCreatedEvent.getExecutionId());
 		if (creationLevel.ordinal() >= HtmlGenerationLevel.TEST_DETAILS.ordinal()) {
-			writeTestDetails(testDetailsCreatedEvent.getTestDetails(), testDetailsCreatedEvent.getMetadata());
+			writeTestDetails(testDetailsCreatedEvent.getTestDetails(), metadata);
 		}
 
 	}
 
 	@EventListener
 	public void executionEnded(ExecutionEndedEvent executionEndedEvent) {
-		writeExecution(executionEndedEvent.getMetadata());
+		final ExecutionMetadata metadata = metadataRepository.findById(executionEndedEvent.getExecutionId());
+		writeExecution(metadata);
 
 	}
 

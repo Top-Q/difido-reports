@@ -4,6 +4,8 @@ import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.execution.Execution;
@@ -20,7 +22,9 @@ public class ConcurrencyExecutionIT extends AbstractResourceTest {
 	protected static final int NUM_OF_TESTS_IN_SCENARIO = 10;
 	private static final int NUM_OF_THREADS = 10;
 
+	// Disabled since the shared executions are currently not working
 	@Test
+	@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 	public void testConcurrentSharedExecutions() throws Exception {
 		Thread[] threads = new Thread[NUM_OF_THREADS];
 		long start = System.currentTimeMillis();
@@ -61,6 +65,7 @@ public class ConcurrencyExecutionIT extends AbstractResourceTest {
 	}
 
 	@Test
+	@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 	public void testConcurrentSeparateExecutions() throws Exception {
 		Thread[] threads = new Thread[NUM_OF_THREADS];
 		long start = System.currentTimeMillis();
@@ -76,7 +81,7 @@ public class ConcurrencyExecutionIT extends AbstractResourceTest {
 
 		waitForTasksToFinish();
 		start = System.currentTimeMillis();
-
+		Assert.assertEquals(NUM_OF_THREADS, metadataRepository.count());
 		final Execution[] executions = getAllExecutions();
 		Assert.assertNotNull(executions);
 		Assert.assertEquals(NUM_OF_THREADS, executions.length);
@@ -87,7 +92,8 @@ public class ConcurrencyExecutionIT extends AbstractResourceTest {
 			Assert.assertEquals(1, machine.getChildren().size());
 			final ScenarioNode scenario = machine.getChildren().get(0);
 			Assert.assertTrue(scenario.getName().contains(threadName));
-			Assert.assertEquals(NUM_OF_TESTS_IN_SCENARIO, scenario.getChildren().size());
+			Assert.assertEquals("Number of tests in the scenario is not as expected", NUM_OF_TESTS_IN_SCENARIO,
+					scenario.getChildren().size());
 			for (int j = 0; j < NUM_OF_TESTS_IN_SCENARIO; j++) {
 				final String testName = scenario.getChildren().get(j).getName();
 				Assert.assertTrue(testName.contains(threadName));

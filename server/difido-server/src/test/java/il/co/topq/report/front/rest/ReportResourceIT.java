@@ -10,6 +10,8 @@ import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 import il.co.topq.difido.model.remote.ExecutionDetails;
 import il.co.topq.report.business.execution.AbstractResourceTest;
@@ -47,6 +49,7 @@ public class ReportResourceIT extends AbstractResourceTest {
 	}
 
 	@Test
+	@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 	public void testGetReports() throws Exception {
 		ExecutionDetails execution = new ExecutionDetails();
 		execution.setShared(false);

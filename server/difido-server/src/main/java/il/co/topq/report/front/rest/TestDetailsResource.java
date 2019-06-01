@@ -16,8 +16,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.RestController;
 
 import il.co.topq.difido.model.test.TestDetails;
-import il.co.topq.report.business.execution.ExecutionMetadata;
-import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.TestDetailsCreatedEvent;
 
 @RestController
@@ -28,13 +26,10 @@ public class TestDetailsResource {
 
 	private final ApplicationEventPublisher publisher;
 
-	private final MetadataProvider metadataProvider;
-
 	@Autowired
-	public TestDetailsResource(ApplicationEventPublisher publisher, MetadataProvider metadataProvider) {
+	public TestDetailsResource(ApplicationEventPublisher publisher) {
 		super();
 		this.publisher = publisher;
-		this.metadataProvider = metadataProvider;
 	}
 
 	@POST
@@ -46,12 +41,7 @@ public class TestDetailsResource {
 			log.error("Request from " + request.getRemoteAddr() + " to update null details");
 			throw new WebApplicationException("Details can't be null");
 		}
-		ExecutionMetadata metadata = metadataProvider.getMetadata(executionId);
-		if (null == metadata) {
-			log.error("Request from " + request.getRemoteAddr() + " to update test details for execution " + executionId
-					+ " which is null");
-		}
-		publisher.publishEvent(new TestDetailsCreatedEvent(metadata, details));
+		publisher.publishEvent(new TestDetailsCreatedEvent(executionId, details));
 	}
 
 }

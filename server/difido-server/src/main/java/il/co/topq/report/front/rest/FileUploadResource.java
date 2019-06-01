@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import il.co.topq.report.business.execution.ExecutionMetadata;
-import il.co.topq.report.business.execution.MetadataProvider;
 import il.co.topq.report.events.FileAddedToTestEvent;
+import il.co.topq.report.persistence.MetadataRepository;
 
 @RestController
 public class FileUploadResource {
@@ -28,29 +28,29 @@ public class FileUploadResource {
 
 	private final ApplicationEventPublisher publisher;
 
-	private final MetadataProvider metadataProvider;
+	private MetadataRepository metadataRepository;
 
 	@Autowired
-	public FileUploadResource(ApplicationEventPublisher publisher, MetadataProvider metadataProvider) {
+	public FileUploadResource(ApplicationEventPublisher publisher, MetadataRepository metadataRepository) {
 		super();
 		this.publisher = publisher;
-		this.metadataProvider = metadataProvider;
+		this.metadataRepository = metadataRepository;
 	}
 
 	@RequestMapping(value = "/api/executions/{execution}/details/{uid}/file", method = RequestMethod.POST)
-	public @ResponseBody void handleFileUpload(@Context HttpServletRequest request, @PathVariable int execution,
+	public @ResponseBody void handleFileUpload(@Context HttpServletRequest request, @PathVariable("execution") int executionId,
 			@PathVariable String uid, @RequestParam("file") MultipartFile file) {
 		log.debug("POST (" + request.getRemoteAddr() + ") - Attach file '" + file.getName() + "' to test with uid "
-				+ uid + " in execution " + execution);
+				+ uid + " in execution " + executionId);
 		if (!file.isEmpty()) {
 			try {
-				final ExecutionMetadata metadata = metadataProvider.getMetadata(execution);
+				final ExecutionMetadata metadata = metadataRepository.findById(executionId);
 				if (null == metadata) {
-					log.warn("Request from " + request.getRemoteAddr() + " to add file to execution " + execution
+					log.warn("Request from " + request.getRemoteAddr() + " to add file to execution " + executionId
 							+ "failed since metadata is null");
 				}
 				publisher.publishEvent(
-						new FileAddedToTestEvent(metadata, uid, file.getBytes(), file.getOriginalFilename()));
+						new FileAddedToTestEvent(executionId, uid, file.getBytes(), file.getOriginalFilename()));
 			} catch (IOException e1) {
 				log.warn("Request from " + request.getRemoteAddr() + " to get content of file with name "
 						+ file.getOriginalFilename() + " failed", e1);

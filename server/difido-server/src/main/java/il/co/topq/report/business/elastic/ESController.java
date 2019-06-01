@@ -15,10 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.info.InfoContributor;
@@ -41,6 +43,8 @@ import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionDeletedEvent;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.events.MachineCreatedEvent;
+import il.co.topq.report.persistence.ExecutionRepository;
+import il.co.topq.report.persistence.MetadataRepository;
 
 /**
  * 
@@ -65,6 +69,12 @@ public class ESController implements HealthIndicator, InfoContributor {
 	private static boolean storeOnlyAtEnd;
 
 	ESClient client;
+
+	@Autowired
+	private ExecutionRepository executionRepository;
+
+	@Autowired
+	private MetadataRepository metadataRepository;
 
 	public ESController() {
 		enabled = Configuration.INSTANCE.readBoolean(ConfigProps.ELASTIC_ENABLED);
@@ -229,7 +239,7 @@ public class ESController implements HealthIndicator, InfoContributor {
 			return;
 		}
 		StopWatch stopWatch = new StopWatch(log).start("Deleting all tests of execution with id "
-				+ executionDeletedEvent.getMetadata().getId() + " from the Elastic");
+				+ executionDeletedEvent.getExecutionId() + " from the Elastic");
 
 		log.debug("About to delete all tests of execution " + executionDeletedEvent.getExecutionId()
 				+ " from the ElasticSearch");
@@ -283,11 +293,13 @@ public class ESController implements HealthIndicator, InfoContributor {
 		if (!enabled) {
 			return;
 		}
-		for (MachineNode machineNode : executionEndedEvent.getMetadata().getExecution().getMachines()) {
-			saveDirtyTests(executionEndedEvent.getMetadata(), machineNode);
+		final ExecutionMetadata executionMetadataToEnd = metadataRepository
+				.findById(executionEndedEvent.getExecutionId());
+		for (MachineNode machineNode : executionRepository.findById(executionEndedEvent.getExecutionId())
+				.getMachines()) {
+			saveDirtyTests(executionMetadataToEnd, machineNode);
 		}
-		updateExecutionDuration(executionEndedEvent.getMetadata().getId(),
-				executionEndedEvent.getMetadata().getDuration());
+		updateExecutionDuration(executionMetadataToEnd.getId(), executionMetadataToEnd.getDuration());
 
 		log.debug("Removing all saved test for execution " + executionEndedEvent.getExecutionId() + " from the cache");
 		savedTestsPerExecution.remove(executionEndedEvent.getExecutionId());
@@ -336,7 +348,8 @@ public class ESController implements HealthIndicator, InfoContributor {
 		if (!enabled || storeOnlyAtEnd) {
 			return;
 		}
-		saveDirtyTests(machineCreatedEvent.getMetadata(), machineCreatedEvent.getMachineNode());
+		final ExecutionMetadata executionMetadata = metadataRepository.findById(machineCreatedEvent.getExecutionId());
+		saveDirtyTests(executionMetadata, machineCreatedEvent.getMachineNode());
 	}
 
 	private void saveDirtyTests(ExecutionMetadata metadata, MachineNode machineNode) {
@@ -444,7 +457,8 @@ public class ESController implements HealthIndicator, InfoContributor {
 		} else {
 			timestamp = fromNowDateObject().toElasticString();
 		}
-		final Date gmtExecutionTimeStamp = fromElasticString(metadata.getTimestamp()).toGMTDateObject();
+		// final Date gmtExecutionTimeStamp = metadata.getTimestamp();
+		final Date gmtExecutionTimeStamp = cvtToGmt(metadata.getTimestamp());
 		final Date gmtTestTimeStamp = fromElasticString(timestamp).toGMTDateObject();
 
 		final String gmtExecutionStringTimestamp = fromDateObject(gmtExecutionTimeStamp).toElasticString();
@@ -481,6 +495,25 @@ public class ESController implements HealthIndicator, InfoContributor {
 		esTest.setExecutionId(metadata.getId());
 		esTest.setUrl(findTestUrl(metadata, testNode.getUid()));
 		return esTest;
+	}
+
+	private static Date cvtToGmt(Date date) {
+		TimeZone tz = TimeZone.getDefault();
+		Date ret = new Date(date.getTime() - tz.getRawOffset());
+
+		// if we are now in DST, back off by the delta. Note that we are
+		// checking the GMT date, this is the KEY.
+		if (tz.inDaylightTime(ret)) {
+			Date dstDate = new Date(ret.getTime() - tz.getDSTSavings());
+
+			// check to make sure we have not crossed back into standard time
+			// this happens when we are on the cusp of DST (7pm the day before
+			// the change for PDT)
+			if (tz.inDaylightTime(dstDate)) {
+				ret = dstDate;
+			}
+		}
+		return ret;
 	}
 
 	Set<TestNode> getExecutionTests(MachineNode machineNode) {

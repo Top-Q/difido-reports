@@ -1,4 +1,4 @@
-package il.co.topq.report.business.archiver;
+package il.co.topq.report.business.archive;
 
 import java.io.File;
 import java.io.IOException;

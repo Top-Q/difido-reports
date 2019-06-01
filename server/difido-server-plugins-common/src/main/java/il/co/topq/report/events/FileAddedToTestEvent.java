@@ -1,16 +1,13 @@
 package il.co.topq.report.events;
 
-import il.co.topq.report.business.execution.ExecutionMetadata;
-
 public class FileAddedToTestEvent extends AbsMetadataEvent {
 
 	private final String testUid;
 	private final byte[] fileContent;
 	private final String fileName;
 
-	public FileAddedToTestEvent(ExecutionMetadata executionMetaData, String testUid, byte[] fileContent,
-			String fileName) {
-		super(executionMetaData);
+	public FileAddedToTestEvent(int executionId, String testUid, byte[] fileContent, String fileName) {
+		super(executionId);
 		this.testUid = testUid;
 		this.fileContent = fileContent;
 		this.fileName = fileName;

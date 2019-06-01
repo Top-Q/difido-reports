@@ -8,7 +8,6 @@ import java.net.URL;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,7 @@ import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.Application;
 import il.co.topq.report.business.elastic.ESController;
 import il.co.topq.report.front.rest.DifidoClient;
+import il.co.topq.report.persistence.MetadataRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = Application.class,webEnvironment = WebEnvironment.DEFINED_PORT)
@@ -38,7 +38,7 @@ public abstract class AbstractResourceTest {
 	protected DifidoClient client;
 
 	@Autowired
-	private MetadataController executionManager;
+	protected MetadataRepository metadataRepository;
 
 	@Before
 	public void setUp() throws Exception {
@@ -46,11 +46,6 @@ public abstract class AbstractResourceTest {
 		ESController.enabled = false;
 		client = new DifidoClient(base);
 		flushPreviousReports();
-	}
-
-	@After
-	public void tearDown() throws IOException {
-		// flushPreviousReports();
 	}
 
 	private void flushPreviousReports() throws IOException {
@@ -65,7 +60,6 @@ public abstract class AbstractResourceTest {
 			}
 			FileUtils.deleteDirectory(reportsFolder);
 		}
-		executionManager.persistency.dump();
 	}
 
 	protected static Execution getExecution() {
@@ -112,7 +106,7 @@ public abstract class AbstractResourceTest {
 	}
 
 	protected static File[] findAllExecutionFolders() {
-		final File[] executionFolders = new File("docRoot/reports").listFiles(new FileFilter() {
+		final File[] executionFolders = reportsFolder.listFiles(new FileFilter() {
 
 			@Override
 			public boolean accept(File file) {
@@ -135,6 +129,10 @@ public abstract class AbstractResourceTest {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 			}
+		}
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
 		}
 	}
 

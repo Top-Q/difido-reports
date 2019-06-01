@@ -4,6 +4,8 @@ import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.execution.MachineNode;
@@ -20,6 +22,7 @@ public class TestDeactiveExecutionIT extends AbstractResourceTest {
 
 
 	@Test
+	@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 	public void testCreateAndDestroyExecution() throws Exception {
 		final String executionUid = String.valueOf(System.currentTimeMillis() / 10000)
 				+ String.valueOf(new Random().nextInt(100));

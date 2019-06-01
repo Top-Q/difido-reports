@@ -1,62 +1,51 @@
-package il.co.topq.report.business.execution;
+package il.co.topq.report.business.upgrade;
 
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
-import javax.persistence.Cacheable;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@Entity
-@Cacheable
-@Table(name = "EXECUTION_METADATA")
-public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
+
+/**
+ * Represents the ExecutionMetadata as it was in the old version.
+ * 
+ * @author Itai Agmon
+ *
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class OldMetadata implements Comparable<OldMetadata> {
+
+	/**
+	 * Is the meta data was saved to the persistency.
+	 */
+	@JsonIgnore
+	private boolean dirty;
 
 	/**
 	 * The id of the execution
 	 */
-	@Id
-	@GeneratedValue
-	@Column(name = "ID")
 	private int id;
 
 	/**
-	 * The description of the execution as described by the user the triggered
-	 * it
+	 * The description of the execution as described by the user the
+	 * triggered it
 	 */
-	@Column(name = "DESCRIPTION")
 	private String description;
 
 	/**
 	 * A comment for the execution that might be added later (after the
 	 * execution ended)
 	 */
-	@Column(name = "COMMENT")
 	private String comment;
 
 	/**
 	 * Free list of properties that can be specified by the user
 	 */
-	@ElementCollection
-	@MapKeyColumn(name = "name")
-	@Column(name = "value", length = 1024)
-	@CollectionTable(name = "execution_properties", joinColumns = @JoinColumn(name = "metadata_id"))
-	private Map<String, String> properties;
+	private HashMap<String, String> properties;
 
 	/**
 	 * Is this execution can be shared between different machines.
 	 */
-	@Column(name = "SHARED")
 	private boolean shared;
 
 	/**
@@ -64,70 +53,100 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	 * <br>
 	 * e.g. exec_4 <br>
 	 */
-	@Column(name = "FOLDER_NAME")
 	private String folderName;
 
 	/**
 	 * The uri of the index file of the execution report. <br>
 	 * e.g. reports/exec_4/index.html
 	 */
-	@Column(name = "URI")
 	private String uri;
+
+	/**
+	 * The date in which the execution was created in. <br>
+	 * e.g. 16/10/2016
+	 */
+	private String date;
+
+	/**
+	 * The time in which the execution was created in. <br>
+	 * 12:32:11:23
+	 */
+	private String time;
+
+	/**
+	 * Is the execution is currently active or is it already finished
+	 */
+	private boolean active;
+
+	/**
+	 * If execution is locked it will not be deleted from disk no matter how
+	 * old it is
+	 */
+	private boolean locked;
+
+	/**
+	 * When the HTML is deleted, the flag is set to false. This can happen
+	 * if the execution age is larger then the maximum days allowed.
+	 */
+	private boolean htmlExists = true;
+
+	/**
+	 * The last time in absolute milliseconds that this execution was
+	 * changed. This is used for calculating if the max idle time is over.
+	 * <br>
+	 * Marked as @jsonIgnore since there is no need to save it to the file
+	 * because when reading from the file the sessions are always none
+	 * active
+	 */
+	@JsonIgnore
+	private long lastAccessedTime;
 
 	/**
 	 * Overall number of tests in the execution
 	 */
-
-	@Column(name = "NUM_OF_TESTS")
 	private int numOfTests;
 
 	/**
 	 * Number of successful tests in the execution
 	 */
-	@Column(name = "NUM_OF_SUCCESSFUL_TESTS")
 	private int numOfSuccessfulTests;
 
 	/**
 	 * Number of failed tests in the execution
 	 */
-	@Column(name = "NUM_OF_FAILED_TESTS")
 	private int numOfFailedTests;
 
 	/**
 	 * Number of tests with warnings in the execution
 	 */
-	@Column(name = "NUM_OF_TESTS_WITH_WARNINGS")
 	private int numOfTestsWithWarnings;
 
 	/**
 	 * Number of machines that were reported to this execution
 	 */
-	@Column(name = "NUM_OF_MACHINES")
 	private int numOfMachines;
 
 	/**
-	 * The date and time in which the execution has started in. e.g. 2015/05/12
-	 * 18:17:49
+	 * The date and time in which the execution has started in. e.g.
+	 * 2015/05/12 18:17:49
 	 */
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "TIMESTAMP")
-	private Date timestamp;
+	private String timestamp;
 
 	/**
 	 * The duration of the execution in milliseconds.
 	 */
-	@Column(name = "DURATION")
 	private long duration;
 
-	public ExecutionMetadata() {
-
+	public OldMetadata() {
 	}
 
+	@JsonIgnore
 	public void addProperty(String key, String value) {
 		if (null == properties) {
 			properties = new HashMap<String, String>();
 		}
 		properties.put(key, value);
+		setDirty(true);
 	}
 
 	/**
@@ -135,14 +154,20 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	 * 
 	 * @param metaData
 	 */
-	public ExecutionMetadata(final ExecutionMetadata metaData) {
+	public OldMetadata(final OldMetadata metaData) {
 		if (null != metaData) {
+			this.active = metaData.active;
+			this.locked = metaData.locked;
+			this.htmlExists = metaData.htmlExists;
+			this.date = metaData.date;
 			this.folderName = metaData.folderName;
 			this.id = metaData.id;
 			this.description = metaData.description;
 			this.comment = metaData.comment;
 			this.shared = metaData.shared;
 			this.properties = metaData.properties;
+			this.lastAccessedTime = metaData.lastAccessedTime;
+			this.time = metaData.time;
 			this.timestamp = metaData.timestamp;
 			this.duration = metaData.duration;
 			this.uri = metaData.uri;
@@ -151,23 +176,20 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 			this.numOfFailedTests = metaData.numOfFailedTests;
 			this.numOfTestsWithWarnings = metaData.numOfTestsWithWarnings;
 			this.numOfMachines = metaData.numOfMachines;
+			this.dirty = metaData.dirty;
 		}
-	}
-
-	public ExecutionMetadata(Date timestamp) {
-		this.timestamp = timestamp;
 	}
 
 	/**
-	 * Enable to sort collection of this class by descending order of the date
-	 * and time
+	 * Enable to sort collection of this class by descending order of the
+	 * date and time
 	 */
 	@Override
-	public int compareTo(ExecutionMetadata o) {
+	public int compareTo(OldMetadata o) {
 		if (null == o) {
 			return 1;
 		}
-		if (!(o instanceof ExecutionMetadata)) {
+		if (!(o instanceof OldMetadata)) {
 			throw new IllegalArgumentException(
 					"Can't compare " + this.getClass().getSimpleName() + " to " + o.getClass().getSimpleName());
 		}
@@ -184,30 +206,45 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		}
 	}
 
-	@Override
-	public String toString() {
-		// @formatter:off
-		return new StringBuilder()
-				.append("id"+ id)
-				.append("description"+ description)
-				.append("comment"+ comment)
-				.append("properties"+ properties)
-				.append("shared"+ shared)
-				.append("folderName"+ folderName)
-				.append("uri"+ uri)
-				.append("duration"+ duration)
-				.append("numOfTests"+ numOfTests)
-				.append("numOfSuccessfulTests"+ numOfSuccessfulTests)
-				.append("numOfFailedTests"+ numOfFailedTests)
-				.append("numOfTestsWithWarnings"+ numOfTestsWithWarnings)
-				.append("numOfMachines"+ numOfMachines)
-				.append("timestamp"+ timestamp)
-				.toString();
-		// @formatter:on
+	public String getTimestamp() {
+		return timestamp;
 	}
 
-	public Date getTimestamp() {
-		return timestamp;
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+		setDirty(true);
+	}
+
+	public boolean isLocked() {
+		return locked;
+	}
+
+	public void setLocked(boolean locked) {
+		this.locked = locked;
+		setDirty(true);
+	}
+
+	public boolean isHtmlExists() {
+		return htmlExists;
+	}
+
+	public void setHtmlExists(boolean htmlExists) {
+		this.htmlExists = htmlExists;
+		setDirty(true);
+	}
+
+	@JsonIgnore
+	public long getLastAccessedTime() {
+		return lastAccessedTime;
+	}
+
+	@JsonIgnore
+	public void setLastAccessedTime(long lastAccessedTime) {
+		this.lastAccessedTime = lastAccessedTime;
 	}
 
 	public int getId() {
@@ -216,6 +253,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setId(int id) {
 		this.id = id;
+		setDirty(true);
 	}
 
 	public String getDescription() {
@@ -224,14 +262,16 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setDescription(String description) {
 		this.description = description;
+		setDirty(true);
 	}
 
-	public Map<String, String> getProperties() {
+	public HashMap<String, String> getProperties() {
 		return properties;
 	}
 
-	public void setProperties(Map<String, String> properties) {
+	public void setProperties(HashMap<String, String> properties) {
 		this.properties = properties;
+		setDirty(true);
 	}
 
 	public boolean isShared() {
@@ -240,6 +280,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setShared(boolean shared) {
 		this.shared = shared;
+		setDirty(true);
 	}
 
 	public String getFolderName() {
@@ -247,6 +288,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	public void setFolderName(String folderName) {
+		setDirty(true);
 		this.folderName = folderName;
 	}
 
@@ -255,10 +297,36 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	}
 
 	public void setUri(String uri) {
+		setDirty(true);
 		this.uri = uri;
 	}
 
-	public void setTimestamp(Date timestamp) {
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		setDirty(true);
+		this.date = date;
+	}
+
+	public String getTime() {
+		return time;
+	}
+
+	public void setTime(String time) {
+		if (time == null || time.equals(this.time)) {
+			return;
+		}
+		setDirty(true);
+		this.time = time;
+	}
+
+	public void setTimestamp(String timestamp) {
+		if (this.timestamp == timestamp) {
+			return;
+		}
+		setDirty(true);
 		this.timestamp = timestamp;
 	}
 
@@ -270,6 +338,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		if (this.numOfTests == numOfTests) {
 			return;
 		}
+		setDirty(true);
 		this.numOfTests = numOfTests;
 	}
 
@@ -281,6 +350,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		if (this.numOfSuccessfulTests == numOfSuccessfulTests) {
 			return;
 		}
+		setDirty(true);
 		this.numOfSuccessfulTests = numOfSuccessfulTests;
 
 	}
@@ -293,6 +363,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		if (numOfFailedTests == this.numOfFailedTests) {
 			return;
 		}
+		setDirty(true);
 		this.numOfFailedTests = numOfFailedTests;
 	}
 
@@ -304,6 +375,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		if (this.numOfTestsWithWarnings == numOfTestsWithWarnings) {
 			return;
 		}
+		setDirty(true);
 		this.numOfTestsWithWarnings = numOfTestsWithWarnings;
 	}
 
@@ -315,6 +387,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		if (this.numOfMachines == numOfMachines) {
 			return;
 		}
+		setDirty(true);
 		this.numOfMachines = numOfMachines;
 	}
 
@@ -334,4 +407,13 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 		this.comment = comment;
 	}
 
+	@JsonIgnore
+	public boolean isDirty() {
+		return dirty;
+	}
+
+	@JsonIgnore
+	public void setDirty(boolean dirty) {
+		this.dirty = dirty;
+	}
 }
