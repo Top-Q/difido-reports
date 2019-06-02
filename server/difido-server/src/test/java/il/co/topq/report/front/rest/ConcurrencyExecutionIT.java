@@ -22,7 +22,6 @@ public class ConcurrencyExecutionIT extends AbstractResourceTest {
 	protected static final int NUM_OF_TESTS_IN_SCENARIO = 10;
 	private static final int NUM_OF_THREADS = 10;
 
-	// Disabled since the shared executions are currently not working
 	@Test
 	@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 	public void testConcurrentSharedExecutions() throws Exception {
