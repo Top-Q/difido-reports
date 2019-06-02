@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
+import il.co.topq.report.events.ExecutionCreatedEvent;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.events.FileAddedToTestEvent;
 import il.co.topq.report.events.MachineCreatedEvent;
@@ -30,7 +31,7 @@ public class AccessTimeUpdaterController implements InfoContributor {
 	@Autowired
 	public AccessTimeUpdaterController() {
 		super();
-		if (Configuration.INSTANCE.readInt(ConfigProps.DAYS_TO_KEEP_HTML_REPORTS) > 0) {
+		if (Configuration.INSTANCE.readInt(ConfigProps.MAX_EXECUTION_IDLE_TIME_IN_SEC) > 0) {
 			enabled = true;
 			accessTimePerExecution = new HashMap<>();
 		} else {
@@ -39,10 +40,15 @@ public class AccessTimeUpdaterController implements InfoContributor {
 	}
 
 	@EventListener
+	public void onExecutionCreatedEvent(ExecutionCreatedEvent executionCreatedEvent) {
+		updateExecutionLastUpdateTime(executionCreatedEvent.getExecutionId());
+	}
+	
+	@EventListener
 	public void onTestDetailsCreatedEvent(TestDetailsCreatedEvent testDetailsCreatedEvent) {
 		updateExecutionLastUpdateTime(testDetailsCreatedEvent.getExecutionId());
 	}
-
+	
 	@EventListener
 	public void onFileAddedToTestEvent(FileAddedToTestEvent fileAddedToTestEvent) {
 		updateExecutionLastUpdateTime(fileAddedToTestEvent.getExecutionId());
@@ -78,6 +84,12 @@ public class AccessTimeUpdaterController implements InfoContributor {
 
 	public long getLastAccessTime(int executionId) {
 		if (!enabled) {
+			return 0;
+		}
+		if (null == accessTimePerExecution) {
+			return 0;
+		}
+		if (null == accessTimePerExecution.get(executionId)) {
 			return 0;
 		}
 		return accessTimePerExecution.get(executionId);

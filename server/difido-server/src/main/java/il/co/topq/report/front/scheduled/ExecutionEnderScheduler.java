@@ -2,6 +2,8 @@ package il.co.topq.report.front.scheduled;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +30,12 @@ public class ExecutionEnderScheduler {
 	private final ApplicationEventPublisher publisher;
 
 	private final ExecutionStateRepository stateRepository;
-	
+
 	private final AccessTimeUpdaterController accessTimeUpdater;
 
 	@Autowired
-	public ExecutionEnderScheduler(ExecutionStateRepository stateRepository, AccessTimeUpdaterController accessTimeUpdater, ApplicationEventPublisher publisher) {
+	public ExecutionEnderScheduler(ExecutionStateRepository stateRepository,
+			AccessTimeUpdaterController accessTimeUpdater, ApplicationEventPublisher publisher) {
 		this.stateRepository = stateRepository;
 		this.accessTimeUpdater = accessTimeUpdater;
 		this.publisher = publisher;
@@ -45,6 +48,18 @@ public class ExecutionEnderScheduler {
 		}
 	}
 
+	@PostConstruct
+	public void closeAllExecutions() {
+		log.debug("Closing all active execution");
+		List<ExecutionState> activeStates = stateRepository.findByActive(true);
+		if (activeStates.isEmpty()) {
+			return;
+		}
+		log.info("About to close " + activeStates.size() + " executions that were left active from last run");
+		activeStates.stream().forEach(s -> s.setActive(false));
+		activeStates.forEach(s -> stateRepository.save(s));
+	}
+
 	@Scheduled(fixedRate = 30000)
 	public void setExecutionsToNotActive() {
 		if (!enabled) {
@@ -54,7 +69,12 @@ public class ExecutionEnderScheduler {
 		log.trace("Waking up in order to search for executions that need to end");
 		final List<ExecutionState> stateList = stateRepository.findByActive(true);
 		for (ExecutionState state : stateList) {
-			final int idleTime = (int) (System.currentTimeMillis() - accessTimeUpdater.getLastAccessTime(state.getId())) / 1000;
+			long lastAccessTime = accessTimeUpdater.getLastAccessTime(state.getId());
+			if (lastAccessTime == 0) {
+				// No records were done for this execution
+				continue;
+			}
+			final int idleTime = (int) (System.currentTimeMillis() - lastAccessTime) / 1000;
 			if (idleTime > maxExecutionIdleTimeout) {
 				log.debug("Execution with id " + state.getId() + " idle time is " + idleTime
 						+ " which exceeded the max idle time of " + maxExecutionIdleTimeout + ". Disabling execution");
