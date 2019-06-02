@@ -2,6 +2,7 @@ package il.co.topq.report.plugins;
 
 import java.util.List;
 
+import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 
 public interface Plugin {
@@ -23,6 +24,6 @@ public interface Plugin {
 	 *            of the execution metaData on which the plugin should be
 	 *            operated on.
 	 */
-	void execute(List<ExecutionMetadata> metaDataList, String params);
+	void execute(List<ExecutionMetadata> metaDataList, List<Execution> executions, String params);
 
 }

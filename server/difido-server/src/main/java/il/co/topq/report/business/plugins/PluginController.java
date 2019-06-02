@@ -14,9 +14,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.events.ExecutionEndedEvent;
 import il.co.topq.report.events.MachineCreatedEvent;
+import il.co.topq.report.persistence.ExecutionRepository;
 import il.co.topq.report.persistence.MetadataRepository;
 import il.co.topq.report.plugins.ExecutionPlugin;
 import il.co.topq.report.plugins.InteractivePlugin;
@@ -30,12 +32,16 @@ public class PluginController implements InfoContributor {
 	private final Logger log = LoggerFactory.getLogger(PluginController.class);
 
 	private final PluginManager pluginManager;
-	
+
 	private final MetadataRepository metadataRepository;
-	
-	public PluginController(PluginManager pluginManager, MetadataRepository metadataRepository) {
+
+	private final ExecutionRepository executionRepository;
+
+	public PluginController(PluginManager pluginManager, MetadataRepository metadataRepository,
+			ExecutionRepository executionRepository) {
 		this.pluginManager = pluginManager;
 		this.metadataRepository = metadataRepository;
+		this.executionRepository = executionRepository;
 	}
 
 	@EventListener
@@ -45,7 +51,9 @@ public class PluginController implements InfoContributor {
 		for (ExecutionPlugin plugin : executionPlugins) {
 			try {
 				log.debug("Calling plugin " + plugin.getName());
-				plugin.onExecutionEnded(metadataRepository.findById(executionEndedEvent.getExecutionId()));
+				final ExecutionMetadata meatadata = metadataRepository.findById(executionEndedEvent.getExecutionId());
+				final Execution execution = executionRepository.findById(executionEndedEvent.getExecutionId());
+				plugin.onExecutionEnded(meatadata, execution);
 			} catch (Throwable e) {
 				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "
 						+ plugin.getName(), e);
@@ -96,7 +104,7 @@ public class PluginController implements InfoContributor {
 	 *            Free parameter for the plugin
 	 */
 	public void executePlugin(final String pluginName, final List<ExecutionMetadata> metaDataList,
-			final String params) {
+			List<Execution> executions, final String params) {
 		if (StringUtils.isEmpty(pluginName)) {
 			log.warn("Trying to call plugin with empty name");
 			return;
@@ -105,7 +113,7 @@ public class PluginController implements InfoContributor {
 			try {
 				if (pluginName.trim().equals(plugin.getName().trim())) {
 					log.debug("Calling plugin " + plugin.getName());
-					plugin.execute(metaDataList, params);
+					plugin.execute(metaDataList, executions,params);
 				}
 			} catch (Throwable e) {
 				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "
@@ -117,7 +125,7 @@ public class PluginController implements InfoContributor {
 	}
 
 	public String executeInteractivePlugin(final String pluginName, final List<ExecutionMetadata> metaDataList,
-			final String params) {
+			final List<Execution> executions, final String params) {
 		if (StringUtils.isEmpty(pluginName)) {
 			log.warn("Trying to call plugin with empty name");
 			return "";
@@ -126,7 +134,7 @@ public class PluginController implements InfoContributor {
 			try {
 				if (pluginName.trim().equals(plugin.getName().trim())) {
 					log.debug("Calling plugin " + plugin.getName());
-					return plugin.executeInteractively(metaDataList, params);
+					return plugin.executeInteractively(metaDataList, executions, params);
 				}
 			} catch (Throwable e) {
 				log.error("Failed calling plugin from type " + plugin.getClass().getName() + " with name "

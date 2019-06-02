@@ -9,6 +9,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.report.Common;
 import il.co.topq.report.Configuration;
 import il.co.topq.report.Configuration.ConfigProps;
@@ -35,7 +36,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 	}
 
 	@Override
-	public void execute(List<ExecutionMetadata> metaDataList, String params) {
+	public void execute(List<ExecutionMetadata> metaDataList, List<Execution> executions, String params) {
 		if (!isEnabled()) {
 			return;
 		}
@@ -53,7 +54,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 	}
 
 	@Override
-	public void onExecutionEnded(ExecutionMetadata metadata) {
+	public void onExecutionEnded(ExecutionMetadata metadata, Execution execution) {
 		sendExecutionMail(metadata);
 	}
 
@@ -208,7 +209,7 @@ public class DefaultMailPlugin implements ExecutionPlugin {
 			sender.setAttachments(attachments);
 		}
 	}
-	
+
 	private static boolean isEmpty(String value) {
 		return null == value || value.isEmpty();
 	}

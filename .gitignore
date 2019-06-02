@@ -51,6 +51,7 @@ binders/difido-testng/remoteDifido.properties
 binders/difido-testng/difido.properties
 examples/testng-example/remoteDifido.properties
 examples/testng-example/difido.properties
+examples/testng-example/me.zip.gz
 examples/jsystem-example/tests-project/difido.properties
 examples/jsystem-example/tests-project/remoteDifido.properties
 examples/jsystem-example/tests-project/jsystem0.log.lck

@@ -41,6 +41,7 @@ public class CreateMultipleExecutionsIT extends AbstractResourceTest {
 			client.updateMachine(executionId, machineId, machine);
 			client.endExecution(executionId);
 		}
+		waitForTasksToFinish();
 		final Execution[] executions = getAllExecutions();
 		Assert.assertNotNull(executions);
 		Assert.assertEquals(NUM_OF_EXECUTIONS, executions.length);
@@ -64,6 +65,7 @@ public class CreateMultipleExecutionsIT extends AbstractResourceTest {
 			client.updateMachine(executionId, machineId, machine);
 		}
 		client.endExecution(executionId);
+		waitForTasksToFinish();
 		final Execution[] executions = getAllExecutions();
 		Assert.assertNotNull(executions);
 		Assert.assertEquals(1, executions.length);

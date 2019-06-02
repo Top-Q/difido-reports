@@ -18,8 +18,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.report.business.execution.ExecutionMetadata;
 import il.co.topq.report.business.plugins.PluginController;
+import il.co.topq.report.persistence.ExecutionRepository;
 import il.co.topq.report.persistence.MetadataRepository;
 
 @RestController
@@ -32,10 +34,14 @@ public class PluginResource {
 
 	private final MetadataRepository metadataRepository;
 
+	private final ExecutionRepository executionRepository;
+
 	@Autowired
-	public PluginResource(PluginController pluginController, MetadataRepository metadataRepository) {
+	public PluginResource(PluginController pluginController, MetadataRepository metadataRepository,
+			ExecutionRepository executionRepository) {
 		this.pluginController = pluginController;
 		this.metadataRepository = metadataRepository;
+		this.executionRepository = executionRepository;
 	}
 
 	/**
@@ -56,10 +62,12 @@ public class PluginResource {
 	@POST
 	@Path("{plugin}")
 	@Produces(MediaType.TEXT_HTML)
-	public String post(@Context HttpServletRequest request, @PathParam("plugin") String plugin, @QueryParam("executions") List<Integer> executions,
-			@QueryParam("params") String params) {
-		log.debug("POST ("+request.getRemoteAddr()+") - Execute plugin " + plugin + "(" + params + ") on " + executions.size() + " execution(s)");
+	public String post(@Context HttpServletRequest request, @PathParam("plugin") String plugin,
+			@QueryParam("executions") List<Integer> executions, @QueryParam("params") String params) {
+		log.debug("POST (" + request.getRemoteAddr() + ") - Execute plugin " + plugin + "(" + params + ") on "
+				+ executions.size() + " execution(s)");
 		final List<ExecutionMetadata> metaDataList = new ArrayList<ExecutionMetadata>();
+		final List<Execution> executionList = new ArrayList<Execution>();
 		if (executions != null) {
 			for (int executionId : executions) {
 				final ExecutionMetadata metaData = metadataRepository.findById(executionId);
@@ -67,9 +75,11 @@ public class PluginResource {
 					metaDataList.add(metaData);
 
 				}
+				final Execution execution = executionRepository.findById(executionId);
+				executionList.add(execution);
 			}
 		}
-		return pluginController.executeInteractivePlugin(plugin, metaDataList, params);
+		return pluginController.executeInteractivePlugin(plugin, metaDataList, executionList, params);
 	}
 
 	/**
@@ -82,7 +92,7 @@ public class PluginResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<String> getPluginNames(@Context HttpServletRequest request) {
-		log.debug("GET ("+request.getRemoteAddr()+") - Getting the list of all plugins");
+		log.debug("GET (" + request.getRemoteAddr() + ") - Getting the list of all plugins");
 		return pluginController.getPluginNames();
 	}
 
