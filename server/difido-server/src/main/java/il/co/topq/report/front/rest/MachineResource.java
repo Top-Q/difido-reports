@@ -32,7 +32,7 @@ import il.co.topq.report.persistence.ExecutionRepository;
 import il.co.topq.report.persistence.MetadataRepository;
 
 @RestController
-@Path("api/executions/{execution}/machines")
+@Path("api/executions/{execution: [0-9]+}/machines")
 public class MachineResource {
 
 	private final Logger log = LoggerFactory.getLogger(MachineResource.class);
@@ -74,7 +74,7 @@ public class MachineResource {
 
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("{machine}")
+	@Path("{machine: [0-9]+}")
 	public void updateMachine(@Context HttpServletRequest request, @PathParam("execution") int executionId,
 			@PathParam("machine") int machineId, MachineNode machine) {
 		log.debug("PUT (" + request.getRemoteAddr() + ") - Update machine to execution with id " + executionId);
@@ -150,7 +150,7 @@ public class MachineResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{machine}")
+	@Path("/{machine: [0-9]+}")
 	public MachineNode getSingleMachine(@Context HttpServletRequest request, @PathParam("execution") int execution,
 			@PathParam("machine") int machine) {
 		log.debug("GET (" + request.getRemoteAddr() + ") - Get machine from execution with id " + execution

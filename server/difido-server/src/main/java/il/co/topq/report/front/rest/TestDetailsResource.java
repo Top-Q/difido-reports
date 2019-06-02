@@ -19,7 +19,7 @@ import il.co.topq.difido.model.test.TestDetails;
 import il.co.topq.report.events.TestDetailsCreatedEvent;
 
 @RestController
-@Path("api/executions/{execution}/details")
+@Path("api/executions/{execution: [0-9]+}/details")
 public class TestDetailsResource {
 
 	private final Logger log = LoggerFactory.getLogger(TestDetailsResource.class);
