@@ -29,6 +29,7 @@ public class ErrorLogger implements ErrorViewResolver {
 	public ModelAndView resolveErrorView(HttpServletRequest request, HttpStatus status, Map<String, Object> model) {
 		if (HttpStatus.NOT_FOUND == status) {
 			log.warn("ERROR 404 (" + request.getRemoteAddr() + ") - Request for URL '" + model.get("path") + "'");
+			// There are currently no views with the following names. 
 			return new ModelAndView("error404", model);
 		} else {
 			return new ModelAndView("error", model);
