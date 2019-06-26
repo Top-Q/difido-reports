@@ -318,6 +318,10 @@ public class ReportManager implements ReportDispatcher {
 	public void addReporter(Reporter reporter) {
 		reporters.add(reporter);
 	}
+	
+	public List<Reporter> getReporters(){
+		return this.reporters;
+	}
 
 
 }
