@@ -5,11 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.testng.ISuite;
 
@@ -200,7 +198,6 @@ public class RemoteDifidoReporter extends AbstractDifidoReporter {
 				//zip the file to an in-memory byte array and upload to server 
 				//adding .gz to the original fileName;
 				byte[] zipped = ZipUtils.gzipToBytesArray(file);
-				FileUtils.writeByteArrayToFile(new File("me.zip.gz"), zipped);
 				if (null != zipped){
 					client.addFile(executionId, getTestDetails().getUid(), zipped, file.getName().concat(".gz"));
 				}
