@@ -80,7 +80,7 @@ public class ExecutionResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{execution: [0-9]+}/isActive")
 	public boolean getExecutionActiveState(@Context HttpServletRequest request, @PathParam("execution") int executionId) {
-		log.debug("GET (" + request.getRemoteAddr() + ") - Get ExecutionState of execution with id " + executionId);
+		log.debug("GET (" + request.getRemoteAddr() + ") - Get Execution active state of execution with id " + executionId);
 		return stateRepository.findByMetadataId(executionId).isActive();
 	}
 
