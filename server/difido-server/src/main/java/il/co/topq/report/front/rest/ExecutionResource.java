@@ -75,6 +75,14 @@ public class ExecutionResource {
 		log.debug("GET (" + request.getRemoteAddr() + ") - Get metadata of execution with id " + executionId);
 		return metadataRepository.findById(executionId);
 	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/{execution: [0-9]+}/isActive")
+	public boolean getExecutionActiveState(@Context HttpServletRequest request, @PathParam("execution") int executionId) {
+		log.debug("GET (" + request.getRemoteAddr() + ") - Get Execution active state of execution with id " + executionId);
+		return stateRepository.findByMetadataId(executionId).isActive();
+	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
