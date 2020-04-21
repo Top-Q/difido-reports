@@ -75,13 +75,31 @@ public class ExecutionResource {
 		log.debug("GET (" + request.getRemoteAddr() + ") - Get metadata of execution with id " + executionId);
 		return metadataRepository.findById(executionId);
 	}
-	
+
+	/**
+	 * Get the state of single execution.
+	 * 
+	 * @param request
+	 * @param executionId
+	 * @return Representation of the execution state
+	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{execution: [0-9]+}/isActive")
-	public boolean getExecutionActiveState(@Context HttpServletRequest request, @PathParam("execution") int executionId) {
-		log.debug("GET (" + request.getRemoteAddr() + ") - Get Execution active state of execution with id " + executionId);
-		return stateRepository.findByMetadataId(executionId).isActive();
+	@Path("/{execution: [0-9]+}/state")
+	public ExecutionState getExecutionState(@Context HttpServletRequest request,
+			@PathParam("execution") int executionId) {
+		log.debug("GET (" + request.getRemoteAddr() + ") - Get Execution state of execution with id " + executionId);
+		ExecutionState state = stateRepository.findByMetadataId(executionId);
+		if (null == state) {
+			log.warn("Tried to get state of execution with id " + executionId + " which are not exists");
+			return null;
+		}
+		// We can't return the state as is since it includes the metadata so we
+		// set the metadata to null.
+		// This is OK since we are not saving the state to the persistence so it
+		// won't affect anything.
+		state.setMetadata(null);
+		return state;
 	}
 
 	@GET
@@ -140,7 +158,7 @@ public class ExecutionResource {
 			metadata = getSharedMatadata();
 			if (null == metadata) {
 				log.debug("POST (" + request.getRemoteAddr()
-				+ ") - Could not find an active shared execution. Creating a new execution");
+						+ ") - Could not find an active shared execution. Creating a new execution");
 			} else {
 				state = getState(metadata.getId());
 			}
