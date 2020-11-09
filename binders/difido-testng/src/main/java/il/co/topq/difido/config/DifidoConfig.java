@@ -41,7 +41,8 @@ public class DifidoConfig extends AbstractPropertiesConfigFile {
 		// @formatter:off
 		REPORTER_CLASSES("reporter.classes", LocalDifidoReporter.class.getName() +";" + RemoteDifidoReporter.class.getName() +";" +ConsoleReporter.class.getName()),
 		MIN_TIME_BETWEEN_WRITES("min.time.between.writes","100"),
-		LOG_LEVEL("log.level","INFO");
+		LOG_LEVEL("log.level","INFO"),
+		REPORT_PACKAGE_NAMES("report.package.names","true");
 		// @formatter:on
 
 		private String property;

@@ -83,11 +83,14 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	private boolean inTeardown;
 
+	private boolean reportPackageNames;
+
 	public AbstractDifidoReporter() {
 		config = new DifidoConfig();
 		bufferedElements = new ArrayList<ReportElement>();
 		bufferedTestProperties = new HashMap<>();
 		bufferedRunProperties = new HashMap<>();
+		reportPackageNames = config.getPropertyAsBoolean(DifidoOptions.REPORT_PACKAGE_NAMES);
 
 	}
 
@@ -121,7 +124,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	 * executed on, will append the results to the last machine and will not
 	 * create a new one.
 	 * 
-	 * @param context
+	 * @param host
 	 * 
 	 */
 	private void addMachineToExecution(String host) {
@@ -172,9 +175,19 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	@Override
 	public void onTestStart(ITestResult result) {
-		if (!result.getTestClass().getName().equals(testClassName)) {
-			testClassName = result.getTestClass().getName();
-			startClassScenario(result);
+		if (!reportPackageNames) {
+			// Getting only the class name without the package (issue #248)
+			final String className = result.getTestClass().getName().substring(result.getTestClass().getName().lastIndexOf(".") + 1);
+			if (!className.equals(testClassName)) {
+				testClassName = className;
+				startClassScenario(result);
+			}
+		} else {
+			// The package names will be reported
+			if (!result.getTestClass().getName().equals(testClassName)) {
+				testClassName = result.getTestClass().getName();
+				startClassScenario(result);
+			}
 		}
 		String testName = result.getName();
 		List<String> testParameters = getTestParameters(result);
