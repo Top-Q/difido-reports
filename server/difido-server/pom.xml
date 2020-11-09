@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>il.co.topq.report</groupId>
 	<artifactId>difido-server</artifactId>
-	<version>2.3.01-SNAPSHOT</version>
+	<version>3.0.00</version>
 	<name>Difido Server</name>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
