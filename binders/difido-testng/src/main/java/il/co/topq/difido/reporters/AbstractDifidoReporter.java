@@ -326,10 +326,16 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	@Override
 	public void onTestSkipped(ITestResult result) {
-		onTestStart(result);
+		
+		log("TEST SKIPPED!", "", Status.warning, ElementType.regular);
+		
+		Throwable e = result.getThrowable();
+		if (null != e) {
+			log(e.getMessage(), "", Status.warning, ElementType.regular);
+		}
+
 		currentTest.setStatus(Status.warning);
 		onTestEnd(result);
-
 	}
 
 	private void onTestEnd(ITestResult result) {
