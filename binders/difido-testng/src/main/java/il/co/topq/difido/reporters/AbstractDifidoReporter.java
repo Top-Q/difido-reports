@@ -455,6 +455,10 @@ public abstract class AbstractDifidoReporter implements Reporter {
 			}
 			bufferedElements.add(element);
 		} else {
+			if (null == testDetails) {
+				// Edge case in case we skip all tests
+				return;
+			}
 			testDetails.addReportElement(element);
 			currentTest.setStatus(element.getStatus());
 			if ((System.currentTimeMillis() - lastWrite) > config
