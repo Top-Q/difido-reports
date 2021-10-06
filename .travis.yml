@@ -1,6 +1,8 @@
 language: java
 jdk:
   - openjdk8
+services:
+  - elasticsearch
 
 script: 
   - mvn clean install -f difido-parent/pom.xml
