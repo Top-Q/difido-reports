@@ -3,5 +3,4 @@ jdk:
   - openjdk8
 
 script: 
-  - jdk_switcher use openjdk8
   - mvn clean install -f difido-parent/pom.xml
