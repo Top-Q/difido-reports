@@ -36,6 +36,13 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	 */
 	@Column(name = "DESCRIPTION")
 	private String description;
+	
+	/**
+	 * DUT Serial number 
+	 * it
+	 */
+	@Column(name = "SERIAL")
+	private String serialNum;
 
 	/**
 	 * A comment for the execution that might be added later (after the
@@ -224,6 +231,14 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public String getSerialNum() {
+		return serialNum;
+	}
+
+	public void setSerialNum(String serialNum) {
+		this.serialNum = serialNum;
 	}
 
 	public Map<String, String> getProperties() {

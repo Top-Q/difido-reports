@@ -128,8 +128,8 @@ public class ExecutionResource {
 	}
 
 	/**
-	 * Sets the execution properties in the execution meta data. Will allow
-	 * addition only of properties that are specified in the configuration file
+	 * Sets the execution properties in the execution meta data. Will allow addition
+	 * only of properties that are specified in the configuration file
 	 * 
 	 * @param metaData
 	 * @param executionDetails
@@ -201,6 +201,7 @@ public class ExecutionResource {
 		metaData.setComment("");
 		if (executionDetails != null) {
 			metaData.setDescription(executionDetails.getDescription());
+			metaData.setSerialNum("Unavailable");
 			metaData.setShared(executionDetails.isShared());
 			setAllowedPropertiesToMetaData(metaData, executionDetails);
 		}
@@ -222,29 +223,25 @@ public class ExecutionResource {
 	}
 
 	/**
-	 * Used to update that a single execution should not be active any more.
-	 * This is Irreversible. Also allows updating the execution description &
-	 * comment through the metadata parameter
+	 * Used to update that a single execution should not be active any more. This is
+	 * Irreversible. Also allows updating the execution description & comment
+	 * through the metadata parameter
 	 * 
-	 * @param executionId
-	 *            - the id of the execution
-	 * @param active
-	 *            - Set to not active
-	 * @param locked
-	 *            - Set the execution to locked. Will no be deleted
-	 * @param metadataStr
-	 *            - String of key-value pairs to allow updating execution
-	 *            description, comment and possibly other parameters in the
-	 *            future,
+	 * @param executionId - the id of the execution
+	 * @param active      - Set to not active
+	 * @param locked      - Set the execution to locked. Will no be deleted
+	 * @param metadataStr - String of key-value pairs to allow updating execution
+	 *                    description, comment and possibly other parameters in the
+	 *                    future,
 	 */
 	@PUT
 	@Path("/{execution: [0-9]+}")
 	public void put(@Context HttpServletRequest request, @PathParam("execution") int executionId,
-			@QueryParam("active") Boolean active, @QueryParam("locked") Boolean locked,
+			@QueryParam("active") Boolean active, @QueryParam("locked") Boolean locked, @QueryParam("serial") String serialNum, 
 			@QueryParam("metadata") String metadataStr) {
 
 		log.debug("PUT (" + request.getRemoteAddr() + ") - Upating execution with id " + executionId + ". to active: "
-				+ active + ", locked: " + locked + ", metadata: " + metadataStr);
+				+ active + ", locked: " + locked + ", serial number: " + serialNum + ", metadata: " + metadataStr);
 
 		final ExecutionState state = stateRepository.findOne(executionId);
 		if (null == state) {
@@ -287,6 +284,12 @@ public class ExecutionResource {
 					}
 				}
 			}
+			metadataRepository.save(state.getMetadata());
+			publisher.publishEvent(new ExecutionUpdatedEvent(executionId));
+		}
+		
+		if (serialNum != null) {
+			state.getMetadata().setSerialNum(serialNum);
 			metadataRepository.save(state.getMetadata());
 			publisher.publishEvent(new ExecutionUpdatedEvent(executionId));
 		}
