@@ -201,7 +201,7 @@ public class ExecutionResource {
 		metaData.setComment("");
 		if (executionDetails != null) {
 			metaData.setDescription(executionDetails.getDescription());
-			metaData.setSerialNum(""); // emty string to serial column before update
+			metaData.setSerialNum(""); // empty string to serial column before update
 			metaData.setShared(executionDetails.isShared());
 			setAllowedPropertiesToMetaData(metaData, executionDetails);
 		}
