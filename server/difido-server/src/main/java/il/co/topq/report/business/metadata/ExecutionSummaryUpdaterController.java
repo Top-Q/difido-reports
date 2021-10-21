@@ -40,6 +40,11 @@ public class ExecutionSummaryUpdaterController implements InfoContributor {
 		this.metadataRepository = metadataRepository;
 		this.executionRepository = executionRepository;
 	}
+	
+	@EventListener
+	public void onUpdateSerialEvent(UpdateMetadataRequestEvent updateMetadataRequestEvent) {
+		updateSingleExecutionMetaAndSave(updateMetadataRequestEvent.getExecutionId());
+	}
 
 	@EventListener
 	public void onUpdateMetadataRequestEvent(UpdateMetadataRequestEvent updateMetadataRequestEvent) {

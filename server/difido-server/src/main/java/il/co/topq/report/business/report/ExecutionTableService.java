@@ -27,6 +27,7 @@ public class ExecutionTableService {
 	private static final String ID = "ID";
 	private static final String DESCRIPTION = "Description";
 	private static final String LINK = "Link";
+	private static final String SERIAL = "Serial";
 	private static final String DATE = "Date";
 	private static final String TIME = "Time";
 	private static final String DURATION = "Duration";
@@ -111,6 +112,10 @@ public class ExecutionTableService {
 			} else {
 				row.add(meta.getFolderName());
 			}
+			return;
+		}
+		if (header.equalsIgnoreCase(SERIAL)) {
+			row.add(meta.getSerialNum());
 			return;
 		}
 		if (header.equalsIgnoreCase(LINK)) {
