@@ -1,0 +1,30 @@
+# instrucrtion on how to install as service: (ubuntu >=20.04)
+# installation directory is assumed to be /opt/difido-server
+# sudo cp difido.service /etc/systemd/system/
+# sudo systemctl daemon-reload
+# sudo systemctl enable difido.service
+# sudo systemctl start difido
+# sudo systemctl status difido
+
+[Unit]
+Description=Difido Reporter server
+[Service]
+User=root
+# The configuration file application.properties should be here:
+
+#change this to your workspace
+WorkingDirectory=/opt/difido-server
+
+#path to executable. 
+#executable is a bash script which calls jar file
+ExecStart=/opt/difido-server/bin/start.sh
+
+#SuccessExitStatus=143
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+After=network-online.target
+Wants=network-online.target
+
+[Install]
+WantedBy=multi-user.target

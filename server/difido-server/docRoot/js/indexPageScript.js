@@ -176,8 +176,28 @@ function populateTable() {
 				}],
 			"fnCreatedRow": function (nRow, aData, iDataIndex) {
 				// Adding attributes to the row. Especially useful for keeping the selected rows after refresh.
-				$(nRow).attr('id', 'exe' + aData[0]);
-				$(nRow).attr('exeid', aData[0]);
+				// Checking if the execution has comments, and if it does, adding the comment as a tooltip that's shown when hovering on the star to the right of the execution description
+				$.ajax({
+					url : 'api/executions/' + aData[0],
+					type : 'GET',
+				})
+				.done(function(metadataObj) {
+
+					var execId = aData[0];
+
+					$(nRow).attr('id', 'exe' + execId);
+					$(nRow).attr('exeid', execId);
+
+					var descCell = $(nRow).find("td")[1];
+					var desc = $(descCell).html();
+
+					if (metadataObj.comment != '') {
+						$(descCell).html("<span class=\"commentStar\" title=\"Comment:\n" + metadataObj.comment + "\" onclick=\"executionDetails(" + execId + ")\">&starf;</span> &nbsp;" + desc);
+					}
+					else {
+						$(descCell).html("<span class=\"commentStar\" title=\"Click to add comment\" onclick=\"executionDetails(" + execId + ")\">&star;</span> &nbsp;" + desc);
+					}
+				});
 			},
 			"drawCallback": function (settings) {
 				// After drawing the table, reselecting all the previously selected rows.
