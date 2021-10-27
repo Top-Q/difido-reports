@@ -1,128 +1,117 @@
 {
-	"settings": {
-		"index": {
-			"number_of_shards": 2,
-			"number_of_replicas": 1
-		}
-	},
-	"mappings": {
-		"test": {
-			"dynamic_templates": [
-				{
-					"long_prop": {
-						"match": "long_*",
-						"match_mapping_type": "string",
-						"mapping": {
-							"type": "long",
-							"index": false
-						}
-					}
-				},
-				{
-					"int_prop": {
-						"match": "int_*",
-						"match_mapping_type": "string",
-						"mapping": {
-							"type": "integer",
-							"index": false
-						}
-					}
-				},
-				{
-					"double_prop": {
-						"match": "double_*",
-						"match_mapping_type": "string",
-						"mapping": {
-							"type": "double",
-							"index": false
-						}
-					}
-				},
-				{
-					"float_prop": {
-						"match": "float_*",
-						"match_mapping_type": "string",
-						"mapping": {
-							"type": "float",
-							"index": false
-						}
-					}
-				},
-				{
-					"date_prop": {
-						"match": "date_*",
-						"match_mapping_type": "string",
-						"mapping": {
-							"type": "date",
-							"index": false,
-							"format": "yyyy/MM/dd HH:mm:ss"
-						}
-					}
-				},
-				{
-					"notanalyzed": {
-						"match": "*",
-						"unmatch": "^(long_|int_|double_|float_|date_)$",
-						"match_mapping_type": "string",
-						"mapping": {
-							"type": "keyword",
-							"index": true
-						}
-					}
-				}
-			],
-			"properties": {
-				"name": {
-					"type": "keyword",
-					"index": true
-				},
-				"uid": {
-					"type": "keyword",
-					"index": true
-				},
-				"parent": {
-					"type": "keyword",
-					"index": true
-				},
-				"status": {
-					"type": "keyword",
-					"index": true
-				},
-				"url": {
-					"type": "keyword",
-					"index": true
-				},
-				"description": {
-					"type": "keyword",
-					"index": true
-				},
-				"execution": {
-					"type": "keyword",
-					"index": true
-				},
-				"executionId": {
-					"type": "long"
-				},
-				"executionDuration": {
-					"type": "long"
-				},
-				"machine": {
-					"type": "keyword",
-					"index": true
-				},
-				"timestamp": {
-					"type": "date",
-					"format": "yyyy/MM/dd HH:mm:ss"
-				},
-				"executionTimestamp": {
-					"type": "date",
-					"format": "yyyy/MM/dd HH:mm:ss"
-				},
-				"duration": {
-					"type": "long"
-				}
-			}
-
-		}
-	}
+        "settings": {
+                "index": {
+                        "number_of_shards": 2,
+                        "number_of_replicas": 1
+                }
+        },
+        "mappings": {
+                "test": {
+                        "properties": {
+                                "name": {
+                                        "type": "keyword",
+                                        "index": "true"
+                                },
+                                "uid": {
+                                        "type": "keyword",
+                                        "index": "true"
+                                },
+                                "parent": {
+                                        "type": "keyword",
+                                        "index": "true"
+                                },
+                                "status": {
+                                        "type": "keyword",
+                                        "index": "true"
+                                },
+                                "url": {
+                                        "type": "keyword",
+                                        "index": "true"
+                                },
+                                "description": {
+                                        "type": "keyword",
+                                        "index": "true"
+                                },
+                                "execution": {
+                                        "type": "keyword",
+                                        "index": "true"
+                                },
+                                "executionId": {
+                                        "type": "long"
+                                },
+                                "executionDuration": {
+                                        "type": "long"
+                                },
+                                "machine": {
+                                        "type": "keyword",
+                                        "index": "true"
+                                },
+                                "timestamp": {
+                                        "type": "date",
+                                        "format": "yyyy/MM/dd HH:mm:ss"
+                                },
+                                "executionTimestamp": {
+                                        "type": "date",
+                                        "format": "yyyy/MM/dd HH:mm:ss"
+                                },
+                                "duration": {
+                                        "type": "long"
+                                }
+                        },
+                        "dynamic_templates": [
+                                {
+                                        "long_prop": {
+                                                "match": "long_*",
+                                                "match_mapping_type": "string",
+                                                "mapping": {
+                                                        "type": "long",
+                                                        "index": "true"
+                                                }
+                                        }
+                                },
+                                {
+                                        "int_prop": {
+                                                "match": "int_*",
+                                                "match_mapping_type": "string",
+                                                "mapping": {
+                                                        "type": "integer",
+                                                        "index": "true"
+                                                }
+                                        }
+                                },
+                                {
+                                        "double_prop": {
+                                                "match": "double_*",
+                                                "match_mapping_type": "string",
+                                                "mapping": {
+                                                        "type": "double",
+                                                        "index": "true"
+                                                }
+                                        }
+                                },
+                                {
+                                        "date_prop": {
+                                                "match": "date_*",
+                                                "match_mapping_type": "string",
+                                                "mapping": {
+                                                        "type": "date",
+                                                        "index": "true",
+                                                        "format": "yyyy/MM/dd HH:mm:ss"
+                                                }
+                                        }
+                                },
+                                {
+                                        "notanalyzed": {
+                                                "match": "*",
+                                                "unmatch": "^(long_|int_|double_|date_)$",
+                                                "match_mapping_type": "string",
+                                                "mapping": {
+                                                        "type": "keyword",
+                                                        "index": "true"
+                                                }
+                                        }
+                                }
+                        ]
+                }
+        }
 }
