@@ -32,7 +32,7 @@ DEBUG=""
 cd "$(dirname "$0")"/..
 
 # Launching the server
-java $DEBUG -Xms256m -Xmx1024m -Dserver.address=$HOST -Dserver.port=$PORT -Dlogging.level.org.springframework.web=ERROR -Dlogging.level.il.co.topq.report=$LOGGING_LEVEL -cp lib/difido-server.jar -Dloader.path=plugin/ org.springframework.boot.loader.PropertiesLauncher
+java $DEBUG -Xms1g -Xmx8g -XX:+ExitOnOutOfMemoryError -Dserver.address=$HOST -Dserver.port=$PORT -Dlogging.level.org.springframework.web=ERROR -Dlogging.level.il.co.topq.report=$LOGGING_LEVEL -cp lib/difido-server.jar -Dloader.path=plugin/ org.springframework.boot.loader.PropertiesLauncher
 
 
 
