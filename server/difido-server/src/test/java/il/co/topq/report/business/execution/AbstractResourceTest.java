@@ -131,7 +131,7 @@ public abstract class AbstractResourceTest {
 			}
 		}
 		try {
-			Thread.sleep(500);
+			Thread.sleep(3_000);
 		} catch (InterruptedException e) {
 		}
 	}
