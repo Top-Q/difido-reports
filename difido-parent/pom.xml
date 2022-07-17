@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>il.co.topq.difido</groupId>
 	<artifactId>difido-parent</artifactId>
-	<version>3.1.00</version>
+	<version>3.1.01-SNAPSHOT</version>
 	<name>Difido Parent</name>
 	<packaging>pom</packaging>
 	<organization>
