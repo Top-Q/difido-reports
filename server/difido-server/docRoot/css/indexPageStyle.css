@@ -102,3 +102,14 @@ div.dt-buttons {
     text-decoration: none;
     cursor: pointer;
 }
+
+.commentStar {
+	cursor: pointer;
+	font-size: 12pt;
+	color: #337ab7;
+}
+
+.commentStar:hover {
+	cursor: pointer;
+	color: #006;
+}
