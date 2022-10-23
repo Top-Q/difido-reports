@@ -1,7 +1,7 @@
 pytest-difido
 =============
 
-PyTest plugin for generating HTML test reports
+PyTest plugin for creating flexible and informative test reports
 
 ----
 
@@ -11,10 +11,10 @@ This `pytest`_ plugin was generated with `Cookiecutter`_ along with `@hackebrot`
 Features
 --------
 
-* Flexible locally generated HTML report
+* Flexible locally generated HTML report on the running machine
 * Reports are generated at runtime. No need to wait for test execution to end
-* Attach files and images to the report
-* Works in local and remote mode. You can add `Difido server <https://github.com/Top-Q/difido-reports/releases/>`_ that allows publishing reports to central server
+* Easily attach files and images to the report
+* Works also in remote mode. You can add `Difido server <https://github.com/Top-Q/difido-reports/releases/>`_ that allows publishing reports to central server
 * Console reports - Reports to the console in addition to the HTML output mainly for development phase and CI/CD systems
 * Extensible - Allows to implement and add additional reporters
 
@@ -112,7 +112,7 @@ The 'Report' class is implemented as singleton so you will always get the same i
 Server Installation
 --------------------
 
-This step is not mandatory. Local reports will be generated also without the Difido server. Follow this step only if you wish to 
+This step is **not** mandatory. Local reports will be generated also without the Difido server. Follow this step only if you wish to 
 have central server for publishing test results. If all you need is local reports that will be generated on the running machine, skip this step
 
 
@@ -120,6 +120,7 @@ have central server for publishing test results. If all you need is local report
 * Extract the content of the file
 * Run the '[root]/bin/start.bat' or '[root]/bin/start.sh' file according to your OS. 
 * Set the host and port in the client configuration as shown in the next section
+* Add the 'difido.reporters.RemoteReporter' to the 'df_reporters' list in the configuration. More information about reporters can be found in the 'Reporters' section
 
 You can access the server from your browser (E.G http://localhost:8080/). For more information please refer to the `Difido server Wiki page`_
 
@@ -141,6 +142,8 @@ pytest.ini examples
     df_port = 8090
     ; Result folder for HTML and console reports. Default is current directory
     df_output_folder = /etc/log/
+    ; Reporters are defined in the following comma-separated list
+    df_reporters = difido.reporters.LocalReporter,difido.reporters.RemoteReporter,difido.reporters.ConsoleReporter
 
 Command line example
 
@@ -154,9 +157,27 @@ Command line example
 * **df_output_folder** - Result folder for HTML and console reports (default .)
 * **df_host**          - Host or ip of Difido server (default localhost)
 * **df_port**          - Difido server port (default 8080)
-* **df_reporters**     - Comma separated list of reporter classes. The all reporters recieves the event from the report manager
+* **df_reporters**     - Comma-separated list of reporter classes. The all reporters recieves the event from the report manager
 * **df_description**   - Description of test execution as shown in the Difido server
 
+Reporters
+---------
+
+Reporters are Python classes that translates the events recieved from the tests and generates a single report format.
+The plugin currently includes three types of reporters:
+
+* **difido.reporters.LocalReporter** - Generates local HTML reports to the repors output folder
+* **difido.reporters.RemoteReporter** - Pulishes results to the Difido server
+* **difido.reporters.ConsoleReporter** - Writes to the conole. At the end of the run the output is also copied to a file in the reports output folder.
+
+You can decide which reporters you want to enabled by adding or removing the classes from the 'df_reporters' list. 
+By default, only the 'LocalReporter' and 'ConsoleReporter' are included in the list. To use the remote reporter, for example, you will need to add it by configuring the 'df_reporters' as following:
+
+..  code-block:: ini
+
+  df_reporters = difido.reporters.LocalReporter,difido.reporters.RemoteReporter,difido.reporters.ConsoleReporter
+
+You can also implement your own reporter and add it to the list. 
 
 Contributing
 ------------
