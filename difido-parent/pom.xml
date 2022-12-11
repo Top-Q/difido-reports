@@ -13,6 +13,8 @@
 		<developer>
 			<name>Itai Agmon</name>
 			<email>itai.agmon@top-q.co.il</email>
+			<organization>Top-Q</organization>
+			<organizationUrl>https://matrix-testing.co.il/topq/</organizationUrl>
 		</developer>
 	</developers>
 	<licenses>
@@ -23,12 +25,19 @@
 			<comments>A business-friendly OSS license</comments>
 		</license>
 	</licenses>
+	<scm>
+		<connection>scm:git:git://github.com/Top-Q/difido-reports.git</connection>
+		<developerConnection>scm:git:ssh://github.com:Top-Q/difido-reports.git</developerConnection>
+		<url>http://github.com/Top-Q/difido-reports/tree/master</url>
+	</scm>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<topq.repository.rootUrl>http://maven.top-q.co.il</topq.repository.rootUrl>
 		<jsystem.version>6.1.06-beta1</jsystem.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.deploy.skip>false</maven.deploy.skip>
 	</properties>
 
 
@@ -47,14 +56,20 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>2.3.1</version>
+				<configuration>
+					<createChecksum>true</createChecksum>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.4.1</version>
+			</plugin>
 		</plugins>
 	</build>
-	<repositories>
-		<repository>
-			<id>topq</id>
-			<url>${topq.repository.rootUrl}/content/groups/public</url>
-		</repository>
-	</repositories>
 	<distributionManagement>
 		<repository>
 			<id>topq</id>
@@ -81,10 +96,11 @@
 		<module>../server/difido-server-plugins-common</module>
 		<module>../server/difido-server</module>
 		<module>../binders/difido-testng</module>
-		<module>../binders/difido-generic-binder</module>
+
+		<!--module>../binders/difido-generic-binder</module>
 		<module>../examples/jsystem-example/so-project</module>
 		<module>../examples/testng-example</module>
 		<module>../examples/jsystem-example/tests-project</module>
-		<module>../utils/metadata-recovery-utility</module>
+		<module>../utils/metadata-recovery-utility</module-->
 	</modules>
 </project>

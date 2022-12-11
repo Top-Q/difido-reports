@@ -133,7 +133,7 @@ public class ExecutionMetadata implements Comparable<ExecutionMetadata> {
 	/**
 	 * Copy constructor
 	 * 
-	 * @param metaData
+	 * @param metaData Original metadata object
 	 */
 	public ExecutionMetadata(final ExecutionMetadata metaData) {
 		if (null != metaData) {

@@ -21,6 +21,8 @@ public class ArchiveService {
 	 * Archive to ZIP the HTML reports folder of the specified execution.
 	 * 
 	 * @param metadata
+	 * 		Metadata of the execution to archive
+	 *
 	 * @return Path to temporary file contains the archived HTML reports or null
 	 *         if problem occurred
 	 */

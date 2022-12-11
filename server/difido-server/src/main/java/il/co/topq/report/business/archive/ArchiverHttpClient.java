@@ -55,8 +55,11 @@ public class ArchiverHttpClient {
 	 * Get file from remote machine using HTTP
 	 * 
 	 * @param path
+	 * 		Folder path
 	 * @param fileName
+	 * 		Filename
 	 * @return
+	 * 		File object
 	 */
 	public File getFile(String path, String fileName) {
 		HttpHeaders headers = new HttpHeaders();
@@ -90,6 +93,7 @@ public class ArchiverHttpClient {
 	 * Calls to HTTP delete command
 	 * 
 	 * @param path
+	 * 		Relative resource path
 	 */
 	public void delete(String path) {
 		try {
@@ -103,7 +107,8 @@ public class ArchiverHttpClient {
 	 * Calls to HTTP GET command and parses the result to String
 	 * 
 	 * @param path
-	 * @return
+	 * 		Relative resource path	 *
+	 * @return Result as string
 	 */
 	public String getString(String path) {
 		try {

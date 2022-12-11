@@ -562,7 +562,10 @@ public class ESController implements HealthIndicator, InfoContributor {
 
 	/**
 	 * Info about the server that can be retrieved using the
-	 * http://<host>:<port>/info request
+	 * http://[host]:[port]/info request
+	 *
+	 * @param builder
+	 * 		Spring builder
 	 */
 	@Override
 	public void contribute(org.springframework.boot.actuate.info.Info.Builder builder) {

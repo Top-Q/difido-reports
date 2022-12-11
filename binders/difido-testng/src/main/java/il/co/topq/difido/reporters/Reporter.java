@@ -38,6 +38,7 @@ public interface Reporter {
 	 * Event for start of suite
 	 * 
 	 * @param suite
+	 * 		Suite that is getting started
 	 */
 	void onStart(ISuite suite);
 
@@ -45,6 +46,7 @@ public interface Reporter {
 	 * Event for end of suite
 	 * 
 	 * @param suite
+	 * 		Suite that finished
 	 */
 	void onFinish(ISuite suite);
 
@@ -58,8 +60,8 @@ public interface Reporter {
 	 *            the report message
 	 * @param status
 	 *            pass/fail/warning
-	 * @param bold
-	 *            true if bold
+	 * @param type
+	 * 			  The type of the element to report
 	 */
 	void log(String title, String message, Status status, ElementType type);
 

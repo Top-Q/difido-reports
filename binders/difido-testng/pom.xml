@@ -9,6 +9,9 @@
 		<version>3.1.01-SNAPSHOT</version>
 		<relativePath>../../difido-parent</relativePath>
 	</parent>
+	<properties>
+		<maven.deploy.skip>false</maven.deploy.skip>
+	</properties>
 
 	<dependencies>
 		<dependency>

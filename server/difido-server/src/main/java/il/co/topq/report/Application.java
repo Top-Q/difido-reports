@@ -60,7 +60,7 @@ public class Application extends SpringBootServletInitializer implements AsyncCo
 
 	/**
 	 * Info about the server that can be retrieved using the
-	 * http://<host>:<port>/info request
+	 * http://[host]:[port]/info request
 	 */
 	@Override
 	public void contribute(org.springframework.boot.actuate.info.Info.Builder builder) {

@@ -80,7 +80,10 @@ public class ExecutionResource {
 	 * Get the state of single execution.
 	 * 
 	 * @param request
+	 * 		The context of the request
 	 * @param executionId
+	 * 		The id of the execution to provide the state
+	 *
 	 * @return Representation of the execution state
 	 */
 	@GET
@@ -128,11 +131,13 @@ public class ExecutionResource {
 	}
 
 	/**
-	 * Sets the execution properties in the execution meta data. Will allow
+	 * Sets the execution properties in the execution metadata. Will allow
 	 * addition only of properties that are specified in the configuration file
 	 * 
 	 * @param metaData
+	 * 		The metadata
 	 * @param executionDetails
+	 * 		The execution details
 	 */
 	private void setAllowedPropertiesToMetaData(ExecutionMetadata metaData, ExecutionDetails executionDetails) {
 		final List<String> allowedProperties = Configuration.INSTANCE.readList(ConfigProps.CUSTOM_EXECUTION_PROPERTIES);
@@ -223,9 +228,12 @@ public class ExecutionResource {
 
 	/**
 	 * Used to update that a single execution should not be active any more.
-	 * This is Irreversible. Also allows updating the execution description &
+	 * This is Irreversible. Also allows updating the execution description and
 	 * comment through the metadata parameter
-	 * 
+	 *
+	 * @param request
+	 * 		HTTP request
+	 *
 	 * @param executionId
 	 *            - the id of the execution
 	 * @param active
@@ -295,8 +303,15 @@ public class ExecutionResource {
 	/**
 	 * Delete a single execution from the server. A notification will be sent to
 	 * delete it from all the listeners.
-	 * 
+	 *
+	 * @param request
+	 * 		The HTTP request
+	 *
 	 * @param executionId
+	 * 		Id of execution to delete
+	 *
+	 * @param deleteFromElastic
+	 * 		Should the execution also deleted from the Elasticsearch
 	 */
 	@DELETE
 	@Path("/{execution: [0-9]+}")

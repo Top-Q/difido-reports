@@ -286,6 +286,8 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	 * Event that is called when a new scenario is created
 	 * 
 	 * @param scenario
+	 * 		The scenario that is created
+	 *
 	 */
 	protected abstract void onScenarioStart(ScenarioNode scenario);
 
@@ -386,6 +388,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	 * Event for start of suite
 	 * 
 	 * @param suite
+	 * 		The suite that is created
 	 */
 	@Override
 	public void onStart(ISuite suite) {
@@ -401,6 +404,8 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	 * Event for end of suite
 	 * 
 	 * @param suite
+	 * 		The suite that finishes
+	 *
 	 */
 	@Override
 	public void onFinish(ISuite suite) {
@@ -561,7 +566,10 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	 * Add free property to the whole run
 	 * 
 	 * @param name
+	 * 		Name of the property
+	 *
 	 * @param value
+	 * 		Value of the property
 	 */
 	public void addRunProperty(String name, String value) {
 		if (inSetup || inTeardown) {

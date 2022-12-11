@@ -100,6 +100,12 @@ public class PluginController implements InfoContributor {
 	 * 
 	 * @param pluginName
 	 *            The name of the plugin to execute
+	 * @param metaDataList
+	 * 			  List of the execution's metadata the plugin should be activated on
+	 *
+	 * @param executions
+	 * 			  List of the execution's the plugin should be activated on
+	 *
 	 * @param params
 	 *            Free parameter for the plugin
 	 */
@@ -148,7 +154,11 @@ public class PluginController implements InfoContributor {
 
 	/**
 	 * Info about the server that can be retrieved using the
-	 * http://<host>:<port>/info request
+	 * http://[host]:[port]/info request
+	 *
+	 * @param builder
+	 * 		Spring builder
+	 *
 	 */
 	@Override
 	public void contribute(Builder builder) {
