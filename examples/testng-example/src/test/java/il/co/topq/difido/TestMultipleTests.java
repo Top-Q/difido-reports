@@ -7,8 +7,8 @@ public class TestMultipleTests extends AbstractDifidoTestCase {
 
 	private int numOfTests = 100;
 
-	@Test(description = "Test that repeates many time", dataProvider = "data")
-	public void testTheRepeatesManyTimes(int index) {
+	@Test(description = "Test that repeats many time", dataProvider = "data")
+	public void testTheRepeatsManyTimes(int index) {
 		report.log("Test number " + index);
 	}
 

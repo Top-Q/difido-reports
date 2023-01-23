@@ -21,7 +21,7 @@ public class ConsoleReporter implements Reporter {
 	private boolean testStarted = false;
 
 	@Override
-	public void onTestStart(ITestResult result) {
+	public void onTestMethodStart(ITestResult result) {
 		if (!testStarted) {
 			print("------------------------------------------------------------------------");
 			print("[TEST START]: " +  result.getName());
@@ -31,7 +31,7 @@ public class ConsoleReporter implements Reporter {
 	}
 
 	@Override
-	public void onTestSuccess(ITestResult result) {
+	public void onTestMethodSuccess(ITestResult result) {
 		if (testStarted) {
 			long testDuration = result.getEndMillis() - result.getStartMillis();
 			print("------------------------------------------------------------------------");
@@ -44,7 +44,7 @@ public class ConsoleReporter implements Reporter {
 	}
 
 	@Override
-	public void onTestFailure(ITestResult result) {
+	public void onTestMethodFailure(ITestResult result) {
 		if (testStarted) {
 			long testDuration = result.getEndMillis() - result.getStartMillis();
 			print("------------------------------------------------------------------------");
@@ -57,18 +57,18 @@ public class ConsoleReporter implements Reporter {
 	}
 
 	@Override
-	public void onTestSkipped(ITestResult result) {
+	public void onTestMethodSkipped(ITestResult result) {
 		print("------------------------------------------------------------------------");
 		print("[TEST SKIPPED]: " +  result.getName());
 		print("------------------------------------------------------------------------");
 	}
 
 	@Override
-	public void onStart(ITestContext context) {
+	public void onTestStart(ITestContext context) {
 	}
 
 	@Override
-	public void onFinish(ITestContext context) {
+	public void onTestFinish(ITestContext context) {
 	}
 
 	@Override
@@ -77,11 +77,23 @@ public class ConsoleReporter implements Reporter {
 	}
 
 	@Override
-	public void onStart(ISuite suite) {
+	public void onExecutionStart(String host, String outputDir) {
+
 	}
 
 	@Override
-	public void onFinish(ISuite suite) {
+	public void onSuiteStart(ISuite suite) {
+
+	}
+
+	@Override
+	public void onSuiteFinish(ISuite suite) {
+
+	}
+
+	@Override
+	public void onExecutionFinish() {
+
 	}
 
 	@Override
@@ -151,11 +163,6 @@ public class ConsoleReporter implements Reporter {
 	@Override
 	public String getName() {
 		return "ConsoleReporter";
-	}
-
-	@Override
-	public File getCurrentTestFolder() {
-		return null;
 	}
 
 	private void print(String message) {

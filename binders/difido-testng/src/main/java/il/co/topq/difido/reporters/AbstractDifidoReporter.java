@@ -16,11 +16,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
 
-import org.testng.IInvokedMethod;
-import org.testng.ISuite;
-import org.testng.ITestContext;
-import org.testng.ITestNGMethod;
-import org.testng.ITestResult;
+import org.testng.*;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -49,9 +45,11 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	private Execution execution;
 
-	private ScenarioNode currentTestScenario;
-
 	private MachineNode currentMachine;
+
+	private ScenarioNode currentSuiteScenario;
+
+	private ScenarioNode currentTestScenario;
 
 	private ScenarioNode currentClassScenario;
 
@@ -68,8 +66,6 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	private String testClassName;
 
 	private long lastWrite;
-
-	private int totalPlannedTests = 0;
 
 	private DifidoConfig config;
 
@@ -91,11 +87,13 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		bufferedTestProperties = new HashMap<>();
 		bufferedRunProperties = new HashMap<>();
 		reportPackageNames = config.getPropertyAsBoolean(DifidoOptions.REPORT_PACKAGE_NAMES);
-
 	}
 
+	/**
+	 * Generates the unique execution id
+	 */
 	protected void generateUid() {
-		executionUid = String.valueOf(new Random().nextInt(1000)) + String.valueOf(System.currentTimeMillis() / 1000);
+		executionUid = new Random().nextInt(1000) + String.valueOf(System.currentTimeMillis() / 1000);
 	}
 
 	private void updateIndex() {
@@ -135,7 +133,6 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		} else {
 			currentMachine = new MachineNode(host);
 		}
-		currentMachine.setPlannedTests(totalPlannedTests);
 		if (null == execution) {
 			execution = new Execution();
 			execution.addMachine(currentMachine);
@@ -144,7 +141,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		// We are going to append to existing execution
 		MachineNode lastMachine = execution.getLastMachine();
 		if (null == lastMachine || null == lastMachine.getName()) {
-			// Something is wrong. We don't have machine in the existing
+			// Something is wrong. We don't have a machine in the existing
 			// execution. We need to add a new one
 			execution.addMachine(currentMachine);
 			return;
@@ -174,21 +171,60 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	protected abstract void writeExecution(Execution execution);
 
 	@Override
-	public void onTestStart(ITestResult result) {
-		if (!reportPackageNames) {
-			// Getting only the class name without the package (issue #248)
-			final String className = result.getTestClass().getName().substring(result.getTestClass().getName().lastIndexOf(".") + 1);
-			if (!className.equals(testClassName)) {
-				testClassName = className;
-				startClassScenario(result);
-			}
-		} else {
-			// The package names will be reported
-			if (!result.getTestClass().getName().equals(testClassName)) {
-				testClassName = result.getTestClass().getName();
-				startClassScenario(result);
-			}
+	public void onExecutionStart(String host, String outputDir){
+		execution = null;
+		updateIndex();
+		generateUid();
+		addMachineToExecution(host);
+	}
+
+	/**
+	 * Event for start of suite
+	 *
+	 * @param suite
+	 */
+	@Override
+	public void onSuiteStart(ISuite suite) {
+		currentSuiteScenario = new ScenarioNode(suite.getName());
+		currentMachine.addChild(currentSuiteScenario);
+		currentMachine.setPlannedTests(getAllPlannedTestsCount(suite) + currentMachine.getPlannedTests());
+	}
+
+	@Override
+	public void onTestStart(ITestContext context) {
+		testClassName = null;
+		currentClassScenario = null;
+		currentTest = null;
+		currentTestScenario = new ScenarioNode(context.getName());
+		currentSuiteScenario.addChild(currentTestScenario);
+	}
+
+	@Override
+	public void beforeSetup(IInvokedMethod method, ITestResult testResult) {
+		currentTest = null;
+		inSetup = true;
+	}
+
+	@Override
+	public void afterSetup(IInvokedMethod method, ITestResult testResult) {
+		logIfFailureOccuredInConfiguration(testResult);
+		inSetup = false;
+	}
+
+	@Override
+	public void onTestMethodStart(ITestResult result) {
+		currentTest = null;
+		final String currentTestClassName = reportPackageNames ? result.getTestClass().getName() : result.getTestClass().getName().substring(result.getTestClass().getName().lastIndexOf(".") + 1);
+		if (currentClassScenario == null ||
+				testClassName == null ||
+				!currentTestClassName.equals(testClassName)) {
+			// There is no real event for class start so we have to create it in this
+			// way.
+			testClassName = currentTestClassName;
+			currentClassScenario = new ScenarioNode(testClassName);
+			currentTestScenario.addChild(currentClassScenario);
 		}
+
 		String testName = result.getName();
 		List<String> testParameters = getTestParameters(result);
 		if (!testParameters.isEmpty()) {
@@ -220,7 +256,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 		int numOfAppearances = getAndUpdateTestHistory(result.getTestClass().getName() + testName);
 		if (numOfAppearances > 0) {
-			currentTest.setName(currentTest.getName() + " (" + ++numOfAppearances + ")");
+			currentTest.setName(currentTest.getName() + " (" + numOfAppearances + ")");
 		}
 		updateTestDirectory();
 		writeExecution(execution);
@@ -275,20 +311,6 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		return testParameters;
 	}
 
-	private void startClassScenario(ITestResult result) {
-		ScenarioNode scenario = new ScenarioNode(testClassName);
-		currentTestScenario.addChild(scenario);
-		currentClassScenario = scenario;
-		onScenarioStart(currentClassScenario);
-	}
-
-	/**
-	 * Event that is called when a new scenario is created
-	 * 
-	 * @param scenario
-	 */
-	protected abstract void onScenarioStart(ScenarioNode scenario);
-
 	protected abstract void updateTestDirectory();
 
 	private int getAndUpdateTestHistory(final Object bb) {
@@ -311,23 +333,28 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	}
 
 	@Override
-	public void onTestSuccess(ITestResult result) {
+	public void onTestMethodSuccess(ITestResult result) {
 		currentTest.setStatus(Status.success);
-		onTestEnd(result);
+		onTestMethodEnd(result);
 	}
 
 	@Override
-	public void onTestFailure(ITestResult result) {
+	public void onTestMethodFailure(ITestResult result) {
 		currentTest.setStatus(Status.failure);
 		reportLastTestException(result);
-		onTestEnd(result);
+		onTestMethodEnd(result);
 
 	}
 
 	@Override
-	public void onTestSkipped(ITestResult result) {
-		
-		log("TEST SKIPPED!", "", Status.warning, ElementType.regular);
+	public void onTestMethodSkipped(ITestResult result) {
+		if (null == currentTest) {
+			// Since this test was skipped the onTestMethodStart was never called and that
+			// means that we don't have currentTest object. We will call the onTestMethodStart manually
+			// to create the currentTest object
+			onTestMethodStart(result);
+		}
+		log("Test skipped", "", Status.warning, ElementType.regular);
 		
 		Throwable e = result.getThrowable();
 		if (null != e) {
@@ -335,12 +362,25 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		}
 
 		currentTest.setStatus(Status.warning);
-		onTestEnd(result);
+		onTestMethodEnd(result);
 	}
 
-	private void onTestEnd(ITestResult result) {
+	private void onTestMethodEnd(ITestResult result) {
 		currentTest.setDuration(result.getEndMillis() - result.getStartMillis());
 		writeTestDetails(testDetails);
+	}
+
+	@Override
+	public void beforeTeardown(IInvokedMethod method, ITestResult testResult) {
+		inTeardown = true;
+	}
+
+	@Override
+	public void afterTeardown(IInvokedMethod method, ITestResult testResult) {
+		logIfFailureOccuredInConfiguration(testResult);
+		inTeardown = false;
+		flushBufferedElements("Teardown");
+		currentTest = null;
 	}
 
 	private void reportLastTestException(ITestResult result) {
@@ -371,63 +411,16 @@ public abstract class AbstractDifidoReporter implements Reporter {
 		}
 	}
 
-	@Override
-	public void onStart(ITestContext context) {
-		ScenarioNode scenario = new ScenarioNode(context.getName());
-		currentMachine.addChild(scenario);
-		currentTestScenario = scenario;
-		// TODO: We want to avoid a case in which there is the same test class
-		// in different tests and a new scenario class is not created
-		testClassName = null;
-
-	}
-
-	/**
-	 * Event for start of suite
-	 * 
-	 * @param suite
-	 */
-	@Override
-	public void onStart(ISuite suite) {
-		execution = null;
-		totalPlannedTests = getAllPlannedTestsCount(suite);
-		updateIndex();
-		generateUid();
-
-		addMachineToExecution(suite.getHost());
-	}
-
 	/**
 	 * Event for end of suite
 	 * 
 	 * @param suite
 	 */
 	@Override
-	public void onFinish(ISuite suite) {
+	public void onSuiteFinish(ISuite suite) {
 	}
 
-	@Override
-	public void beforeTeardown(IInvokedMethod method, ITestResult testResult) {
-		inTeardown = true;
-	}
 
-	@Override
-	public void beforeSetup(IInvokedMethod method, ITestResult testResult) {
-		inSetup = true;
-	}
-
-	@Override
-	public void afterTeardown(IInvokedMethod method, ITestResult testResult) {
-		logIfFailureOccuredInConfiguration(testResult);
-		inTeardown = false;
-		flushBufferedElements("Teardown");
-	}
-
-	@Override
-	public void afterSetup(IInvokedMethod method, ITestResult testResult) {
-		logIfFailureOccuredInConfiguration(testResult);
-		inSetup = false;
-	}
 
 	/**
 	 * In case the setup or teardown step failed, we would like to log the
@@ -576,7 +569,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	}
 
 	@Override
-	public void onFinish(ITestContext context) {
+	public void onTestFinish(ITestContext context) {
 		writeExecution(execution);
 	}
 
@@ -599,5 +592,11 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	protected boolean isInTeardown() {
 		return inTeardown;
 	}
+
+	@Override
+	public void onExecutionFinish() {
+
+	}
+
 
 }
