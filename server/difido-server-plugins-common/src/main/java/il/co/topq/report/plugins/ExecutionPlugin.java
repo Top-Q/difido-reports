@@ -8,7 +8,8 @@ public interface ExecutionPlugin extends Plugin {
 	/**
 	 * For calling at the end of the execution
 	 * 
-	 * @param metadata
+	 * @param metadata The metadata of the execution
+	 * @param execution The execution object
 	 */
 	void onExecutionEnded(ExecutionMetadata metadata, Execution execution);
 }

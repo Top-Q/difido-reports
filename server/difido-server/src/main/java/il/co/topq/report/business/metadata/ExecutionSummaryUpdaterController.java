@@ -137,7 +137,10 @@ public class ExecutionSummaryUpdaterController implements InfoContributor {
 
 	/**
 	 * Info about the server that can be retrieved using the
-	 * http://<host>:<port>/info request
+	 * http://[host]:[port]/info request
+	 *
+	 * @param builder
+	 * 		Spring builder
 	 */
 	@Override
 	public void contribute(Builder builder) {

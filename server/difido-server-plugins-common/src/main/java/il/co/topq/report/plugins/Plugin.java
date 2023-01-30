@@ -16,11 +16,14 @@ public interface Plugin {
 
 	/**
 	 * For manual triggering
-	 * 
+	 *
+	 * @param executions
+	 * 			 List of all execution to activate the plugin on
+	 *
 	 * @param params
 	 *            Open string for any parameter that the plugin require
 	 * 
-	 * @param List
+	 * @param metaDataList
 	 *            of the execution metaData on which the plugin should be
 	 *            operated on.
 	 */

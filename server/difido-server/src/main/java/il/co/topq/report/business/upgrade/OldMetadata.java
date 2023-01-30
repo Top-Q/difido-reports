@@ -153,6 +153,7 @@ public class OldMetadata implements Comparable<OldMetadata> {
 	 * Copy constructor
 	 * 
 	 * @param metaData
+	 * 		Metadata to copy
 	 */
 	public OldMetadata(final OldMetadata metaData) {
 		if (null != metaData) {

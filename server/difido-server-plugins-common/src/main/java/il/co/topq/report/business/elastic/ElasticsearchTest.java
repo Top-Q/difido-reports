@@ -73,7 +73,7 @@ public class ElasticsearchTest {
 	
 	/**
 	 * Copy constructor
-	 * @param other
+	 * @param other Other ElasticsearchTest object to compare with
 	 */
 	public ElasticsearchTest(ElasticsearchTest other){
 		this.uid = other.getUid();

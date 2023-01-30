@@ -121,9 +121,9 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	 * execution, and the machine is the same as the machine the execution were
 	 * executed on, will append the results to the last machine and will not
 	 * create a new one.
-	 * 
+	 *
 	 * @param host
-	 * 
+	 *
 	 */
 	private void addMachineToExecution(String host) {
 		currentMachine = null;
@@ -268,7 +268,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	/**
 	 * Writing all the buffered elements that was stored in the configuration
 	 * stages
-	 * 
+	 *
 	 * @param elementsDescription
 	 *            The description of the phase. e.g. 'setup'
 	 */
@@ -355,7 +355,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 			onTestMethodStart(result);
 		}
 		log("Test skipped", "", Status.warning, ElementType.regular);
-		
+
 		Throwable e = result.getThrowable();
 		if (null != e) {
 			log(e.getMessage(), "", Status.warning, ElementType.regular);
@@ -413,7 +413,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	/**
 	 * Event for end of suite
-	 * 
+	 *
 	 * @param suite
 	 */
 	@Override
@@ -425,7 +425,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	/**
 	 * In case the setup or teardown step failed, we would like to log the
 	 * exception as warning
-	 * 
+	 *
 	 * @param testResult
 	 */
 	private void logIfFailureOccuredInConfiguration(ITestResult testResult) {
@@ -494,7 +494,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 	/**
 	 * This method counts all the planned test cases using dataProviders for the
 	 * given ITestNGMethod.
-	 * 
+	 *
 	 * @param method
 	 * @return the number of cases, returns 1 if no dataProvider is found for
 	 *         the test.
@@ -552,7 +552,7 @@ public abstract class AbstractDifidoReporter implements Reporter {
 
 	/**
 	 * Add free property to the whole run
-	 * 
+	 *
 	 * @param name
 	 * @param value
 	 */

@@ -62,7 +62,7 @@ public class TestNode extends Node {
 	/**
 	 * Copy constructors
 	 * 
-	 * @param testNode
+	 * @param testNode Node to create copy of
 	 */
 	public TestNode(TestNode testNode) {
 		super(testNode.getName());
@@ -96,8 +96,8 @@ public class TestNode extends Node {
 	/**
 	 * Copy constructor
 	 * 
-	 * @param aTestNode
-	 * @return
+	 * @param aTestNode Node to copy
+	 * @return Copy of the given node
 	 */
 	@JsonIgnore
 	public static TestNode newInstance(TestNode aTestNode) {
