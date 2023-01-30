@@ -36,13 +36,13 @@ public abstract class NodeWithChildren<T extends Node> extends Node {
 	 * Get all the children of the node. If specified recursively, will get also
 	 * all the descendants
 	 * 
-	 * @param recursivly
-	 * @return list of all the children.
+	 * @param recursively Should sub children searched recursively
+	 * @return list of all the children found
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@JsonIgnore
-	public List<T> getChildren(boolean recursivly) {
-		if (!recursivly) {
+	public List<T> getChildren(boolean recursively) {
+		if (!recursively) {
 			return children;
 		}
 		List<T> allChildren = new ArrayList<>();

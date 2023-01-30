@@ -46,7 +46,7 @@ public class MySystemObject extends SystemObjectImpl {
 	 * 
 	 * @param fileName
 	 *            file name to assert that exists in the folder.
-	 * @throws Exception
+	 * @throws Exception When file doesn't exist
 	 */
 	public void assertFileExists(final String fileName) throws Exception {
 		CliCommand command = new CliCommand("dir");
@@ -62,7 +62,7 @@ public class MySystemObject extends SystemObjectImpl {
 	/**
 	 * Other members of the system objects can also be exposed to the SUT.
 	 * 
-	 * @param path
+	 * @param path Folder to set
 	 */
 	public void setPath(String path) {
 		this.path = path;

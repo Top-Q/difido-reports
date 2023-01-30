@@ -60,8 +60,8 @@ public class ZipUtils {
 	/**
 	 * Gzips the originalFile and returns a zipped one.
 	 * 
-	 * @param originalFile
-	 * @return
+	 * @param originalFile File to archive
+	 * @return File representing the archived file
 	 */
 	public static File gzip(File originalFile) {
 		if (originalFile == null || !originalFile.exists())
@@ -98,8 +98,8 @@ public class ZipUtils {
 	/**
 	 * Gzipps the given file and returns it as byte[]
 	 * 
-	 * @param file
-	 * @return
+	 * @param file File to archive
+	 * @return Byte array with the content of the archived file
 	 */
 	public static byte[] gzipToBytesArray(File file) {
 		try (FileInputStream input = new FileInputStream(file);

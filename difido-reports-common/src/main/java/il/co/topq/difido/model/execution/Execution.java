@@ -29,7 +29,7 @@ public class Execution {
 
 	/**
 	 * 
-	 * @param machineName
+	 * @param machineName The name of the machine to search for
 	 * @return The first machine with the specified name or null if none exist
 	 */
 	@JsonIgnore

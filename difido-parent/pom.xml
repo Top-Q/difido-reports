@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>il.co.topq.difido</groupId>
+	<groupId>il.co.top-q.difido</groupId>
 	<artifactId>difido-parent</artifactId>
 	<version>3.1.01-SNAPSHOT</version>
 	<name>Difido Parent</name>
@@ -34,7 +34,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<topq.repository.rootUrl>http://maven.top-q.co.il</topq.repository.rootUrl>
-		<jsystem.version>6.1.06-beta1</jsystem.version>
+		<jsystem.version>6.1.11</jsystem.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.deploy.skip>false</maven.deploy.skip>
@@ -68,8 +68,41 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.4.1</version>
 			</plugin>
+			<plugin>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>4.0.0-M4</version>
+			</plugin>
+			<plugin>
+				<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-gpg-plugin -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.4.1</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>3.4.2</version>
+			</plugin>
+		</plugins>
+	</reporting>
 	<distributionManagement>
 		<repository>
 			<id>topq</id>
@@ -96,11 +129,9 @@
 		<module>../server/difido-server-plugins-common</module>
 		<module>../server/difido-server</module>
 		<module>../binders/difido-testng</module>
-
-		<!--module>../binders/difido-generic-binder</module>
+		<module>../binders/difido-generic-binder</module>
 		<module>../examples/jsystem-example/so-project</module>
 		<module>../examples/testng-example</module>
-		<module>../examples/jsystem-example/tests-project</module>
-		<module>../utils/metadata-recovery-utility</module-->
+		<module>../utils/metadata-recovery-utility</module>
 	</modules>
 </project>

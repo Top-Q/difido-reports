@@ -5,7 +5,7 @@
 	<name>Difido TestNG</name>
 	<parent>
 		<artifactId>difido-parent</artifactId>
-		<groupId>il.co.topq.difido</groupId>
+		<groupId>il.co.top-q.difido</groupId>
 		<version>3.1.01-SNAPSHOT</version>
 		<relativePath>../../difido-parent</relativePath>
 	</parent>
