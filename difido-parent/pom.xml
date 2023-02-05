@@ -9,6 +9,8 @@
     <organization>
         <name>Top-Q</name>
     </organization>
+    <description>This project aims to provide a generic implementation for HTML test reports.</description>
+    <url>https://github.com/Top-Q/difido-reports/wiki</url>
     <developers>
         <developer>
             <name>Itai Agmon</name>
