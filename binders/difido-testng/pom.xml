@@ -11,7 +11,7 @@
 	</parent>
 	<dependencies>
 		<dependency>
-			<groupId>il.co.topq.difido</groupId>
+			<groupId>il.co.top-q.difido</groupId>
 			<artifactId>difido-reports-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
