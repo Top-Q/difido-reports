@@ -7,7 +7,7 @@
 	<parent>
 		<artifactId>difido-parent</artifactId>
 		<groupId>il.co.top-q.difido</groupId>
-		<version>3.1.01-SNAPSHOT</version>
+		<version>3.1.01</version>
 		<relativePath>../../difido-parent</relativePath>
 	</parent>
 	<properties>
