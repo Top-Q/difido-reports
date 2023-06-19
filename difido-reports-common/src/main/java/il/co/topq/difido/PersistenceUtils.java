@@ -86,7 +86,7 @@ public class PersistenceUtils {
 	 * Copy all the HTML and other necessary files to the specified destination
 	 * folder
 	 * 
-	 * @param destinationFolder
+	 * @param destinationFolder Folder to copy files to
 	 */
 	public static void copyResources(File destinationFolder) {
 		if (!destinationFolder.exists()) {
@@ -122,8 +122,8 @@ public class PersistenceUtils {
 	 * Read the JSon file from the specified sourceFolder and deserialize it to
 	 * execution object
 	 * 
-	 * @param sourceFolder
-	 * @return
+	 * @param sourceFolder Folder to read execution from
+	 * @return Object representing the execution
 	 */
 	public static Execution readExecution(File sourceFolder) {
 		File executionJson = new File(sourceFolder, EXECUTION_MODEL_FILE);
@@ -145,8 +145,8 @@ public class PersistenceUtils {
 	 * Serialized the specified execution to JSon and copy it to the destination
 	 * folder.
 	 * 
-	 * @param execution
-	 * @param destinationFolder
+	 * @param execution Execution to write
+	 * @param destinationFolder Folder to write execution to
 	 */
 	public static void writeExecution(Execution execution, File destinationFolder) {
 		if (null == execution) {

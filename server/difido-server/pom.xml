@@ -3,9 +3,9 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>il.co.topq.report</groupId>
+	<groupId>il.co.top-q.report</groupId>
 	<artifactId>difido-server</artifactId>
-	<version>3.1.00-SNAPSHOT</version>
+	<version>3.1.02-SNAPSHOT</version>
 	<name>Difido Server</name>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -35,6 +35,12 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
+	<repositories>
+		<repository>
+			<id>top-q</id>
+			<url>http://maven.top-q.co.il/content/groups/public</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -66,7 +72,7 @@
 		<dependency>
 			<groupId>il.co.topq.elastic</groupId>
 			<artifactId>elasticseach-client</artifactId>
-			<version>1.0.05</version>
+			<version>2.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
@@ -78,7 +84,7 @@
 			<version>0.9.1</version>
 		</dependency>
 		<dependency>
-			<groupId>il.co.topq.difido</groupId>
+			<groupId>il.co.top-q.difido</groupId>
 			<artifactId>difido-server-plugins-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -150,25 +156,10 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>4.0.0-M4</version>
+			</plugin>
 		</plugins>
 	</build>
-	<repositories>
-		<repository>
-			<id>topq</id>
-			<url>${topq.repository.rootUrl}/content/groups/public</url>
-		</repository>
-	</repositories>
-	<distributionManagement>
-		<repository>
-			<id>topq</id>
-			<name>RepositoryProxy</name>
-			<url>${topq.repository.rootUrl}/content/repositories/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>topq</id>
-			<name>RepositoryProxy</name>
-			<url>${topq.repository.rootUrl}/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
-
 </project>

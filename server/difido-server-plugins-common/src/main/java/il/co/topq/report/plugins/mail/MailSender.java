@@ -23,25 +23,20 @@ import org.slf4j.LoggerFactory;
 
 /**
  * this class is used for sending\receiving mail<br>
- * <b>Usage:</b><br>
+ * Usage:
  * 
- * <b>For Sending:</b><br>
- * <UL>
- * 1) create a new object<br>
- * <br>
+ * For Sending:
+ *
+ * 1) create a new object
  * 2) set the following parameters:
- * <UL>
- * a) address to send from (user@domain.com)<br>
- * b) sender user name (user)<br>
- * c) sender password (password)<br>
- * d) mail host (for example: smtp.gmail.com for gmail)<br>
- * e) is host secured (ssl true)<br>
- * f) sending host port number (465 for gmail)<br>
- * g) mail to send to<br>
- * </UL>
- * 3) use <I>sendMail(Title,Message)</I> to send a message with a given title
- * </UL> <br>
- * <br>
+ * a) address to send from (user@domain.com)
+ * b) sender user name (user)
+ * c) sender password (password)
+ * d) mail host (for example: smtp.gmail.com for gmail)
+ * e) is host secured (ssl true)
+ * f) sending host port number (465 for gmail)
+ * g) mail to send to
+ * 3) use sendMail(Title,Message) to send a message with a given title
  *
  */
 public class MailSender {
@@ -131,6 +126,7 @@ public class MailSender {
 	 * @param msgContent
 	 *            the msg content
 	 * @throws Exception
+	 * 				Failure in sending the mail
 	 */
 	@SuppressWarnings("restriction")
 	public void sendMail(String title, String msgContent) throws Exception {
@@ -231,6 +227,7 @@ public class MailSender {
 	 * the password of the sending mail
 	 * 
 	 * @param password
+	 * 		Password of the mail account
 	 */
 	public void setPassword(String password) {
 		this.password = password;
@@ -240,6 +237,7 @@ public class MailSender {
 	 * the array of addresses to send to
 	 * 
 	 * @param sendTo
+	 * 		Array of mail recipients
 	 */
 	public void setSendTo(String[] sendTo) {
 		this.sendTo = sendTo;
@@ -249,6 +247,7 @@ public class MailSender {
 	 * the smtp host name (smtp.gmail.com for example)
 	 * 
 	 * @param smtpHostName
+	 * 		SMTP host (server) name
 	 */
 	public void setSmtpHostName(String smtpHostName) {
 		this.smtpHostName = smtpHostName;
@@ -258,6 +257,7 @@ public class MailSender {
 	 * the sending user name
 	 * 
 	 * @param userName
+	 * 		Username of the mail account
 	 */
 	public void setUserName(String userName) {
 		this.userName = userName;
@@ -267,15 +267,17 @@ public class MailSender {
 	 * if True then the connection is secured
 	 * 
 	 * @param ssl
+	 * 		Should SSL be used
 	 */
 	public void setSsl(boolean ssl) {
 		this.ssl = ssl;
 	}
 
 	/**
-	 * the smtp port to send from
+	 * The smtp port to send from
 	 * 
 	 * @param smtpPort
+	 * 		The SMTP port number to use
 	 */
 	public void setSmtpPort(int smtpPort) {
 		this.smtpPort = smtpPort;
@@ -285,6 +287,7 @@ public class MailSender {
 	 * an array of all File attachments to be attached to mail
 	 * 
 	 * @param attachments
+	 * 		Array of attachments to add to the mail
 	 */
 	public void setAttachments(String... attachments) {
 		this.attachments = attachments;
@@ -295,6 +298,7 @@ public class MailSender {
 	 * with html code.
 	 * 
 	 * @param mailMessageAsHtmlText
+	 * 		Enable HTML syntax in the mail body
 	 */
 	public void setMailMessageAsHtmlText(boolean mailMessageAsHtmlText) {
 		this.mailMessageAsHtmlText = mailMessageAsHtmlText;
@@ -304,6 +308,7 @@ public class MailSender {
 	 * the array of addresses to send Carbon copy
 	 * 
 	 * @param sendCc
+	 * 		Array of CC recipients
 	 */
 	public void setSendCc(String[] sendCc) {
 		this.sendCc = sendCc;
@@ -313,6 +318,7 @@ public class MailSender {
 	 * the array of addresses to send Blind carbon copy
 	 * 
 	 * @param sendBcc
+	 * 		Array of BCC recipients
 	 */
 	public void setSendBcc(String[] sendBcc) {
 		this.sendBcc = sendBcc;

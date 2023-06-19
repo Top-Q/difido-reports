@@ -5,21 +5,20 @@
 	<name>Difido Generic Binder</name>
 	<parent>
 		<artifactId>difido-parent</artifactId>
-		<groupId>il.co.topq.difido</groupId>
-		<version>3.1.00-SNAPSHOT</version>
+		<groupId>il.co.top-q.difido</groupId>
+		<version>3.1.02-SNAPSHOT</version>
 		<relativePath>../../difido-parent</relativePath>
 	</parent>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<topq.repository.rootUrl>http://maven.top-q.co.il</topq.repository.rootUrl>
 		<slf4j.version>1.7.25</slf4j.version>
-		<logback.version>1.2.3</logback.version>
+		<logback.version>1.2.9</logback.version>
 	</properties>
 	<dependencies>
 		<dependency>
 			<artifactId>difido-reports-common</artifactId>
-			<groupId>il.co.topq.difido</groupId>
+			<groupId>il.co.top-q.difido</groupId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -45,19 +44,6 @@
 	</dependencies>
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -86,27 +72,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
 		</plugins>
-
 	</build>
-	<repositories>
-		<repository>
-			<id>topq</id>
-			<url>${topq.repository.rootUrl}/content/groups/public</url>
-		</repository>
-	</repositories>
-	<distributionManagement>
-		<repository>
-			<id>topq</id>
-			<name>RepositoryProxy</name>
-			<url>${topq.repository.rootUrl}/content/repositories/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>topq</id>
-			<name>RepositoryProxy</name>
-			<url>${topq.repository.rootUrl}/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
-
 </project>

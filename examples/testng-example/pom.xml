@@ -5,14 +5,13 @@
 	<name>TestNG Example Project</name>
 	<parent>
 		<artifactId>difido-parent</artifactId>
-		<groupId>il.co.topq.difido</groupId>
-		<version>3.1.00-SNAPSHOT</version>
+		<groupId>il.co.top-q.difido</groupId>
+		<version>3.1.02-SNAPSHOT</version>
 		<relativePath>../../difido-parent</relativePath>
 	</parent>
-
 	<dependencies>
 		<dependency>
-			<groupId>il.co.topq.difido</groupId>
+			<groupId>il.co.top-q.difido</groupId>
 			<artifactId>difido-testng</artifactId>
 			<version>${project.version}</version>
 			<scope>provided</scope>
@@ -72,7 +71,6 @@
 					<skipTests>true</skipTests>
 				</configuration>
 			</plugin>
-
 		</plugins>
 	</build>
 </project>

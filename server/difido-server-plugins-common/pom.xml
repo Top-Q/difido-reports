@@ -5,14 +5,14 @@
 	<artifactId>difido-server-plugins-common</artifactId>
 	<name>Difido Server Plugins Common</name>
 	<parent>
-		<groupId>il.co.topq.difido</groupId>
+		<groupId>il.co.top-q.difido</groupId>
 		<artifactId>difido-parent</artifactId>
-		<version>3.1.00-SNAPSHOT</version>
+		<version>3.1.02-SNAPSHOT</version>
 		<relativePath>../../difido-parent</relativePath>
 	</parent>
 	<dependencies>
 		<dependency>
-			<groupId>il.co.topq.difido</groupId>
+			<groupId>il.co.top-q.difido</groupId>
 			<artifactId>difido-reports-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>

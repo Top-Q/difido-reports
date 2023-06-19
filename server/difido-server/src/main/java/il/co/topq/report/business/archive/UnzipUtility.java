@@ -21,8 +21,13 @@ public class UnzipUtility {
 	 * destDirectory (will be created if does not exists)
 	 * 
 	 * @param zipFilePath
+	 * 		Name of file to extract
+	 *
 	 * @param destDirectory
+	 * 		Directory to extract file to
+	 *
 	 * @throws IOException
+	 * 		Failure to find file or to extract or to copy to destination folder
 	 */
 	public void unzip(String zipFilePath, String destDirectory) throws IOException {
 		File destDir = new File(destDirectory, FilenameUtils.getBaseName(zipFilePath));

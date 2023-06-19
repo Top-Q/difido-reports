@@ -97,7 +97,7 @@ public class AccessTimeUpdaterController implements InfoContributor {
 
 	/**
 	 * Info about the server that can be retrieved using the
-	 * http://<host>:<port>/info request
+	 * http://[host]:[port]/info request
 	 */
 	@Override
 	public void contribute(Builder builder) {

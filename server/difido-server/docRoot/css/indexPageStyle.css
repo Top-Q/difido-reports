@@ -15,7 +15,8 @@ div.dt-buttons {
 	margin-top: 40px;
 }
 
-.a_button, .a_button:hover {
+.a_button,
+.a_button:hover {
 	text-decoration: none;
 	color: black;
 	/*float: right;
@@ -23,13 +24,18 @@ div.dt-buttons {
 }
 
 .span_button {
-      appearance: button; /* CSS3 */
-      -webkit-appearance: button; /* Safari and Chrome */
-      -moz-appearance: button; /* Firefox */
-      -ms-appearance: button; /* Internet Explorer */
-      -o-appearance: button; /* Opera */
-      padding: 2px 10px 2px 10px;
-} 
+	appearance: button;
+	/* CSS3 */
+	-webkit-appearance: button;
+	/* Safari and Chrome */
+	-moz-appearance: button;
+	/* Firefox */
+	-ms-appearance: button;
+	/* Internet Explorer */
+	-o-appearance: button;
+	/* Opera */
+	padding: 2px 10px 2px 10px;
+}
 
 #execution_edit_modal {
 	display: none;
@@ -41,8 +47,8 @@ div.dt-buttons {
 	left: 0;
 	top: 0;
 	overflow: auto;
-    background-color: rgba(0,0,0,0.4);
-	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+	background-color: rgba(0, 0, 0, 0.4);
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 #execution_edit {
@@ -54,21 +60,35 @@ div.dt-buttons {
 	width: 400px;
 	height: 330px;
 	border-radius: 10px;
-    -webkit-animation-name: animatetop;
-    -webkit-animation-duration: 0.25s;
-    animation-name: animatetop;
-    animation-duration: 0.25s;
+	-webkit-animation-name: animatetop;
+	-webkit-animation-duration: 0.25s;
+	animation-name: animatetop;
+	animation-duration: 0.25s;
 }
 
 /* Add Animation */
 @-webkit-keyframes animatetop {
-    from {top:-300px; opacity:0} 
-    to {top:0; opacity:1}
+	from {
+		top: -300px;
+		opacity: 0
+	}
+
+	to {
+		top: 0;
+		opacity: 1
+	}
 }
 
 @keyframes animatetop {
-    from {top:-300px; opacity:0}
-    to {top:0; opacity:1}
+	from {
+		top: -300px;
+		opacity: 0
+	}
+
+	to {
+		top: 0;
+		opacity: 1
+	}
 }
 
 #execution_edit input {
@@ -90,15 +110,70 @@ div.dt-buttons {
 }
 
 #execution_edit .close {
-    color: #CC0000;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-	opacity:.8;
+	color: #CC0000;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+	opacity: .8;
 }
 
-#execution_edit .close:hover, .close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
+#execution_edit .close:hover,
+.close:focus {
+	color: black;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+/* Colors of successful executions */
+
+table.dataTable.display tbody tr.even.success:not(.selected):not(:hover)>.sorting_1 {
+	background-color: rgb(234, 247, 234);
+}
+
+table.dataTable.display tbody tr.even.success:not(.selected):not(:hover) {
+	background-color: rgb(247, 253, 247);
+}
+
+table.dataTable.display tbody tr.odd.success:not(.selected):not(:hover)>.sorting_1 {
+	background-color: rgb(224, 240, 224);
+}
+
+table.dataTable.display tbody tr.odd.success:not(.selected):not(:hover) {
+	background-color: rgb(241, 252, 241);
+}
+
+/* Colors of failed executions */
+
+table.dataTable.display tbody tr.even.failure:not(.selected):not(:hover)>.sorting_1 {
+	background-color: rgb(243, 224, 224);
+}
+
+table.dataTable.display tbody tr.even.failure:not(.selected):not(:hover) {
+	background-color: rgb(255, 240, 240);
+}
+
+table.dataTable.display tbody tr.odd.failure:not(.selected):not(:hover)>.sorting_1 {
+	background-color: rgb(238, 212, 212);
+}
+
+table.dataTable.display tbody tr.odd.failure:not(.selected):not(:hover) {
+	background-color: rgb(253, 232, 232);
+}
+
+/* Colors of executions with only warnings */
+
+table.dataTable.display tbody tr.even.warning:not(.selected):not(:hover)>.sorting_1 {
+	background-color: rgb(245, 245, 226);
+}
+
+table.dataTable.display tbody tr.even.warning:not(.selected):not(:hover) {
+	background-color: rgb(255, 255, 240);
+}
+
+table.dataTable.display tbody tr.odd.warning:not(.selected):not(:hover)>.sorting_1 {
+	background-color: rgb(240, 240, 210);
+}
+
+table.dataTable.display tbody tr.odd.warning:not(.selected):not(:hover) {
+	background-color: rgb(253, 253, 230);
 }

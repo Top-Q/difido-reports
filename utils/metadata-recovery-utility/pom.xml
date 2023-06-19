@@ -6,8 +6,8 @@
 	<name>Metadata Recovery Utility</name>
 	<parent>
 		<artifactId>difido-parent</artifactId>
-		<groupId>il.co.topq.difido</groupId>
-		<version>3.1.00-SNAPSHOT</version>
+		<groupId>il.co.top-q.difido</groupId>
+		<version>3.1.02-SNAPSHOT</version>
 		<relativePath>../../difido-parent</relativePath>
 	</parent>
 	<properties>
@@ -17,7 +17,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>il.co.topq.difido</groupId>
+			<groupId>il.co.top-q.difido</groupId>
 			<artifactId>difido-server-plugins-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -80,10 +80,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
-
 		</plugins>
 	</build>
-
-
 </project>

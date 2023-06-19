@@ -5,11 +5,10 @@
 	<name>JSystem SO Project</name>
 	<parent>
 		<artifactId>difido-parent</artifactId>
-		<groupId>il.co.topq.difido</groupId>
-		<version>3.1.00-SNAPSHOT</version>
+		<groupId>il.co.top-q.difido</groupId>
+		<version>3.1.02-SNAPSHOT</version>
 		<relativePath>../../../difido-parent</relativePath>
 	</parent>
-
 	<repositories>
 		<repository>
 			<id>top-q</id>

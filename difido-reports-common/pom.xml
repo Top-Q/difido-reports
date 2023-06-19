@@ -5,15 +5,15 @@
 	<name>Difido Reports Common</name>
 	<parent>
 		<artifactId>difido-parent</artifactId>
-		<groupId>il.co.topq.difido</groupId>
-		<version>3.1.00-SNAPSHOT</version>
+		<groupId>il.co.top-q.difido</groupId>
+		<version>3.1.02-SNAPSHOT</version>
 		<relativePath>../difido-parent</relativePath>
 	</parent>
 	<dependencies>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.9.10.7</version>
+			<version>2.12.6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

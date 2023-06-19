@@ -1,0 +1,10 @@
+site_name: pytest-difido
+site_description: PyTest plugin for generating Difido reports
+site_author: Itai Agmon
+
+theme: readthedocs
+
+repo_url: https://github.com/itaiag/pytest-difido
+
+pages:
+- Home: index.md

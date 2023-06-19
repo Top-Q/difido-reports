@@ -15,7 +15,7 @@ public class TestPropertiesInFaliedFixture extends AbstractDifidoTestCase {
 		Assert.assertNotNull(null, "Failing this in purpose");
 	}
 
-	@Test(description = "Test with test and run properties that were added in the before method phase")
+	@Test(description = "Test with fixture and run properties that were added in the before method phase in failed fixture")
 	public void testWithPropertiesThatWereAddedInFixture() {
 		report.log("In test");
 	}

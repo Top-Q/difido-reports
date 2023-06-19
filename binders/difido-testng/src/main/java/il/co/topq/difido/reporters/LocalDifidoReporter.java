@@ -41,9 +41,9 @@ public class LocalDifidoReporter extends AbstractDifidoReporter {
 	}
 
 	@Override
-	public void onStart(ISuite suite) {
-		super.onStart(suite);
-		reportDir = new File(new File(suite.getOutputDirectory()).getParent(), "difido");
+	public void onExecutionStart(String host, String outputDir) {
+		super.onExecutionStart(host, outputDir);
+		reportDir = new File(outputDir, "difido");
 		if (!reportDir.exists()) {
 			reportDir.mkdirs();
 		}
@@ -70,6 +70,37 @@ public class LocalDifidoReporter extends AbstractDifidoReporter {
 		}
 
 	}
+
+//	@Override
+//	public void onClassStart(ISuite suite) {
+//		super.onClassStart(suite);
+//		reportDir = new File(new File(suite.getOutputDirectory()).getParent(), "difido");
+//		if (!reportDir.exists()) {
+//			reportDir.mkdirs();
+//		}
+//		final File currentLogFolder = new File(reportDir, "current");
+//		if (currentLogFolder.exists()) {
+//			try {
+//				FileUtils.deleteDirectory(currentLogFolder);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		final File templateFolder = new File(reportDir, "template");
+//		if (!templateFolder.exists() || !(new File(templateFolder, "index.html").exists())) {
+//			PersistenceUtils.copyResources(templateFolder);
+//		}
+//		final File testDetailsHtmlFile = new File(currentLogFolder, PersistenceUtils.TEST_DETAILS_HTML_FILE);
+//		final File indexFile = new File(currentLogFolder, "index.html");
+//		if (!testDetailsHtmlFile.exists() && !indexFile.exists()) {
+//			try {
+//				FileUtils.copyDirectory(templateFolder, currentLogFolder);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//
+//	}
 
 	@Override
 	public void addFile(File file) {
@@ -103,11 +134,6 @@ public class LocalDifidoReporter extends AbstractDifidoReporter {
 		return "DifidoLocalReporter";
 	}
 
-	@Override
-	public File getCurrentTestFolder() {
-		return currentTestFolder;
-	}
-
 	/**
 	 * Elements that are created in setup phases, before test context is created
 	 * are stored and flushed in the beginning of the test. <br>
@@ -124,11 +150,6 @@ public class LocalDifidoReporter extends AbstractDifidoReporter {
 			bufferedFiles.clear();
 		}
 
-	}
-
-	@Override
-	protected void onScenarioStart(ScenarioNode scenario) {
-		// Unused
 	}
 
 }

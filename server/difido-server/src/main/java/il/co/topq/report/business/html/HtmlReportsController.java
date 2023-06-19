@@ -77,6 +77,10 @@ public class HtmlReportsController {
 
 	/**
 	 * This will delete the reports folder from the file system
+	 *
+	 * @param executionDeletedEvent
+	 * 		Event that is called when execution is deleted
+	 *
 	 */
 	@EventListener
 	public void onExecutionDeletedEvent(ExecutionDeletedEvent executionDeletedEvent) {
@@ -91,6 +95,7 @@ public class HtmlReportsController {
 	 * 
 	 * 
 	 * @param executionUpdatedEvent
+	 * 		Event that is called when execution is updated
 	 */
 	@EventListener
 	public void onExecutionUpdatedEvent(ExecutionUpdatedEvent executionUpdatedEvent) {

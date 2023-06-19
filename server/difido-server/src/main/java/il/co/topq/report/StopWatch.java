@@ -20,7 +20,9 @@ public class StopWatch {
 	 * Builder method
 	 * 
 	 * @param log
-	 * @return
+	 * 		Logger to use in the StopWatch
+	 *
+	 * @return StopWatch object
 	 */
 	public static StopWatch newStopWatch(Logger log) {
 		return new StopWatch(log);

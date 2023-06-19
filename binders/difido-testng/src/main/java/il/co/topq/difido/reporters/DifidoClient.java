@@ -22,12 +22,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class DifidoClient {
 
-	private static final String BASE_URI_TEMPLATE = "http://%s:%d/api/";
+	private static final String BASE_URI_TEMPLATE = "%s://%s:%d/api/";
 	private final String baseUri;
 	private final HttpClient client;
 
 	public DifidoClient(String host, int port) {
-		baseUri = String.format(BASE_URI_TEMPLATE, host, port);
+		if (443 == port || 8443 == port) {
+			baseUri = String.format(BASE_URI_TEMPLATE, "https", host, port);
+		} else {
+			baseUri = String.format(BASE_URI_TEMPLATE, "http", host, port);
+		}
 		client = new HttpClient();
 	}
 

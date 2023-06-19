@@ -28,8 +28,8 @@ public class ScenarioNode extends NodeWithChildren<Node> {
 	/**
 	 * Copy constructor
 	 * 
-	 * @param aScenarioNode
-	 * @return
+	 * @param aScenarioNode Scenario to copy
+	 * @return Copy of the given scenario
 	 */
 	@JsonIgnore
 	public static ScenarioNode newInstance(ScenarioNode aScenarioNode) {

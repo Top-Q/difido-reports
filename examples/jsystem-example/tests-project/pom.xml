@@ -5,11 +5,10 @@
 	<name>JSystem Tests Project</name>
 	<parent>
 		<artifactId>difido-parent</artifactId>
-		<groupId>il.co.topq.difido</groupId>
-		<version>3.1.00-SNAPSHOT</version>
+		<groupId>il.co.top-q.difido</groupId>
+		<version>3.1.02-SNAPSHOT</version>
 		<relativePath>../../../difido-parent</relativePath>
 	</parent>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.jsystemtest</groupId>
@@ -53,7 +52,7 @@
 				<version>${jsystem.version}</version>
 				<dependencies>
 					<dependency>
-						<groupId>il.co.topq</groupId>
+						<groupId>il.co.top-q</groupId>
 						<artifactId>tests-project</artifactId>
 						<version>[0.0,]</version>
 						<scope>runtime</scope>

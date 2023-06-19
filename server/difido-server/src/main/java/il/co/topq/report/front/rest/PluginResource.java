@@ -47,15 +47,17 @@ public class PluginResource {
 	/**
 	 * Trigger a specific plugin
 	 * 
-	 * curl -X POST
-	 * "http://localhost:8080/api/plugins/defaultMailPlugin?params=FOO&executions=3&executions=7"
-	 * 
-	 * @param pluginName
+	 *
+	 * @param request
+	 * 			   The servlet request
+	 * @param plugin
 	 *            The name of the plugin to execute
 	 * @param executions
 	 *            The id of the executions to execute the plugin on
 	 * @param params
 	 *            Free parameter string
+	 *
+	 * @return The plugin response
 	 * 
 	 * 
 	 */
@@ -85,8 +87,10 @@ public class PluginResource {
 	/**
 	 * Get the list of all the plugin names
 	 * 
-	 * curl http://localhost:8080/api/plugins
-	 * 
+	 * @param request
+	 * 		HTTP Request
+	 *
+	 *
 	 * @return List of the named of all the currently installed plugins
 	 */
 	@GET

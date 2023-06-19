@@ -65,8 +65,10 @@ public class ReportsResource {
 	/**
 	 * Get list of all the reports
 	 * 
-	 * @param execution
+	 * @param request
+	 * 		HTTP request
 	 * @return
+	 * 		Datatable
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

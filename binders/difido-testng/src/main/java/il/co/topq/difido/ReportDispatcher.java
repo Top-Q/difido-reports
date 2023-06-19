@@ -9,40 +9,32 @@ import org.testng.ITestResult;
 
 public interface ReportDispatcher {
 
-	public abstract void logHtml(String title, Status status);
+	void logHtml(String title, Status status);
 
-	public abstract void logHtml(String title, String message, Status status);
+	void logHtml(String title, String message, Status status);
 
-	public abstract void log(String title);
+	void log(String title);
 
-	public abstract void log(String title, Status status);
+	void log(String title, Status status);
 
-	public abstract void log(String title, String message);
+	void log(String title, String message);
 
-	public abstract void log(String title, String message, Status status);
+	void log(String title, String message, Status status);
 
-	public abstract void startLevel(String description);
+	void startLevel(String description);
 
-	public abstract void endLevel();
+	void endLevel();
 
-	public abstract void step(String description);
+	void step(String description);
 
-	public abstract void addFile(File file, String description);
+	void addFile(File file, String description);
 
-	public abstract void addImage(File file, String description);
+	void addImage(File file, String description);
 
-	public abstract void addLink(String link, String description);
+	void addLink(String link, String description);
 
-	public abstract void addTestProperty(String name, String value);
+	void addTestProperty(String name, String value);
 
-	public abstract void addRunProperty(String name, String value);
-
-	public abstract void beforeTeardown(IInvokedMethod method, ITestResult testResult);
-
-	public abstract void beforeSetup(IInvokedMethod method, ITestResult testResult);
-
-	public abstract void afterTeardown(IInvokedMethod method, ITestResult testResult);
-
-	public abstract void afterSetup(IInvokedMethod method, ITestResult testResult);
+	void addRunProperty(String name, String value);
 
 }
