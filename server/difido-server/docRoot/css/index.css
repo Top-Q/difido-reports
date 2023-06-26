@@ -1,0 +1,32 @@
+*:focus {
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+/* align header */
+.ag-header-cell-label,
+.ag-header-group-cell-label {
+    justify-content: center !important;
+}
+
+.hover-filter {
+    cursor: pointer;
+}
+
+/* Theme Dropdown */
+
+.theme-check {
+    color: #164bb7;
+}
+
+.theme-check i {
+    display: inline-block;
+}
+
+.theme-uncheck {
+    color: black;
+}
+
+.theme-uncheck i {
+    display: none;
+}
