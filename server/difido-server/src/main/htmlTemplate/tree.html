@@ -1,188 +1,163 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
+    <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>Execution Tree</title>
-    <!-- Bootstrap core CSS -->
-    <link href="css/jquery.ui.resizable.css" rel="stylesheet" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="css/status_colors.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/split.css">
+    <!-- Bootstrap CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/general_page.css" rel="stylesheet">
-    <link href="css/test_page.css" rel="stylesheet">
+    <link href="css/lightbox.css" rel="stylesheet">
     <link href="css/style.min.css" rel="stylesheet">
     <link href="css/status_colors.css" rel="stylesheet">
     <link href="css/tree.css" rel="stylesheet">
-    <link href="css/dashboard.css" rel="stylesheet">
-    <!-- Just for debugging purposes. Don't actually copy this line! -->
-    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-          <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-        <![endif]-->
+    <title>Execution Tree</title>
 </head>
 
-<body>
-    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">Test Execution Report</a>
+</html>
+
+<body style="overflow: hidden;">
+    <!--  main navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="index.html">Test Execution Report</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav ml-auto">
+                <a class="nav-link" href="index.html">Dashboard</a>
+                <a class="nav-link active" href="tree.html">Execution Tree</a>
+                <a class="nav-link" href="#" onclick="goToDifido()">Difido</a>
             </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="index.html">Dashboard</a></li>
-                    <li><a href="#">Execution Tree</a></li>
-                    <li><a href="table.html">Execution Table</a></li>
-                </ul>
+        </div>
+    </nav>
+    <!-- main navbar end -->
+    <div class="container-fluid mt-5 pt-3">
+        <div id="panelContainer">
+            <div class="panel one">
+                <div class="content">
+                    <div class="left-up mx-2">
+                        <div>
+                            <input type="textbox" id="selectedClass" hidden="true" value="" />
+                            <button type="button" class="btn btn-secondary btn-sm rounded-0" onclick="javascript:$('#tree').jstree('open_all')">Expand all</button>
+                            <button type="button" class="btn btn-secondary btn-sm rounded-0" onclick="javascript:$('#tree').jstree('close_all')">Collapse all</button>
+                        </div>
+                        <div class="input-group my-3" style="width:90%">
+                            <input id="tree_q" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="left-down" style="overflow: auto;">
+                        <div id="tree" class="mb-3"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel two">
+                <div class="content">
+                    <div class="panel-body px-4">
+                        <iframe id="testframe">
+                        </iframe>
+                    </div>
+                </div>
+                <span class="slider"></span>
             </div>
         </div>
     </div>
-    <div>
-        <div id="leftpane" class="ui-widget-content">
-            <div class="btn-group btn-group-sm" style="padding:10px ; ">
-                <input type="textbox" id="selectedClass" hidden="true" value=""/>
-                <button type="button" onclick="javascript:$('#tree').jstree('open_all')">Expand all</button>
-                <button type="button" onclick="javascript:$('#tree').jstree('close_all')">Collapse all</button>
-                
-            </div>
-            <div class="input-group" style="padding:10px">
-                <input id="tree_q" type="text" class="form-control">
-            </div>
-            <div id="tree">
-            </div>
-            
-        </div>
-        <div id="rightpane">
-            <div class="panel-heading">
-                <h3>Test Information</h3></div>
-            <div class="panel-body">
-                <iframe id="testframe">
-                </iframe>
-            </div>
-        </div>
-    </div>
-    <!-- Bootstrap core JavaScript
-        ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- core scripts -->
     <script src="js/jquery.min.js"></script>
-    <script src="js/jquery-ui.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <!-- controller -->
+    <script src="js/split.js"></script>
     <script src="js/jstree.min.js"></script>
-    <script src="js/docs.min.js"></script>
     <script src="controllers/controllerUtils.js"></script>
     <script src="controllers/treeController.js"></script>
     <script src="execution.js"></script>
     <script type="text/javascript">
-    $(function() {
-        $("#leftpane").resizable({
-            minWidth: 250,
-            maxWidth: 600, 
-             //iframes interfere with resize because they  consume  
-            //our mouse events and ruin our beautiful resize. 
-            //so we must hide the iframes before the resize and 
-            //unhide when done. 
-            start: function () {
-                $("iframe").each(function (index, element) {
-                    $(element).hide();
-                });
+    $(document).ready(function() {
+        populateTreeNew();
+        selectNode();
 
-            },
-            stop: function () {
-                $('iframe').show();
+        let offset = $('.left-down').offset().top;
+        let height = 'calc(100vh - ' + offset + 'px)';
+        $('.left-down').css('height', height);
+    });
+
+
+    function goToDifido() {
+        let url = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port;
+        window.open(url, '_blank')
+    }
+
+    function selectNode() {
+        // read the desired node from the URL 
+        var nodeName = getUrlParameter("node");
+        if (nodeName == undefined) {
+            return;
+        }
+
+
+        var len = nodeName.length;
+        var id = "";
+
+        // loop through all the nodes of the tree, and find the one that matches the desired node name
+        //this can surely be implemented more efficiently! (one liner?) 
+        $("#tree li").each(function(index) {
+            if ($(this).text().substring(0, len) == nodeName) {
+                //console.log($(this).text().substring(0,len));
+                id = $(this).attr("id")
+                return false;
             }
-    
         });
-    });
 
-    function selectNode(){
-      // read the desired node from the URL 
-      var nodeName = getUrlParameter("node");
-      if (nodeName == undefined){
-            return ;
-      }
-        
+        //if no node was found - exit. 
+        if (id == "") {
+            return;
+        }
 
-      var len = nodeName.length;
-      var id = "";
+        //now deselect and close all nodes..
+        $("#tree").jstree('close_all');
+        $("#tree").jstree('deselect_all');
 
-    // loop through all the nodes of the tree, and find the one that matches the desired node name
-    //this can surely be implemented more efficiently! (one liner?) 
-    $( "#tree li" ).each(function( index ) {
-        if ($(this).text().substring(0,len) == nodeName){
-            //console.log($(this).text().substring(0,len));
-            id = $(this).attr("id")
-            return false;
-       }
-    });
 
-    //if no node was found - exit. 
-    if (id==""){
+        //and just open and select the desired node. 
+        $("#tree").jstree('open_node', id);
+        $("#tree").jstree('select_node', id);
+
         return;
     }
 
-    //now deselect and close all nodes..
-    $("#tree").jstree('close_all');
-    $("#tree").jstree('deselect_all');
-
-
-    //and just open and select the desired node. 
-    $("#tree").jstree('open_node',id);
-    $("#tree").jstree('select_node',id);
-   
-  
-    return;
-   
-  
-    }
-
+    var report;
 
     function populateTreeNew() {
         $.jstree.defaults.search.show_only_matches = true;
         treeController($('#tree'));
         $('#tree').bind('select_node.jstree', function(e, data) {
-            /** 
-             * Set direct-access to node 
-             */
             var a = data.node.a_attr;
-            //var link = node.children('a'); 
-            /** 
-             * Add linking, because jstree catches all click-Events 
-             */
+
+            // Add linking, because jstree catches all click-Events 
             if (a.href !== '#' && a.target !== '') {
                 var iframe = $('#testframe');
                 iframe.attr('src', a.href);
             }
         });
 
-        $('#tree').bind("dblclick.jstree", function (event) {
+        $('#tree').bind("dblclick.jstree", function(event) {
             var node = $(event.target).closest("li");
             var data = node.data("jstree");
             var text = node.context.innerText;
             var divForCopy = document.getElementById('selectedClass');
             divForCopy.value = text;
-            divForCopy.hidden=false;
+            divForCopy.hidden = false;
             divForCopy.select();
-            try{
+            try {
                 document.execCommand('copy');
-                divForCopy.value="";
-                divForCopy.hidden=true;
-            }
-            catch (err){
+                divForCopy.value = "";
+                divForCopy.hidden = true;
+            } catch (err) {
                 window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
-                divForCopy.hidden=true;
+                divForCopy.hidden = true;
             }
-
-           // window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
         });
 
 
@@ -206,26 +181,18 @@
 
     //Retrieves the URL parameter. 
     function getUrlParameter(sParam) {
-            var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
             sURLVariables = sPageURL.split('&'),
             sParameterName,
             i;
 
-            for (i = 0; i < sURLVariables.length; i++) {
-                sParameterName = sURLVariables[i].split('=');
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
 
-                if (sParameterName[0] === sParam) {
-                      return sParameterName[1] === undefined ? true : sParameterName[1];
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
             }
         }
     };
-
-
-    $(document).ready(function() {
-       populateTreeNew();
-       selectNode();
-    });
     </script>
 </body>
-
-</html>

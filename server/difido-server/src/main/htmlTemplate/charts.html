@@ -1,120 +1,134 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="">
-        <meta name="author" content="Itai Agmon">
 
-        <title>Charts</title>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <title>Charts</title>
+    <link href="css/status_colors.css" rel="stylesheet">
+</head>
 
-        <!-- Bootstrap core CSS -->
-        <link href="css/status_colors.css" rel="stylesheet">
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-
-        <!-- Custom styles for this template -->
-        <link href="css/dashboard.css" rel="stylesheet">
-        
-        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!--[if lt IE 9]>
-          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-          <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-        <![endif]-->
-        <script>
-
-        </script>
-
-    </head>
-
-    <body>
-
-        <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="#">Test Execution Report</a>
-                </div>
-                <div class="vertical-line"></div>
-                <div class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav navbar-right">
-                        <li><a href="#">Dashboard</a></li>
-                        <li><a href="tree.html">Execution Tree</a></li>
-                        <li><a href="table.html">Execution Table</a></li>
-                    </ul>
-                </div>
+<body>
+    <!--  main navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="index.html">Test Execution Report</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav ml-auto">
+                <a class="nav-link active" href="index.html">Dashboard</a>
+                <a class="nav-link" href="tree.html">Execution Tree</a>
+                <a class="nav-link" href="#" onclick="goToDifido()">Difido</a>
             </div>
         </div>
-
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-3 col-md-2 sidebar">
-                    <ul class="nav nav-sidebar">
-                        <li><a href="index.html">Overview</a></li>
-                        <li class="active"><a href="charts.html">Charts</a></li>
+    </nav>
+    <!-- main navbar end -->
+    <div class="container-fluid mt-5 pt-3">
+        <div class="row">
+            <!-- Left side -->
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar" style="position: fixed; height: 100vh;">
+                <div class="sidebar-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">Overview</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="charts.html">Charts</a>
+                        </li>
                     </ul>
                 </div>
-                <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-                    <h1 class="page-header">Charts</h1>
-                    <h2 class="sub-header">Execution Charts</h2>
-                    <div class="row placeholders">
-                        <div class="col-md-4 placeholder">
-                            <canvas id="pie" height="250" width="250"></canvas>
-                            <div>
-                            <h4>Test Status Pie</h4>
-                            <br/>
-                            <table style="margin-left:auto; margin-right:auto;">
-                                <tr>
-                                    <td align="left"><div style="width:15px; height:15px; float:left;" class="s_success_back"></div>&nbsp;= Success&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                                    <td align="left"><div style="width:15px; height:15px; float:left;" class="s_warning_back"></div>&nbsp;= Warning</td>
-                                </tr>
-                                <tr>
-                                    <td align="left"><div style="width:15px; height:15px; float:left;" class="s_failure_back"></div>&nbsp;= Failure</td>
-                                    <td align="left"><div style="width:15px; height:15px; float:left;" class="s_error_back"></div>&nbsp;= Error</td>
-                                </tr>
-                            </table>
-                            </div>
-                            <!--<span class="text-muted">Success=Green,Failure=Orange,<br>Error=Red,Warning=Yellow</span> -->
+            </nav>
+            <!-- rigth side -->
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h3>Chart</h3>
+                </div>
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h4>Execution Charts</h4>
+                </div>
+                <!-- charts row -->
+                <div class="row pt-3">
+                    <!-- left side -->
+                    <div class="col">
+                        <div class="align-center mb-2">
+                            <canvas id="pie"></canvas>
                         </div>
-                        <div class="col-md-5 placeholder">
-                            <canvas id="bar" height="250" width="500"></canvas>
-                            <h4>Execution Trend</h4>
-                            <span class="text-muted">Test Status per Execution</span>
-                        </div>
+                        <h4 class="align-center">Test Status Pie</h4>
+                        <table class="align-center">
+                            <tr>
+                                <td align="left">
+                                    <div style="width:15px; height:15px; float:left;" class="s_success_back"></div>&nbsp;= Success&nbsp;&nbsp;&nbsp;&nbsp;
+                                </td>
+                                <td align="left">
+                                    <div style="width:15px; height:15px; float:left;" class="s_warning_back"></div>&nbsp;= Warning
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left">
+                                    <div style="width:15px; height:15px; float:left;" class="s_failure_back"></div>&nbsp;= Failure
+                                </td>
+                                <td align="left">
+                                    <div style="width:15px; height:15px; float:left;" class="s_error_back"></div>&nbsp;= Error
+                                </td>
+                            </tr>
+                        </table>
                     </div>
-
-
+                    <!-- rigth side -->
+                    <div class="col">
+                        <div class="align-center mb-2">
+                            <canvas id="bar"></canvas>
+                        </div>
+                        <h4 class="align-center"> Execution Trend</h4>
+                        <span class="text-muted align-center">Test Status per Execution</span>
+                    </div>
                 </div>
-            </div>
+            </main>
         </div>
+    </div>
+    <!-- core scripts -->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <!-- controllers -->
+    <script src="execution.js"></script>
+    <script src="controllers/controllerUtils.js"></script>
+    <script src="controllers/pieController.js"></script>
+    <script src="controllers/sumBarChartController.js"></script>
+    <script type="text/javascript" src="js/chart.js"></script>
+    <script type="text/javascript">
+    function goToDifido() {
+        let url = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port;
+        window.open(url, '_blank')
+    }
+    try {
+        sumBarChartController(document.getElementById("bar"));
+    } catch (err) {
+        console.log("Failed to create bar chart due to " + err.message);
+    }
+    try {
+        pieController(document.getElementById("pie"));
+    } catch (err) {
+        console.log("Failed to create pie due to " + err.message);
+    }
+    </script>
+</body>
+<style type="text/css">
+.sidebar .nav-link.active {
+    background-color: #428bca;
+    color: #fff;
+}
 
-        <!-- Bootstrap core JavaScript
-        ================================================== -->
-        <!-- Placed at the end of the document so the pages load faster -->
-        <script src="js/jquery.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-        <script src="js/docs.min.js"></script>
-        <script src="execution.js"></script>
-        <script src="controllers/controllerUtils.js"></script>
-        <script src="controllers/pieController.js"></script>
-        <script src="controllers/sumBarChartController.js"></script>
-        <script type="text/javascript" src="js/Chart.js"></script>
-        <script>
-            try {
-                sumBarChartController(document.getElementById("bar"));            
-            } catch (err) {
-                console.log("Failed to create bar chart due to " + err.message);
-            }
-			try {
-				pieController(document.getElementById("pie"));
-			} catch(err) {
-				console.log("Failed to create pie due to " + err.message);
-			}
-        </script>
-    </body>
-</html>
+.align-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+canvas {
+    width: auto !important;
+    height: auto !important;
+}
+</style>

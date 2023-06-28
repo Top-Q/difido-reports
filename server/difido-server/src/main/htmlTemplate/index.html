@@ -1,155 +1,136 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="">
-        <meta name="author" content="Itai Agmon">
 
-        <title>Dashboard</title>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="Leonid Etingen">
+    <link href="css/status_colors.css" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <title>Test Execution Report</title>
+</head>
 
-        <!-- Bootstrap core CSS -->
-        <link href="css/status_colors.css" rel="stylesheet">
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-
-        <!-- Custom styles for this template -->
-        <link href="css/dashboard.css" rel="stylesheet">
-        
-
-        <!-- Just for debugging purposes. Don't actually copy this line! -->
-        <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-
-        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!--[if lt IE 9]>
-          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-          <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-        <![endif]-->
-        <script>
-
-        </script>
-
-    </head>
-
-    <body>
-    <!-- START NAVIGATION BLOCK -->
-        <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="#">Test Execution Report</a>
-                </div>
-                <div class="vertical-line"></div>
-                <div class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav navbar-right">
-                        <li><a href="#">Dashboard</a></li>
-                        <li><a href="tree.html">Execution Tree</a></li>
-                        <li><a href="table.html">Execution Table</a></li>
-                    </ul>
-                </div>
+<body>
+    <!--  main navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="index.html">Test Execution Report</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav ml-auto">
+                <a class="nav-link active" href="index.html">Dashboard</a>
+                <a class="nav-link" href="tree.html">Execution Tree</a>
+                <a class="nav-link" href="#" onclick="goToDifido()">Difido</a>
             </div>
         </div>
-        
-        <!-- END NAVIGATION BLOCK -->
-        
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-3 col-md-2 sidebar">
-                    <ul class="nav nav-sidebar">
-                        <li class="active"><a href="index.html">Overview</a></li>
-                        <li><a href="charts.html">Charts</a></li>
+    </nav>
+    <!-- main navbar end -->
+    <div class="container-fluid mt-5 pt-3">
+        <div class="row">
+            <!-- Left side -->
+            <nav class="col-md-3 col-lg-2 d-none d-md-block bg-light sidebar" style="position: fixed; height: 100vh;">
+                <div class="sidebar-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="index.html">Overview</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="charts.html">Charts</a>
+                        </li>
                     </ul>
                 </div>
-                <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-                    <h1 class="page-header">Dashboard</h1>
-                    <h2 class="sub-header">Status Bars</h2>
-                    <div id="statusBars">
-                        <div class="progress">
-                            <div class="progress-bar s_total_back totalExecuted" role="progressbar" style="width:100%">
-                            </div>
-                        </div>
-                        <div class="progress">
-                            <div class="progress-bar s_success_back success" role="progressbar" style="width:0%">
-                            </div>
-                            <div class="progress-bar s_failure_back failure" role="progressbar" style="width:0%">
-                            </div>
-                            <div class="progress-bar s_warning_back warning" role="progressbar" style="width:0%">
-                            </div>
-                        </div>
-                    </div>
-                    <h2 class="sub-header">Summary Table</h2>
-                    <div class="table-responsive">
-                        <table class="table table-striped" id="sumTable">
-                            <thead>
-                                <tr>
-                                    <th>Suite</th>
-                                    <th>Tests</th>
-                                    <th>Duration</th>
-                                    <th>Success</th>
-                                    <th>Error</th>
-                                    <th>Failure</th>
-                                    <th>Warning</th>
-                                    <th>Pass Rate</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                    <h2 class = "sub-header">Properties</h2>
-                    <div class="table-responsive">
-                        <table class="table table-striped" id="propTable">
-                            <thead>
-                                <tr>
-                                    <th>Property</th>
-                                    <th>Value</th>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                    </div>
-
-
+            </nav>
+            <!-- rigth side -->
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <div class="my-3 border-bottom">
+                    <h3>Dashboard</h3>
                 </div>
-            </div>
+                <div class="my-3 border-bottom">
+                    <h4>Status Bar</h4>
+                </div>
+                <div class="my-3" id="statusBars">
+                    <div class="progress my-2" style="height: 20px">
+                        <div class="progress-bar s_total_back totalExecuted" role="progressbar" style="width:100%">
+                        </div>
+                    </div>
+                    <div class="progress my-2" style="height: 20px">
+                        <div class="progress-bar s_success_back success" role="progressbar" style="width:0%">
+                        </div>
+                        <div class="progress-bar s_failure_back failure" role="progressbar" style="width:0%">
+                        </div>
+                        <div class="progress-bar s_warning_back warning" role="progressbar" style="width:0%">
+                        </div>
+                    </div>
+                </div>
+                <h2 class="mt-5">Summary Table</h2>
+                <table class="table" id="sumTable">
+                    <thead>
+                        <tr>
+                            <th>Suite</th>
+                            <th>Tests</th>
+                            <th>Duration</th>
+                            <th>Success</th>
+                            <th>Error</th>
+                            <th>Failure</th>
+                            <th>Warning</th>
+                            <th>Pass Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <h2 class="mt-5">Properties</h2>
+                <table class="table" id="propTable">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                </table>
+            </main>
         </div>
+    </div>
+    <!-- core scripts -->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <!-- controller -->
+    <script src="execution.js"></script>
+    <script src="controllers/controllerUtils.js"></script>
+    <script type="text/javascript" src="js/lightbox-2.6.min.js"></script>
+    <script src="controllers/executionPropertiesTableController.js"></script>
+    <script src="controllers/sumTableController.js"></script>
+    <script src="controllers/statusBarsController.js"></script>
+    <script type="text/javascript">
+    function goToDifido() {
+        let url = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port;
+        window.open(url, '_blank')
+    }
 
-        <!-- Bootstrap core JavaScript
-        ================================================== -->
-        <!-- Placed at the end of the document so the pages load faster -->
-        <script src="js/jquery.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-        <script src="js/docs.min.js"></script>
-        <script src="execution.js"></script>
-        <script src="controllers/controllerUtils.js"></script>
-        <script src="controllers/executionPropertiesTableController.js"></script>
-        <script src="controllers/sumTableController.js"></script>
-        <script src="controllers/statusBarsController.js"></script>
-        <script>
-            try {
-                executionPropertiesTableController(document.getElementById("propTable"));            
-            } catch (err) {
-                console.log("Failed to create execution properties table controller " + err.message);
-            }
+    try {
+        executionPropertiesTableController(document.getElementById("propTable"));
+    } catch (err) {
+        console.log("Failed to create execution properties table controller " + err.message);
+    }
 
-			try {
-				sumTableController(document.getElementById("sumTable"));
-			} catch(err) {
-				console.log("Failed to create summary table due to " + err.message);
-			}
-            try {
-                statusBarsController(document.getElementById("statusBars"));
-            } catch(err) {
-                console.log("Failed to create short summary table due to " + err.message);
-            }
-
-            
-        </script>
-
-    </body>
-</html>
+    try {
+        sumTableController(document.getElementById("sumTable"));
+    } catch (err) {
+        console.log("Failed to create summary table due to " + err.message);
+    }
+    try {
+        statusBarsController(document.getElementById("statusBars"));
+    } catch (err) {
+        console.log("Failed to create short summary table due to " + err.message);
+    }
+    </script>
+</body>
+<style type="text/css">
+.sidebar .nav-link.active {
+    background-color: #428bca;
+    color: #fff;
+}
+</style>
