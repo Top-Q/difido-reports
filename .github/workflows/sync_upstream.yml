@@ -1,0 +1,23 @@
+name: Sync Fork
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync: 
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Sync and merge upstream repository with your current repository
+        uses: dabreadman/sync-upstream-repo@v1.3.0
+        with:
+          # URL of gitHub public upstream repo
+          upstream_repo: https://github.com/Top-Q/difido-reports.git
+          upstream_branch: master
+          downstream_branch: master
+          token: $({ secrets.GITHUB_TOKEN })
+
+         
+         
