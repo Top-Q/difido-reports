@@ -9,6 +9,12 @@
 		<version>3.1.02-SNAPSHOT</version>
 		<relativePath>../../../difido-parent</relativePath>
 	</parent>
+	<repositories>
+		<repository>
+			<id>top-q</id>
+			<url>https://maven.top-q.co.il/content/groups/public</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.jsystemtest</groupId>

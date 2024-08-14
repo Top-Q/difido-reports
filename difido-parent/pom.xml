@@ -36,7 +36,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <topq.repository.rootUrl>http://maven.top-q.co.il</topq.repository.rootUrl>
-        <jsystem.version>6.1.11</jsystem.version>
+        <jsystem.version>6.1.12</jsystem.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
@@ -137,6 +137,7 @@
                 <module>../binders/difido-testng</module>
                 <module>../binders/difido-generic-binder</module>
                 <module>../examples/jsystem-example/so-project</module>
+                <module>../examples/jsystem-example/tests-project</module>
                 <module>../examples/testng-example</module>
                 <module>../utils/metadata-recovery-utility</module>
             </modules>

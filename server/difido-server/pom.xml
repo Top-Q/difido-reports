@@ -38,7 +38,7 @@
 	<repositories>
 		<repository>
 			<id>top-q</id>
-			<url>http://maven.top-q.co.il/content/groups/public</url>
+			<url>https://maven.top-q.co.il/content/groups/public</url>
 		</repository>
 	</repositories>
 	<dependencies>
