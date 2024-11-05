@@ -1,0 +1,38 @@
+/*https://www.jqueryscript.net/layout/pane-splitter-resizer-slider.html*/
+#panelContainer {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    overflow: hidden;
+}
+
+.panel {
+    position: relative;
+}
+
+.slider {
+    display: block;
+    position: absolute;
+    width: 2px;
+    background-color: #afafaf;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    overflow: visible;
+    user-select: none;
+    cursor: col-resize;
+}
+
+.one {
+    width: 30%;
+}
+
+.two {
+    width: 70%;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}

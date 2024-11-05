@@ -1,95 +1,149 @@
 <!DOCTYPE html>
-
 <html>
 
-
 <head>
-	<meta charset="UTF-8">
-	<meta name="description" content="Main view of the Difido report server">
-	<meta name="author" content="Itai Agmon">
-	<title>List of Reports</title>
-
-	<link href="css/bootstrap.min.css" rel="stylesheet">
-	<link href="css/buttons.dataTables.min.css" rel="stylesheet">
-	<link href="css/jquery.dataTables.min.css" rel="stylesheet">
-	<link href="css/font-awesome.css" rel="stylesheet">
-	<link href="css/indexPageStyle.css" rel="stylesheet">
-
-	<style>
-
-	</style>
+    <meta charset="UTF-8">
+    <meta name="description" content="Main view of the Difido report server">
+    <meta name="author" content="Leonid Etingen">
+    <!-- Bootstrap4 -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- <link href="css/index.css" rel="stylesheet"> -->
+    <title>List of Reports</title>
+    <!-- Include the core CSS, this is needed by the grid -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css" />
+    <!-- Include the theme CSS, only need to import the theme you are going to use -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-balham.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-material.min.css" />
+    <!-- Confirm -->
+    <link href="css/jquery-confirm.css" rel="stylesheet">
+    <!-- Notify -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css">
+    <!-- Custom -->
+    <link href="css/index.css" rel="stylesheet">
 </head>
 
 <body>
-	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-		<div class="navbar-header">
-			<a class="navbar-brand" href="#">Difido</a>
-		</div>
-		<ul id="navbar" class="nav navbar-nav">
-			<li class="active"><a href="#">Execution Reports</a></li>
-			<li><a href="kibana.html">Kibana</a></li>
-			<li><a href="lastreports.html">Last Reports</a></li>
-		</ul>
-	</nav>
-	<div></div>
-	<div class="container-fluid">
-		<div class="row header-row">
-			<div class="col-sm-12">
-				<h2>Difido Execution Reports</h2>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-sm-0">
-			</div>
-			<div class="col-sm-12">
-				<div id="btn-container">
-				</div>
-				<br>
-			</div>
-		</div>
-		<div class="row top-buffer">
-			<div class="col-sm-12 main">
-				<table id="etable" class="display">
-					<thead>
-						<tr></tr>
-					</thead>
-					<tfoot>
-						<tr></tr>
-					</tfoot>
-				</table>
-
-				<hr>
-			</div>
-		</div>
-	</div>
-
-	<div id="execution_edit_modal" >
-		<div id="execution_edit">
-			<span id="edit_exec_title">Edit Execution</span> <span class="close">&times;</span>
-			
-			<form id="execution_edit_form">
-				<label for="executionDescription">Description: </label><br>
-				<input type="text" name="executionDescription" id="executionDescription"><br>
-				
-				<label for="executionComment">Comment: </label><br>
-				<textarea name="executionComment" id="executionComment" form="execution_edit_form"></textarea>
-				<br><br>
-				<input type="submit" value="Update execution description / comment">
-			</form>
-		</div>
-	</div>
-
-	<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
-	<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-	<script type="text/javascript" src="js/dataTables.buttons.min.js"></script>
-	<script type="text/javascript" src="js/buttons.html5.min.js"></script>
-	<script type="text/javascript" src="js/pdfmake.min.js"></script>
-	<script type="text/javascript" src="js/vfs_fonts.js"></script>
-	<script type="text/javascript" src="js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/bootbox.js"></script>
-	<script src="js/common.js"></script>
-	<script src="js/indexPageScript.js"></script>
-
+    <!--  main navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="index.html">Difido Execution Report</a>
+        <div class="collapse navbar-collapse">
+            <div class="navbar-nav ml-auto">
+               
+            </div>
+        </div>
+    </nav>
+    <!-- main container -->
+    <div class="container-fluid pt-3 mt-5">
+        <div class="row my-2">
+            <div class="col col-md-auto">
+                <div id="searchGroup" class="input-group">
+                    <input type="text" id="filter-text-box" placeholder=" Filter any column..." oninput="onFilterTextBoxChanged()" size=60 />
+                    <button type="button" class="btn btn-sm bg-transparent" style="margin-left: -30px; z-index: 100;" onclick="clearSearchInput()">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-auto">
+                <div class="mt-1 custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="activeOnly" onchange="activeOnly()">
+                    <label class="custom-control-label" for="activeOnly">Active Only</label>
+                </div>
+            </div>
+            <div class="col-md-auto">
+                <div class="mt-1 custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="lockedOnly" onchange="lockedOnly()">
+                    <label class="custom-control-label" for="lockedOnly">Locked Only</label>
+                </div>
+            </div>
+            <div class="col">
+                <div class="mt-1 custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="failedOnly" onchange="failedOnly()">
+                    <label class="custom-control-label" for="failedOnly">Failed Only</label>
+                </div>
+            </div>
+            <div class="col col-md-auto">
+                <select class="custom-select custom-select-sm" onchange="onPageSizeChanged()" id="page-size" style="width: fit-content;">
+                    <option value="25">25</option>
+                    <option value="50" selected>50</option>
+                    <option value="100">100</option>
+                    <option value="500">500</option>
+                </select>
+                <button type="button" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="Reload" onclick="reload()"><i class="fa-solid fa-rotate"></i></button>
+                <button type="button" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="Fit Size" onclick="sizeColumnsToFit()"><i class="fa-solid fa-down-left-and-up-right-to-center"></i></button>
+                <button type="button" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="Auto Size" onclick="autoSizeAllColumns()"><i class="fa-solid fa-arrows-left-right"></i></button>
+                <button type="button" class="btn btn-sm btn-secondary to-disable" data-toggle="tooltip" data-placement="top" title="Lock Execution" onclick="lock()"><i class="fa-solid fa-lock"></i></button>
+                <button type="button" class="btn btn-sm btn-secondary to-disable" data-toggle="tooltip" data-placement="top" title="Unlock Execution" onclick="unlock()"><i class="fa-solid fa-lock-open"></i></button>
+                <button type="button" class="btn btn-sm btn-secondary to-disable" data-toggle="tooltip" data-placement="top" title="Delete Execution" onclick="remove()"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" class="btn btn-sm btn-secondary to-disable" data-toggle="tooltip" data-placement="top" title="Download Zipped Execution" onclick="download()"><i class="fa-solid fa-download"></i></button>
+                <button type="button" class="btn btn-sm btn-secondary" title="Cleanup" data-toggle="modal" data-target="#cleanupModal"><i class="fa-solid fa-eraser"></i></button>
+                <!-- Default dropleft button -->
+                <div class="btn-group dropleft">
+                    <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <i class="fa-solid fa-paintbrush"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item theme-item theme-check" data-theme="ag-theme-alpine" onclick="changeTheme('ag-theme-alpine')">Alpine<i class="ml-5 fa-solid fa-check"></i></a>
+                        <a class="dropdown-item theme-item theme-uncheck" data-theme="ag-theme-balham" onclick="changeTheme('ag-theme-balham')">Balham<i class="ml-5 fa-solid fa-check"></i></a>
+                        <a class="dropdown-item theme-item theme-uncheck" data-theme="ag-theme-material" onclick="changeTheme('ag-theme-material')">Material<i class="ml-5 fa-solid fa-check"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div id="grid" style="width:100%;" class="ag-theme-alpine mt-2"></div>
+            </div>
+        </div>
+    </div>
+    <!-- cleanup modal -->
+    <div class="modal fade" id="cleanupModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Cleanup</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Find Records Older Than (days):</span>
+                        </div>
+                        <input id="xDays" type="number" class="form-control" value="60">
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="spinnerContainer" style="display:none">
+                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </span>
+                            <button class="btn btn-outline-secondary" type="button" onclick="findOlderThanXDays()">Find</button>
+                        </div>
+                    </div>
+                    <div id="cleanupResults">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="cleanupBtn" type="button" class="btn btn-danger" onclick="cleanup()" disabled>Delete All</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Core Scripts -->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <!-- Include the JS for AG Grid -->
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+    <!-- Confirm -->
+    <script src="js/jquery-confirm.js"></script>
+    <!-- Notify -->
+    <script src="js/bootstrap-notify.js"></script>
+    <!-- custom scripts -->
+    <script src="js/index.js"></script>
 </body>
 
 </html>

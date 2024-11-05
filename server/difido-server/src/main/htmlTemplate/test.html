@@ -1,67 +1,192 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 
-    <head>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8" >
-        <title>Test Details</title>
-        <link href="../../css/status_colors.css" rel="stylesheet">
-        <link href="../../css/general_page.css" rel="stylesheet">
-        <link href="../../css/test_page.css" rel="stylesheet">
-        <link href="../../css/lightbox.css" rel="stylesheet">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Test Details</title>
+    <link href="../../css/status_colors.css" rel="stylesheet">
+    <link href="../../css/test_page.css" rel="stylesheet">
+    <link href="../../css/lightbox.css" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
 
-    </head>
-    <body id="page">
-    <div id="container">
-        <div id="name" class="full_width big"></div>
-        <h1>Results for date <span id="timestamp"></span></h1>
-
-        <div>
-            <h2 id="description"></h2>
-
-            <h3 id="propTblH" class="pointer" onclick="javascript:$('#propTbl').toggle(200);">Test Properties (click)</h3>
-            <table id='propTbl' class='smallTbl' style="display: none">
-                <tbody/>
-            </table>
-
-            <h3 id="paramTblH" class="pointer" onclick="javascript:$('#paramTbl').toggle(200);">Test Parameters (click)</h3>
-            <table id='paramTbl' class='smallTbl' style="display: none">
-                <tbody/>
-            </table>
-
+<body id="page" class="px-3">
+    <!-- fade in all container when all data loaded -->
+    <!-- search  -->
+    <div class="pt-3 px-3 search-nav">
+        <div class="row">
+            <div class="col">
+                <button class="btn btn-sm btn-light" type="button" id="detailsDivExpandAll">+ Expand All</button>
+                <button class="btn btn-sm btn-light" type="button" id="detailsDivCollapseAll">- Collapse All</button>
+            </div>
+            <div class="col">
+                <div class="input-group input-group-sm">
+                    <input id="searchInput" type="text" class="form-control" placeholder="Search...">
+                    <div class="input-group-append">
+                        <span class="input-group-text" id="spinnerContainer" style="display:none">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </span>
+                        <span id="searchInfo" class="input-group-text" id="basic-addon2">0/0</span>
+                        <button id="searchUp" class="btn btn-outline-secondary" type="button" onclick="searchUp()" disabled> <i class="fa-solid fa-chevron-up"></i></button>
+                        <button id="searchDown" class="btn btn-outline-secondary" type="button" onclick="searchDown()" disabled><i class="fa-solid fa-chevron-down"></i></button>
+                        <button id="clearBtn" class="btn btn-outline-secondary" type="button" onclick="loadClearInput()"> <i class="fa-solid fa-xmark"></i></button>
+                        <div class="input-group-text">
+                            <input id="lazySearch" type="checkbox" checked class="mr-1">
+                            Lazy
+                        </div>
+                        <button id="badgeSearch" class="btn btn-outline-secondary" type="button" onclick="toggleBadges()">Badge Search</button>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <br/><br/>
-        <div>
-            <button type="button" id="detailsDivExpandAll">+ Expand All</button>
-            <button type="button" id="detailsDivCollapseAll">- Collapse All</button>
-            <div id="detailsDiv" style="border: 1px solid #D1D1D1;padding:5px;"></div>
+        <div id="collapseBadge" class="row mt-1" style="display:none;">
+            <div class="col-md-6 offset-md-6 justify-content-end">
+                <span class="qs badge badge-secondary">#debug</span>
+                <span class="qs badge badge-danger">#bug</span>
+                <span class="qs badge badge-warning">#workaround</span>
+                <span class="qs badge badge-info">#info</span>
+                <span class="qs badge badge-dark">#result</span>
+                <span style="cursor: pointer;" data-toggle="modal" data-target="#tagsModal"><i class="fa-regular fa-eye"></i> All</span>
+            </div>
         </div>
-
+        <hr>
     </div>
-    <script type="text/javascript" src="../../js/jquery.min.js"></script>
+    <div id="mainLoader" style="position: absolute; left: 50%; top: 50%;">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div id="container" style="display: none;">
+        <!-- Test details -->
+        <div id="testDetailsDiv" style="margin-top: 80px;">
+            <div id="name" class="full_width big mb-3"></div>
+            <div id="date">Results for date <span id="timestamp">29/01/2014 11:49:23</span></div>
+            <div class="mb-3">
+                <p id="description">This is the test description</p>
+                <h3 id="propTblH" class="pointer" onclick="toggleProp()">Test Properties (click)</h3>
+                <table id='propTbl' class='smallTbl my-3' style="display: none">
+                    <tbody />
+                </table>
+                <h3 id="paramTblH" class="pointer" onclick="toggleParam()">Test Parameters (click)</h3>
+                <table id='paramTbl' class='smallTbl my-3' style="display: none">
+                    <tbody />
+                </table>
+            </div>
+        </div>
+        <!-- Report -->
+        <div id="detailsDiv" class="my-3 px-3" style="border: 1px solid #D1D1D1;"></div>
+    </div>
+    <!-- scrollable modal -->
+    <div class="modal fade" id="tagsModal" tabindex="-1" aria-labelledby="tagsModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tagsModalTitle">Badges Summary</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="tagsModalContent" class="modal-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs" id="tabsHeader" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="badge-dark-tab" data-toggle="tab" href="#badge-dark" role="tab" aria-controls="badge-dark" aria-selected="true">
+                                <span class="badge badge-dark">Result (0)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="badge-secondary-tab" data-toggle="tab" href="#badge-secondary" role="tab" aria-controls="badge-secondary" aria-selected="false">
+                                <span class="badge badge-secondary">Debug (0)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="badge-primary-tab" data-toggle="tab" href="#badge-primary" role="tab" aria-controls="badge-primary" aria-selected="false">
+                                <span class="badge badge-primary">Jira (0)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="badge-info-tab" data-toggle="tab" href="#badge-info" role="tab" aria-controls="badge-info" aria-selected="false">
+                                <span class="badge badge-info">Info (0)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="badge-danger-tab" data-toggle="tab" href="#badge-danger" role="tab" aria-controls="badge-danger" aria-selected="false">
+                                <span class="badge badge-danger">Bug (0)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="badge-warning-tab" data-toggle="tab" href="#badge-warning" role="tab" aria-controls="badge-warning" aria-selected="false">
+                                <span class="badge badge-warning">Workaround (0)</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- Content -->
+                    <div class="tab-content" id="tabContent">
+                        <div class="tab-pane fade show active" id="badge-dark" role="tabpanel" aria-labelledby="badge-dark-tab">
+                            <div class="container-fluid mt-3">
+                                no content
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="badge-secondary" role="tabpanel" aria-labelledby="badge-secondary-tab">
+                            <div class="container-fluid mt-3">
+                                no content
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="badge-primary" role="tabpanel" aria-labelledby="badge-primary-tab">
+                            <div class="container-fluid mt-3">
+                                no content
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="badge-info" role="tabpanel" aria-labelledby="badge-info-tab">
+                            <div class="container-fluid mt-3">
+                                no content
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="badge-danger" role="tabpanel" aria-labelledby="badge-danger-tab">
+                            <div class="container-fluid mt-3">
+                                no content
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="badge-warning" role="tabpanel" aria-labelledby="badge-warning-tab">
+                            <div class="container-fluid mt-3">
+                                no content
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- core scripts -->
+    <script src="../../js/jquery.min.js"></script>
+    <script src="../../js/bootstrap.bundle.min.js"></script>
+    <!-- controller -->
     <script type="text/javascript" src="test.js"></script>
     <script type="text/javascript" src="../../execution.js"></script>
     <script type="text/javascript" src="../../controllers/controllerUtils.js"></script>
     <script type="text/javascript" src="../../controllers/testController.js"></script>
     <script type="text/javascript" src="../../js/lightbox-2.6.min.js"></script>
     <script type="text/javascript">
-                function populateTestDetails() {
-                    testController($("#container"));
-                }
-                function hideUneededHeaders() {
-                    if ($("#paramTbl tbody").children().length === 0) {
-                        $("#paramTblH").hide();
-                    }
-                    if ($("#propTbl tbody").children().length === 0) {
-                        $("#propTblH").hide();
-                    }
-                }
+    $(document).ready(function() {
+        populateTestDetails();
+        hideUneededHeaders();
 
-                $(document).ready(function() {
-                    populateTestDetails();
-                    hideUneededHeaders();
-                });
+        handleBadges();
+        $('#container').fadeIn();
+        $('#mainLoader').fadeOut();
 
+        badgeSearchListener();
+        badgesSummary();
+    });
     </script>
 </body>
+
 </html>

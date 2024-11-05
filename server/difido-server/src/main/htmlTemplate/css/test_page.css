@@ -1,47 +1,185 @@
-.timestamp{
+.tag-PASS {
+    color: green;
+}
+
+.tag-FAIL {
+    color: red;
+    font-weight: bold;
+}
+
+.tag-WARNING {
+    color: orange;
+    font-weight: bold;
+}
+
+@keyframes blink {
+    0% {
+        background-color: yellow;
+    }
+
+    50% {
+        background-color: transparent;
+    }
+
+    100% {
+        background-color: yellow;
+    }
+}
+
+.blink-animation {
+    animation: blink 0.5s ease-in-out 5;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #f5f5f5;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #c2c2c2;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #a0a0a0;
+}
+
+.search-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    z-index: 999;
+}
+
+#searchUp,
+#searchDown,
+#clearBtn {
+    border-color: #ced4da;
+    width: 32px;
+}
+
+#badgeSearch {
+    border-color: #ced4da;
+}
+
+.jira,
+.qs {
+    cursor: pointer;
+}
+
+.jira:hover,
+.qs:hover {
+    text-decoration: underline;
+}
+
+/*search*/
+
+.was-found-text.was-found-current {
+    background-color: black !important;
+    color: white !important;
+}
+
+.was-found-text {
+    background-color: darkorange !important;
+    color: white !important;
+}
+
+.timestamp {
     padding-right: 10px;
     color: gray;
 }
 
+*:focus {
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+#date {
+    color: #4E6CA3;
+    font-size: large;
+}
+
+#name {
+    font-weight: bold;
+    font-size: larger;
+    color: #4E6CA3;
+}
+
+#propTblH,
+#paramTblH {
+    font-size: small;
+    color: gray;
+}
+
+table,
+th,
+td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+a {
+    color: -webkit-link;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
 /* initially hide all non root divs */
-#detailsDiv div >div{
+#detailsDiv div>div {
     display: none;
 }
 
-#detailsDiv .step {color: #4E6CA3 !important; font-weight: bold;}
+#detailsDiv .step {
+    color: #4E6CA3 !important;
+    font-weight: bold;
+}
 
-#detailsDiv div{
+#detailsDiv div {
     word-wrap: break-word;
     margin: 5px 0 5px 0;
 }
 
-.smallTbl { padding: 0; border: 0; width: 70% ; font-size: small}
-h3 {color: gray ; font-size: small}
-img {width: 100px}
+.smallTbl {
+    padding: 0;
+    border: 0;
+    width: 70%;
+    font-size: small
+}
+
+img {
+    width: 100px
+}
 
 .innerToggle {
     cursor: pointer;
     text-decoration: underline;
 }
 
-.startLevel {   
+.startLevel {
     cursor: pointer;
     font-weight: bold;
 }
 
-.emptyStartLevel{   
+.emptyStartLevel {
     font-weight: bold;
 }
 
-.startLevel.closed:before{
+.startLevel.closed:before {
     content: "+ ";
 }
 
 .emptyStartLevel,
-.startLevel:not(closed):before{
+.startLevel:not(closed):before {
     content: "- ";
 }
 
-.pointer{
+.pointer {
     cursor: pointer;
 }

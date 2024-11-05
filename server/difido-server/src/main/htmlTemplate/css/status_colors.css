@@ -1,17 +1,28 @@
-/* Used in the 'summary table', 'execution table', '' */
-.s_success_back { background-color: #26ce7a !important; }
-.s_error_back { background-color: #cc4040 !important; }
-.s_failure_back { background-color: #ff4242 !important; }
-.s_warning_back { background-color: #ffcc00 !important; }
+/*Used in the 'summary table', 'execution table', ''*/
+.s_success_back { background-color: #81C784 !important; }
 
-/* Used in the 'execution tree' ,'test details' */
+.s_error_back { 
+	background: repeating-linear-gradient(
+		45deg,
+		#E57373 0px,
+		#E57373 10px,
+		#990000 12px,
+		#990000 5px
+	);
+}
+
+.s_error_back { background-color: #FF8A65 !important; }
+.s_failure_back { background-color: #E57373 !important; }
+.s_warning_back { background-color: #FFCA28 !important; }
+
+/*Used in the 'execution tree' ,'test details'*/
 .totalExecuted { color:  #FFFFFF  !important; font-weight: normal;}
 .s_success_text { color: #000000 !important; font-weight: normal;}
-.s_error_text { color: #EE0000 !important; font-weight: bold;}
-.s_failure_text { color: #DD0000 !important;  font-weight: bold;}
-.s_warning_text { color: #FFAA33 !important; font-weight: bold;}
 
-/* Report Levels */
-.s_failure_text .startLevel { color: #EE0000 !important; font-weight: bold;}
-.s_warning_text .startLevel { color: #FFAA33 !important; font-weight: bold;}
-.s_success_text .startLevel { color: #0000EE !important; font-weight: bold;}
+div.s_failure_text span.startLevel { color: #EE0000 !important; font-weight: bold;}
+div.s_warning_text span.startLevel { color: #FFAA33 !important; font-weight: bold;}
+div.s_success_text span.startLevel { color: #0000EE !important; font-weight: bold;}
+
+.s_error_text { color: #EE0000 !important; font-weight: bold; background-color: #ffe6e6;}
+.s_failure_text { color: #EE0000 !important;  font-weight: bold;}
+.s_warning_text { color: #FFAA33 !important; font-weight: bold;}
